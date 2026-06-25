@@ -83,7 +83,7 @@ extension OpenWebUIClient {
     /// Replaces an existing chat's contents (full message set).
     public func updateChat(id: String, title: String, model: String, messages: [OWMessage]) async throws {
         let payload = OWChatPayload(title: title, model: model, messages: messages)
-        let req = try jsonRequest("/api/v1/chats/\(id)", method: "POST", body: ["chat": payload])
+        let req = try jsonRequest("/api/v1/chats/\(encPath(id))", method: "POST", body: ["chat": payload])
         _ = try await send(req)
     }
 }

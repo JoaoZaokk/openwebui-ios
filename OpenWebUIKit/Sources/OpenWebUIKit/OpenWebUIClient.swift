@@ -38,6 +38,15 @@ public final class OpenWebUIClient: @unchecked Sendable {
         return req
     }
 
+    /// Percent-encodes a server-supplied id for safe use as a single URL path
+    /// segment (escapes `/ ? #`), so a malicious chat/note/file id can't smuggle
+    /// path/query separators into an authenticated request.
+    func encPath(_ s: String) -> String {
+        var allowed = CharacterSet.urlPathAllowed
+        allowed.remove(charactersIn: "/?#")
+        return s.addingPercentEncoding(withAllowedCharacters: allowed) ?? ""
+    }
+
     func jsonRequest(_ path: String, method: String, body: Encodable) throws -> URLRequest {
         var req = request(path, method: method)
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")

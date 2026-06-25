@@ -88,8 +88,8 @@ targets:
         NSCameraUsageDescription: "Para capturar e anexar fotos às conversas."
         NSPhotoLibraryAddUsageDescription: "Para salvar imagens das conversas na sua galeria."
         NSAppTransportSecurity:
-          # Allow plain-HTTP LAN servers during dev; the production host is HTTPS.
-          NSAllowsArbitraryLoads: true
+          # LAN-scoped only: plain HTTP allowed to local/private hosts; public hosts
+          # use HTTPS (enforced app-side by OWConfig.normalize). No arbitrary loads.
           NSAllowsLocalNetworking: true
         # Primary icon stays in the asset catalog (AppIcon). Declaring CFBundleIcons
         # manually suppresses Xcode's auto-injected CFBundleIconName, so set it

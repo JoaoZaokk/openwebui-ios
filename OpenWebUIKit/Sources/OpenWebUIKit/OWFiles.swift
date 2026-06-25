@@ -51,7 +51,7 @@ extension OpenWebUIClient {
     }
 
     /// Authenticated URL to a file's raw content (needs the Bearer header to fetch).
-    public func fileContentURL(_ id: String) -> URL { config.url("/api/v1/files/\(id)/content") }
+    public func fileContentURL(_ id: String) -> URL { config.url("/api/v1/files/\(encPath(id))/content") }
 
     /// POST /api/v1/retrieval/process/web — fetches + extracts a web page
     /// server-side. Returns (title, plain-text content).

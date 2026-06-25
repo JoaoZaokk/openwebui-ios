@@ -59,7 +59,7 @@ extension OpenWebUIClient {
     }
 
     public func note(_ id: String) async throws -> OWNote {
-        try decode(OWNote.self, try await send(request("/api/v1/notes/\(id)")))
+        try decode(OWNote.self, try await send(request("/api/v1/notes/\(encPath(id))")))
     }
 
     @discardableResult
@@ -70,12 +70,12 @@ extension OpenWebUIClient {
     }
 
     public func updateNote(id: String, title: String, markdown: String) async throws {
-        let req = try jsonRequest("/api/v1/notes/\(id)/update", method: "POST",
+        let req = try jsonRequest("/api/v1/notes/\(encPath(id))/update", method: "POST",
                                   body: OWNoteForm(title: title, markdown: markdown))
         _ = try await send(req)
     }
 
     public func deleteNote(_ id: String) async throws {
-        _ = try await send(request("/api/v1/notes/\(id)/delete", method: "DELETE"))
+        _ = try await send(request("/api/v1/notes/\(encPath(id))/delete", method: "DELETE"))
     }
 }
