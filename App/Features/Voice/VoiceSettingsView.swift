@@ -1,4 +1,5 @@
 import SwiftUI
+import OpenWebUIKit
 
 struct VoiceSettingsView: View {
     @Environment(\.theme) private var theme
@@ -26,7 +27,7 @@ struct VoiceSettingsView: View {
                     Text("Servidor").tag("server")
                 }
                 if sttEngine == "model" {
-                    LabeledContent("Modelo ativo", value: modelName(sttModelID) ?? "nenhum")
+                    LabeledContent("Modelo ativo", value: modelName(sttModelID) ?? L("nenhum"))
                 }
             } header: { Text("Voz → Texto") } footer: {
                 Text("Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim).")
@@ -51,7 +52,7 @@ struct VoiceSettingsView: View {
                     TextField("Modelo (ex: tts-1 — opcional)", text: $serverModel)
                         .textInputAutocapitalization(.never).autocorrectionDisabled()
                     Button {
-                        speech.toggle("Olá! Esta é a voz do servidor.", id: "__test__")
+                        speech.toggle(L("Olá! Esta é a voz do servidor."), id: "__test__")
                     } label: {
                         if speech.isPreparing("__test__") {
                             HStack { ProgressView(); Text("Sintetizando…") }
@@ -93,7 +94,7 @@ struct VoiceSettingsView: View {
                         HStack {
                             Text("Sensibilidade").font(.ody(.subheadline, design: .monospaced))
                             Spacer()
-                            Text(bargeSensitivity > 0.66 ? "Alta" : bargeSensitivity < 0.34 ? "Baixa" : "Média")
+                            Text(LocalizedStringKey(bargeSensitivity > 0.66 ? "Alta" : bargeSensitivity < 0.34 ? "Baixa" : "Média"))
                                 .font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.secondaryText)
                         }
                         Slider(value: $bargeSensitivity, in: 0...1)
@@ -113,7 +114,7 @@ struct VoiceSettingsView: View {
                 .pickerStyle(.segmented)
             }
 
-            modelSection(title: "Modelos STT · Whisper", task: .stt,
+            modelSection(title: L("Modelos STT · Whisper"), task: .stt,
                          selectedID: sttModelID) { id in sttModelID = id; sttEngine = "model" }
 
             if downloads.totalInstalledBytes() > 0 {
@@ -167,10 +168,12 @@ struct VoiceSettingsView: View {
         ForEach(VoiceModel.Bucket.allCases, id: \.rawValue) { bucket in
             let items = models.filter { $0.bucket == bucket }
             if !items.isEmpty {
-                Section("\(title) · \(bucket.rawValue)") {
+                Section {
                     ForEach(items) { model in
                         modelRow(model, selected: selectedID == model.id, select: select)
                     }
+                } header: {
+                    Text(verbatim: "\(title) · \(bucket.label)")
                 }
             }
         }

@@ -1,6 +1,7 @@
 name: OpenWebUI
 options:
   bundleIdPrefix: com.example
+  developmentLanguage: pt-BR
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
@@ -62,6 +63,9 @@ targets:
       path: App/Resources/Info.plist
       properties:
         CFBundleDisplayName: OpenWebUI
+        # Base language; the app ships en/ja/hi/bn .lproj and auto-detects the
+        # device language (LanguageManager), with an in-app override in Settings.
+        CFBundleDevelopmentRegion: pt-BR
         # Drive the version from the build settings (xcodegen otherwise hardcodes
         # CFBundleVersion=1, which overrode CURRENT_PROJECT_VERSION → "1.0 (1)").
         CFBundleShortVersionString: "$(MARKETING_VERSION)"

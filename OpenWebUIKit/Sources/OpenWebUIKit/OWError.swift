@@ -11,11 +11,11 @@ public enum OWError: LocalizedError {
 
     public var errorDescription: String? {
         switch self {
-        case .http(let code, let msg): return msg ?? "Erro \(code)"
-        case .notAuthenticated:        return "Sessão expirada. Faça login novamente."
-        case .decoding(let m):         return "Resposta inesperada do servidor: \(m)"
+        case .http(let code, let msg): return msg ?? L("Erro %@", String(code))
+        case .notAuthenticated:        return L("Sessão expirada. Faça login novamente.")
+        case .decoding(let m):         return L("Resposta inesperada do servidor: %@", m)
         case .transport(let m):        return m
-        case .notConfigured:           return "Servidor não configurado."
+        case .notConfigured:           return L("Servidor não configurado.")
         }
     }
 }

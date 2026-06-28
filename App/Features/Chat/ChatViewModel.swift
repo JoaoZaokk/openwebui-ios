@@ -42,14 +42,14 @@ final class ChatViewModel: ObservableObject {
         self.models = models
         self.temporary = temporary
         self.chatID = chat?.id
-        self.title = chat?.title ?? (temporary ? "Conversa temporária" : "Nova conversa")
+        self.title = chat?.title ?? (temporary ? L("Conversa temporária") : L("Nova conversa"))
         self.selectedModel = defaultModel
     }
 
     var isNewChat: Bool { chatID == nil }
 
     var selectedModelName: String {
-        guard let id = selectedModel else { return "Selecionar modelo" }
+        guard let id = selectedModel else { return L("Selecionar modelo") }
         return models.first { $0.id == id }?.shortName ?? id
     }
 
@@ -142,7 +142,7 @@ final class ChatViewModel: ObservableObject {
         uploading = true; defer { uploading = false }
         do {
             let (name, content) = try await client.processWebPage(url: url)
-            guard !content.isEmpty else { self.error = "Não foi possível ler a página."; return }
+            guard !content.isEmpty else { self.error = L("Não foi possível ler a página."); return }
             await uploadAndAttach(Data(content.utf8), filename: "pagina.txt", mime: "text/plain", displayName: name)
         } catch {
             self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
@@ -198,7 +198,7 @@ final class ChatViewModel: ObservableObject {
                 }
             }
             if !sawText, let i = index(of: assistantID), messages[i].content.isEmpty {
-                messages[i].content = "_(sem resposta)_"
+                messages[i].content = L("_(sem resposta)_")
             }
         } catch is CancellationError {
             // user stopped — keep whatever streamed so far
@@ -218,7 +218,7 @@ final class ChatViewModel: ObservableObject {
     private func friendlyError(_ msg: String) -> String {
         let l = msg.lowercased()
         if l.contains("image input") || l.contains("support image") || l.contains("no endpoints found that support image") {
-            return "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens."
+            return L("Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens.")
         }
         return msg
     }

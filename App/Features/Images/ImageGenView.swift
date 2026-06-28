@@ -84,7 +84,7 @@ final class ImageGenStore: ObservableObject {
                 if let d = await client.imageData(path: u), let i = UIImage(data: d) { imgs.append(i) }
             }
             images = imgs
-            if imgs.isEmpty { error = "Imagem gerada, mas não foi possível carregá-la." }
+            if imgs.isEmpty { error = L("Imagem gerada, mas não foi possível carregá-la.") }
         } catch {
             self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }
@@ -191,7 +191,7 @@ struct ImageGenView: View {
             } label: {
                 HStack(spacing: 6) {
                     if store.helping { ProgressView().controlSize(.small).tint(theme.accent) }
-                    Text(store.helping ? "Pensando…" : "Melhorar com IA")
+                    Text(LocalizedStringKey(store.helping ? "Pensando…" : "Melhorar com IA"))
                         .font(.ody(.subheadline, design: .monospaced))
                     Image(systemName: "sparkles").font(.system(size: 12))
                 }
@@ -268,7 +268,7 @@ struct ImageGenView: View {
                         ForEach(store.models) { m in Button(m.name) { store.selectedModel = m.id } }
                     } label: {
                         HStack(spacing: 4) {
-                            Text(store.selectedModel.flatMap { id in store.models.first { $0.id == id }?.name } ?? "Padrão")
+                            Text(store.selectedModel.flatMap { id in store.models.first { $0.id == id }?.name } ?? L("Padrão"))
                                 .font(.ody(size: 12, design: .monospaced)).lineLimit(1)
                             Image(systemName: "chevron.up.chevron.down").font(.system(size: 10))
                         }.foregroundStyle(theme.accent).frame(maxWidth: 160, alignment: .trailing)
@@ -288,7 +288,7 @@ struct ImageGenView: View {
         } label: {
             HStack {
                 if store.generating { ProgressView().tint(.white) }
-                Text(store.generating ? "Gerando…" : "Gerar imagem")
+                Text(LocalizedStringKey(store.generating ? "Gerando…" : "Gerar imagem"))
                     .font(.ody(.headline, design: .monospaced))
                 Image(systemName: "sparkles")
             }

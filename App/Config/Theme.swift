@@ -1,4 +1,5 @@
 import SwiftUI
+import OpenWebUIKit
 
 /// A color theme, mirroring the Odysseus web app's theme system (see
 /// `static/js/theme.js`). The web stores 5 base colors per theme — bg, fg,
@@ -158,8 +159,8 @@ enum BackgroundPattern: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var label: String {
         switch self {
-        case .none: return "Nenhum"; case .stars: return "Estrelas"
-        case .rain: return "Chuva"; case .embers: return "Brasas"; case .petals: return "Pétalas"
+        case .none: return L("Nenhum"); case .stars: return L("Estrelas")
+        case .rain: return L("Chuva"); case .embers: return L("Brasas"); case .petals: return L("Pétalas")
         }
     }
 }

@@ -1,4 +1,5 @@
 import SwiftUI
+import OpenWebUIKit
 
 struct LoginView: View {
     @EnvironmentObject private var app: AppState
@@ -79,7 +80,7 @@ struct LoginView: View {
     }
 
     private var serverLabel: String {
-        guard ServerConfig.isConfigured else { return "Toque para definir seu servidor  ›" }
+        guard ServerConfig.isConfigured else { return L("Toque para definir seu servidor  ›") }
         let url = app.serverConfig.baseURL
         let label = url.host.map { host in url.port.map { "\(host):\($0)" } ?? host } ?? url.absoluteString
         return label + "  ›"
@@ -93,7 +94,7 @@ struct LoginView: View {
     @ViewBuilder
     private func field(title: String, text: Binding<String>, field: Field) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.ody(.caption, design: .monospaced)).foregroundStyle(theme.secondaryText)
+            Text(LocalizedStringKey(title)).font(.ody(.caption, design: .monospaced)).foregroundStyle(theme.secondaryText)
             TextField("", text: text)
                 .focused($focus, equals: field)
                 .styledInput(theme)
@@ -103,7 +104,7 @@ struct LoginView: View {
     @ViewBuilder
     private func secureField(title: String, text: Binding<String>, field: Field) -> some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.ody(.caption, design: .monospaced)).foregroundStyle(theme.secondaryText)
+            Text(LocalizedStringKey(title)).font(.ody(.caption, design: .monospaced)).foregroundStyle(theme.secondaryText)
             SecureField("", text: text)
                 .textContentType(.password)
                 .focused($focus, equals: field)

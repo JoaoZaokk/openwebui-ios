@@ -131,7 +131,7 @@ struct ChatListView: View {
                     }
                     .swipeActions(edge: .leading) {
                         Button { Task { await store.pin(chat) } } label: {
-                            Label(chat.pinned ? "Desafixar" : "Fixar", systemImage: "pin")
+                            Label(LocalizedStringKey(chat.pinned ? "Desafixar" : "Fixar"), systemImage: "pin")
                         }.tint(.orange)
                     }
                     .contextMenu { chatActions(chat) }
@@ -167,7 +167,7 @@ struct ChatListView: View {
     /// Native Open WebUI chat actions (long-press menu).
     @ViewBuilder private func chatActions(_ chat: OWChatSummary) -> some View {
         Button { Task { await store.pin(chat) } } label: {
-            Label(chat.pinned ? "Desafixar" : "Fixar", systemImage: chat.pinned ? "pin.slash" : "pin")
+            Label(LocalizedStringKey(chat.pinned ? "Desafixar" : "Fixar"), systemImage: chat.pinned ? "pin.slash" : "pin")
         }
         Button { startRename(chat) } label: { Label("Renomear", systemImage: "pencil") }
         Button { Task { await store.clone(chat) } } label: { Label("Clonar", systemImage: "doc.on.doc") }

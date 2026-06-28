@@ -325,7 +325,7 @@ struct ChatScreen: View {
         Button { on.wrappedValue.toggle() } label: {
             HStack(spacing: 5) {
                 Image(systemName: system).font(.ody(size: 11))
-                Text(label).font(.ody(size: 12, design: .monospaced))
+                Text(LocalizedStringKey(label)).font(.ody(size: 12, design: .monospaced))
             }
             .padding(.horizontal, 10).padding(.vertical, 6)
             .foregroundStyle(on.wrappedValue ? .white : theme.secondaryText)

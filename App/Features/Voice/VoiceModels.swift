@@ -1,4 +1,5 @@
 import Foundation
+import OpenWebUIKit
 
 enum VoiceTask: String, Codable { case stt, tts }
 
@@ -6,9 +7,9 @@ enum VoiceLang: String, Codable, CaseIterable {
     case bilingual, portuguese, english
     var label: String {
         switch self {
-        case .bilingual: "Bilíngue"
-        case .portuguese: "Português"
-        case .english: "Inglês"
+        case .bilingual: L("Bilíngue")
+        case .portuguese: L("Português")
+        case .english: L("Inglês")
         }
     }
     var flag: String {
@@ -30,7 +31,11 @@ struct VoiceModel: Identifiable, Hashable, Sendable {
     var filename: String { url.lastPathComponent }
 
     /// Size bucket the user asked to group by.
-    enum Bucket: String, CaseIterable { case mb500 = "Até 500 MB", gb1 = "Até 1 GB", gb2 = "Até 2 GB", gb3 = "Até 3 GB" }
+    enum Bucket: String, CaseIterable {
+        case mb500 = "Até 500 MB", gb1 = "Até 1 GB", gb2 = "Até 2 GB", gb3 = "Até 3 GB"
+        /// Localized display label (rawValue stays as the stable identity/key).
+        var label: String { L(rawValue) }
+    }
     var bucket: Bucket {
         let mb = Double(bytes) / 1_000_000
         if mb <= 500 { return .mb500 }

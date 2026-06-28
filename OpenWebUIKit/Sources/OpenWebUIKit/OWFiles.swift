@@ -14,7 +14,7 @@ public struct OWAttachment: Codable, Identifiable, Hashable, Sendable {
     }
 
     public var isImage: Bool { type == "image" }
-    public var displayName: String { name ?? "arquivo" }
+    public var displayName: String { name ?? L("arquivo") }
 }
 
 /// A file uploaded to Open WebUI (/api/v1/files/) — documents (RAG) or images.

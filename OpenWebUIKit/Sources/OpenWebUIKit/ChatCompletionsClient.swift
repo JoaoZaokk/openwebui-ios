@@ -82,7 +82,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                         }
                         var body = ""
                         for try await line in bytes.lines { body += line; if body.count > 800 { break } }
-                        throw OWError.http(http.statusCode, Self.extractError(body) ?? "Falha ao iniciar o stream")
+                        throw OWError.http(http.statusCode, Self.extractError(body) ?? L("Falha ao iniciar o stream"))
                     }
 
                     for try await rawLine in bytes.lines {

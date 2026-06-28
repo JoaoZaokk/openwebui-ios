@@ -1,9 +1,12 @@
 import SwiftUI
+import OpenWebUIKit
 
 @main
 struct OpenWebUIApp: App {
     @StateObject private var app = AppState()
     @StateObject private var themes = ThemeStore()
+    // Singleton, observed (not owned) — @ObservedObject is the correct wrapper.
+    @ObservedObject private var lang = LanguageManager.shared
 
     init() { FontLoader.registerBundledFonts() }
 
@@ -12,12 +15,18 @@ struct OpenWebUIApp: App {
             RootView()
                 .environmentObject(app)
                 .environmentObject(themes)
+                .environmentObject(lang)
                 .environment(\.theme, themes.effectiveTheme)
+                // Drives SwiftUI `Text("literal")` localization; the picker flips
+                // this and `L(_:)`'s bundle together via LanguageManager.
+                .environment(\.locale, lang.locale)
                 .preferredColorScheme(themes.theme.isDark ? .dark : .light)
                 .tint(themes.theme.accent)
                 // Font family is read by the non-View `Font.ody` helper via a
                 // global; bump identity so the whole tree re-renders on change.
-                .id(themes.fontFamily)
+                // The language code is folded in so a language switch rebuilds
+                // the tree and re-resolves every localized string.
+                .id("\(themes.fontFamily)#\(lang.current.rawValue)")
         }
     }
 }

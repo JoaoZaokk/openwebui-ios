@@ -28,7 +28,7 @@ public struct OWNote: Decodable, Identifiable, Hashable, Sendable {
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         id = (try? c.decode(String.self, forKey: .id)) ?? UUID().uuidString
-        title = (try? c.decode(String.self, forKey: .title)).flatMap { $0.isEmpty ? nil : $0 } ?? "Sem título"
+        title = (try? c.decode(String.self, forKey: .title)).flatMap { $0.isEmpty ? nil : $0 } ?? L("Sem título")
         let box = try? c.decode(DataBox.self, forKey: .data)
         markdown = box?.content?.md ?? ""
         pinned = (try? c.decode(Bool.self, forKey: .is_pinned)) ?? false

@@ -57,7 +57,7 @@ final class VoiceInputManager: ObservableObject {
 
     func start() async -> Bool {
         #if targetEnvironment(simulator)
-        error = "Microfone só funciona no iPhone (não no simulador)."
+        error = L("Microfone só funciona no iPhone (não no simulador).")
         return false
         #else
         // Re-entrancy guard: never start a second recording while one is active or
@@ -67,11 +67,11 @@ final class VoiceInputManager: ObservableObject {
         lock.withLock { rawSamples = [] }
 
         if useModel && installedModelURL() == nil {
-            error = "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)."
+            error = L("Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo).")
             return false
         }
         guard await requestPermissions() else {
-            error = "Permissão de microfone/voz negada (Ajustes do iPhone)."
+            error = L("Permissão de microfone/voz negada (Ajustes do iPhone).")
             return false
         }
         // State may have changed while awaiting permission.
@@ -85,7 +85,7 @@ final class VoiceInputManager: ObservableObject {
             try AVAudioSession.sharedInstance().setCategory(.record, mode: .measurement, options: [.duckOthers])
             try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
         } catch {
-            self.error = "Áudio indisponível: \(error.localizedDescription)"
+            self.error = L("Áudio indisponível: %@", error.localizedDescription)
             return false
         }
         #endif
@@ -94,7 +94,7 @@ final class VoiceInputManager: ObservableObject {
         let inputFormat = input.inputFormat(forBus: 0)
         guard inputFormat.channelCount > 0, inputFormat.sampleRate > 0 else {
             deactivateSession()
-            self.error = "Microfone indisponível."
+            self.error = L("Microfone indisponível.")
             return false
         }
         hwRate = inputFormat.sampleRate
@@ -103,7 +103,7 @@ final class VoiceInputManager: ObservableObject {
         if !useModel && !useServer {
             guard let rec = recognizer, rec.isAvailable else {
                 deactivateSession()
-                error = "Reconhecimento de voz indisponível para pt-BR neste aparelho."
+                error = L("Reconhecimento de voz indisponível para pt-BR neste aparelho.")
                 return false
             }
             let req = SFSpeechAudioBufferRecognitionRequest()
@@ -117,7 +117,7 @@ final class VoiceInputManager: ObservableObject {
                         self.partialText = result.bestTranscription.formattedString
                         if result.isFinal { self.sawFinal = true }
                     }
-                    if let err { self.error = "Reconhecimento: \(err.localizedDescription)"; self.sawFinal = true }
+                    if let err { self.error = L("Reconhecimento: %@", err.localizedDescription); self.sawFinal = true }
                 }
             }
         }
@@ -159,7 +159,7 @@ final class VoiceInputManager: ObservableObject {
         for _ in 0..<30 { if sawFinal { break }; try? await Task.sleep(nanoseconds: 100_000_000) }
         task?.cancel(); task = nil; request = nil
         let text = partialText.trimmingCharacters(in: .whitespacesAndNewlines)
-        if text.isEmpty && error == nil { error = "Não captei nenhuma fala." }
+        if text.isEmpty && error == nil { error = L("Não captei nenhuma fala.") }
         return text
     }
 
@@ -190,10 +190,10 @@ final class VoiceInputManager: ObservableObject {
     // MARK: - Whisper
 
     private func transcribeWithWhisper() async -> String {
-        guard let url = installedModelURL() else { error = "Nenhum modelo Whisper selecionado."; return "" }
+        guard let url = installedModelURL() else { error = L("Nenhum modelo Whisper selecionado."); return "" }
         let raw = lock.withLock { rawSamples }
         guard raw.count > Int(hwRate * 0.3) else {   // < ~0.3 s
-            error = "Áudio muito curto — toque, fale e toque de novo pra parar."
+            error = L("Áudio muito curto — toque, fale e toque de novo pra parar.")
             return ""
         }
         processing = true; defer { processing = false }
@@ -219,10 +219,10 @@ final class VoiceInputManager: ObservableObject {
                 .replacingOccurrences(of: "[BLANK_AUDIO]", with: "")
                 .replacingOccurrences(of: "[ Silence ]", with: "")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
-            if text.isEmpty { error = "Não captei nenhuma fala." }
+            if text.isEmpty { error = L("Não captei nenhuma fala.") }
             return text
         } catch {
-            self.error = "Falha na transcrição: \(error.localizedDescription)"
+            self.error = L("Falha na transcrição: %@", error.localizedDescription)
             return ""
         }
     }
@@ -230,10 +230,10 @@ final class VoiceInputManager: ObservableObject {
     // MARK: - Server STT
 
     private func transcribeWithServer() async -> String {
-        guard let client else { error = "Servidor de voz indisponível."; return "" }
+        guard let client else { error = L("Servidor de voz indisponível."); return "" }
         let raw = lock.withLock { rawSamples }
         guard raw.count > Int(hwRate * 0.3) else {
-            error = "Áudio muito curto — toque, fale e toque de novo pra parar."
+            error = L("Áudio muito curto — toque, fale e toque de novo pra parar.")
             return ""
         }
         processing = true; defer { processing = false }
@@ -243,10 +243,10 @@ final class VoiceInputManager: ObservableObject {
         do {
             let text = try await client.transcribe(audio: wav, filename: "speech.wav", mime: "audio/wav")
             let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            if t.isEmpty { error = "Não captei nenhuma fala." }
+            if t.isEmpty { error = L("Não captei nenhuma fala.") }
             return t
         } catch {
-            self.error = "Transcrição (servidor): \(error.localizedDescription)"
+            self.error = L("Transcrição (servidor): %@", error.localizedDescription)
             return ""
         }
     }

@@ -267,7 +267,7 @@ public struct OWChat: Decodable, Sendable, Identifiable {
 
         if let inner = try? top.nestedContainer(keyedBy: Inner.self, forKey: .chat) {
             title = (try? inner.decode(String.self, forKey: .title)).flatMap { $0.isEmpty ? nil : $0 }
-                ?? topTitle ?? "Conversa"
+                ?? topTitle ?? L("Conversa")
             models = (try? inner.decode([String].self, forKey: .models)) ?? []
             if let flat = try? inner.decode([OWMessage].self, forKey: .messages), !flat.isEmpty {
                 messages = flat

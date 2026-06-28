@@ -156,7 +156,7 @@ final class SpeechManager: NSObject, ObservableObject {
     // MARK: - Server (Open WebUI /audio/speech)
 
     private func speakServer(_ clean: String, id: String) {
-        guard let client else { neuralError = "Servidor de voz indisponível."; return }
+        guard let client else { neuralError = L("Servidor de voz indisponível."); return }
         preparingID = id
         neuralError = nil
         let voice = voiceOverride ?? serverVoice, model = serverModel
@@ -174,7 +174,7 @@ final class SpeechManager: NSObject, ObservableObject {
             } catch is CancellationError {
                 preparingID = nil
             } catch {
-                neuralError = "TTS do servidor falhou: \(msg(error))"
+                neuralError = L("TTS do servidor falhou: %@", msg(error))
                 preparingID = nil
             }
         }
@@ -204,7 +204,7 @@ final class SpeechManager: NSObject, ObservableObject {
 
     private static func strip(_ s: String) -> String {
         var t = s
-        t = t.replacingOccurrences(of: "```[\\s\\S]*?```", with: " (bloco de código) ", options: .regularExpression)
+        t = t.replacingOccurrences(of: "```[\\s\\S]*?```", with: L(" (bloco de código) "), options: .regularExpression)
         t = t.replacingOccurrences(of: "`([^`]*)`", with: "$1", options: .regularExpression)
         t = t.replacingOccurrences(of: "\\*\\*([^*]*)\\*\\*", with: "$1", options: .regularExpression)
         t = t.replacingOccurrences(of: "[*_#>]", with: "", options: .regularExpression)

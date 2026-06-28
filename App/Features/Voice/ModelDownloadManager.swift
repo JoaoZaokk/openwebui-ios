@@ -1,6 +1,7 @@
 import Foundation
 import SwiftUI
 import ZIPFoundation
+import OpenWebUIKit
 
 /// Downloads and stores speech models **on the device** (no Mac involved).
 /// Handles both the Whisper GGUF (.bin) and the optional CoreML encoder
@@ -130,7 +131,7 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
             Task { @MainActor in
                 self.tasks[id] = nil; self.progress[id] = nil
                 if ok { self.coreMLInstalled.insert(modelID) }
-                else { self.error = "Falha ao descompactar o modelo Core ML." }
+                else { self.error = L("Falha ao descompactar o modelo Core ML.") }
             }
             return
         }

@@ -233,7 +233,7 @@ final class VoiceConversation: ObservableObject {
     // MARK: - Think (LLM)
 
     private func ask(_ userText: String) {
-        guard let model else { error = "Nenhum modelo disponível."; phase = .idle; return }
+        guard let model else { error = L("Nenhum modelo disponível."); phase = .idle; return }
         phase = .thinking
         reply = ""
         var msgs = [OWChatMessageInput(role: "system", text: Self.systemPrompt)]
@@ -279,7 +279,7 @@ final class VoiceConversation: ObservableObject {
                              timestamp: t.at.timeIntervalSince1970)
         }
         guard msgs.count >= 2 else { return }
-        let firstUser = turns.first { $0.role == "user" }?.text ?? "Conversa de voz"
+        let firstUser = turns.first { $0.role == "user" }?.text ?? L("Conversa de voz")
         let title = String(firstUser.prefix(50))
         do {
             if let id = chatID {

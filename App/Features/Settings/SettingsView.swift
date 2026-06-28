@@ -6,6 +6,7 @@ import OpenWebUIKit
 struct SettingsView: View {
     @EnvironmentObject private var app: AppState
     @EnvironmentObject private var themes: ThemeStore
+    @EnvironmentObject private var lang: LanguageManager
     @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var showServer = false
@@ -16,6 +17,25 @@ struct SettingsView: View {
                 theme.bg.ignoresSafeArea()
                 if theme.backdrop { ThemeBackdrop(theme: theme) }
                 List {
+                    section("IDIOMA") {
+                        NavigationLink {
+                            LanguagePickerView()
+                        } label: {
+                            Label {
+                                HStack {
+                                    Text("Idioma").font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg)
+                                    Spacer(minLength: 8)
+                                    Text(verbatim: lang.isAutomatic
+                                         ? "🌐 \(LanguageManager.deviceLanguage().endonym)"
+                                         : "\(lang.current.flag) \(lang.current.endonym)")
+                                        .font(.ody(.subheadline, design: .monospaced))
+                                        .foregroundStyle(theme.secondaryText).lineLimit(1)
+                                }
+                            } icon: { Image(systemName: "globe").foregroundStyle(theme.accent) }
+                        }
+                        .listRowBackground(theme.panel)
+                    }
+
                     section("APARÊNCIA") {
                         NavigationLink {
                             ThemePickerView(inSheet: false).environmentObject(themes)
@@ -75,13 +95,13 @@ struct SettingsView: View {
         Section {
             content()
         } header: {
-            Text(title).font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.secondaryText)
+            Text(LocalizedStringKey(title)).font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.secondaryText)
         }
     }
 
     private func labeled(_ key: String, _ value: String) -> some View {
         HStack {
-            Text(key).font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg)
+            Text(LocalizedStringKey(key)).font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg)
             Spacer(minLength: 8)
             Text(value).font(.ody(.subheadline, design: .monospaced))
                 .foregroundStyle(theme.secondaryText).lineLimit(1)

@@ -189,12 +189,12 @@ struct NoteEditorView: View {
                     }
                 }
             }
-            .navigationTitle(note == nil ? "Nova nota" : "Editar nota")
+            .navigationTitle(LocalizedStringKey(note == nil ? "Nova nota" : "Editar nota"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(saving ? "Salvando…" : "Salvar") { Task { await save() } }
+                    Button(LocalizedStringKey(saving ? "Salvando…" : "Salvar")) { Task { await save() } }
                         .disabled(!canSave || saving)
                 }
             }

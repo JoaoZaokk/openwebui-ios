@@ -176,10 +176,10 @@ struct VoiceView: View {
     private var statusText: String {
         if let e = convo.error { return e }
         switch convo.phase {
-        case .idle:      return convo.active ? "…" : "Toque para conversar"
-        case .listening: return "Ouvindo…"
-        case .thinking:  return "Pensando…"
-        case .speaking:  return "Falando…"
+        case .idle:      return convo.active ? "…" : L("Toque para conversar")
+        case .listening: return L("Ouvindo…")
+        case .thinking:  return L("Pensando…")
+        case .speaking:  return L("Falando…")
         }
     }
 
@@ -189,7 +189,7 @@ struct VoiceView: View {
         Button { convo.toggleSession() } label: {
             HStack(spacing: 8) {
                 Image(systemName: convo.active ? "stop.fill" : "mic.fill")
-                Text(convo.active ? "Encerrar" : "Iniciar conversa")
+                Text(LocalizedStringKey(convo.active ? "Encerrar" : "Iniciar conversa"))
                     .font(.ody(.headline, design: .monospaced))
             }
             .frame(maxWidth: .infinity).padding(.vertical, 15)
