@@ -4,11 +4,41 @@ import Foundation
 /// The languages the app ships UI translations for. Raw value = the `.lproj`
 /// folder name (and `\.locale` identifier).
 public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
-    case ptBR = "pt-BR"
+    case ptBR = "pt-BR"     // development/base language (keys = literals, no .lproj)
     case en   = "en"
+    case es   = "es"
+    case fr   = "fr"
+    case it   = "it"
+    case de   = "de"
+    case deAT = "de-AT"
+    case deCH = "de-CH"
+    case nl   = "nl"
+    case pl   = "pl"
+    case cs   = "cs"
+    case sk   = "sk"
+    case sl   = "sl"
+    case hr   = "hr"
+    case bg   = "bg"
+    case mk   = "mk"
+    case sr   = "sr"
+    case uk   = "uk"
+    case be   = "be"
+    case ru   = "ru"
+    case tr   = "tr"
+    case hu   = "hu"
+    case vi   = "vi"
+    case ind  = "id"        // Indonesian — case can't be `id` (clashes with Identifiable.id)
+    case ms   = "ms"
     case ja   = "ja"
+    case ko   = "ko"
+    case zhHans = "zh-Hans"
+    case zhHant = "zh-Hant"
     case hi   = "hi"
     case bn   = "bn"
+    case ar   = "ar"
+    case fa   = "fa"
+    case ur   = "ur"
+    case ps   = "ps"
 
     public var id: String { rawValue }
 
@@ -17,20 +47,80 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .ptBR: "Português"
         case .en:   "English"
+        case .es:   "Español"
+        case .fr:   "Français"
+        case .it:   "Italiano"
+        case .de:   "Deutsch"
+        case .deAT: "Deutsch (Österreich)"
+        case .deCH: "Deutsch (Schweiz)"
+        case .nl:   "Nederlands"
+        case .pl:   "Polski"
+        case .cs:   "Čeština"
+        case .sk:   "Slovenčina"
+        case .sl:   "Slovenščina"
+        case .hr:   "Hrvatski"
+        case .bg:   "Български"
+        case .mk:   "Македонски"
+        case .sr:   "Српски"
+        case .uk:   "Українська"
+        case .be:   "Беларуская"
+        case .ru:   "Русский"
+        case .tr:   "Türkçe"
+        case .hu:   "Magyar"
+        case .vi:   "Tiếng Việt"
+        case .ind:  "Bahasa Indonesia"
+        case .ms:   "Bahasa Melayu"
         case .ja:   "日本語"
+        case .ko:   "한국어"
+        case .zhHans: "简体中文"
+        case .zhHant: "繁體中文"
         case .hi:   "हिन्दी"
         case .bn:   "বাংলা"
+        case .ar:   "العربية"
+        case .fa:   "فارسی"
+        case .ur:   "اردو"
+        case .ps:   "پښتو"
         }
     }
 
     public var flag: String {
         switch self {
-        case .ptBR: "🇧🇷"
-        case .en:   "🇺🇸"
-        case .ja:   "🇯🇵"
-        case .hi:   "🇮🇳"
-        case .bn:   "🇧🇩"
+        case .ptBR: "🇧🇷"; case .en: "🇺🇸"; case .es: "🇪🇸"; case .fr: "🇫🇷"
+        case .it: "🇮🇹"; case .de: "🇩🇪"; case .deAT: "🇦🇹"; case .deCH: "🇨🇭"
+        case .nl: "🇳🇱"; case .pl: "🇵🇱"; case .cs: "🇨🇿"; case .sk: "🇸🇰"
+        case .sl: "🇸🇮"; case .hr: "🇭🇷"; case .bg: "🇧🇬"; case .mk: "🇲🇰"
+        case .sr: "🇷🇸"; case .uk: "🇺🇦"; case .be: "🇧🇾"; case .ru: "🇷🇺"
+        case .tr: "🇹🇷"; case .hu: "🇭🇺"; case .vi: "🇻🇳"; case .ind: "🇮🇩"
+        case .ms: "🇲🇾"; case .ja: "🇯🇵"; case .ko: "🇰🇷"; case .zhHans: "🇨🇳"
+        case .zhHant: "🇹🇼"; case .hi: "🇮🇳"; case .bn: "🇧🇩"; case .ar: "🇸🇦"
+        case .fa: "🇮🇷"; case .ur: "🇵🇰"; case .ps: "🇦🇫"
         }
+    }
+
+    /// Right-to-left scripts (drive `\.layoutDirection`).
+    public var isRTL: Bool { self == .ar || self == .fa || self == .ur || self == .ps }
+
+    /// Best shipped match for a device/system BCP-47 code (e.g. "ja-JP", "zh-Hant-TW", "de-CH").
+    static func match(_ code: String) -> AppLanguage? {
+        let c = code.lowercased()
+        if c.hasPrefix("pt") { return .ptBR }
+        if c.hasPrefix("zh") {
+            if c.contains("hant") || c.contains("-tw") || c.contains("-hk") || c.contains("-mo") { return .zhHant }
+            return .zhHans
+        }
+        if c.hasPrefix("de") {
+            if c.contains("-at") { return .deAT }
+            if c.contains("-ch") { return .deCH }
+            return .de
+        }
+        let map: [String: AppLanguage] = [
+            "en": .en, "es": .es, "fr": .fr, "it": .it, "nl": .nl, "pl": .pl, "cs": .cs,
+            "sk": .sk, "sl": .sl, "hr": .hr, "bg": .bg, "mk": .mk, "sr": .sr,
+            "uk": .uk, "be": .be, "ru": .ru, "tr": .tr, "hu": .hu, "vi": .vi,
+            "id": .ind, "in": .ind, "ms": .ms, "ja": .ja, "ko": .ko,
+            "hi": .hi, "bn": .bn, "ar": .ar, "fa": .fa, "ur": .ur, "ps": .ps,
+        ]
+        return map[String(c.prefix(2))]
     }
 }
 
@@ -70,6 +160,9 @@ public final class LanguageManager: ObservableObject {
 
     public var locale: Locale { Locale(identifier: current.rawValue) }
 
+    /// Layout direction for the active language (RTL for ar/fa/ur/ps).
+    public var layoutDirection: LayoutDirection { current.isRTL ? .rightToLeft : .leftToRight }
+
     /// Bundle for the current language's `.lproj` (main-thread convenience).
     public var bundle: Bundle { Self.computeBundle(for: current) }
 
@@ -88,12 +181,7 @@ public final class LanguageManager: ObservableObject {
     /// First device-preferred language we support; English otherwise.
     public static func deviceLanguage() -> AppLanguage {
         for pref in Locale.preferredLanguages {
-            let code = pref.lowercased()
-            if code.hasPrefix("pt") { return .ptBR }
-            if code.hasPrefix("ja") { return .ja }
-            if code.hasPrefix("hi") { return .hi }
-            if code.hasPrefix("bn") { return .bn }
-            if code.hasPrefix("en") { return .en }
+            if let lang = AppLanguage.match(pref) { return lang }
         }
         return .en
     }

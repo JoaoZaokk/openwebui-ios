@@ -20,6 +20,7 @@ struct OpenWebUIApp: App {
                 // Drives SwiftUI `Text("literal")` localization; the picker flips
                 // this and `L(_:)`'s bundle together via LanguageManager.
                 .environment(\.locale, lang.locale)
+                .environment(\.layoutDirection, lang.layoutDirection)   // RTL for ar/fa/ur/ps
                 .preferredColorScheme(themes.theme.isDark ? .dark : .light)
                 .tint(themes.theme.accent)
                 // Font family is read by the non-View `Font.ody` helper via a
