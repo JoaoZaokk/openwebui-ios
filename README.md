@@ -1,5 +1,20 @@
 # Open WebUI iOS
 
+<p align="center">
+  <a href="https://apps.apple.com/us/app/openwebui-mobile/id6783872393"><img src="https://developer.apple.com/assets/elements/badges/download-on-the-app-store.svg" alt="Download on the App Store" height="48"></a>
+</p>
+
+<p align="center">
+  <a href="https://apps.apple.com/us/app/openwebui-mobile/id6783872393"><img alt="App Store" src="https://img.shields.io/itunes/v/6783872393?label=App%20Store&logo=apple&color=0D96F6"></a>
+  <img alt="Platforms" src="https://img.shields.io/badge/platform-iOS%2017%2B%20%C2%B7%20iPadOS-lightgrey?logo=apple">
+  <img alt="Languages" src="https://img.shields.io/badge/languages-34-brightgreen">
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue"></a>
+</p>
+
+> **Available on the App Store:** [OpenWebUI - Mobile](https://apps.apple.com/us/app/openwebui-mobile/id6783872393)
+> — free, non-commercial. You still need your own Open WebUI server (see below).
+> Now in **34 languages** with automatic device-language detection.
+
 A native **SwiftUI iPhone client** for a self-hosted [Open WebUI](https://github.com/open-webui/open-webui)
 instance — built to mirror the web app's day-to-day features in a fast, native shell.
 It's also the base app of a two-app project: its core ships as a reusable Swift
