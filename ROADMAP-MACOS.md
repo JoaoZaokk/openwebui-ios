@@ -1,6 +1,7 @@
 # Roadmap — OpenWebUI for macOS (native)
 
-Mirror of the proven **Odysseus-macOS** approach ([odysseus-ios](https://github.com/JoaoZaokk/odysseus-ios)):
+Mirror of the proven **Odysseus-macOS** approach ([odysseus-ios](https://github.com/JoaoZaokk/odysseus-ios),
+now at **1.4 (8)** — 35 UI languages incl. zh-HK, macOS target shipping):
 **one shared SwiftUI source tree, a second xcodegen target** — 100% native AppKit-backed
 SwiftUI, no Catalyst, no WebView, and zero breakage of the iOS app (macOS-only code is
 fenced behind `#if os(macOS)`; iOS keeps compiling the exact same files).
@@ -32,6 +33,10 @@ family (`com.zao.openwebui`) so it can ship as the Mac version of the same App S
 *Mirror: Odysseus `Config/PlatformCompat.swift` (57 lines) — OpenWebUI already ships a
 fork-era `App/Config/PlatformCompat.swift` + `ScreenChrome.swift`; extend, don't reinvent.*
 
+- [ ] Sync `ScreenChrome.swift` with Odysseus 1.4's version first — it gained
+      `themedNavBar(_:)` (themed nav bars on iOS sheets) and `LocalizedStringKey`
+      routing for titles/search/prompts (OpenWebUI still has the older fork copy;
+      PlatformCompat is already byte-identical ✓).
 - [ ] Extend PlatformCompat for every iOS-only call site until the macOS target compiles:
       `navigationBarTitleDisplayMode`, `keyboardType`, `textInputAutocapitalization`,
       `ToolbarItemPlacement` shims, haptics no-op.
@@ -87,3 +92,14 @@ Camera capture: iOS-only — hide the camera button on macOS, keep file-picker a
 5. Kit (`OpenWebUIKit`) stays UIKit-free — enforced today, keep it that way.
 
 **Estimate:** ~5–7 working days to a submittable macOS build.
+
+## Already ported from Odysseus 1.4 (done)
+- ✅ Long-transfer session fix (Odysseus `9fe0712`): dedicated `longSession`
+  (idle 300s / resource 7200s) for SSE chat streams, image generation, uploads,
+  TTS/STT — the default 30s `timeoutIntervalForResource` was killing any
+  transfer past 30s wall-clock (streams cut mid-reply, generations at 600s
+  timeout could never finish).
+
+## Follow-ups worth copying from Odysseus 1.4 later
+- zh-HK as a 3rd Chinese variant (36th language).
+- MultipartForm header-smuggling guard + its unit tests.

@@ -47,7 +47,7 @@ extension OpenWebUIClient {
         form.appendFile(name: "file", filename: filename, mime: mime, fileData: data)
         req.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         req.httpBody = form.finalized
-        return try decode(OWFile.self, try await send(req))
+        return try decode(OWFile.self, try await send(req, long: true))
     }
 
     /// Authenticated URL to a file's raw content (needs the Bearer header to fetch).

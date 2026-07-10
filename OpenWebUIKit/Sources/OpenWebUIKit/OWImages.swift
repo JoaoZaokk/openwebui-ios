@@ -28,7 +28,7 @@ extension OpenWebUIClient {
     public func generateImages(_ body: OWImageRequest) async throws -> [String] {
         var req = try jsonRequest("/api/v1/images/generations", method: "POST", body: body)
         req.timeoutInterval = 600   // generation can be slow
-        let data = try await send(req)
+        let data = try await send(req, long: true)
         return decodeList(OWGeneratedImage.self, data).map(\.url)
     }
 
@@ -40,6 +40,6 @@ extension OpenWebUIClient {
         var req = URLRequest(url: config.url(path))
         if let token { req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
         req.timeoutInterval = 60
-        return try? await session.data(for: req).0
+        return try? await longSession.data(for: req).0
     }
 }

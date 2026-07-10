@@ -74,7 +74,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
             let task = Task {
                 do {
                     let req = try buildRequest(model: model, messages: messages, files: files, options: options)
-                    let (bytes, resp) = try await client.session.bytes(for: req)
+                    let (bytes, resp) = try await client.longSession.bytes(for: req)
 
                     if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
                         if http.statusCode == 401 || http.statusCode == 403 {

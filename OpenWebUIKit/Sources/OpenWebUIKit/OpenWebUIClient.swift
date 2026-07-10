@@ -9,6 +9,8 @@ public final class OpenWebUIClient: @unchecked Sendable {
     public let tokens: OWKeychainStore
     public private(set) var token: String?
     public let session: URLSession
+    /// Session for long transfers (SSE streams, generation, uploads) — no 30s resource cap.
+    public let longSession: URLSession
 
     public init(config: OWConfig = .default, tokens: OWKeychainStore = OWKeychainStore()) {
         self.config = config
@@ -23,6 +25,20 @@ public final class OpenWebUIClient: @unchecked Sendable {
         cfg.timeoutIntervalForResource = 30   // cap the whole request — never hang forever
         cfg.waitsForConnectivity = false      // fail fast with an error instead of waiting endlessly
         self.session = URLSession(configuration: cfg)
+        // Long transfers (SSE chat streams, image generation, uploads, TTS/STT).
+        // `timeoutIntervalForResource` caps the WHOLE transfer regardless of the
+        // per-request `timeoutInterval` — on the 30s session a chat reply
+        // streaming past 30s wall-clock was killed mid-stream and a slow image
+        // generation could never finish. (Same fix as Odysseus 9fe0712.)
+        let longCfg = URLSessionConfiguration.default
+        longCfg.httpCookieStorage = .shared
+        longCfg.httpCookieAcceptPolicy = .always
+        longCfg.httpShouldSetCookies = true
+        longCfg.requestCachePolicy = .reloadIgnoringLocalCacheData
+        longCfg.timeoutIntervalForRequest = 300    // idle gap between bytes
+        longCfg.timeoutIntervalForResource = 7200  // total wall-clock
+        longCfg.waitsForConnectivity = false
+        self.longSession = URLSession(configuration: longCfg)
     }
 
     public func updateConfig(_ config: OWConfig) { self.config = config }
@@ -55,9 +71,9 @@ public final class OpenWebUIClient: @unchecked Sendable {
     }
 
     @discardableResult
-    func send(_ req: URLRequest) async throws -> Data {
+    func send(_ req: URLRequest, long: Bool = false) async throws -> Data {
         do {
-            let (data, resp) = try await session.data(for: req)
+            let (data, resp) = try await (long ? longSession : session).data(for: req)
             guard let http = resp as? HTTPURLResponse else { return data }
             if http.statusCode == 401 || http.statusCode == 403 {
                 token = nil

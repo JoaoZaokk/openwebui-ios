@@ -32,7 +32,7 @@ extension OpenWebUIClient {
         var req = request("/api/v1/audio/speech", method: "POST")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
-        return try await send(req)
+        return try await send(req, long: true)
     }
 
     /// POST /api/v1/audio/transcriptions — server-side STT (Whisper). Uploads the
@@ -45,7 +45,7 @@ extension OpenWebUIClient {
         req.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         req.httpBody = form.finalized
         struct R: Decodable { var text: String }
-        return try decode(R.self, try await send(req)).text
+        return try decode(R.self, try await send(req, long: true)).text
     }
 
     /// GET /api/v1/audio/voices — voices available for the server's TTS engine.
