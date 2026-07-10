@@ -230,6 +230,17 @@ final class ChatViewModel: ObservableObject {
         let title = chatTitle()
         do {
             if let id = chatID {
+                // updateChat REPLACES the whole chat server-side. If the web UI
+                // added messages meanwhile (e.g. image generations), writing our
+                // stale local array would erase them — so merge first: adopt the
+                // fuller server history and re-append what only exists locally.
+                if let server = try? await client.chat(id), server.messages.count > 0 {
+                    let known = Set(server.messages.map(\.id))
+                    let localOnly = messages.filter { !known.contains($0.id) }
+                    if server.messages.count > messages.count - localOnly.count {
+                        messages = server.messages + localOnly
+                    }
+                }
                 try await client.updateChat(id: id, title: title, model: model, messages: messages)
             } else {
                 let id = try await client.createChat(title: title, model: model, messages: messages)

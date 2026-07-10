@@ -5,6 +5,7 @@ import OpenWebUIKit
 struct ChatScreen: View {
     @EnvironmentObject private var app: AppState
     @Environment(\.theme) private var theme
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var vm: ChatViewModel
     @StateObject private var voice = VoiceInputManager()
     @FocusState private var inputFocused: Bool
@@ -59,6 +60,13 @@ struct ChatScreen: View {
         .onAppear {
             vm.loadHistoryIfNeeded()
             voice.client = app.client
+        }
+        // Coming back from the background: re-fetch so messages/images created
+        // meanwhile on the web UI show up (unless we're mid-stream).
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active, !vm.isStreaming, vm.chatID != nil {
+                Task { await vm.reloadHistory() }
+            }
         }
         .fullScreenCover(isPresented: $showVoice) {
             VoiceView(app: app, seed: VoiceSeed(chatID: vm.chatID, messages: vm.messages, model: vm.selectedModel))

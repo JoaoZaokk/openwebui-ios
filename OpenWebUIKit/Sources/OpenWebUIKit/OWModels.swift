@@ -132,6 +132,8 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
     public var content: String
     public var model: String?
     public var timestamp: Double?
+    /// Parent in the branching history graph (decode-only; drives ordered()).
+    public var parentId: String?
     /// Attached images as URLs (data: URLs for local attachments, server urls otherwise).
     public var imageURLs: [String]
     /// Non-image attachments (documents → RAG).
@@ -145,7 +147,7 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         self.imageURLs = imageURLs; self.documents = documents
     }
 
-    enum CodingKeys: String, CodingKey { case id, role, content, model, timestamp, files }
+    enum CodingKeys: String, CodingKey { case id, role, content, model, timestamp, files, parentId }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -174,6 +176,7 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
 
         model = try? c.decodeIfPresent(String.self, forKey: .model)
         timestamp = try? c.decode(Double.self, forKey: .timestamp)
+        parentId = try? c.decodeIfPresent(String.self, forKey: .parentId)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -224,9 +227,18 @@ public struct OWChatSummary: Decodable, Identifiable, Hashable, Sendable {
     }
 }
 
+/// Decodes T but swallows per-element failures — one malformed message must not
+/// nuke the whole chat (the exact failure mode when web-created messages carry
+/// fields/shapes this client has never seen).
+struct OWLossy<T: Decodable>: Decodable {
+    let value: T?
+    init(from decoder: Decoder) throws { value = try? T(from: decoder) }
+}
+
 /// Open WebUI keeps a branching history map `{ messages: { id: msg }, currentId }`
-/// alongside the flat `messages` array. We sort the map by timestamp as a
-/// fallback when the flat array is empty.
+/// alongside the flat `messages` array. The active conversation is the
+/// currentId → parentId chain (what the web UI renders); timestamp sort is only
+/// the fallback for orphans.
 struct OWHistory: Decodable {
     var messages: [String: OWMessage]
     var currentId: String?
@@ -235,12 +247,23 @@ struct OWHistory: Decodable {
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        messages = (try? c.decode([String: OWMessage].self, forKey: .messages)) ?? [:]
+        let lossy = (try? c.decode([String: OWLossy<OWMessage>].self, forKey: .messages)) ?? [:]
+        messages = lossy.compactMapValues(\.value)
         currentId = try? c.decodeIfPresent(String.self, forKey: .currentId)
     }
 
     func ordered() -> [OWMessage] {
-        messages.values.sorted { ($0.timestamp ?? 0) < ($1.timestamp ?? 0) }
+        // Walk the active branch backwards from currentId.
+        if let cur = currentId, messages[cur] != nil {
+            var chain: [OWMessage] = []
+            var id: String? = cur
+            var guardCount = 0
+            while let i = id, let m = messages[i], guardCount < 10_000 {
+                chain.append(m); id = m.parentId; guardCount += 1
+            }
+            if chain.count > 1 || messages.count == 1 { return chain.reversed() }
+        }
+        return messages.values.sorted { ($0.timestamp ?? 0) < ($1.timestamp ?? 0) }
     }
 }
 
@@ -269,13 +292,13 @@ public struct OWChat: Decodable, Sendable, Identifiable {
             title = (try? inner.decode(String.self, forKey: .title)).flatMap { $0.isEmpty ? nil : $0 }
                 ?? topTitle ?? L("Conversa")
             models = (try? inner.decode([String].self, forKey: .models)) ?? []
-            if let flat = try? inner.decode([OWMessage].self, forKey: .messages), !flat.isEmpty {
-                messages = flat
-            } else if let hist = try? inner.decode(OWHistory.self, forKey: .history) {
-                messages = hist.ordered()
-            } else {
-                messages = []
-            }
+            // Decode BOTH sources lossily and keep the fuller one — the web app
+            // sometimes updates only the history graph, and a single malformed
+            // message must not drop the rest of the conversation.
+            let flat = ((try? inner.decode([OWLossy<OWMessage>].self, forKey: .messages)) ?? [])
+                .compactMap(\.value)
+            let chain = (try? inner.decode(OWHistory.self, forKey: .history))?.ordered() ?? []
+            messages = chain.count > flat.count ? chain : flat
         } else {
             title = topTitle ?? "Conversa"
             models = []
