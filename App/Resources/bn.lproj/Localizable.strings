@@ -169,3 +169,12 @@
 "Melhorar com IA" = "AI দিয়ে উন্নত করুন";
 "arquivo" = "ফাইল";
 "Buscar na web" = "ওয়েবে খুঁজুন";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "সর্বজনীন";
+"Chinês" = "চীনা";
+"Japonês" = "জাপানি";
+"Francês" = "ফরাসি";
+"Histórico" = "ইতিহাস";
+"Nenhuma imagem gerada ainda." = "এখনও কোনো ছবি তৈরি করা হয়নি।";
+"Limpar histórico" = "ইতিহাস মুছুন";

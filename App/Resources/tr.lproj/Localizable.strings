@@ -169,3 +169,12 @@
 "Melhorar com IA" = "AI ile geliştir";
 "arquivo" = "dosya";
 "Buscar na web" = "Web'de ara";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "Evrensel";
+"Chinês" = "Çince";
+"Japonês" = "Japonca";
+"Francês" = "Fransızca";
+"Histórico" = "Geçmiş";
+"Nenhuma imagem gerada ainda." = "Henüz hiç görsel oluşturulmadı.";
+"Limpar histórico" = "Geçmişi temizle";

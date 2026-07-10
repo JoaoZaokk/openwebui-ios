@@ -169,3 +169,12 @@
 "Melhorar com IA" = "AI로 개선";
 "arquivo" = "파일";
 "Buscar na web" = "웹 검색";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "다국어";
+"Chinês" = "중국어";
+"Japonês" = "일본어";
+"Francês" = "프랑스어";
+"Histórico" = "기록";
+"Nenhuma imagem gerada ainda." = "아직 생성된 이미지가 없습니다.";
+"Limpar histórico" = "기록 지우기";

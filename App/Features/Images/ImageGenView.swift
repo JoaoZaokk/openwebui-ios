@@ -2,6 +2,14 @@ import SwiftUI
 import UIKit
 import OpenWebUIKit
 
+/// One past generation — enough to re-open the images (server URLs) later.
+struct GenRecord: Codable, Identifiable {
+    var id = UUID()
+    var date = Date()
+    var prompt: String
+    var urls: [String]
+}
+
 @MainActor
 final class ImageGenStore: ObservableObject {
     @Published var prompt = ""
@@ -11,7 +19,14 @@ final class ImageGenStore: ObservableObject {
     @Published var selectedModel: String?
     @Published var generating = false
     @Published var images: [UIImage] = []
+    /// Server URLs parallel to `images` — lets the viewer/history re-fetch.
+    @Published var resultURLs: [String] = []
     @Published var error: String?
+
+    /// Past generations, newest first (kept on-device, capped).
+    @Published var history: [GenRecord] = GenRecord.load() {
+        didSet { GenRecord.save(history) }
+    }
 
     // AI prompt helper — an LLM rewrites the user's plain idea into a better
     // image prompt, so they don't "spend" a slow generation on a weak prompt.
@@ -84,9 +99,27 @@ final class ImageGenStore: ObservableObject {
                 if let d = await client.imageData(path: u), let i = UIImage(data: d) { imgs.append(i) }
             }
             images = imgs
+            resultURLs = urls
+            if !urls.isEmpty {
+                history.insert(GenRecord(prompt: p, urls: urls), at: 0)
+                if history.count > 60 { history.removeLast(history.count - 60) }
+            }
             if imgs.isEmpty { error = L("Imagem gerada, mas não foi possível carregá-la.") }
         } catch {
             self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+}
+
+extension GenRecord {
+    private static let key = "imagegen.history"
+    static func load() -> [GenRecord] {
+        guard let d = UserDefaults.standard.data(forKey: key) else { return [] }
+        return (try? JSONDecoder().decode([GenRecord].self, from: d)) ?? []
+    }
+    static func save(_ records: [GenRecord]) {
+        if let d = try? JSONEncoder().encode(records) {
+            UserDefaults.standard.set(d, forKey: key)
         }
     }
 }
@@ -99,6 +132,9 @@ struct ImageGenView: View {
     @StateObject private var store: ImageGenStore
     @FocusState private var promptFocused: Bool
     @FocusState private var ideaFocused: Bool
+    @State private var showHistory = false
+    @State private var viewer: ViewerItem?
+    struct ViewerItem: Identifiable { let id = UUID(); let url: String }
     private var editing: Bool { promptFocused || ideaFocused }
 
     init(app: AppState) {
@@ -130,6 +166,12 @@ struct ImageGenView: View {
             .navigationTitle("Imagem")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                // Generation history (images created on this device).
+                ToolbarItem(placement: .topBarLeading) {
+                    Button { showHistory = true } label: {
+                        Image(systemName: "clock.arrow.circlepath").foregroundStyle(theme.accent)
+                    }
+                }
                 // Keyboard-accessory "Concluído" (the ergonomic spot, on device).
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
@@ -146,6 +188,13 @@ struct ImageGenView: View {
                 }
             }
             .task { await store.loadModels() }
+            .sheet(isPresented: $showHistory) {
+                GenHistorySheet(store: store, client: app.client)
+                    .environment(\.theme, theme)
+            }
+            .fullScreenCover(item: $viewer) { v in
+                ImageViewerView(url: v.url, client: app.client)
+            }
         }
         .tint(theme.accent)
     }
@@ -300,12 +349,18 @@ struct ImageGenView: View {
     }
 
     @ViewBuilder private var results: some View {
-        ForEach(Array(store.images.enumerated()), id: \.offset) { _, img in
+        ForEach(Array(store.images.enumerated()), id: \.offset) { i, img in
             VStack(spacing: 8) {
-                Image(uiImage: img).resizable().scaledToFit()
-                    .frame(maxWidth: .infinity)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
-                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(theme.border.opacity(0.4), lineWidth: 1))
+                // Tap to open the zoomable fullscreen viewer.
+                Button {
+                    if i < store.resultURLs.count { viewer = ViewerItem(url: store.resultURLs[i]) }
+                } label: {
+                    Image(uiImage: img).resizable().scaledToFit()
+                        .frame(maxWidth: .infinity)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(theme.border.opacity(0.4), lineWidth: 1))
+                }
+                .buttonStyle(.plain)
                 Button {
                     UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
                 } label: {
@@ -315,5 +370,67 @@ struct ImageGenView: View {
             }
             .padding(.top, 4)
         }
+    }
+}
+
+/// Past generations (on-device): prompt, date, and tappable thumbnails.
+struct GenHistorySheet: View {
+    @ObservedObject var store: ImageGenStore
+    let client: OpenWebUIClient
+    @Environment(\.theme) private var theme
+    @Environment(\.dismiss) private var dismiss
+    @State private var viewer: ImageGenView.ViewerItem?
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                theme.bg.ignoresSafeArea()
+                if store.history.isEmpty {
+                    Text("Nenhuma imagem gerada ainda.")
+                        .font(.ody(.subheadline, design: .monospaced))
+                        .foregroundStyle(theme.secondaryText)
+                } else {
+                    List {
+                        ForEach(store.history) { rec in
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(rec.prompt)
+                                    .font(.ody(size: 12, design: .monospaced))
+                                    .foregroundStyle(theme.fg).lineLimit(2)
+                                Text(rec.date.formatted(date: .abbreviated, time: .shortened))
+                                    .font(.ody(size: 10, design: .monospaced))
+                                    .foregroundStyle(theme.secondaryText)
+                                ScrollView(.horizontal, showsIndicators: false) {
+                                    HStack(spacing: 8) {
+                                        ForEach(rec.urls, id: \.self) { url in
+                                            Button { viewer = ImageGenView.ViewerItem(url: url) } label: {
+                                                AttachmentThumb(url: url, size: 84, client: client)
+                                            }
+                                            .buttonStyle(.plain)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.vertical, 4)
+                            .listRowBackground(theme.panel)
+                        }
+                        .onDelete { store.history.remove(atOffsets: $0) }
+                    }
+                    .scrollContentBackground(.hidden)
+                }
+            }
+            .navigationTitle("Histórico")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    if !store.history.isEmpty {
+                        Button("Limpar histórico") { store.history.removeAll() }
+                            .font(.ody(size: 12, design: .monospaced))
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) { Button("OK") { dismiss() } }
+            }
+            .fullScreenCover(item: $viewer) { v in ImageViewerView(url: v.url, client: client) }
+        }
+        .tint(theme.accent)
     }
 }

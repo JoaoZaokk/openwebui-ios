@@ -169,3 +169,12 @@
 "Melhorar com IA" = "Палепшыць з ШІ";
 "arquivo" = "файл";
 "Buscar na web" = "Шукаць у інтэрнэце";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "Універсальныя";
+"Chinês" = "Кітайская";
+"Japonês" = "Японская";
+"Francês" = "Французская";
+"Histórico" = "Гісторыя";
+"Nenhuma imagem gerada ainda." = "Пакуль няма згенераваных выяў.";
+"Limpar histórico" = "Ачысціць гісторыю";

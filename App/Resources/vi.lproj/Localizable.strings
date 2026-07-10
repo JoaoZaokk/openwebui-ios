@@ -169,3 +169,12 @@
 "Melhorar com IA" = "Cải thiện bằng AI";
 "arquivo" = "tệp";
 "Buscar na web" = "Tìm kiếm trên web";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "Đa ngôn ngữ";
+"Chinês" = "Tiếng Trung";
+"Japonês" = "Tiếng Nhật";
+"Francês" = "Tiếng Pháp";
+"Histórico" = "Lịch sử";
+"Nenhuma imagem gerada ainda." = "Chưa có hình ảnh nào được tạo.";
+"Limpar histórico" = "Xóa lịch sử";

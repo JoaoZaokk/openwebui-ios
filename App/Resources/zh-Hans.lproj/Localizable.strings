@@ -169,3 +169,12 @@
 "Melhorar com IA" = "用 AI 改进";
 "arquivo" = "文件";
 "Buscar na web" = "网页搜索";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "通用";
+"Chinês" = "中文";
+"Japonês" = "日语";
+"Francês" = "法语";
+"Histórico" = "历史记录";
+"Nenhuma imagem gerada ainda." = "尚未生成任何图片。";
+"Limpar histórico" = "清除历史记录";

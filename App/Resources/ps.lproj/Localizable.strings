@@ -169,3 +169,12 @@
 "Melhorar com IA" = "د مصنوعي ذهانت په مرسته ښه کړئ";
 "arquivo" = "فایل";
 "Buscar na web" = "په ویب کې لټون";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "نړیوال";
+"Chinês" = "چیني";
+"Japonês" = "جاپاني";
+"Francês" = "فرانسوي";
+"Histórico" = "تاریخچه";
+"Nenhuma imagem gerada ainda." = "تر اوسه هېڅ انځور نه دی جوړ شوی۔";
+"Limpar histórico" = "تاریخچه پاکه کړئ";

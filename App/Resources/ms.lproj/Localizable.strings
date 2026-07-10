@@ -169,3 +169,12 @@
 "Melhorar com IA" = "Tingkatkan dengan AI";
 "arquivo" = "fail";
 "Buscar na web" = "Cari di web";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "Universal";
+"Chinês" = "Cina";
+"Japonês" = "Jepun";
+"Francês" = "Perancis";
+"Histórico" = "Sejarah";
+"Nenhuma imagem gerada ainda." = "Belum ada imej yang dijana.";
+"Limpar histórico" = "Kosongkan sejarah";

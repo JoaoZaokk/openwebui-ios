@@ -169,3 +169,12 @@
 "Melhorar com IA" = "تحسين بالذكاء الاصطناعي";
 "arquivo" = "ملف";
 "Buscar na web" = "البحث في الويب";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "عالمي";
+"Chinês" = "الصينية";
+"Japonês" = "اليابانية";
+"Francês" = "الفرنسية";
+"Histórico" = "السجل";
+"Nenhuma imagem gerada ainda." = "لم يتم إنشاء أي صور بعد.";
+"Limpar histórico" = "مسح السجل";

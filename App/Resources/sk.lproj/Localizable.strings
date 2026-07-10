@@ -169,3 +169,12 @@
 "Melhorar com IA" = "Vylepšiť pomocou AI";
 "arquivo" = "súbor";
 "Buscar na web" = "Hľadať na webe";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "Univerzálne";
+"Chinês" = "Čínčina";
+"Japonês" = "Japončina";
+"Francês" = "Francúzština";
+"Histórico" = "História";
+"Nenhuma imagem gerada ainda." = "Zatiaľ neboli vygenerované žiadne obrázky.";
+"Limpar histórico" = "Vymazať históriu";

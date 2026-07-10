@@ -201,8 +201,18 @@ final class VoiceInputManager: ObservableObject {
         var frames = resampleTo16k(raw, from: hwRate)
         normalize(&frames)
 
-        let lang: WhisperLanguage = (VoiceCatalog.all.first { $0.id == activeModelID }?.lang == .english)
-            ? .english : .portuguese   // fixo: evita o "auto" chutar romeno em áudio imperfeito
+        // Fixed language beats "auto" (auto guesses romanian on imperfect audio).
+        // Language-tuned models pin their own language; universal models follow
+        // the app UI language.
+        let lang: WhisperLanguage
+        switch VoiceCatalog.all.first(where: { $0.id == activeModelID })?.lang {
+        case .english:    lang = .english
+        case .chinese:    lang = .chinese
+        case .japanese:   lang = .japanese
+        case .french:     lang = .french
+        case .portuguese: lang = .portuguese
+        default:          lang = Self.appWhisperLanguage()
+        }
 
         do {
             let whisper: Whisper
@@ -270,6 +280,45 @@ final class VoiceInputManager: ObservableObject {
             d.append(u16(UInt16(bitPattern: s)))
         }
         return d
+    }
+
+    /// Maps the app's UI language to a Whisper language for the universal
+    /// models. Unknown/unsupported → .auto.
+    private static func appWhisperLanguage() -> WhisperLanguage {
+        switch LanguageManager.shared.current {
+        case .ptBR:           return .portuguese
+        case .en:             return .english
+        case .es:             return .spanish
+        case .fr:             return .french
+        case .it:             return .italian
+        case .de, .deAT, .deCH: return .german
+        case .nl:             return .dutch
+        case .pl:             return .polish
+        case .cs:             return .czech
+        case .sk:             return .slovak
+        case .sl:             return .slovenian
+        case .hr:             return .croatian
+        case .bg:             return .bulgarian
+        case .mk:             return .macedonian
+        case .sr:             return .serbian
+        case .uk:             return .ukrainian
+        case .be:             return .belarusian
+        case .ru:             return .russian
+        case .tr:             return .turkish
+        case .hu:             return .hungarian
+        case .vi:             return .vietnamese
+        case .ind:            return .indonesian
+        case .ms:             return .malay
+        case .ja:             return .japanese
+        case .ko:             return .korean
+        case .zhHans, .zhHant: return .chinese
+        case .hi:             return .hindi
+        case .bn:             return .bengali
+        case .ar:             return .arabic
+        case .fa:             return .persian
+        case .ur:             return .urdu
+        case .ps:             return .pashto
+        }
     }
 
     private func installedModelURL() -> URL? {

@@ -169,3 +169,12 @@
 "Melhorar com IA" = "AIで改善";
 "arquivo" = "ファイル";
 "Buscar na web" = "ウェブ検索";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "ユニバーサル";
+"Chinês" = "中国語";
+"Japonês" = "日本語";
+"Francês" = "フランス語";
+"Histórico" = "履歴";
+"Nenhuma imagem gerada ainda." = "まだ画像は生成されていません。";
+"Limpar histórico" = "履歴を消去";

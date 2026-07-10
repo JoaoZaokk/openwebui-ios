@@ -169,3 +169,12 @@
 "Melhorar com IA" = "Подобри со AI";
 "arquivo" = "датотека";
 "Buscar na web" = "Пребарај на интернет";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "Универзални";
+"Chinês" = "Кинески";
+"Japonês" = "Јапонски";
+"Francês" = "Француски";
+"Histórico" = "Историја";
+"Nenhuma imagem gerada ainda." = "Сè уште нема генерирани слики.";
+"Limpar histórico" = "Исчисти ја историјата";

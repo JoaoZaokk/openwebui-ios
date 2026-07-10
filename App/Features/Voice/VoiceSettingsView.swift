@@ -105,13 +105,14 @@ struct VoiceSettingsView: View {
             }
 
             Section("Filtrar catálogo por idioma") {
+                // Menu (not segmented): 7 options, text labels only — no flags.
                 Picker("Idioma", selection: $langFilter) {
                     Text("Todos").tag("all")
                     ForEach(VoiceLang.allCases, id: \.rawValue) { l in
-                        Text("\(l.flag) \(l.label)").tag(l.rawValue)
+                        Text(l.label).tag(l.rawValue)
                     }
                 }
-                .pickerStyle(.segmented)
+                .pickerStyle(.menu)
             }
 
             modelSection(title: L("Modelos STT · Whisper"), task: .stt,
@@ -181,7 +182,11 @@ struct VoiceSettingsView: View {
 
     private func modelRow(_ model: VoiceModel, selected: Bool, select: @escaping (String) -> Void) -> some View {
         HStack(spacing: 10) {
-            Text(model.lang.flag)
+            Text(model.lang.label)
+                .font(.ody(size: 9, design: .monospaced))
+                .foregroundStyle(theme.secondaryText)
+                .padding(.horizontal, 6).padding(.vertical, 3)
+                .background(theme.panel, in: Capsule())
             VStack(alignment: .leading, spacing: 2) {
                 Text(model.name).font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
                 Text(model.humanSize).font(.ody(size: 10, design: .monospaced)).foregroundStyle(theme.secondaryText)

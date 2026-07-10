@@ -169,3 +169,12 @@
 "Melhorar com IA" = "Javítás MI-vel";
 "arquivo" = "fájl";
 "Buscar na web" = "Keresés a weben";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "Univerzális";
+"Chinês" = "Kínai";
+"Japonês" = "Japán";
+"Francês" = "Francia";
+"Histórico" = "Előzmények";
+"Nenhuma imagem gerada ainda." = "Még nincs generált kép.";
+"Limpar histórico" = "Előzmények törlése";

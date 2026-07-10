@@ -169,3 +169,12 @@
 "Melhorar com IA" = "Verbeteren met AI";
 "arquivo" = "bestand";
 "Buscar na web" = "Zoeken op het web";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "Universeel";
+"Chinês" = "Chinees";
+"Japonês" = "Japans";
+"Francês" = "Frans";
+"Histórico" = "Geschiedenis";
+"Nenhuma imagem gerada ainda." = "Nog geen afbeeldingen gegenereerd.";
+"Limpar histórico" = "Geschiedenis wissen";

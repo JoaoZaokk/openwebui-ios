@@ -169,3 +169,12 @@
 "Melhorar com IA" = "Poboljšaj s AI-jem";
 "arquivo" = "datoteka";
 "Buscar na web" = "Pretraži web";
+
+/* v1.3: gen history + per-language whisper */
+"Universal" = "Univerzalni";
+"Chinês" = "Kineski";
+"Japonês" = "Japanski";
+"Francês" = "Francuski";
+"Histórico" = "Povijest";
+"Nenhuma imagem gerada ainda." = "Još nema generiranih slika.";
+"Limpar histórico" = "Očisti povijest";
