@@ -1,6 +1,8 @@
 import Foundation
 import Combine
+#if os(iOS)
 import UIKit
+#endif
 import OpenWebUIKit
 
 /// Hands-free voice conversation: **listen → think → speak → listen**, looping
@@ -152,6 +154,7 @@ final class VoiceConversation: ObservableObject {
     private var proximityObserver: NSObjectProtocol?
 
     private func enableProximity() {
+        #if os(iOS)
         UIDevice.current.isProximityMonitoringEnabled = true
         NotificationCenter.default
             .publisher(for: UIDevice.proximityStateDidChangeNotification)
@@ -160,11 +163,14 @@ final class VoiceConversation: ObservableObject {
                 self?.tts.applyProximityRoute()
             }
             .store(in: &cancellables)
+        #endif
     }
 
     private func disableProximity() {
+        #if os(iOS)
         // Os observers do Combine já serão cancelados automaticamente via cancellables
         UIDevice.current.isProximityMonitoringEnabled = false
+        #endif
     }
 
     /// Tap the orb mid-turn: end listening early, or skip the spoken reply.

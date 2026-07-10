@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 import PhotosUI
 import OpenWebUIKit
 
@@ -162,8 +163,7 @@ struct ChatScreen: View {
             HStack(alignment: .bottom, spacing: 8) {
                 attachButton
                 micButton
-                TextField(voice.isRecording ? "Ouvindo…" : "Mensagem…",
-                          text: voice.isRecording ? .constant(voice.partialText) : $vm.input, axis: .vertical)
+                TextField(inputPrompt, text: inputBinding, axis: .vertical)
                     .font(.ody(.body, design: .monospaced))
                     .foregroundStyle(theme.fg)
                     .focused($inputFocused)
@@ -178,10 +178,22 @@ struct ChatScreen: View {
         .background(theme.bg)
         .photosPicker(isPresented: $showPhotos, selection: $photoItems, maxSelectionCount: 4, matching: .images)
         .onChange(of: photoItems) { _, items in loadPhotos(items) }
+        #if os(iOS)
         .sheet(isPresented: $showCamera) { CameraPicker { data in vm.addImageData([data]) } }
         .sheet(isPresented: $showDocPicker) {
             DocumentPicker { data, name, mime in Task { await vm.addDocument(data: data, filename: name, mime: mime) } }
         }
+        #else
+        .fileImporter(isPresented: $showDocPicker,
+                      allowedContentTypes: [.pdf, .plainText, .text, .rtf, .commaSeparatedText, .json, .data]) { result in
+            guard case .success(let url) = result else { return }
+            let ok = url.startAccessingSecurityScopedResource()
+            defer { if ok { url.stopAccessingSecurityScopedResource() } }
+            guard let data = try? Data(contentsOf: url) else { return }
+            let mime = UTType(filenameExtension: url.pathExtension)?.preferredMIMEType ?? "application/octet-stream"
+            Task { await vm.addDocument(data: data, filename: url.lastPathComponent, mime: mime) }
+        }
+        #endif
         .sheet(isPresented: $showNotePicker) {
             NotePickerSheet(client: app.client) { note in Task { await vm.attachNote(note) } }
         }
@@ -202,11 +214,18 @@ struct ChatScreen: View {
         } message: { Text(comingSoon ?? "") }
     }
 
+    private var inputPrompt: LocalizedStringKey { voice.isRecording ? "Ouvindo…" : "Mensagem…" }
+    private var inputBinding: Binding<String> {
+        voice.isRecording ? .constant(voice.partialText) : $vm.input
+    }
+
     /// The "+" attach menu (print 1).
     private var attachButton: some View {
         Menu {
             Button { showPhotos = true } label: { Label("Carregar Arquivos", systemImage: "photo.on.rectangle") }
+            #if os(iOS)
             Button { showCamera = true } label: { Label("Capturar", systemImage: "camera") }
+            #endif
             Divider()
             Button { showWebInput = true } label: { Label("Anexar Página Web", systemImage: "globe") }
             Button { showDocPicker = true } label: { Label("Anexar arquivos", systemImage: "doc") }

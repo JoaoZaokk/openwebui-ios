@@ -55,3 +55,69 @@ extension View {
 }
 
 #endif
+
+// MARK: - OpenWebUI additions: cross-platform image + covers
+
+#if os(macOS)
+import AppKit
+
+/// One image type across platforms (NSImage on macOS, UIImage on iOS).
+typealias OWPlatformImage = NSImage
+
+extension Image {
+    init(platformImage img: OWPlatformImage) { self.init(nsImage: img) }
+}
+
+extension NSImage {
+    /// UIKit-parity JPEG encoder.
+    func jpegData(compressionQuality q: CGFloat) -> Data? {
+        guard let tiff = tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) else { return nil }
+        return rep.representation(using: .jpeg, properties: [.compressionFactor: q])
+    }
+}
+
+/// "Save image": on the Mac that's a save panel (sandbox-friendly), not Photos.
+@MainActor
+func owSaveImage(_ image: OWPlatformImage) {
+    let panel = NSSavePanel()
+    panel.allowedContentTypes = [.png]
+    panel.nameFieldStringValue = "openwebui-image.png"
+    guard panel.runModal() == .OK, let url = panel.url,
+          let tiff = image.tiffRepresentation,
+          let rep = NSBitmapImageRep(data: tiff),
+          let png = rep.representation(using: .png, properties: [:]) else { return }
+    try? png.write(to: url)
+}
+
+extension ToolbarItemPlacement {
+    /// iOS names, mapped to their macOS equivalents so shared call sites compile.
+    static var topBarLeading: ToolbarItemPlacement { .navigation }
+    static var topBarTrailing: ToolbarItemPlacement { .primaryAction }
+}
+
+extension View {
+    /// macOS has no fullScreenCover — degrade to a regular sheet.
+    func fullScreenCover<Item: Identifiable, C: View>(
+        item: Binding<Item?>, @ViewBuilder content: @escaping (Item) -> C) -> some View {
+        sheet(item: item) { content($0).frame(minWidth: 760, minHeight: 560) }
+    }
+    func fullScreenCover<C: View>(
+        isPresented: Binding<Bool>, @ViewBuilder content: @escaping () -> C) -> some View {
+        sheet(isPresented: isPresented) { content().frame(minWidth: 760, minHeight: 560) }
+    }
+}
+
+#else
+import UIKit
+
+typealias OWPlatformImage = UIImage
+
+extension Image {
+    init(platformImage img: OWPlatformImage) { self.init(uiImage: img) }
+}
+
+@MainActor
+func owSaveImage(_ image: OWPlatformImage) {
+    UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+}
+#endif

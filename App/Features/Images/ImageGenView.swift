@@ -1,5 +1,7 @@
 import SwiftUI
+#if os(iOS)
 import UIKit
+#endif
 import OpenWebUIKit
 
 /// One past generation — enough to re-open the images (server URLs) later.
@@ -18,7 +20,7 @@ final class ImageGenStore: ObservableObject {
     @Published var models: [OWNamedItem] = []
     @Published var selectedModel: String?
     @Published var generating = false
-    @Published var images: [UIImage] = []
+    @Published var images: [OWPlatformImage] = []
     /// Server URLs parallel to `images` — lets the viewer/history re-fetch.
     @Published var resultURLs: [String] = []
     @Published var error: String?
@@ -94,9 +96,9 @@ final class ImageGenStore: ObservableObject {
         do {
             let urls = try await client.generateImages(
                 OWImageRequest(prompt: p, size: size, model: selectedModel, steps: steps))
-            var imgs: [UIImage] = []
+            var imgs: [OWPlatformImage] = []
             for u in urls {
-                if let d = await client.imageData(path: u), let i = UIImage(data: d) { imgs.append(i) }
+                if let d = await client.imageData(path: u), let i = OWPlatformImage(data: d) { imgs.append(i) }
             }
             images = imgs
             resultURLs = urls
@@ -202,8 +204,10 @@ struct ImageGenView: View {
     private func hideKeyboard() {
         promptFocused = false
         ideaFocused = false
+        #if os(iOS)
         UIApplication.shared.sendAction(
             #selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        #endif
     }
 
     // The AI prompt helper: describe an idea → an LLM returns a polished prompt →
@@ -355,14 +359,14 @@ struct ImageGenView: View {
                 Button {
                     if i < store.resultURLs.count { viewer = ViewerItem(url: store.resultURLs[i]) }
                 } label: {
-                    Image(uiImage: img).resizable().scaledToFit()
+                    Image(platformImage: img).resizable().scaledToFit()
                         .frame(maxWidth: .infinity)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .overlay(RoundedRectangle(cornerRadius: 12).stroke(theme.border.opacity(0.4), lineWidth: 1))
                 }
                 .buttonStyle(.plain)
                 Button {
-                    UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+                    owSaveImage(img)
                 } label: {
                     Label("Salvar na galeria", systemImage: "square.and.arrow.down")
                         .font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.accent)

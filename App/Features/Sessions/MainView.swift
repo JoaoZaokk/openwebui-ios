@@ -213,7 +213,8 @@ struct ShareableURL: Identifiable {
     let url: URL
 }
 
-/// Bridges UIActivityViewController for share links / file export.
+/// Bridges the platform share UI for share links / file export.
+#if os(iOS)
 struct ShareSheet: UIViewControllerRepresentable {
     let items: [Any]
     func makeUIViewController(context: Context) -> UIActivityViewController {
@@ -221,6 +222,29 @@ struct ShareSheet: UIViewControllerRepresentable {
     }
     func updateUIViewController(_ vc: UIActivityViewController, context: Context) {}
 }
+#else
+/// macOS: simple share via NSSharingServicePicker anchored to a plain view.
+struct ShareSheet: View {
+    let items: [Any]
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        VStack(spacing: 14) {
+            Text("Compartilhar").font(.headline)
+            if let url = items.first as? URL {
+                Text(url.absoluteString).font(.caption).textSelection(.enabled)
+                Button("Copiar link") {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(url.absoluteString, forType: .string)
+                    dismiss()
+                }
+            }
+            Button("Fechar") { dismiss() }
+        }
+        .padding(24)
+        .frame(minWidth: 420)
+    }
+}
+#endif
 
 /// Shared pt-BR relative-time formatter.
 enum RelativeDate {

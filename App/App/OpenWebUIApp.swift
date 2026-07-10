@@ -28,7 +28,18 @@ struct OpenWebUIApp: App {
                 // The language code is folded in so a language switch rebuilds
                 // the tree and re-resolves every localized string.
                 .id("\(themes.fontFamily)#\(lang.current.rawValue)")
+                #if os(macOS)
+                // The app draws its own controls; suppress AppKit's default
+                // bordered chrome, and give the window desktop-sized bounds.
+                .buttonStyle(.plain)
+                .textFieldStyle(.plain)
+                .frame(minWidth: 900, minHeight: 560)
+                #endif
         }
+        #if os(macOS)
+        .defaultSize(width: 1180, height: 760)
+        .windowResizability(.contentMinSize)
+        #endif
     }
 }
 

@@ -4,6 +4,7 @@ options:
   developmentLanguage: pt-BR
   deploymentTarget:
     iOS: "17.0"
+    macOS: "14.0"
   createIntermediateGroups: true
   groupSortPosition: top
 
@@ -39,7 +40,7 @@ targets:
       - path: App
         excludes:
           - "Resources/Info-macOS.plist"
-          - "Resources/Odysseus-macOS.entitlements"
+          - "Resources/OpenWebUI-macOS.entitlements"
     dependencies:
       - package: OpenWebUIKit
       - package: MarkdownUI
@@ -124,3 +125,47 @@ targets:
             AppIcon-odysseus:
               CFBundleIconFiles: ["AppIcon-odysseus"]
               UIPrerenderedIcon: false
+
+  # Native macOS app — same SwiftUI source as iOS, with platform shims in
+  # App/Config/PlatformCompat.swift. Apple Silicon Macs, macOS 14+.
+  OpenWebUI-macOS:
+    type: application
+    platform: macOS
+    sources:
+      - path: App
+        excludes:
+          - "Resources/Info.plist"
+          - "Resources/OpenWebUI-macOS.entitlements"
+    dependencies:
+      - package: OpenWebUIKit
+      - package: MarkdownUI
+      - package: SwiftWhisper
+      - package: ZIPFoundation
+      - package: FluidAudio
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.example.openwebui
+        PRODUCT_NAME: OpenWebUI
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: App/Resources/OpenWebUI-macOS.entitlements
+        ENABLE_HARDENED_RUNTIME: YES
+        COMBINE_HIDPI_IMAGES: YES
+    info:
+      path: App/Resources/Info-macOS.plist
+      properties:
+        CFBundleDisplayName: OpenWebUI
+        CFBundleDevelopmentRegion: pt-BR
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        LSMinimumSystemVersion: "$(MACOSX_DEPLOYMENT_TARGET)"
+        LSApplicationCategoryType: public.app-category.productivity
+        ITSAppUsesNonExemptEncryption: false
+        NSHumanReadableCopyright: "© 2026 JoaoZaokk — PolyForm Noncommercial License 1.0.0"
+        NSMicrophoneUsageDescription: "Para ditar mensagens por voz."
+        NSSpeechRecognitionUsageDescription: "Para transcrever sua voz em texto no dispositivo."
+        NSLocalNetworkUsageDescription: "O app precisa acessar o servidor Open WebUI na sua rede local."
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true

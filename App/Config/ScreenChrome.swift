@@ -11,6 +11,22 @@ import SwiftUI
 // screen draws its own themed header bar in-content, which also themes correctly.
 
 extension View {
+    /// Makes a navigation bar adopt the theme (iOS): a solid themed background +
+    /// a matching bar color scheme, so the title/buttons stay legible no matter
+    /// the device's system appearance. Fixes "light theme, dark menu, blue
+    /// selectors" where a sheet's `List`/nav bar fell back to system styling.
+    @ViewBuilder
+    func themedNavBar(_ theme: Theme) -> some View {
+        #if os(iOS)
+        self
+            .toolbarBackground(theme.bg, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(theme.isDark ? .dark : .light, for: .navigationBar)
+        #else
+        self
+        #endif
+    }
+
     @ViewBuilder
     func screenChrome<L: View, T: View>(
         title: String,
@@ -23,7 +39,7 @@ extension View {
                               leading: leading(), trailing: trailing(), content: self)
         #else
         self
-            .navigationTitle(title)
+            .navigationTitle(LocalizedStringKey(title))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarLeading) { leading() }
@@ -44,7 +60,7 @@ extension View {
             self
         }
         #else
-        self.searchable(text: text, prompt: prompt)
+        self.searchable(text: text, prompt: LocalizedStringKey(prompt))
         #endif
     }
 }
@@ -60,7 +76,7 @@ struct MacSearchField: View {
             Image(systemName: "magnifyingglass")
                 .foregroundStyle(theme.secondaryText)
                 .font(.ody(size: 12))
-            TextField(prompt, text: $text)
+            TextField(LocalizedStringKey(prompt), text: $text)
                 .textFieldStyle(.plain)
                 .font(.ody(.subheadline, design: .monospaced))
                 .foregroundStyle(theme.fg)
@@ -117,12 +133,12 @@ private struct ScreenChromeContainer<L: View, T: View, C: View>: View {
                     .padding(.trailing, 2)
                 }
                 VStack(alignment: .leading, spacing: 1) {
-                    Text(title)
+                    Text(LocalizedStringKey(title))
                         .font(.ody(.headline, design: .monospaced))
                         .foregroundStyle(theme.fg)
                         .lineLimit(1)
                     if let subtitle, !subtitle.isEmpty {
-                        Text(subtitle)
+                        Text(LocalizedStringKey(subtitle))
                             .font(.ody(size: 10, design: .monospaced))
                             .foregroundStyle(theme.secondaryText)
                             .lineLimit(1)
@@ -141,3 +157,21 @@ private struct ScreenChromeContainer<L: View, T: View, C: View>: View {
     }
 }
 #endif
+
+// MARK: - Pane controls (Odysseus workspace parity; unused defaults here)
+
+struct PaneControls {
+    var onExpand: (() -> Void)?
+    var onClose: (() -> Void)?
+}
+
+private struct PaneControlsKey: EnvironmentKey {
+    static let defaultValue = PaneControls()
+}
+
+extension EnvironmentValues {
+    var paneControls: PaneControls {
+        get { self[PaneControlsKey.self] }
+        set { self[PaneControlsKey.self] = newValue }
+    }
+}

@@ -49,7 +49,11 @@ struct WorkspaceView: View {
                     sec("Tools", "wrench.and.screwdriver", store.tools.map { Row(name: $0.name, sub: $0.description) })
                     sec("Functions", "function", store.functions.map { Row(name: $0.name, sub: $0.description) })
                 }
+                #if os(iOS)
                 .listStyle(.insetGrouped)
+                #else
+                .listStyle(.inset)
+                #endif
                 .scrollContentBackground(.hidden)
                 if store.loading && store.models.isEmpty { ProgressView().tint(theme.accent) }
             }

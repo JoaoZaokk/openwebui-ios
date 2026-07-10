@@ -1,32 +1,42 @@
 import SwiftUI
+#if os(iOS)
 import UIKit
+#endif
 import UniformTypeIdentifiers
 import OpenWebUIKit
 
 enum AttachImage {
     /// Downscale to `maxDimension` and return a JPEG `data:` URL (vision-ready).
     static func dataURL(from data: Data, maxDimension: CGFloat = 1024, quality: CGFloat = 0.7) -> String? {
-        guard let img = UIImage(data: data) else { return nil }
+        guard let img = OWPlatformImage(data: data) else { return nil }
         let scaled = downscale(img, maxDimension: maxDimension)
         guard let jpeg = scaled.jpegData(compressionQuality: quality) else { return nil }
         return "data:image/jpeg;base64,\(jpeg.base64EncodedString())"
     }
 
-    static func downscale(_ img: UIImage, maxDimension: CGFloat) -> UIImage {
+    static func downscale(_ img: OWPlatformImage, maxDimension: CGFloat) -> OWPlatformImage {
         let w = img.size.width, h = img.size.height
         let m = max(w, h)
         guard m > maxDimension else { return img }
         let scale = maxDimension / m
         let size = CGSize(width: w * scale, height: h * scale)
+        #if os(macOS)
+        let out = NSImage(size: size)
+        out.lockFocus()
+        img.draw(in: CGRect(origin: .zero, size: size))
+        out.unlockFocus()
+        return out
+        #else
         let r = UIGraphicsImageRenderer(size: size)
         return r.image { _ in img.draw(in: CGRect(origin: .zero, size: size)) }
+        #endif
     }
 
-    /// Decode a `data:` URL into a UIImage.
-    static func decode(_ url: String) -> UIImage? {
+    /// Decode a `data:` URL into a platform image.
+    static func decode(_ url: String) -> OWPlatformImage? {
         guard url.hasPrefix("data:"), let comma = url.range(of: ",") else { return nil }
         guard let d = Data(base64Encoded: String(url[comma.upperBound...])) else { return nil }
-        return UIImage(data: d)
+        return OWPlatformImage(data: d)
     }
 }
 
@@ -37,17 +47,17 @@ struct AttachmentThumb: View {
     var size: CGFloat = 56
     var client: OpenWebUIClient? = nil
     @Environment(\.theme) private var theme
-    @State private var loaded: UIImage?
+    @State private var loaded: OWPlatformImage?
 
     var body: some View {
         Group {
             if let img = AttachImage.decode(url) ?? loaded {
-                Image(uiImage: img).resizable().aspectRatio(contentMode: .fill)
+                Image(platformImage: img).resizable().aspectRatio(contentMode: .fill)
             } else {
                 ZStack { theme.panel; ProgressView().controlSize(.small) }
                     .task(id: url) {
                         if AttachImage.decode(url) == nil, let c = client,
-                           let d = await c.imageData(path: url), let i = UIImage(data: d) {
+                           let d = await c.imageData(path: url), let i = OWPlatformImage(data: d) {
                             loaded = i
                         }
                     }
@@ -58,6 +68,7 @@ struct AttachmentThumb: View {
     }
 }
 
+#if os(iOS)
 /// UIKit camera wrapper (device only — no camera in the simulator).
 struct CameraPicker: UIViewControllerRepresentable {
     var onImage: (Data) -> Void
@@ -111,6 +122,7 @@ struct DocumentPicker: UIViewControllerRepresentable {
         }
     }
 }
+#endif
 
 /// Pick a note to attach (uploaded as a markdown document → RAG).
 struct NotePickerSheet: View {
@@ -239,14 +251,14 @@ struct ImageViewerView: View {
     @State private var saved = false
     @State private var scale: CGFloat = 1
 
-    private var uiImage: UIImage? { AttachImage.decode(url) ?? cachedRemote }
-    @State private var cachedRemote: UIImage?
+    private var uiImage: OWPlatformImage? { AttachImage.decode(url) ?? cachedRemote }
+    @State private var cachedRemote: OWPlatformImage?
 
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
             if let img = uiImage {
-                Image(uiImage: img)
+                Image(platformImage: img)
                     .resizable().scaledToFit()
                     .scaleEffect(scale)
                     .gesture(MagnificationGesture().onChanged { scale = $0 }.onEnded { _ in withAnimation { scale = max(1, scale) } })
@@ -275,14 +287,14 @@ struct ImageViewerView: View {
             // Server (non-data) URLs need the Bearer header — use the client.
             if AttachImage.decode(url) == nil, let c = client,
                let d = await c.imageData(path: url) {
-                cachedRemote = UIImage(data: d)
+                cachedRemote = OWPlatformImage(data: d)
             }
         }
     }
 
     private func save() {
         guard let img = uiImage else { return }
-        UIImageWriteToSavedPhotosAlbum(img, nil, nil, nil)
+        owSaveImage(img)
         saved = true
     }
 }

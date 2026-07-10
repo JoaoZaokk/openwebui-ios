@@ -1,4 +1,6 @@
+#if os(iOS)
 import UIKit
+#endif
 
 /// Switches the home-screen app icon to match the active theme. iOS shows a
 /// system alert on each change (unavoidable) — it lands right after the user
@@ -23,10 +25,12 @@ enum AppIconManager {
 
     @MainActor
     static func apply(themeID: String) {
+        #if os(iOS)
         let app = UIApplication.shared
         guard app.supportsAlternateIcons else { return }
         let target = iconName(for: themeID)
         guard app.alternateIconName != target else { return }
         app.setAlternateIconName(target)
+        #endif
     }
 }
