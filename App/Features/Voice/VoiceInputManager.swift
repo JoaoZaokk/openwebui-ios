@@ -318,6 +318,15 @@ final class VoiceInputManager: ObservableObject {
         case .fa:             return .persian
         case .ur:             return .urdu
         case .ps:             return .pashto
+        case .lb:             return .luxembourgish
+        case .lv:             return .latvian
+        case .fi:             return .finnish
+        case .sv:             return .swedish
+        case .he:             return .hebrew
+        case .th:             return .thai
+        case .bo:             return .tibetan
+        case .mn:             return .mongolian
+        case .ug:             return .auto   // Whisper has no Uyghur model
         }
     }
 

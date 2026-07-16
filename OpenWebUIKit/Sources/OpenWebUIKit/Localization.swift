@@ -39,6 +39,15 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
     case fa   = "fa"
     case ur   = "ur"
     case ps   = "ps"
+    case lb   = "lb"        // Luxembourgish
+    case lv   = "lv"        // Latvian
+    case fi   = "fi"        // Finnish
+    case sv   = "sv"        // Swedish
+    case he   = "he"        // Hebrew (RTL)
+    case th   = "th"        // Thai
+    case ug   = "ug"        // Uyghur (RTL)
+    case bo   = "bo"        // Tibetan
+    case mn   = "mn"        // Mongolian (Cyrillic)
 
     public var id: String { rawValue }
 
@@ -80,6 +89,15 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
         case .fa:   "فارسی"
         case .ur:   "اردو"
         case .ps:   "پښتو"
+        case .lb:   "Lëtzebuergesch"
+        case .lv:   "Latviešu"
+        case .fi:   "Suomi"
+        case .sv:   "Svenska"
+        case .he:   "עברית"
+        case .th:   "ไทย"
+        case .ug:   "ئۇيغۇرچە"
+        case .bo:   "བོད་སྐད་"
+        case .mn:   "Монгол"
         }
     }
 
@@ -94,11 +112,15 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
         case .ms: "🇲🇾"; case .ja: "🇯🇵"; case .ko: "🇰🇷"; case .zhHans: "🇨🇳"
         case .zhHant: "🇹🇼"; case .hi: "🇮🇳"; case .bn: "🇧🇩"; case .ar: "🇸🇦"
         case .fa: "🇮🇷"; case .ur: "🇵🇰"; case .ps: "🇦🇫"
+        case .lb: "🇱🇺"; case .lv: "🇱🇻"; case .fi: "🇫🇮"; case .sv: "🇸🇪"
+        case .he: "🇮🇱"; case .th: "🇹🇭"; case .ug: "🇨🇳"; case .bo: "🇨🇳"; case .mn: "🇲🇳"
         }
     }
 
     /// Right-to-left scripts (drive `\.layoutDirection`).
-    public var isRTL: Bool { self == .ar || self == .fa || self == .ur || self == .ps }
+    public var isRTL: Bool {
+        self == .ar || self == .fa || self == .ur || self == .ps || self == .he || self == .ug
+    }
 
     /// Best shipped match for a device/system BCP-47 code (e.g. "ja-JP", "zh-Hant-TW", "de-CH").
     static func match(_ code: String) -> AppLanguage? {
@@ -119,6 +141,9 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
             "uk": .uk, "be": .be, "ru": .ru, "tr": .tr, "hu": .hu, "vi": .vi,
             "id": .ind, "in": .ind, "ms": .ms, "ja": .ja, "ko": .ko,
             "hi": .hi, "bn": .bn, "ar": .ar, "fa": .fa, "ur": .ur, "ps": .ps,
+            "lb": .lb, "lv": .lv, "fi": .fi, "sv": .sv, "th": .th,
+            "he": .he, "iw": .he,   // "iw" = legacy ISO code for Hebrew
+            "ug": .ug, "bo": .bo, "mn": .mn,
         ]
         return map[String(c.prefix(2))]
     }
