@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://apps.apple.com/us/app/openwebui-mobile/id6783872393"><img alt="App Store" src="https://img.shields.io/itunes/v/6783872393?label=App%20Store&logo=apple&color=0D96F6"></a>
   <img alt="Platforms" src="https://img.shields.io/badge/platform-iOS%2017%2B%20%C2%B7%20iPadOS-lightgrey?logo=apple">
-  <img alt="Languages" src="https://img.shields.io/badge/languages-34-brightgreen">
+  <img alt="Languages" src="https://img.shields.io/badge/languages-44-brightgreen">
   <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-PolyForm%20Noncommercial-blue"></a>
 </p>
 
