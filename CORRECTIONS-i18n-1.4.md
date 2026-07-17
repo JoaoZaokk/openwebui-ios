@@ -1,4 +1,9 @@
-# Correções i18n 1.4 — para aplicar (revisão adversarial das 9 línguas novas)
+# Correções i18n 1.4 — APLICADAS ✅ (revisão adversarial das 9 línguas novas)
+
+> **Status: tudo aplicado no commit `8ca65f1`** (63 edits, 8 arquivos). Só o item 49 (P2,
+> cosmético) ficou de fora, por escolha. Duas melhorias sobre o proposto aqui: em `he` item 44
+> usou-se `לפעול מעצמה` (o `להופעל` sugerido é huf'al sem infinitivo válido); em `bo` item 40
+> `འདོར་བ།` também removeu colisão com "Desafixar". Documento mantido como registro.
 
 Verificação feita em 2026-07-16 (3 agentes adversariais + checks determinísticos +
 runtime no simulador). **Estrutural: tudo OK** — 44 .lproj × 176 chaves idênticas,
