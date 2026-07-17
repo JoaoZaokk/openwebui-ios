@@ -1,5 +1,4 @@
 /* OpenWebUI bo — v1.4 */
-
 " (bloco de código) " = " (ཀོཌ་ཀྱི་དུམ་བུ།) ";
 "A página é lida no servidor e anexada como contexto." = "ཤོག་ངོས་དེ་སར་བར་ནང་ཀློག་ནས་གནས་སྟངས་ལྟར་ཟུར་སྦྱར་བྱེད།";
 "APARÊNCIA" = "བཟོ་ལྟ།";
@@ -49,7 +48,7 @@
 "Espaço usado" = "སྤྱད་ཟིན་བར་སྟོང་།";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "དཔེ་དབྱིབས་འདི་ལ་མཐོང་ནུས་མེད། (པར་རིས་ལེན་མི་ཐུབ།) པར་རིས་གཏོང་བར་མཐོང་ནུས་ལྡན་པའི་དཔེ་དབྱིབས་ཤིག་འདེམས།";
 "Estrelas" = "སྐར་མ།";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\\nSe você não digitar http(s)://, assumimos https." = "དཔེར་ན། http://localhost:3000  ཡང་ན།  https://meu-servidor.com\\nཁྱེད་ཀྱིས་ http(s):// མ་བྲིས་ན། ང་ཚོས་ https ཡིན་པར་ངོས་འཛིན་བྱེད།";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "དཔེར་ན། http://localhost:3000  ཡང་ན།  https://meu-servidor.com\nཁྱེད་ཀྱིས་ http(s):// མ་བྲིས་ན། ང་ཚོས་ https ཡིན་པར་ངོས་འཛིན་བྱེད།";
 "Excluir" = "སུབ་འདོན།";
 "Expandir / jogar pro canto" = "རྒྱ་བསྐྱེད། / ཟུར་དུ་སྐྱུར།";
 "Falha ao descompactar o modelo Core ML." = "Core ML དཔེ་དབྱིབས་ཁ་ཕྱེ་མ་ཐུབ།";
@@ -73,7 +72,7 @@
 "Modelo ativo" = "སྤྱོད་བཞིན་པའི་དཔེ་དབྱིབས།";
 "Modelo on-device" = "སྒྲིག་ཆས་སྟེང་གི་དཔེ་དབྱིབས།";
 "Modelos STT · Whisper" = "STT དཔེ་དབྱིབས་ · Whisper";
-"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \\\"Modelo\\\" = Whisper offline no aparelho. \\\"Servidor\\\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "རང་ཇུས = ཁྱེད་སྐད་ཆ་བཤད་བཞིན་པའི་སྐབས་ཐད་ཀར་ཡིག་འབེབས་བྱེད། (Claude/Gemini ལྟ་བུ།) \\\"དཔེ་དབྱིབས\\\" = སྒྲིག་ཆས་སྟེང་གི་ offline Whisper། \\\"སར་བར\\\" = ཁྱེད་ཀྱི་ Open WebUI ཡི་ Whisper (སྒྲ་བཏང་ནས་མཐར་ཡིག་འབེབས་བྱེད།)";
+"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "རང་ཇུས = ཁྱེད་སྐད་ཆ་བཤད་བཞིན་པའི་སྐབས་ཐད་ཀར་ཡིག་འབེབས་བྱེད། (Claude/Gemini ལྟ་བུ།) \"དཔེ་དབྱིབས\" = སྒྲིག་ཆས་སྟེང་གི་ offline Whisper། \"སར་བར\" = ཁྱེད་ཀྱི་ Open WebUI ཡི་ Whisper (སྒྲ་བཏང་ནས་མཐར་ཡིག་འབེབས་བྱེད།)";
 "Nativo iOS" = "iOS རང་ཇུས།";
 "Nenhum" = "གང་ཡང་མེད།";
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "Whisper དཔེ་དབྱིབས་ཕབ་ལེན/བདམས་པ་གང་ཡང་མེད། སྒྲིག་འགོད › སྐད་དང་དཔེ་དབྱིབས་ནང་ནས་ཞིག་ཕབ་ལེན་གྱིས། (ཡང་ན་ རང་ཇུས་འཕྲུལ་འཁོར་སྤྱོད།)";

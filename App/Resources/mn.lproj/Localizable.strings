@@ -1,5 +1,4 @@
 /* OpenWebUI mn — v1.4 */
-
 " (bloco de código) " = " (кодын блок) ";
 "A página é lida no servidor e anexada como contexto." = "Хуудсыг сервер дээр уншиж, контекст болгон хавсаргана.";
 "APARÊNCIA" = "ХАРАГДАЦ";
@@ -49,7 +48,7 @@
 "Espaço usado" = "Ашигласан зай";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "Энэ загвар харах чадваргүй (зураг хүлээж авахгүй). Зураг илгээхийн тулд харах чадвартай загвар сонгоно уу.";
 "Estrelas" = "Одод";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\\nSe você não digitar http(s)://, assumimos https." = "Жишээ нь: http://localhost:3000  эсвэл  https://meu-servidor.com\\nХэрэв та http(s):// гэж бичихгүй бол https гэж үзнэ.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Жишээ нь: http://localhost:3000  эсвэл  https://meu-servidor.com\nХэрэв та http(s):// гэж бичихгүй бол https гэж үзнэ.";
 "Excluir" = "Устгах";
 "Expandir / jogar pro canto" = "Дэлгэх / буланд байрлуулах";
 "Falha ao descompactar o modelo Core ML." = "Core ML загварыг задлахад алдаа гарлаа.";
@@ -73,7 +72,7 @@
 "Modelo ativo" = "Идэвхтэй загвар";
 "Modelo on-device" = "Төхөөрөмж дээрх загвар";
 "Modelos STT · Whisper" = "STT загварууд · Whisper";
-"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \\\"Modelo\\\" = Whisper offline no aparelho. \\\"Servidor\\\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Нативо = таныг ярих үед шууд бичих (Claude/Gemini шиг). «Загвар» = төхөөрөмж дээрх офлайн Whisper. «Сервер» = таны Open WebUI-ийн Whisper (аудиог илгээж, эцэст нь хөрвүүлнэ).";
+"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Нативо = таныг ярих үед шууд бичих (Claude/Gemini шиг). «Загвар» = төхөөрөмж дээрх офлайн Whisper. «Сервер» = таны Open WebUI-ийн Whisper (аудиог илгээж, эцэст нь хөрвүүлнэ).";
 "Nativo iOS" = "Нативо iOS";
 "Nenhum" = "Байхгүй";
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "Whisper загвар татаагүй/сонгоогүй байна. Тохиргоо › Дуу хоолой ба загварууд хэсгээс татаж авна уу (эсвэл Нативо хөдөлгүүрийг ашиглана уу).";

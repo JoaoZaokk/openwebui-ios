@@ -1,5 +1,4 @@
 /* OpenWebUI lb — v1.4 */
-
 " (bloco de código) " = " (Code-Block) ";
 "A página é lida no servidor e anexada como contexto." = "D'Säit gëtt um Server geliesen an als Kontext ugehaang.";
 "APARÊNCIA" = "AUSGESINN";
@@ -49,7 +48,7 @@
 "Espaço usado" = "Benotzte Späicher";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "Dëst Modell huet keng Visioun (akzeptéiert keng Biller). Wielt e Modell mat Visioun fir Biller ze schécken.";
 "Estrelas" = "Stären";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\\nSe você não digitar http(s)://, assumimos https." = "Z.B.: http://localhost:3000  oder  https://meu-servidor.com\\nWann Dir http(s):// net aginn, huele mir https un.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Z.B.: http://localhost:3000  oder  https://meu-servidor.com\nWann Dir http(s):// net aginn, huele mir https un.";
 "Excluir" = "Läschen";
 "Expandir / jogar pro canto" = "Vergréisseren / an d'Eck setzen";
 "Falha ao descompactar o modelo Core ML." = "Konnt d'Core ML Modell net entpacken.";
@@ -73,7 +72,7 @@
 "Modelo ativo" = "Aktiivt Modell";
 "Modelo on-device" = "On-Device Modell";
 "Modelos STT · Whisper" = "STT-Modeller · Whisper";
-"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \\\"Modelo\\\" = Whisper offline no aparelho. \\\"Servidor\\\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Nativ = Live-Transkriptioun wärend Dir schwätzt (wéi Claude/Gemini). \\\"Modell\\\" = Whisper offline um Apparat. \\\"Server\\\" = de Whisper vun Ärem Open WebUI (schéckt den Audio a transkribéiert um Enn).";
+"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Nativ = Live-Transkriptioun wärend Dir schwätzt (wéi Claude/Gemini). \"Modell\" = Whisper offline um Apparat. \"Server\" = de Whisper vun Ärem Open WebUI (schéckt den Audio a transkribéiert um Enn).";
 "Nativo iOS" = "Nativ iOS";
 "Nenhum" = "Keen";
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "Kee Whisper-Modell erofgelueden/ausgewielt. Luet een an Astellungen › Stëmm a Modeller erof (oder benotzt de Nativen Motor).";

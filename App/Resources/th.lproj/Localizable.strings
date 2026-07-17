@@ -1,5 +1,4 @@
 /* OpenWebUI th — v1.4 */
-
 " (bloco de código) " = " (บล็อกโค้ด) ";
 "A página é lida no servidor e anexada como contexto." = "หน้าเว็บจะถูกอ่านบนเซิร์ฟเวอร์และแนบเป็นบริบท";
 "APARÊNCIA" = "รูปลักษณ์";
@@ -49,7 +48,7 @@
 "Espaço usado" = "พื้นที่ที่ใช้ไป";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "โมเดลนี้ไม่รองรับการมองเห็น (ไม่รับรูปภาพ) เลือกโมเดลที่รองรับการมองเห็นเพื่อส่งรูปภาพ";
 "Estrelas" = "ดวงดาว";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\\nSe você não digitar http(s)://, assumimos https." = "เช่น http://localhost:3000  หรือ  https://meu-servidor.com\\nหากคุณไม่พิมพ์ http(s):// ระบบจะถือว่าเป็น https";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "เช่น http://localhost:3000  หรือ  https://meu-servidor.com\nหากคุณไม่พิมพ์ http(s):// ระบบจะถือว่าเป็น https";
 "Excluir" = "ลบ";
 "Expandir / jogar pro canto" = "ขยาย / ย้ายไปมุม";
 "Falha ao descompactar o modelo Core ML." = "แตกไฟล์โมเดล Core ML ไม่สำเร็จ";
@@ -73,7 +72,7 @@
 "Modelo ativo" = "โมเดลที่ใช้งาน";
 "Modelo on-device" = "โมเดลบนเครื่อง";
 "Modelos STT · Whisper" = "โมเดล STT · Whisper";
-"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \\\"Modelo\\\" = Whisper offline no aparelho. \\\"Servidor\\\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Native = ถอดเสียงแบบเรียลไทม์ขณะพูด (แบบ Claude/Gemini) \\\"โมเดล\\\" = Whisper แบบออฟไลน์บนเครื่อง \\\"เซิร์ฟเวอร์\\\" = Whisper ของ Open WebUI ของคุณ (ส่งเสียงไปและถอดเสียงเมื่อจบ)";
+"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Native = ถอดเสียงแบบเรียลไทม์ขณะพูด (แบบ Claude/Gemini) \"โมเดล\" = Whisper แบบออฟไลน์บนเครื่อง \"เซิร์ฟเวอร์\" = Whisper ของ Open WebUI ของคุณ (ส่งเสียงไปและถอดเสียงเมื่อจบ)";
 "Nativo iOS" = "Native iOS";
 "Nenhum" = "ไม่มี";
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "ยังไม่ได้ดาวน์โหลด/เลือกโมเดล Whisper ดาวน์โหลดได้ที่ การตั้งค่า › เสียงและโมเดล (หรือใช้เอนจิน Native)";

@@ -1,5 +1,4 @@
 /* OpenWebUI he — v1.4 */
-
 " (bloco de código) " = " (בלוק קוד) ";
 "A página é lida no servidor e anexada como contexto." = "הדף נקרא בשרת ומצורף כהקשר.";
 "APARÊNCIA" = "מראה";
@@ -49,7 +48,7 @@
 "Espaço usado" = "שטח בשימוש";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "למודל זה אין ראייה (אינו מקבל תמונות). בחר מודל עם ראייה כדי לשלוח תמונות.";
 "Estrelas" = "כוכבים";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\\nSe você não digitar http(s)://, assumimos https." = "לדוגמה: http://localhost:3000  או  https://meu-servidor.com\\nאם לא תזין http(s)://, נניח https.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "לדוגמה: http://localhost:3000  או  https://meu-servidor.com\nאם לא תזין http(s)://, נניח https.";
 "Excluir" = "מחק";
 "Expandir / jogar pro canto" = "הרחב / העבר לפינה";
 "Falha ao descompactar o modelo Core ML." = "נכשל בחילוץ מודל Core ML.";
@@ -73,7 +72,7 @@
 "Modelo ativo" = "מודל פעיל";
 "Modelo on-device" = "מודל במכשיר";
 "Modelos STT · Whisper" = "מודלי STT · Whisper";
-"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \\\"Modelo\\\" = Whisper offline no aparelho. \\\"Servidor\\\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "נטיבי = תמלול חי בזמן שאתה מדבר (כמו Claude/Gemini). \"מודל\" = Whisper לא מקוון במכשיר. \"שרת\" = ה-Whisper של ה-Open WebUI שלך (שולח את האודיו ומתמלל בסוף).";
+"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "נטיבי = תמלול חי בזמן שאתה מדבר (כמו Claude/Gemini). \"מודל\" = Whisper לא מקוון במכשיר. \"שרת\" = ה-Whisper של ה-Open WebUI שלך (שולח את האודיו ומתמלל בסוף).";
 "Nativo iOS" = "נטיבי iOS";
 "Nenhum" = "אין";
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "לא הורד/נבחר מודל Whisper. הורד אחד בהגדרות › קול ומודלים (או השתמש במנוע הנטיבי).";

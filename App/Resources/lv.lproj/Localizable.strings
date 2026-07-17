@@ -1,5 +1,4 @@
 /* OpenWebUI lv — v1.4 */
-
 " (bloco de código) " = " (koda bloks) ";
 "A página é lida no servidor e anexada como contexto." = "Lapa tiek nolasīta serverī un pievienota kā konteksts.";
 "APARÊNCIA" = "IZSKATS";
@@ -49,7 +48,7 @@
 "Espaço usado" = "Izmantotā vieta";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "Šim modelim nav redzes (nepieņem attēlus). Izvēlieties modeli ar redzi, lai sūtītu attēlus.";
 "Estrelas" = "Zvaigznes";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\\nSe você não digitar http(s)://, assumimos https." = "Piem.: http://localhost:3000  vai  https://mans-serveris.com\\nJa neievadīsiet http(s)://, pieņemsim https.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Piem.: http://localhost:3000  vai  https://mans-serveris.com\nJa neievadīsiet http(s)://, pieņemsim https.";
 "Excluir" = "Izdzēst";
 "Expandir / jogar pro canto" = "Izvērst / novietot stūrī";
 "Falha ao descompactar o modelo Core ML." = "Neizdevās izpakot Core ML modeli.";
@@ -73,7 +72,7 @@
 "Modelo ativo" = "Aktīvais modelis";
 "Modelo on-device" = "Modelis ierīcē";
 "Modelos STT · Whisper" = "STT modeļi · Whisper";
-"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \\\"Modelo\\\" = Whisper offline no aparelho. \\\"Servidor\\\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Natīvs = tiešā transkripcija runāšanas laikā (kā Claude/Gemini). \\\"Modelis\\\" = bezsaistes Whisper ierīcē. \\\"Serveris\\\" = jūsu Open WebUI Whisper (nosūta audio un transkribē beigās).";
+"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Natīvs = tiešā transkripcija runāšanas laikā (kā Claude/Gemini). \"Modelis\" = bezsaistes Whisper ierīcē. \"Serveris\" = jūsu Open WebUI Whisper (nosūta audio un transkribē beigās).";
 "Nativo iOS" = "Natīvs iOS";
 "Nenhum" = "Neviens";
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "Nav lejupielādēts/izvēlēts neviens Whisper modelis. Lejupielādējiet to sadaļā Iestatījumi › Balss un modeļi (vai izmantojiet Natīvo dzinēju).";

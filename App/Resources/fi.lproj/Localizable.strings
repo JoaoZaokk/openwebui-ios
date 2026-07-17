@@ -1,5 +1,4 @@
 /* OpenWebUI fi — v1.4 */
-
 " (bloco de código) " = " (koodilohko) ";
 "A página é lida no servidor e anexada como contexto." = "Sivu luetaan palvelimella ja liitetään kontekstiksi.";
 "APARÊNCIA" = "ULKOASU";
@@ -49,7 +48,7 @@
 "Espaço usado" = "Käytetty tila";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "Tässä mallissa ei ole näköä (se ei hyväksy kuvia). Valitse näkevä malli kuvien lähettämiseen.";
 "Estrelas" = "Tähdet";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\\nSe você não digitar http(s)://, assumimos https." = "Esim.: http://localhost:3000  tai  https://oma-palvelin.com\\nJos et kirjoita http(s)://, oletamme https.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Esim.: http://localhost:3000  tai  https://oma-palvelin.com\nJos et kirjoita http(s)://, oletamme https.";
 "Excluir" = "Poista";
 "Expandir / jogar pro canto" = "Laajenna / siirrä kulmaan";
 "Falha ao descompactar o modelo Core ML." = "Core ML -mallin purkaminen epäonnistui.";
@@ -73,7 +72,7 @@
 "Modelo ativo" = "Aktiivinen malli";
 "Modelo on-device" = "Laitteella toimiva malli";
 "Modelos STT · Whisper" = "STT-mallit · Whisper";
-"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \\\"Modelo\\\" = Whisper offline no aparelho. \\\"Servidor\\\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Natiivi = suora litterointi puhuessasi (kuten Claude/Gemini). \\\"Malli\\\" = Whisper offline laitteella. \\\"Palvelin\\\" = Open WebUI -asennuksesi Whisper (lähettää äänen ja litteroi lopuksi).";
+"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Natiivi = suora litterointi puhuessasi (kuten Claude/Gemini). \"Malli\" = Whisper offline laitteella. \"Palvelin\" = Open WebUI -asennuksesi Whisper (lähettää äänen ja litteroi lopuksi).";
 "Nativo iOS" = "Natiivi iOS";
 "Nenhum" = "Ei mitään";
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "Ei ladattua/valittua Whisper-mallia. Lataa sellainen kohdasta Asetukset › Ääni ja mallit (tai käytä Natiivi-moottoria).";

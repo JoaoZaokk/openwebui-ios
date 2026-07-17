@@ -1,5 +1,4 @@
 /* OpenWebUI sv — v1.4 */
-
 " (bloco de código) " = " (kodblock) ";
 "A página é lida no servidor e anexada como contexto." = "Sidan läses på servern och bifogas som kontext.";
 "APARÊNCIA" = "UTSEENDE";
@@ -49,7 +48,7 @@
 "Espaço usado" = "Använt utrymme";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "Den här modellen har ingen vision (accepterar inte bilder). Välj en modell med vision för att skicka bilder.";
 "Estrelas" = "Stjärnor";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\\nSe você não digitar http(s)://, assumimos https." = "T.ex.: http://localhost:3000  eller  https://meu-servidor.com\\nOm du inte anger http(s):// antar vi https.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "T.ex.: http://localhost:3000  eller  https://meu-servidor.com\nOm du inte anger http(s):// antar vi https.";
 "Excluir" = "Ta bort";
 "Expandir / jogar pro canto" = "Expandera / lägg i hörnet";
 "Falha ao descompactar o modelo Core ML." = "Det gick inte att packa upp Core ML-modellen.";
@@ -73,7 +72,7 @@
 "Modelo ativo" = "Aktiv modell";
 "Modelo on-device" = "Modell på enheten";
 "Modelos STT · Whisper" = "STT-modeller · Whisper";
-"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \\\"Modelo\\\" = Whisper offline no aparelho. \\\"Servidor\\\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Nativ = live-transkribering medan du talar (som Claude/Gemini). \\\"Modell\\\" = Whisper offline på enheten. \\\"Server\\\" = din Open WebUI:s Whisper (skickar ljudet och transkriberar i slutet).";
+"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "Nativ = live-transkribering medan du talar (som Claude/Gemini). \"Modell\" = Whisper offline på enheten. \"Server\" = din Open WebUI:s Whisper (skickar ljudet och transkriberar i slutet).";
 "Nativo iOS" = "Nativ iOS";
 "Nenhum" = "Ingen";
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "Ingen Whisper-modell nedladdad/vald. Ladda ner en i Inställningar › Röst och modeller (eller använd den nativa motorn).";

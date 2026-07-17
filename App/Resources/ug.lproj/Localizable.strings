@@ -1,5 +1,4 @@
 /* OpenWebUI ug — v1.4 */
-
 " (bloco de código) " = " (كود بۆلىكى) ";
 "A página é lida no servidor e anexada como contexto." = "بەت مۇلازىمېتىردا ئوقۇلۇپ، تەگلىك سۈپىتىدە قوشۇلىدۇ.";
 "APARÊNCIA" = "كۆرۈنۈشى";
@@ -49,7 +48,7 @@
 "Espaço usado" = "ئىشلىتىلگەن بوشلۇق";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "بۇ مودېلدا كۆرۈش ئىقتىدارى يوق (رەسىم قوبۇل قىلمايدۇ). رەسىم ئەۋەتىش ئۈچۈن كۆرۈش ئىقتىدارلىق مودېل تاللاڭ.";
 "Estrelas" = "يۇلتۇزلار";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\\nSe você não digitar http(s)://, assumimos https." = "مەسىلەن: http://localhost:3000  ياكى  https://meu-servidor.com\\nئەگەر http(s):// كىرگۈزمىسىڭىز، https دەپ قارايمىز.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "مەسىلەن: http://localhost:3000  ياكى  https://meu-servidor.com\nئەگەر http(s):// كىرگۈزمىسىڭىز، https دەپ قارايمىز.";
 "Excluir" = "ئۆچۈرۈۋېتىش";
 "Expandir / jogar pro canto" = "چوڭايتىش / بۇلۇڭغا ئىتتىرىش";
 "Falha ao descompactar o modelo Core ML." = "Core ML مودېلىنى يېشىش مەغلۇب بولدى.";
@@ -73,7 +72,7 @@
 "Modelo ativo" = "ئاكتىپ مودېل";
 "Modelo on-device" = "ئۈسكۈنە ئىچىدىكى مودېل";
 "Modelos STT · Whisper" = "STT مودېللىرى · Whisper";
-"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \\\"Modelo\\\" = Whisper offline no aparelho. \\\"Servidor\\\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "ئەسلىي = سىز سۆزلەۋاتقاندا جانلىق تېكىستكە ئايلاندۇرۇش (Claude/Gemini غا ئوخشاش). \\\"مودېل\\\" = ئۈسكۈنىدىكى تورسىز Whisper. \\\"مۇلازىمېتىر\\\" = سىزنىڭ Open WebUI دىكى Whisper (ئاۋازنى ئەۋەتىپ، ئاخىرىدا تېكىستكە ئايلاندۇرىدۇ).";
+"Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim)." = "ئەسلىي = سىز سۆزلەۋاتقاندا جانلىق تېكىستكە ئايلاندۇرۇش (Claude/Gemini غا ئوخشاش). \"مودېل\" = ئۈسكۈنىدىكى تورسىز Whisper. \"مۇلازىمېتىر\" = سىزنىڭ Open WebUI دىكى Whisper (ئاۋازنى ئەۋەتىپ، ئاخىرىدا تېكىستكە ئايلاندۇرىدۇ).";
 "Nativo iOS" = "ئەسلىي iOS";
 "Nenhum" = "يوق";
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "چۈشۈرۈلگەن/تاللانغان Whisper مودېلى يوق. تەڭشەكلەر › ئاۋاز ۋە مودېللار دىن بىرنى چۈشۈرۈڭ (ياكى ئەسلىي ماتورنى ئىشلىتىڭ).";
