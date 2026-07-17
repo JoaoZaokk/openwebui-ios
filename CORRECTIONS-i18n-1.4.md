@@ -103,9 +103,12 @@ Abaixo: correções de TRADUÇÃO pendentes, por prioridade. Formato:
 
 ---
 
-## P2 — Cosmético (opcional)
-49. Todas as 9: exemplo `meu-servidor.com` na string do endereço ficou em português — trocar por
-    equivalente local (`my-server.com`, `min-server.com`…). Inofensivo.
+## P2 — Cosmético ✅ FEITO
+49. ~~Exemplo `meu-servidor.com` em português.~~ **Resolvido nas 44 línguas** (commit abaixo).
+    O escopo real era maior que "as 9": 10 línguas mostravam o domínio português (incl. ko,
+    zh-Hans, zh-Hant) e 12 caíam no inglês. Agora cada uma tem forma local em ASCII
+    (romanização p/ cirílico e RTL; pinyin p/ zh-Hans); ja/ko/zh-Hant/th/hi/bn/bo mantêm
+    `my-server.com` de propósito — nesses ecossistemas placeholder é inglês.
 
 ## Línguas limpas
 - **th (tailandês): zero achados.**
