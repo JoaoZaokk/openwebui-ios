@@ -48,7 +48,7 @@
 "Espaço usado" = "Benotzte Späicher";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "Dëse Modell huet keng Visioun (akzeptéiert keng Biller). Wielt e Modell mat Visioun fir Biller ze schécken.";
 "Estrelas" = "Stären";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Z.B.: http://localhost:3000  oder  https://meu-servidor.com\nWann Dir http(s):// net agitt, huele mir https un.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Z.B.: http://localhost:3000  oder  https://mai-server.com\nWann Dir http(s):// net agitt, huele mir https un.";
 "Excluir" = "Läschen";
 "Expandir / jogar pro canto" = "Vergréisseren / an den Eck setzen";
 "Falha ao descompactar o modelo Core ML." = "Konnt de Core ML Modell net entpacken.";

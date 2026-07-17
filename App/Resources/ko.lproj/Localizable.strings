@@ -49,7 +49,7 @@
 "Espaço usado" = "사용된 공간";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "이 모델은 비전을 지원하지 않습니다(이미지를 받지 않음). 이미지를 보내려면 비전을 지원하는 모델을 선택하세요.";
 "Estrelas" = "별";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "예: http://localhost:3000  또는  https://meu-servidor.com\nhttp(s)://를 입력하지 않으면 https로 간주합니다.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "예: http://localhost:3000  또는  https://my-server.com\nhttp(s)://를 입력하지 않으면 https로 간주합니다.";
 "Excluir" = "삭제";
 "Expandir / jogar pro canto" = "확장 / 모서리로 이동";
 "Falha ao descompactar o modelo Core ML." = "Core ML 모델 압축 해제에 실패했습니다.";

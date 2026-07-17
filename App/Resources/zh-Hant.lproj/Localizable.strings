@@ -49,7 +49,7 @@
 "Espaço usado" = "已用空間";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "此模型不支援視覺（不接受圖像）。請選擇支援視覺的模型以傳送圖像。";
 "Estrelas" = "星空";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "例如：http://localhost:3000  或  https://meu-servidor.com\n如果你不輸入 http(s)://，我們將預設使用 https。";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "例如：http://localhost:3000  或  https://my-server.com\n如果你不輸入 http(s)://，我們將預設使用 https。";
 "Excluir" = "刪除";
 "Expandir / jogar pro canto" = "展開 / 移至角落";
 "Falha ao descompactar o modelo Core ML." = "解壓縮 Core ML 模型失敗。";

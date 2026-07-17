@@ -49,7 +49,7 @@
 "Espaço usado" = "فضای استفاده‌شده";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "این مدل بینایی ندارد (تصاویر را نمی‌پذیرد). برای ارسال تصویر، مدلی با قابلیت بینایی انتخاب کنید.";
 "Estrelas" = "ستاره‌ها";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "مثال: http://localhost:3000  یا  https://my-server.com\nاگر http(s):// را وارد نکنید، https فرض می‌شود.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "مثال: http://localhost:3000  یا  https://server-e-man.com\nاگر http(s):// را وارد نکنید، https فرض می‌شود.";
 "Excluir" = "حذف";
 "Expandir / jogar pro canto" = "گسترش / انتقال به گوشه";
 "Falha ao descompactar o modelo Core ML." = "باز کردن مدل Core ML ناموفق بود.";

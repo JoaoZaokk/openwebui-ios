@@ -48,7 +48,7 @@
 "Espaço usado" = "พื้นที่ที่ใช้ไป";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "โมเดลนี้ไม่รองรับการมองเห็น (ไม่รับรูปภาพ) เลือกโมเดลที่รองรับการมองเห็นเพื่อส่งรูปภาพ";
 "Estrelas" = "ดวงดาว";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "เช่น http://localhost:3000  หรือ  https://meu-servidor.com\nหากคุณไม่พิมพ์ http(s):// ระบบจะถือว่าเป็น https";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "เช่น http://localhost:3000  หรือ  https://my-server.com\nหากคุณไม่พิมพ์ http(s):// ระบบจะถือว่าเป็น https";
 "Excluir" = "ลบ";
 "Expandir / jogar pro canto" = "ขยาย / ย้ายไปมุม";
 "Falha ao descompactar o modelo Core ML." = "แตกไฟล์โมเดล Core ML ไม่สำเร็จ";

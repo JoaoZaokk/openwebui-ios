@@ -49,7 +49,7 @@
 "Espaço usado" = "استعمال شدہ جگہ";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "اس ماڈل میں وژن نہیں ہے (تصاویر قبول نہیں کرتا)۔ تصاویر بھیجنے کے لیے وژن والا ماڈل منتخب کریں۔";
 "Estrelas" = "ستارے";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "مثلاً: http://localhost:3000  یا  https://my-server.com\nاگر آپ http(s):// نہ لکھیں تو ہم https فرض کر لیتے ہیں۔";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "مثلاً: http://localhost:3000  یا  https://mera-server.com\nاگر آپ http(s):// نہ لکھیں تو ہم https فرض کر لیتے ہیں۔";
 "Excluir" = "حذف کریں";
 "Expandir / jogar pro canto" = "پھیلائیں / کونے میں منتقل کریں";
 "Falha ao descompactar o modelo Core ML." = "Core ML ماڈل کو ان پیک کرنے میں ناکامی۔";

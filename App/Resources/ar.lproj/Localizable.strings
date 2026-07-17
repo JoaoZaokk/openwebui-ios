@@ -49,7 +49,7 @@
 "Espaço usado" = "المساحة المستخدمة";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "هذا النموذج لا يدعم الرؤية (لا يقبل الصور). اختر نموذجاً يدعم الرؤية لإرسال الصور.";
 "Estrelas" = "نجوم";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "مثال: http://localhost:3000  أو  https://my-server.com\nإن لم تكتب http(s):// فسنفترض https.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "مثال: http://localhost:3000  أو  https://khadimi.com\nإن لم تكتب http(s):// فسنفترض https.";
 "Excluir" = "حذف";
 "Expandir / jogar pro canto" = "توسيع / نقل إلى الزاوية";
 "Falha ao descompactar o modelo Core ML." = "تعذّر فك ضغط نموذج Core ML.";

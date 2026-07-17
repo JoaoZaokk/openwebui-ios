@@ -48,7 +48,7 @@
 "Espaço usado" = "ئىشلىتىلگەن بوشلۇق";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "بۇ مودېلدا كۆرۈش ئىقتىدارى يوق (رەسىم قوبۇل قىلمايدۇ). رەسىم ئەۋەتىش ئۈچۈن كۆرۈش ئىقتىدارلىق مودېل تاللاڭ.";
 "Estrelas" = "يۇلتۇزلار";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "مەسىلەن: http://localhost:3000  ياكى  https://meu-servidor.com\nئەگەر http(s):// كىرگۈزمىسىڭىز، https دەپ قارايمىز.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "مەسىلەن: http://localhost:3000  ياكى  https://mening-serverim.com\nئەگەر http(s):// كىرگۈزمىسىڭىز، https دەپ قارايمىز.";
 "Excluir" = "ئۆچۈرۈۋېتىش";
 "Expandir / jogar pro canto" = "چوڭايتىش / بۇلۇڭغا ئىتتىرىش";
 "Falha ao descompactar o modelo Core ML." = "Core ML مودېلىنى يېشىش مەغلۇب بولدى.";

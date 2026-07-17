@@ -48,7 +48,7 @@
 "Espaço usado" = "སྤྱད་ཟིན་བར་སྟོང་།";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "དཔེ་དབྱིབས་འདི་ལ་མཐོང་ནུས་མེད། (པར་རིས་ལེན་མི་ཐུབ།) པར་རིས་གཏོང་བར་མཐོང་ནུས་ལྡན་པའི་དཔེ་དབྱིབས་ཤིག་འདེམས།";
 "Estrelas" = "སྐར་མ།";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "དཔེར་ན། http://localhost:3000  ཡང་ན།  https://meu-servidor.com\nཁྱེད་ཀྱིས་ http(s):// མ་བྲིས་ན། ང་ཚོས་ https ཡིན་པར་ངོས་འཛིན་བྱེད།";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "དཔེར་ན། http://localhost:3000  ཡང་ན།  https://my-server.com\nཁྱེད་ཀྱིས་ http(s):// མ་བྲིས་ན། ང་ཚོས་ https ཡིན་པར་ངོས་འཛིན་བྱེད།";
 "Excluir" = "རྩ་བསུབ།";
 "Expandir / jogar pro canto" = "རྒྱ་བསྐྱེད། / ཟུར་དུ་སྐྱུར།";
 "Falha ao descompactar o modelo Core ML." = "Core ML དཔེ་དབྱིབས་ཁ་ཕྱེ་མ་ཐུབ།";

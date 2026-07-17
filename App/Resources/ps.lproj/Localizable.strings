@@ -49,7 +49,7 @@
 "Espaço usado" = "کارول شوی ځای";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "دا موډل لید نه لري (انځورونه نه مني). د انځورونو لېږلو لپاره د لید لرونکی موډل غوره کړئ.";
 "Estrelas" = "ستوري";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "بېلګه: http://localhost:3000  یا  https://my-server.com\nکه تاسو http(s):// ونه لیکئ، موږ https اټکل کوو.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "بېلګه: http://localhost:3000  یا  https://zma-server.com\nکه تاسو http(s):// ونه لیکئ، موږ https اټکل کوو.";
 "Excluir" = "ړنګول";
 "Expandir / jogar pro canto" = "پراخول / کونج ته لیږدول";
 "Falha ao descompactar o modelo Core ML." = "د Core ML موډل خلاصول ونشول.";

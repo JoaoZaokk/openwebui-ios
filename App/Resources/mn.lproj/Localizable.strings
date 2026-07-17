@@ -48,7 +48,7 @@
 "Espaço usado" = "Ашигласан зай";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "Энэ загвар харах чадваргүй (зураг хүлээж авахгүй). Зураг илгээхийн тулд харах чадвартай загвар сонгоно уу.";
 "Estrelas" = "Одод";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Жишээ нь: http://localhost:3000  эсвэл  https://meu-servidor.com\nХэрэв та http(s):// гэж бичихгүй бол https гэж үзнэ.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Жишээ нь: http://localhost:3000  эсвэл  https://minii-server.com\nХэрэв та http(s):// гэж бичихгүй бол https гэж үзнэ.";
 "Excluir" = "Устгах";
 "Expandir / jogar pro canto" = "Дэлгэх / буланд байрлуулах";
 "Falha ao descompactar o modelo Core ML." = "Core ML загварыг задлахад алдаа гарлаа.";

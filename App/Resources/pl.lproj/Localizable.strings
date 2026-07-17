@@ -49,7 +49,7 @@
 "Espaço usado" = "Wykorzystane miejsce";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "Ten model nie ma wizji (nie przyjmuje obrazów). Wybierz model z wizją, aby wysyłać obrazy.";
 "Estrelas" = "Gwiazdy";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Np.: http://localhost:3000  lub  https://my-server.com\nJeśli nie wpiszesz http(s)://, przyjmiemy https.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Np.: http://localhost:3000  lub  https://moj-serwer.com\nJeśli nie wpiszesz http(s)://, przyjmiemy https.";
 "Excluir" = "Usuń";
 "Expandir / jogar pro canto" = "Rozwiń / przesuń w róg";
 "Falha ao descompactar o modelo Core ML." = "Nie udało się rozpakować modelu Core ML.";

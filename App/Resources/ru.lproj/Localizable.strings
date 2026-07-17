@@ -49,7 +49,7 @@
 "Espaço usado" = "Использовано места";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "У этой модели нет зрения (она не принимает изображения). Выберите модель со зрением, чтобы отправлять изображения.";
 "Estrelas" = "Звёзды";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Напр.: http://localhost:3000  или  https://my-server.com\nЕсли вы не введёте http(s)://, мы используем https.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "Напр.: http://localhost:3000  или  https://moy-server.com\nЕсли вы не введёте http(s)://, мы используем https.";
 "Excluir" = "Удалить";
 "Expandir / jogar pro canto" = "Развернуть / переместить в угол";
 "Falha ao descompactar o modelo Core ML." = "Не удалось распаковать модель Core ML.";

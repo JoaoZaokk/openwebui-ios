@@ -48,7 +48,7 @@
 "Espaço usado" = "שטח בשימוש";
 "Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens." = "למודל זה אין ראייה (אינו מקבל תמונות). בחר מודל עם ראייה כדי לשלוח תמונות.";
 "Estrelas" = "כוכבים";
-"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "לדוגמה: http://localhost:3000  או  https://meu-servidor.com\nאם לא תזין http(s)://, נניח https.";
+"Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https." = "לדוגמה: http://localhost:3000  או  https://ha-server-sheli.com\nאם לא תזין http(s)://, נניח https.";
 "Excluir" = "מחק";
 "Expandir / jogar pro canto" = "הרחב / העבר לפינה";
 "Falha ao descompactar o modelo Core ML." = "נכשל בחילוץ מודל Core ML.";
