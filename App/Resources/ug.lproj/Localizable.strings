@@ -11,7 +11,7 @@
 "Anexar arquivos" = "ھۆججەت قوشۇش";
 "Apagar" = "ئۆچۈرۈش";
 "Arquivar" = "ئارخىپلاش";
-"Assistente de prompt (IA)" = "سۆزلەم ياردەمچىسى (AI)";
+"Assistente de prompt (IA)" = "كۆرسەتمە ياردەمچىسى (AI)";
 "Automático (idioma do aparelho)" = "ئاپتوماتىك (ئۈسكۈنە تىلى)";
 "Baixando voz neural…" = "نېرۋا ئاۋازى چۈشۈرۈلۈۋاتىدۇ…";
 "Baixar" = "چۈشۈرۈش";
@@ -92,11 +92,11 @@
 "Não foi possível ler a página." = "بەتنى ئوقۇغىلى بولمىدى.";
 "OK" = "ماقۇل";
 "Olá! Esta é a voz do servidor." = "ياخشىمۇسىز! بۇ مۇلازىمېتىرنىڭ ئاۋازى.";
-"PROMPT" = "سۆزلەم";
+"PROMPT" = "كۆرسەتمە";
 "Padrão" = "كۆڭۈلدىكى";
 "Padrão do servidor" = "مۇلازىمېتىر كۆڭۈلدىكىسى";
 "Parar de compartilhar" = "ھەمبەھىرلەشنى توختىتىش";
-"Passos" = "قەدەملەر";
+"Passos" = "باسقۇچلار";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "مىكروفون/ئاۋاز رۇخسىتى رەت قىلىندى (iPhone تەڭشەكلىرى).";
 "Português" = "پورتۇگالچە";
 "Pétalas" = "گۈل بەرگلىرى";
@@ -116,8 +116,8 @@
 "Servidor" = "مۇلازىمېتىر";
 "Servidor de voz indisponível." = "ئاۋاز مۇلازىمېتىرى ئىشلەتكىلى بولمايدۇ.";
 "Servidor não configurado." = "مۇلازىمېتىر سەپلەنمىگەن.";
-"Sessão expirada. Faça login novamente." = "ئولتۇرۇش ۋاقتى ئۆتتى. قايتا كىرىڭ.";
-"Sintetizando…" = "ھاسىللاۋاتىدۇ…";
+"Sessão expirada. Faça login novamente." = "كىرىش ۋاقتى ئۆتتى. قايتا كىرىڭ.";
+"Sintetizando…" = "ئاۋاز ھاسىل قىلىنىۋاتىدۇ…";
 "TTS do servidor falhou: %@" = "مۇلازىمېتىر TTS مەغلۇب بولدى: %@";
 "Tamanho" = "چوڭلۇقى";
 "Tema" = "تېما";
@@ -163,8 +163,8 @@
 "Pensando…" = "ئويلىنىۋاتىدۇ…";
 "Falando…" = "سۆزلەۋاتىدۇ…";
 "Buscar conversas" = "سۆھبەت ئىزدەش";
-"Desafixar" = "قىستۇرۇشنى ئېلىش";
-"Fixar" = "قىستۇرۇش";
+"Desafixar" = "بېكىتىشنى ئېلىۋېتىش";
+"Fixar" = "چوققىغا بېكىتىش";
 "Melhorar com IA" = "AI بىلەن ياخشىلاش";
 "arquivo" = "ھۆججەت";
 "Buscar na web" = "توردا ئىزدەش";

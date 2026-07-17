@@ -4,7 +4,7 @@
 "APARÊNCIA" = "ULKOASU";
 "Ajustes" = "Asetukset";
 "Anexar" = "Liitä";
-"Anexar Base de Conhecimento" = "Liitä tietokanta";
+"Anexar Base de Conhecimento" = "Liitä tietämyskanta";
 "Anexar Nota" = "Liitä muistiinpano";
 "Anexar Notas" = "Liitä muistiinpanot";
 "Anexar Página Web" = "Liitä verkkosivu";
@@ -16,13 +16,13 @@
 "Baixando voz neural…" = "Ladataan neuraaliääntä…";
 "Baixar" = "Lataa";
 "Baixar voz neural (~550 MB)" = "Lataa neuraaliääni (~550 MB)";
-"Base de Conhecimento" = "Tietokanta";
+"Base de Conhecimento" = "Tietämyskanta";
 "Bilíngue" = "Kaksikielinen";
 "Brasas" = "Hiillos";
 "CONTA" = "TILI";
 "Cancelar" = "Peruuta";
 "Capturar" = "Ota kuva";
-"Carregar Arquivos" = "Lataa tiedostoja";
+"Carregar Arquivos" = "Lähetä tiedostoja";
 "Chats de Referência" = "Viitekeskustelut";
 "Chuva" = "Sade";
 "Clonar" = "Kloonaa";
@@ -34,8 +34,8 @@
 "Conversa por voz" = "Puhekeskustelu";
 "Conversa temporária" = "Väliaikainen keskustelu";
 "Conversas" = "Keskustelut";
-"Descreva a imagem…" = "Kuvaile kuva…";
-"Descreva sua ideia em palavras simples…" = "Kuvaile ideasi yksinkertaisin sanoin…";
+"Descreva a imagem…" = "Kuvaile kuvaa…";
+"Descreva sua ideia em palavras simples…" = "Kuvaile ideaasi yksinkertaisin sanoin…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI -PALVELIMEN OSOITE";
 "Em breve" = "Tulossa pian";
 "Email" = "Sähköposti";
@@ -78,7 +78,7 @@
 "Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo)." = "Ei ladattua/valittua Whisper-mallia. Lataa sellainen kohdasta Asetukset › Ääni ja mallit (tai käytä Natiivi-moottoria).";
 "Nenhum modelo Whisper selecionado." = "Ei valittua Whisper-mallia.";
 "Nenhum modelo disponível." = "Ei malleja saatavilla.";
-"Nenhuma base de conhecimento." = "Ei tietokantoja.";
+"Nenhuma base de conhecimento." = "Ei tietämyskantoja.";
 "Nenhuma conversa ainda" = "Ei vielä keskusteluja";
 "Nenhuma conversa." = "Ei keskusteluja.";
 "Nenhuma nota ainda" = "Ei vielä muistiinpanoja";
@@ -96,7 +96,7 @@
 "Padrão" = "Oletus";
 "Padrão do servidor" = "Palvelimen oletus";
 "Parar de compartilhar" = "Lopeta jakaminen";
-"Passos" = "Askeleet";
+"Passos" = "Vaiheet";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Mikrofonin/äänen käyttöoikeus evätty (iPhonen asetukset).";
 "Português" = "Portugali";
 "Pétalas" = "Terälehdet";

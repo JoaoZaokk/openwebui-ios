@@ -14,7 +14,7 @@
 "Assistente de prompt (IA)" = "עוזר פרומפט (AI)";
 "Automático (idioma do aparelho)" = "אוטומטי (שפת המכשיר)";
 "Baixando voz neural…" = "מוריד קול נוירוני…";
-"Baixar" = "הורדה";
+"Baixar" = "הורד";
 "Baixar voz neural (~550 MB)" = "הורד קול נוירוני (~550 MB)";
 "Base de Conhecimento" = "בסיס ידע";
 "Bilíngue" = "דו-לשוני";
@@ -40,7 +40,7 @@
 "Em breve" = "בקרוב";
 "Email" = "אימייל";
 "Endereço" = "כתובת";
-"Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "בזמן שה-AI מדבר, התחלת דיבור קוטעת את התשובה והוא מקשיב לך. רגישות גבוהה קוטעת גם בקול חלש (אך עלולה להיקטע לבד מההד); נמוכה דורשת לדבר בבירור רב יותר.";
+"Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "בזמן שה-AI מדבר, התחלת דיבור קוטעת את התשובה והוא מקשיב לך. רגישות גבוהה קוטעת גם בקול חלש (אך עלולה לפעול מעצמה בגלל ההד); נמוכה דורשת לדבר בבירור רב יותר.";
 "Entrar" = "כניסה";
 "Erro %@" = "שגיאה %@";
 "Erro no download" = "שגיאה בהורדה";
@@ -123,7 +123,7 @@
 "Tema" = "ערכת נושא";
 "Temas" = "ערכות נושא";
 "Testar voz" = "בדוק קול";
-"Texto → Voz" = "טקסט → קול";
+"Texto → Voz" = "טקסט ← קול";
 "Todos" = "הכל";
 "Transcrição (servidor): %@" = "תמלול (שרת): %@";
 "Transparência" = "שקיפות";
@@ -137,7 +137,7 @@
 "Voz e modelos" = "קול ומודלים";
 "Voz neural pronta" = "הקול הנוירוני מוכן";
 "Voz padrão" = "קול ברירת מחדל";
-"Voz → Texto" = "קול → טקסט";
+"Voz → Texto" = "קול ← טקסט";
 "Workspace" = "Workspace";
 "_(sem resposta)_" = "_(אין תשובה)_";
 "nenhum" = "אין";

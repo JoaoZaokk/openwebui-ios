@@ -40,7 +40,7 @@
 "Em breve" = "Drīzumā";
 "Email" = "E-pasts";
 "Endereço" = "Adrese";
-"Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Kamēr MI runā, runāšanas sākšana pārtrauc atbildi un tas jūs sadzird. Augsta jutība pārtrauc jau pie klusas balss (bet var nostrādāt pati no atbalss); zema prasa runāt stingrāk.";
+"Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Kamēr MI runā, runāšanas sākšana pārtrauc atbildi un tas jūs sadzird. Augsta jutība pārtrauc jau pie klusas balss (bet var nostrādāt pati no sevis atbalss dēļ); zema prasa runāt stingrāk.";
 "Entrar" = "Pieteikties";
 "Erro %@" = "Kļūda %@";
 "Erro no download" = "Lejupielādes kļūda";
@@ -107,7 +107,7 @@
 "Renomear conversa" = "Pārdēvēt sarunu";
 "Resposta inesperada do servidor: %@" = "Negaidīta servera atbilde: %@";
 "SERVIDOR" = "SERVERIS";
-"Sair" = "Iziet";
+"Sair" = "Izrakstīties";
 "Salvar" = "Saglabāt";
 "Salvar na galeria" = "Saglabāt galerijā";
 "Selecionar modelo" = "Izvēlēties modeli";
