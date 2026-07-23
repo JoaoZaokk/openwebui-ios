@@ -203,15 +203,19 @@ public struct OWChatSummary: Decodable, Identifiable, Hashable, Sendable {
     public var createdAt: Double?
     public var pinned: Bool
     public var archived: Bool
+    /// A matching excerpt for full-text search results (not part of the API).
+    public var snippet: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case id, title, updated_at, created_at, pinned, archived
     }
 
     public init(id: String, title: String, updatedAt: Double? = nil,
-                createdAt: Double? = nil, pinned: Bool = false, archived: Bool = false) {
+                createdAt: Double? = nil, pinned: Bool = false, archived: Bool = false,
+                snippet: String? = nil) {
         self.id = id; self.title = title; self.updatedAt = updatedAt
         self.createdAt = createdAt; self.pinned = pinned; self.archived = archived
+        self.snippet = snippet
     }
 
     public init(from decoder: Decoder) throws {

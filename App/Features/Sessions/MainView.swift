@@ -35,6 +35,7 @@ struct ChatListView: View {
     @State private var renaming: OWChatSummary?
     @State private var renameText = ""
     @State private var shareItem: ShareableURL?
+    @State private var searchTask: Task<Void, Never>?
 
     init(app: AppState) {
         self.app = app
@@ -46,9 +47,21 @@ struct ChatListView: View {
         case new(temporary: Bool)
     }
 
+    private var searching: Bool { !search.trimmingCharacters(in: .whitespaces).isEmpty }
+
     private var filtered: [OWChatSummary] {
-        guard !search.isEmpty else { return store.chats }
-        return store.chats.filter { $0.title.localizedCaseInsensitiveContains(search) }
+        searching ? store.searchResults : store.chats
+    }
+
+    /// Debounce the full-text search so it doesn't run on every keystroke.
+    private func runSearch(_ text: String) {
+        searchTask?.cancel()
+        guard searching else { store.searchResults = []; return }
+        searchTask = Task {
+            try? await Task.sleep(nanoseconds: 250_000_000)
+            guard !Task.isCancelled else { return }
+            await store.search(text)
+        }
     }
 
     var body: some View {
@@ -144,6 +157,7 @@ struct ChatListView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .searchable(text: $search, prompt: "Buscar conversas")
+        .onChange(of: search) { _, new in runSearch(new) }
     }
 
     private func row(_ chat: OWChatSummary) -> some View {
@@ -152,7 +166,11 @@ struct ChatListView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(chat.title).font(.ody(.subheadline, design: .monospaced))
                     .foregroundStyle(theme.fg).lineLimit(1)
-                if let ts = chat.updatedAt {
+                // Full-text match excerpt (only present in search results).
+                if let snip = chat.snippet, !snip.isEmpty {
+                    Text(snip).font(.ody(size: 10, design: .monospaced))
+                        .foregroundStyle(theme.secondaryText).lineLimit(2)
+                } else if let ts = chat.updatedAt {
                     Text(RelativeDate.string(ts))
                         .font(.ody(size: 10, design: .monospaced)).foregroundStyle(theme.secondaryText)
                 }
