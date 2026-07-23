@@ -84,4 +84,47 @@ final class OWChatDecodeTests: XCTestCase {
         XCTAssertEqual(m.imageURLs, ["data:image/png;base64,xx"])
         XCTAssertEqual(m.documents.first?.id, "f1")
     }
+
+    /// Stock Open WebUI (native web search, no pipe) persists retrieved context in
+    /// `sources`; it must become a single auditable tool card with links + results.
+    func testNativeSourcesBecomeToolCard() throws {
+        let json = """
+        {
+          "id": "c5", "title": "t",
+          "chat": {
+            "messages": [
+              { "id": "a", "role": "assistant", "timestamp": 1, "content": "Here you go.",
+                "sources": [
+                  { "source": { "name": "Example", "id": "https://example.com/a" },
+                    "document": ["First retrieved passage."] },
+                  { "source": { "name": "Example2", "id": "https://example.com/b" },
+                    "document": ["Second passage."] }
+                ] }
+            ]
+          }
+        }
+        """
+        let chat = try JSONDecoder().decode(OWChat.self, from: Data(json.utf8))
+        let m = try XCTUnwrap(chat.messages.first)
+        let tool = try XCTUnwrap(m.toolUses.first)
+        XCTAssertEqual(m.toolUses.count, 1)
+        XCTAssertEqual(tool.action, "web_search")
+        XCTAssertEqual(tool.sources.count, 2)
+        XCTAssertTrue(tool.results.contains("First retrieved passage."))
+        XCTAssertTrue(tool.results.contains("Second passage."))
+    }
+
+    /// Tool cards round-trip through `statusHistory` so re-persisting a chat (a
+    /// later turn) doesn't drop them.
+    func testToolUsesRoundTripThroughStatusHistory() throws {
+        let original = OWMessage(role: .assistant, content: "answer", toolUses: [
+            OWToolUse(action: "web_search", query: "swift", results: "raw text",
+                      sources: [OWSource(title: "Swift", url: "https://swift.org")])
+        ])
+        let data = try JSONEncoder().encode(original)
+        let decoded = try JSONDecoder().decode(OWMessage.self, from: data)
+        XCTAssertEqual(decoded.toolUses.count, 1)
+        XCTAssertEqual(decoded.toolUses.first?.query, "swift")
+        XCTAssertEqual(decoded.toolUses.first?.sources.first?.url, "https://swift.org")
+    }
 }

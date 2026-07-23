@@ -19,6 +19,12 @@ struct MessageBubble: View {
             if isUser { Spacer(minLength: 36) }
             VStack(alignment: isUser ? .trailing : .leading, spacing: 6) {
                 if !isUser { header }
+                if !isUser, !message.toolUses.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(message.toolUses) { ToolUseCard(tool: $0) }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
                 if !message.imageURLs.isEmpty { imagesView }
                 if !message.documents.isEmpty { documentsView }
                 if !message.content.isEmpty || (message.imageURLs.isEmpty && message.documents.isEmpty) { bubble }
@@ -103,6 +109,62 @@ struct MessageBubble: View {
                     in: RoundedRectangle(cornerRadius: 14))
         .overlay(RoundedRectangle(cornerRadius: 14).stroke(theme.border.opacity(0.35), lineWidth: isUser ? 0 : 1))
         .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
+    }
+}
+
+/// Expandable audit card for one tool run (web search / RAG): tap to reveal the
+/// raw context the model was given and tappable source links. Mirrors the
+/// "searched X → here's what it saw" affordance in the Claude app.
+struct ToolUseCard: View {
+    let tool: OWToolUse
+    @Environment(\.theme) private var theme
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button { withAnimation(.easeInOut(duration: 0.18)) { expanded.toggle() } } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: tool.icon).font(.ody(size: 11))
+                    Text(tool.title).font(.ody(size: 12, design: .monospaced)).lineLimit(1)
+                    Spacer(minLength: 6)
+                    if !tool.sources.isEmpty {
+                        Text("\(tool.sources.count)").font(.ody(size: 10, design: .monospaced))
+                    }
+                    Image(systemName: "chevron.right")
+                        .font(.ody(size: 9, weight: .semibold))
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                }
+                .foregroundStyle(theme.secondaryText)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if expanded {
+                if !tool.results.isEmpty {
+                    Text(tool.results)
+                        .font(.ody(size: 11, design: .monospaced))
+                        .foregroundStyle(theme.secondaryText)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                if !tool.sources.isEmpty {
+                    VStack(alignment: .leading, spacing: 3) {
+                        ForEach(Array(tool.sources.enumerated()), id: \.offset) { i, s in
+                            if let url = URL(string: s.url) {
+                                Link(destination: url) {
+                                    Text("\(i + 1). \(s.title.isEmpty ? s.url : s.title)")
+                                        .font(.ody(size: 11)).foregroundStyle(theme.accent).lineLimit(1)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(theme.panel.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.border.opacity(0.4), lineWidth: 1))
     }
 }
 

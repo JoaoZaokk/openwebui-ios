@@ -123,6 +123,61 @@ struct OWContentPart: Decodable {
 /// {type:"image", url:"data:…"}).
 struct OWFileRef: Decodable { var type: String?; var url: String? }
 
+/// A source cited by a tool run (a web-search result).
+public struct OWSource: Codable, Hashable, Sendable {
+    public var title: String
+    public var url: String
+    public init(title: String, url: String) { self.title = title; self.url = url }
+}
+
+/// An auditable record of one tool the model ran — the query it used and the raw
+/// context it got back. Lets the UI show a Claude-style, expandable
+/// "searched X → here's what it saw" card, so tool runs aren't a black box.
+public struct OWToolUse: Identifiable, Hashable, Sendable {
+    public var action: String        // "web_search" | "weather" | …
+    public var query: String
+    public var results: String       // the raw text the model was given
+    public var sources: [OWSource]
+    public var id: String { "\(action)|\(query)|\(sources.count)|\(results.count)" }
+    public var title: String {
+        switch action {
+        case "web_search": return query.isEmpty ? L("Busca na web") : query
+        case "weather":    return query.isEmpty ? L("Clima") : query
+        default:           return action
+        }
+    }
+    public var icon: String {
+        switch action {
+        case "web_search": return "magnifyingglass"
+        case "weather":    return "cloud.sun"
+        default:           return "wrench.and.screwdriver"
+        }
+    }
+    public init(action: String, query: String, results: String, sources: [OWSource]) {
+        self.action = action; self.query = query; self.results = results; self.sources = sources
+    }
+}
+
+/// One `statusHistory` entry as Open WebUI stores it on a message. A tool-calling
+/// pipe adds the rich `action`/`query`/`results`/`sources` fields on tool runs.
+struct OWStatusEntry: Codable {
+    var action: String?
+    var query: String?
+    var results: String?
+    var sources: [OWSource]?
+    var description: String?
+    var done: Bool?
+}
+
+/// One entry of Open WebUI's NATIVE `sources` array (built-in web search / RAG,
+/// no custom pipe): `{ source: {name, id}, document: ["raw retrieved text", …] }`.
+/// This is what a stock Open WebUI emits, so tool cards work without any pipe.
+struct OWNativeSource: Decodable {
+    struct Ref: Decodable { var name: String?; var id: String? }
+    var source: Ref?
+    var document: [String]?
+}
+
 /// A chat message. Open WebUI stores `content` as a plain string for text and as
 /// an array of parts for multimodal; we flatten to text here (images handled by
 /// the attachments layer later).
@@ -138,16 +193,23 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
     public var imageURLs: [String]
     /// Non-image attachments (documents → RAG).
     public var documents: [OWAttachment]
+    /// Auditable tool runs behind this reply (built-in web search / RAG, or a
+    /// tool-calling pipe) — each with its query, raw results, and sources.
+    public var toolUses: [OWToolUse]
 
     public init(id: String = UUID().uuidString, role: OWRole, content: String,
                 model: String? = nil, timestamp: Double? = nil,
-                imageURLs: [String] = [], documents: [OWAttachment] = []) {
+                imageURLs: [String] = [], documents: [OWAttachment] = [],
+                toolUses: [OWToolUse] = []) {
         self.id = id; self.role = role; self.content = content
         self.model = model; self.timestamp = timestamp
         self.imageURLs = imageURLs; self.documents = documents
+        self.toolUses = toolUses
     }
 
-    enum CodingKeys: String, CodingKey { case id, role, content, model, timestamp, files, parentId }
+    enum CodingKeys: String, CodingKey {
+        case id, role, content, model, timestamp, files, parentId, statusHistory, sources
+    }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -177,6 +239,38 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         model = try? c.decodeIfPresent(String.self, forKey: .model)
         timestamp = try? c.decode(Double.self, forKey: .timestamp)
         parentId = try? c.decodeIfPresent(String.self, forKey: .parentId)
+
+        // Auditable tool runs live in statusHistory — the rich entries carry `action`.
+        let entries: [OWStatusEntry] = (try? c.decode([OWStatusEntry].self, forKey: .statusHistory)) ?? []
+        var tools = entries.compactMap { e -> OWToolUse? in
+            guard let action = e.action else { return nil }
+            return OWToolUse(action: action, query: e.query ?? "",
+                             results: e.results ?? "", sources: e.sources ?? [])
+        }
+        // Stock Open WebUI (native web search / RAG, no pipe) exposes the same audit
+        // data in `sources`; synthesize a card from it when no rich entry was present.
+        if tools.isEmpty, let native = try? c.decode([OWNativeSource].self, forKey: .sources), !native.isEmpty {
+            tools = [OWMessage.toolUse(fromNative: native)]
+        }
+        toolUses = tools
+    }
+
+    /// Fold Open WebUI's native `sources` (built-in web search / RAG) into a single
+    /// auditable card: the source URLs become tappable links, the `document` texts
+    /// become the retrieved context.
+    static func toolUse(fromNative sources: [OWNativeSource]) -> OWToolUse {
+        var docs: [String] = []
+        var srcs: [OWSource] = []
+        for n in sources {
+            docs += (n.document ?? []).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
+            let name = n.source?.name ?? "", id = n.source?.id ?? ""
+            let url = id.hasPrefix("http") ? id : (name.hasPrefix("http") ? name : "")
+            if !url.isEmpty, !srcs.contains(where: { $0.url == url }) {
+                srcs.append(OWSource(title: (name.hasPrefix("http") || name.isEmpty) ? url : name, url: url))
+            }
+        }
+        return OWToolUse(action: "web_search", query: "",
+                         results: String(docs.joined(separator: "\n\n---\n\n").prefix(4000)), sources: srcs)
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -189,6 +283,15 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         var files = imageURLs.map { OWAttachment(type: "image", url: $0) }
         files += documents
         if !files.isEmpty { try c.encode(files, forKey: .files) }
+        // Round-trip the tool cards through statusHistory so a rewrite (a later turn
+        // that re-persists the whole chat) doesn't drop them.
+        if !toolUses.isEmpty {
+            let entries = toolUses.map { t in
+                OWStatusEntry(action: t.action, query: t.query, results: t.results,
+                              sources: t.sources, description: t.title, done: true)
+            }
+            try c.encode(entries, forKey: .statusHistory)
+        }
     }
 }
 
