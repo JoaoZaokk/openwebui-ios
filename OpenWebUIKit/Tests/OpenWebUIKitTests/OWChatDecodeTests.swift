@@ -84,4 +84,40 @@ final class OWChatDecodeTests: XCTestCase {
         XCTAssertEqual(m.imageURLs, ["data:image/png;base64,xx"])
         XCTAssertEqual(m.documents.first?.id, "f1")
     }
+
+    /// A thinking model persists its chain-of-thought inline as a leading
+    /// <think>…</think> block; decode must lift it into `reasoning` and leave the
+    /// visible reply clean (no raw tags leaking into the bubble).
+    func testInlineThinkBlockSplitsIntoReasoning() throws {
+        let json = """
+        {
+          "id": "c4", "title": "t",
+          "chat": {
+            "messages": [
+              { "id": "a", "role": "assistant", "timestamp": 1,
+                "content": "<think>Let me weigh the options.</think>The answer is 42." }
+            ]
+          }
+        }
+        """
+        let chat = try JSONDecoder().decode(OWChat.self, from: Data(json.utf8))
+        let m = try XCTUnwrap(chat.messages.first)
+        XCTAssertEqual(m.reasoning, "Let me weigh the options.")
+        XCTAssertEqual(m.content, "The answer is 42.")
+    }
+
+    /// An unclosed <think> (chat still generating when it was persisted) counts as
+    /// all-reasoning rather than dumping raw tags into the reply.
+    func testUnclosedThinkIsAllReasoning() {
+        let split = OWMessage.splitReasoning("<think>still thinking")
+        XCTAssertEqual(split.content, "")
+        XCTAssertEqual(split.reasoning, "still thinking")
+    }
+
+    /// A plain reply with no think block is returned untouched.
+    func testNoThinkBlockUnchanged() {
+        let split = OWMessage.splitReasoning("Just a normal answer.")
+        XCTAssertEqual(split.content, "Just a normal answer.")
+        XCTAssertEqual(split.reasoning, "")
+    }
 }

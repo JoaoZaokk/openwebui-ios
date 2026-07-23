@@ -189,8 +189,8 @@ final class ChatViewModel: ObservableObject {
                 case .textDelta(let d):
                     sawText = true
                     append(assistantID, d)
-                case .reasoningDelta:
-                    break   // TODO: surface reasoning in a disclosure (phase 2)
+                case .reasoningDelta(let d):
+                    appendReasoning(assistantID, d)
                 case .error(let msg):
                     setContent(assistantID, friendlyError(msg))
                 case .done:
@@ -271,6 +271,9 @@ final class ChatViewModel: ObservableObject {
     private func index(of id: String) -> Int? { messages.firstIndex { $0.id == id } }
     private func append(_ id: String, _ text: String) {
         if let i = index(of: id) { messages[i].content += text }
+    }
+    private func appendReasoning(_ id: String, _ text: String) {
+        if let i = index(of: id) { messages[i].reasoning += text }
     }
     private func setContent(_ id: String, _ text: String) {
         if let i = index(of: id) { messages[i].content = text }
