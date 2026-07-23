@@ -1,14 +1,27 @@
 import SwiftUI
 import MarkdownUI
 import OpenWebUIKit
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct MessageBubble: View {
     let message: OWMessage
     var isStreaming: Bool = false
     var client: OpenWebUIClient? = nil
+    /// Branch position among siblings (1-based index, total) — nil when not a fork.
+    var branch: (index: Int, total: Int)? = nil
+    /// Models offered in the "retry with a different model" menu.
+    var models: [OWModel] = []
+    var onEdit: ((String) -> Void)? = nil          // edited user text
+    var onRegenerate: (() -> Void)? = nil
+    var onRetryModel: ((String) -> Void)? = nil    // model id
+    var onBranch: ((Int) -> Void)? = nil           // ±1 to switch branch
     @Environment(\.theme) private var theme
     @ObservedObject private var speech = SpeechManager.shared
     @State private var viewer: ViewerImage?
+    @State private var editing = false
+    @State private var draft = ""
 
     struct ViewerImage: Identifiable { let id = UUID(); let url: String }
 
@@ -21,11 +34,96 @@ struct MessageBubble: View {
                 if !isUser { header }
                 if !message.imageURLs.isEmpty { imagesView }
                 if !message.documents.isEmpty { documentsView }
-                if !message.content.isEmpty || (message.imageURLs.isEmpty && message.documents.isEmpty) { bubble }
+                if editing {
+                    editor
+                } else if !message.content.isEmpty || (message.imageURLs.isEmpty && message.documents.isEmpty) {
+                    bubble.contextMenu { messageMenu }
+                }
+                if !editing, !isStreaming { actionBar }
             }
             if !isUser { Spacer(minLength: 36) }
         }
         .fullScreenCover(item: $viewer) { v in ImageViewerView(url: v.url, client: client) }
+    }
+
+    /// Inline actions under a settled message: branch switcher + (assistant)
+    /// regenerate / retry-with-model. Kept subtle, ChatGPT/Claude-style.
+    @ViewBuilder
+    private var actionBar: some View {
+        let hasActions = branch != nil || (!isUser && (onRegenerate != nil || onRetryModel != nil))
+        if hasActions {
+            HStack(spacing: 16) {
+                if let b = branch { branchNav(b) }
+                if !isUser, let onRegenerate {
+                    Button { onRegenerate() } label: { Image(systemName: "arrow.clockwise") }
+                        .buttonStyle(.plain)
+                }
+                if !isUser, !models.isEmpty, let onRetryModel {
+                    Menu {
+                        ForEach(models) { m in Button(m.shortName) { onRetryModel(m.id) } }
+                    } label: {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                    }
+                }
+            }
+            .font(.ody(size: 12))
+            .foregroundStyle(theme.secondaryText)
+            .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
+            .padding(.top, 1)
+        }
+    }
+
+    private func branchNav(_ b: (index: Int, total: Int)) -> some View {
+        HStack(spacing: 9) {
+            Button { onBranch?(-1) } label: { Image(systemName: "chevron.left") }
+                .buttonStyle(.plain).disabled(b.index <= 1)
+            Text("\(b.index)/\(b.total)").font(.ody(size: 11, design: .monospaced))
+            Button { onBranch?(1) } label: { Image(systemName: "chevron.right") }
+                .buttonStyle(.plain).disabled(b.index >= b.total)
+        }
+    }
+
+    @ViewBuilder
+    private var messageMenu: some View {
+        if !message.content.isEmpty {
+            Button {
+                #if canImport(UIKit)
+                UIPasteboard.general.string = message.content
+                #endif
+            } label: { Label(L("Copiar"), systemImage: "doc.on.doc") }
+        }
+        if isUser, onEdit != nil {
+            Button { draft = message.content; editing = true } label: {
+                Label(L("Editar"), systemImage: "pencil")
+            }
+        }
+        if !isUser, let onRegenerate {
+            Button { onRegenerate() } label: { Label(L("Regenerar"), systemImage: "arrow.clockwise") }
+        }
+    }
+
+    /// Editable field shown in place of a user bubble while editing.
+    private var editor: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            TextField(L("Editar mensagem"), text: $draft, axis: .vertical)
+                .textFieldStyle(.plain)
+                .font(.ody(.body, design: .monospaced))
+                .foregroundStyle(theme.fg)
+                .padding(.horizontal, 14).padding(.vertical, 10)
+                .background(theme.userBubble, in: RoundedRectangle(cornerRadius: 14))
+            HStack(spacing: 12) {
+                Button(L("Cancelar")) { editing = false }
+                    .buttonStyle(.plain).foregroundStyle(theme.secondaryText)
+                Button(L("Enviar")) {
+                    editing = false
+                    onEdit?(draft)
+                }
+                .buttonStyle(.plain).foregroundStyle(theme.accent)
+                .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            .font(.ody(size: 13))
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
     }
 
     private var header: some View {

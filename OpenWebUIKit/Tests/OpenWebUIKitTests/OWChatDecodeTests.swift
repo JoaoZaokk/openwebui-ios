@@ -84,4 +84,49 @@ final class OWChatDecodeTests: XCTestCase {
         XCTAssertEqual(m.imageURLs, ["data:image/png;base64,xx"])
         XCTAssertEqual(m.documents.first?.id, "f1")
     }
+
+    /// A forked history (one user message with two assistant replies) must expose
+    /// the FULL node set in `allMessages` while `messages` follows `currentId`.
+    func testBranchingHistoryExposesAllNodesAndActiveBranch() throws {
+        let json = """
+        {
+          "id": "c6", "title": "t",
+          "chat": {
+            "history": {
+              "currentId": "a2",
+              "messages": {
+                "u1": { "id": "u1", "parentId": null, "childrenIds": ["a1","a2"],
+                        "role": "user", "content": "hi", "timestamp": 1 },
+                "a1": { "id": "a1", "parentId": "u1", "childrenIds": [],
+                        "role": "assistant", "content": "first reply", "timestamp": 2 },
+                "a2": { "id": "a2", "parentId": "u1", "childrenIds": [],
+                        "role": "assistant", "content": "second reply", "timestamp": 3 }
+              }
+            }
+          }
+        }
+        """
+        let chat = try JSONDecoder().decode(OWChat.self, from: Data(json.utf8))
+        XCTAssertEqual(chat.currentId, "a2")
+        XCTAssertEqual(chat.messages.map(\.id), ["u1", "a2"])   // active branch
+        XCTAssertEqual(Set(chat.allMessages.map(\.id)), ["u1", "a1", "a2"])  // full tree
+    }
+
+    /// `activeBranch` walks currentId → root and reverses.
+    func testActiveBranchWalksToRoot() {
+        let nodes = [
+            OWMessage(id: "u1", role: .user, content: "q", timestamp: 1),
+            { var m = OWMessage(id: "a1", role: .assistant, content: "a", timestamp: 2); m.parentId = "u1"; return m }()
+        ]
+        XCTAssertEqual(OWChat.activeBranch(nodes, currentId: "a1").map(\.id), ["u1", "a1"])
+    }
+
+    /// A message with a parent link round-trips through encode (the tree write path
+    /// depends on `parentId` surviving encode).
+    func testParentIdSurvivesEncode() throws {
+        var m = OWMessage(role: .assistant, content: "x")
+        m.parentId = "root"
+        let decoded = try JSONDecoder().decode(OWMessage.self, from: try JSONEncoder().encode(m))
+        XCTAssertEqual(decoded.parentId, "root")
+    }
 }

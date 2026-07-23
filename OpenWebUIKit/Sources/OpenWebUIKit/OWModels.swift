@@ -186,6 +186,9 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         try c.encode(content, forKey: .content)
         try c.encodeIfPresent(model, forKey: .model)
         try c.encodeIfPresent(timestamp, forKey: .timestamp)
+        // Persist the branch link so a written history tree keeps its shape
+        // (without this every conversation would flatten on the next write).
+        try c.encodeIfPresent(parentId, forKey: .parentId)
         var files = imageURLs.map { OWAttachment(type: "image", url: $0) }
         files += documents
         if !files.isEmpty { try c.encode(files, forKey: .files) }
@@ -274,13 +277,43 @@ public struct OWChat: Decodable, Sendable, Identifiable {
     public var id: String
     public var title: String
     public var models: [String]
+    /// The active branch (currentId → root chain) — what the UI renders by default.
     public var messages: [OWMessage]
+    /// EVERY node in the branching history, not just the active branch. Needed to
+    /// preserve/navigate sibling branches (edit/regenerate) without clobbering them.
+    public var allMessages: [OWMessage]
+    /// The active leaf the server considers current.
+    public var currentId: String?
 
     enum Top: String, CodingKey { case id, title, chat }
     enum Inner: String, CodingKey { case id, title, models, messages, history }
 
     public init(id: String, title: String, models: [String] = [], messages: [OWMessage] = []) {
         self.id = id; self.title = title; self.models = models; self.messages = messages
+        self.allMessages = messages; self.currentId = messages.last?.id
+    }
+
+    /// Rebuilds a chat from a history tree (all nodes + the active leaf) — used to
+    /// restore a chat for offline reading. Derives `messages` by walking the
+    /// `currentId → root` chain.
+    public init(id: String, title: String, models: [String],
+                allMessages: [OWMessage], currentId: String?) {
+        self.id = id; self.title = title; self.models = models
+        self.allMessages = allMessages; self.currentId = currentId
+        self.messages = OWChat.activeBranch(allMessages, currentId: currentId)
+    }
+
+    /// The active branch (currentId → root, reversed) from a flat node list.
+    public static func activeBranch(_ nodes: [OWMessage], currentId: String?) -> [OWMessage] {
+        let map = Dictionary(nodes.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        guard let cur = currentId, map[cur] != nil else {
+            return nodes.sorted { ($0.timestamp ?? 0) < ($1.timestamp ?? 0) }
+        }
+        var chain: [OWMessage] = []
+        var id: String? = cur
+        var guardN = 0
+        while let i = id, let m = map[i], guardN < 10_000 { chain.append(m); id = m.parentId; guardN += 1 }
+        return chain.reversed()
     }
 
     public init(from decoder: Decoder) throws {
@@ -297,12 +330,19 @@ public struct OWChat: Decodable, Sendable, Identifiable {
             // message must not drop the rest of the conversation.
             let flat = ((try? inner.decode([OWLossy<OWMessage>].self, forKey: .messages)) ?? [])
                 .compactMap(\.value)
-            let chain = (try? inner.decode(OWHistory.self, forKey: .history))?.ordered() ?? []
+            let history = try? inner.decode(OWHistory.self, forKey: .history)
+            let chain = history?.ordered() ?? []
             messages = chain.count > flat.count ? chain : flat
+            // Keep the full node set + the server's active leaf so we can navigate
+            // and preserve sibling branches (edit/regenerate).
+            allMessages = history.map { Array($0.messages.values) } ?? messages
+            currentId = history?.currentId ?? messages.last?.id
         } else {
             title = topTitle ?? "Conversa"
             models = []
             messages = []
+            allMessages = []
+            currentId = nil
         }
     }
 }
