@@ -31,6 +31,7 @@ struct ChatListView: View {
     @StateObject private var store: ChatStore
     @State private var path: [ChatRoute] = []
     @State private var showSettings = false
+    @State private var showArchived = false
     @State private var search = ""
     @State private var renaming: OWChatSummary?
     @State private var renameText = ""
@@ -71,6 +72,10 @@ struct ChatListView: View {
                         Button { path.append(.new(temporary: true)) } label: {
                             Label("Conversa temporária", systemImage: "clock.badge.xmark")
                         }
+                        Divider()
+                        Button { showArchived = true } label: {
+                            Label("Arquivadas", systemImage: "archivebox")
+                        }
                     } label: {
                         Image(systemName: "square.and.pencil")
                     }
@@ -90,6 +95,9 @@ struct ChatListView: View {
         .tint(theme.accent)
         .sheet(isPresented: $showSettings) {
             SettingsView().environmentObject(app).environmentObject(themes)
+        }
+        .sheet(isPresented: $showArchived) {
+            ArchivedChatsView(app: app).environment(\.theme, theme)
         }
         .sheet(item: $shareItem) { item in ShareSheet(items: [item.url]) }
         .alert("Renomear conversa", isPresented: Binding(
@@ -203,6 +211,87 @@ struct ChatListView: View {
                     .padding(.horizontal, 16).padding(.vertical, 10)
                     .background(theme.accent, in: Capsule()).foregroundStyle(.white)
             }
+        }
+    }
+}
+
+/// Browse archived chats like normal conversations — tap to open and read the
+/// full thread, or swipe to restore (OWUI's archive is a toggle) / delete.
+/// Presented as a sheet from the chat list's menu.
+struct ArchivedChatsView: View {
+    let app: AppState
+    @Environment(\.theme) private var theme
+    @Environment(\.dismiss) private var dismiss
+    @State private var chats: [OWChatSummary] = []
+    @State private var loading = true
+
+    private static let dateFormatter: DateFormatter = {
+        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .short; return f
+    }()
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                theme.bg.ignoresSafeArea()
+                if loading {
+                    ProgressView().tint(theme.accent)
+                } else if chats.isEmpty {
+                    VStack(spacing: 10) {
+                        Image(systemName: "archivebox").font(.system(size: 40)).foregroundStyle(theme.secondaryText)
+                        Text("Nenhuma conversa arquivada.")
+                            .font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                    }
+                } else {
+                    List {
+                        ForEach(chats) { c in
+                            NavigationLink {
+                                ChatScreen(app: app, chat: c, onChanged: {}).environment(\.theme, theme)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(c.title.isEmpty ? L("Sem título") : c.title)
+                                        .font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg).lineLimit(1)
+                                    if let t = c.updatedAt ?? c.createdAt {
+                                        Text(Self.dateFormatter.string(from: Date(timeIntervalSince1970: t)))
+                                            .font(.ody(.caption, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                                    }
+                                }
+                            }
+                            .listRowBackground(theme.panel)
+                            .swipeActions {
+                                Button(role: .destructive) { remove(c, delete: true) } label: {
+                                    Label("Apagar", systemImage: "trash")
+                                }
+                                Button { remove(c, delete: false) } label: {
+                                    Label("Restaurar", systemImage: "tray.and.arrow.up")
+                                }.tint(theme.accent)
+                            }
+                        }
+                    }
+                    .listStyle(.plain).scrollContentBackground(.hidden)
+                }
+            }
+            .navigationTitle("Conversas arquivadas")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Concluir") { dismiss() }.foregroundStyle(theme.accent)
+                }
+            }
+            .task {
+                loading = true
+                chats = (try? await app.client.archivedChats()) ?? []
+                loading = false
+            }
+        }
+        .tint(theme.accent)
+    }
+
+    /// Restore (unarchive, via the toggle endpoint) or delete, then drop the row.
+    private func remove(_ c: OWChatSummary, delete: Bool) {
+        chats.removeAll { $0.id == c.id }
+        Task {
+            if delete { try? await app.client.deleteChat(c.id) }
+            else { try? await app.client.archiveChat(c.id) }
         }
     }
 }

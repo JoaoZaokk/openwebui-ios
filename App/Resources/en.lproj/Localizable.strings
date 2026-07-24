@@ -178,3 +178,10 @@
 "Histórico" = "History";
 "Nenhuma imagem gerada ainda." = "No images generated yet.";
 "Limpar histórico" = "Clear History";
+
+/* Archived chats screen */
+"Arquivadas" = "Archived";
+"Conversas arquivadas" = "Archived chats";
+"Nenhuma conversa arquivada." = "No archived chats.";
+"Restaurar" = "Restore";
+"Concluir" = "Done";
