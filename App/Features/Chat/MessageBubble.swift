@@ -207,19 +207,19 @@ struct MessageBubble: View {
 /// Three-dot pulsing indicator while waiting for the first token.
 struct TypingDots: View {
     @Environment(\.theme) private var theme
-    @State private var phase = 0.0
+    @State private var animating = false
     var body: some View {
         HStack(spacing: 5) {
             ForEach(0..<3) { i in
                 Circle()
                     .fill(theme.fg.opacity(0.7))
                     .frame(width: 7, height: 7)
-                    .scaleEffect(phase == Double(i) ? 1.0 : 0.5)
+                    .scaleEffect(animating ? 1 : 0.5)
+                    .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true).delay(Double(i) * 0.16),
+                               value: animating)
             }
         }
-        .onAppear {
-            withAnimation(.easeInOut(duration: 0.5).repeatForever()) { phase = 2 }
-        }
+        .onAppear { animating = true }
         .frame(height: 14)
     }
 }
