@@ -178,3 +178,23 @@
 "Histórico" = "History";
 "Nenhuma imagem gerada ainda." = "No images generated yet.";
 "Limpar histórico" = "Clear History";
+
+/* Accessibility (VoiceOver) labels + error banner */
+"Conversa por voz" = "Voice conversation";
+"Escolher modelo" = "Choose model";
+"Ditar mensagem" = "Dictate message";
+"Parar ditado" = "Stop dictation";
+"Enviar mensagem" = "Send message";
+"Parar resposta" = "Stop response";
+"Remover anexo" = "Remove attachment";
+"Ler em voz alta" = "Read aloud";
+"Parar leitura" = "Stop reading";
+"Salvar imagem" = "Save image";
+"Dispensar erro" = "Dismiss error";
+"Usar prompt" = "Use prompt";
+"Cancelar download" = "Cancel download";
+"Ativar aceleração Core ML" = "Enable Core ML acceleration";
+"Remover aceleração Core ML" = "Remove Core ML acceleration";
+"Selecionar modelo" = "Select model";
+"Apagar modelo" = "Delete model";
+"Baixar modelo" = "Download model";

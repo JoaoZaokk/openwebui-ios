@@ -54,6 +54,7 @@ struct VoiceView: View {
                         Button("Fechar") { convo.stop(); dismiss() }.foregroundStyle(theme.accent)
                     } else if !convo.turns.isEmpty {
                         Button { convo.reset() } label: { Image(systemName: "square.and.pencil") }
+                            .accessibilityLabel(Text("Nova conversa"))
                     }
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
@@ -195,7 +196,7 @@ struct VoiceView: View {
             .frame(maxWidth: .infinity).padding(.vertical, 15)
             .background(convo.active ? theme.panel : theme.accent,
                         in: RoundedRectangle(cornerRadius: 14))
-            .foregroundStyle(convo.active ? theme.accent : .white)
+            .foregroundStyle(convo.active ? theme.accent : theme.onAccent)
             .overlay(RoundedRectangle(cornerRadius: 14)
                 .stroke(convo.active ? theme.accent : .clear, lineWidth: 1))
         }

@@ -149,17 +149,20 @@ struct VoiceSettingsView: View {
                 Text("\(Int(p * 100))%").font(.ody(size: 9, design: .monospaced)).foregroundStyle(theme.secondaryText)
                 Button { downloads.cancelCoreML(model) } label: { Image(systemName: "xmark.circle") }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel(Text("Cancelar download"))
             }
         } else if downloads.hasCoreML(model) {
             Button { downloads.deleteCoreML(model) } label: {
                 Image(systemName: "bolt.fill").font(.ody(size: 18)).foregroundStyle(theme.green)
             }
             .buttonStyle(.borderless)
+            .accessibilityLabel(Text("Remover aceleração Core ML"))
         } else {
             Button { downloads.downloadCoreML(model) } label: {
                 Image(systemName: "bolt").font(.ody(size: 18)).foregroundStyle(theme.secondaryText)
             }
             .buttonStyle(.borderless)
+            .accessibilityLabel(Text("Ativar aceleração Core ML"))
         }
     }
 
@@ -204,6 +207,7 @@ struct VoiceSettingsView: View {
                 Text("\(Int(p * 100))%").font(.ody(size: 10, design: .monospaced)).foregroundStyle(theme.secondaryText)
                 Button { downloads.cancel(model) } label: { Image(systemName: "xmark.circle") }
                     .buttonStyle(.borderless)
+                    .accessibilityLabel(Text("Cancelar download"))
             }
         } else if downloads.isInstalled(model) {
             HStack(spacing: 16) {
@@ -216,17 +220,21 @@ struct VoiceSettingsView: View {
                         .foregroundStyle(selected ? theme.green : theme.secondaryText)
                 }
                 .buttonStyle(.borderless)
+                .accessibilityLabel(Text("Selecionar modelo"))
+                .accessibilityAddTraits(selected ? .isSelected : [])
                 // Delete
                 Button(role: .destructive) { downloads.delete(model) } label: {
                     Image(systemName: "trash").foregroundStyle(theme.accent)
                 }
                 .buttonStyle(.borderless)
+                .accessibilityLabel(Text("Apagar modelo"))
             }
         } else {
             Button { downloads.download(model) } label: {
                 Image(systemName: "arrow.down.circle").font(.ody(size: 20)).foregroundStyle(theme.accent)
             }
             .buttonStyle(.borderless)
+            .accessibilityLabel(Text("Baixar modelo"))
         }
     }
 }

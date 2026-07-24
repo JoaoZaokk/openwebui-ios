@@ -56,6 +56,7 @@ struct ChatScreen: View {
                 Button { showVoice = true } label: {
                     Image(systemName: "waveform").foregroundStyle(theme.accent)
                 }
+                .accessibilityLabel(Text("Conversa por voz"))
             }
         }
         .onAppear {
@@ -93,6 +94,8 @@ struct ChatScreen: View {
             }
             .foregroundStyle(theme.secondaryText)
         }
+        .accessibilityLabel(Text("Escolher modelo"))
+        .accessibilityValue(Text(verbatim: vm.selectedModelName))
     }
 
     // MARK: - Messages
@@ -152,13 +155,7 @@ struct ChatScreen: View {
                 Spacer()
             }
             .padding(.horizontal, 12)
-            if let err = vm.error ?? voice.error {
-                Text(err)
-                    .font(.ody(size: 11, design: .monospaced))
-                    .foregroundStyle(theme.accent)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.horizontal, 14)
-            }
+            if let err = vm.error ?? voice.error { errorBanner(err) }
             if !vm.pendingImageURLs.isEmpty || !vm.pendingDocuments.isEmpty || vm.uploading { pendingStrip }
             HStack(alignment: .bottom, spacing: 8) {
                 attachButton
@@ -214,6 +211,28 @@ struct ChatScreen: View {
         } message: { Text(comingSoon ?? "") }
     }
 
+    /// Dismissible error banner: icon + message + ✕, in the semantic error red
+    /// (not the brand accent, which doesn't read as "something went wrong").
+    private func errorBanner(_ err: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 8) {
+            Image(systemName: "exclamationmark.triangle.fill").font(.ody(size: 12))
+            Text(err)
+                .font(.ody(size: 11, design: .monospaced))
+                .frame(maxWidth: .infinity, alignment: .leading)
+            Button { vm.error = nil; voice.error = nil } label: {
+                Image(systemName: "xmark").font(.ody(size: 11, weight: .semibold))
+                    .frame(minWidth: 24, minHeight: 24).contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(Text("Dispensar erro"))
+        }
+        .foregroundStyle(theme.danger)
+        .padding(.horizontal, 12).padding(.vertical, 8)
+        .background(theme.danger.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.danger.opacity(0.35), lineWidth: 1))
+        .padding(.horizontal, 12)
+    }
+
     private var inputPrompt: LocalizedStringKey { voice.isRecording ? "Ouvindo…" : "Mensagem…" }
     private var inputBinding: Binding<String> {
         voice.isRecording ? .constant(voice.partialText) : $vm.input
@@ -239,6 +258,7 @@ struct ChatScreen: View {
                 .foregroundStyle(theme.accent)
                 .frame(width: 34, height: 42)
         }
+        .accessibilityLabel(Text("Anexar"))
     }
 
     private var pendingStrip: some View {
@@ -251,6 +271,7 @@ struct ChatScreen: View {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.white, .black.opacity(0.5))
                         }
+                        .accessibilityLabel(Text("Remover anexo"))
                         .offset(x: 5, y: -5)
                     }
                 }
@@ -262,6 +283,7 @@ struct ChatScreen: View {
                         Button { vm.removePendingDocument(doc) } label: {
                             Image(systemName: "xmark.circle.fill").foregroundStyle(theme.secondaryText)
                         }
+                        .accessibilityLabel(Text("Remover anexo"))
                     }
                     .padding(.horizontal, 10).padding(.vertical, 8)
                     .frame(maxWidth: 180)
@@ -304,6 +326,7 @@ struct ChatScreen: View {
             .frame(width: 34, height: 42)
         }
         .disabled(voice.processing)
+        .accessibilityLabel(Text(voice.isRecording ? "Parar ditado" : "Ditar mensagem"))
     }
 
     private func toggleMic() async {
@@ -339,12 +362,14 @@ struct ChatScreen: View {
                 vm.send(); inputFocused = false
             }
         } label: {
+            let active = canSend || vm.isStreaming || voice.isRecording
             Image(systemName: vm.isStreaming ? "stop.fill" : "arrow.up")
                 .font(.ody(size: 18, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(active ? theme.onAccent : theme.secondaryText)
                 .frame(width: 42, height: 42)
-                .background((canSend || vm.isStreaming || voice.isRecording) ? theme.accent : theme.border, in: Circle())
+                .background(active ? theme.accent : theme.border, in: Circle())
         }
+        .accessibilityLabel(Text(vm.isStreaming ? "Parar resposta" : "Enviar mensagem"))
         .disabled(!voice.isRecording && !vm.isStreaming && !canSend)
     }
 
@@ -355,11 +380,12 @@ struct ChatScreen: View {
                 Text(LocalizedStringKey(label)).font(.ody(size: 12, design: .monospaced))
             }
             .padding(.horizontal, 10).padding(.vertical, 6)
-            .foregroundStyle(on.wrappedValue ? .white : theme.secondaryText)
+            .foregroundStyle(on.wrappedValue ? theme.onAccent : theme.secondaryText)
             .background(on.wrappedValue ? theme.accent : theme.panel, in: Capsule())
             .overlay(Capsule().stroke(theme.border, lineWidth: on.wrappedValue ? 0 : 1))
         }
         .buttonStyle(.plain)
+        .accessibilityAddTraits(on.wrappedValue ? .isSelected : [])
     }
 
     private var canSend: Bool {

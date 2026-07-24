@@ -62,6 +62,7 @@ struct ChatListView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button { showSettings = true } label: { Image(systemName: "gearshape") }
+                        .accessibilityLabel(Text("Ajustes"))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -74,6 +75,7 @@ struct ChatListView: View {
                     } label: {
                         Image(systemName: "square.and.pencil")
                     }
+                    .accessibilityLabel(Text("Nova conversa"))
                 }
             }
             .navigationDestination(for: ChatRoute.self) { route in
@@ -137,8 +139,21 @@ struct ChatListView: View {
                     .contextMenu { chatActions(chat) }
             }
             if let err = store.error {
-                Text(err).font(.ody(.footnote, design: .monospaced))
-                    .foregroundStyle(theme.accent).listRowBackground(theme.bg)
+                // Dismissible banner in the semantic error red, not the accent.
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Image(systemName: "exclamationmark.triangle.fill").font(.ody(size: 12))
+                    Text(err).font(.ody(.footnote, design: .monospaced))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Button { store.error = nil } label: {
+                        Image(systemName: "xmark").font(.ody(size: 11, weight: .semibold))
+                            .frame(minWidth: 24, minHeight: 24).contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(Text("Dispensar erro"))
+                }
+                .foregroundStyle(theme.danger)
+                .padding(.vertical, 6)
+                .listRowBackground(theme.bg)
             }
         }
         .listStyle(.plain)
@@ -201,7 +216,7 @@ struct ChatListView: View {
                 Label("Nova conversa", systemImage: "square.and.pencil")
                     .font(.ody(.subheadline, design: .monospaced))
                     .padding(.horizontal, 16).padding(.vertical, 10)
-                    .background(theme.accent, in: Capsule()).foregroundStyle(.white)
+                    .background(theme.accent, in: Capsule()).foregroundStyle(theme.onAccent)
             }
         }
     }

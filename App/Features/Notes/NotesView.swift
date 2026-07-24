@@ -63,6 +63,7 @@ struct NotesView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { editing = NoteEdit(note: nil) } label: { Image(systemName: "square.and.pencil") }
+                        .accessibilityLabel(Text("Nova nota"))
                 }
             }
             .task { await store.load() }
@@ -88,7 +89,7 @@ struct NotesView: View {
             }
             if let err = store.error {
                 Text(err).font(.ody(.footnote, design: .monospaced))
-                    .foregroundStyle(theme.accent).listRowBackground(theme.bg)
+                    .foregroundStyle(theme.danger).listRowBackground(theme.bg)
             }
         }
         .listStyle(.plain)
@@ -127,7 +128,7 @@ struct NotesView: View {
                 Label("Nova nota", systemImage: "square.and.pencil")
                     .font(.ody(.subheadline, design: .monospaced))
                     .padding(.horizontal, 16).padding(.vertical, 10)
-                    .background(theme.accent, in: Capsule()).foregroundStyle(.white)
+                    .background(theme.accent, in: Capsule()).foregroundStyle(theme.onAccent)
             }
         }
     }
@@ -184,7 +185,7 @@ struct NoteEditorView: View {
                         }
                     if let error {
                         Text(error).font(.ody(size: 11, design: .monospaced))
-                            .foregroundStyle(theme.accent)
+                            .foregroundStyle(theme.danger)
                             .frame(maxWidth: .infinity, alignment: .leading).padding(12)
                     }
                 }
