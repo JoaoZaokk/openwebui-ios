@@ -178,3 +178,7 @@
 "Histórico" = "History";
 "Nenhuma imagem gerada ainda." = "No images generated yet.";
 "Limpar histórico" = "Clear History";
+
+/* Chat: message timestamps */
+"Hoje" = "Today";
+"Ontem" = "Yesterday";
