@@ -296,6 +296,9 @@ final class ChatViewModel: ObservableObject {
         isStreaming = false
         notifyReplyIfBackgrounded(assistantID)
         endBackgroundHold()
+        // Ask for notification permission only once the first reply has landed —
+        // asking at send time throws the system alert over a streaming answer.
+        askForNotificationsOnce()
         await persist()
     }
 
@@ -382,9 +385,13 @@ final class ChatViewModel: ObservableObject {
 
     #if canImport(UIKit)
     private static var askedForNotifications = false
+    private func askForNotificationsOnce() {
+        guard !Self.askedForNotifications else { return }
+        Self.askedForNotifications = true
+        LocalNotifier.requestAuthorization()
+    }
     private var backgroundHold: UIBackgroundTaskIdentifier = .invalid
     private func beginBackgroundHold() {
-        if !Self.askedForNotifications { Self.askedForNotifications = true; LocalNotifier.requestAuthorization() }
         endBackgroundHold()
         backgroundHold = UIApplication.shared.beginBackgroundTask(withName: "chat-reply") { [weak self] in
             self?.endBackgroundHold()
@@ -398,6 +405,7 @@ final class ChatViewModel: ObservableObject {
     #else
     private func beginBackgroundHold() {}
     private func endBackgroundHold() {}
+    private func askForNotificationsOnce() {}
     #endif
 }
 
