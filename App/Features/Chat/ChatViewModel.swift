@@ -39,16 +39,21 @@ final class ChatViewModel: ObservableObject {
 
     private let client: OpenWebUIClient
     private let completions: ChatCompletionsClient
+    private let cache: ServerChatCache?
     private var streamTask: Task<Void, Never>?
     private var historyTask: Task<Void, Never>?
     private var historyLoaded = false
     /// Guards send() while a save is in flight (prevents duplicate createChat).
     private var isPersisting = false
+    /// True when the currently-shown history came from the offline cache.
+    @Published private(set) var offline = false
 
     init(client: OpenWebUIClient, completions: ChatCompletionsClient,
-         chat: OWChatSummary?, models: [OWModel], defaultModel: String?, temporary: Bool = false) {
+         chat: OWChatSummary?, models: [OWModel], defaultModel: String?,
+         temporary: Bool = false, cache: ServerChatCache? = nil) {
         self.client = client
         self.completions = completions
+        self.cache = cache
         self.models = models
         self.temporary = temporary
         self.chatID = chat?.id
@@ -89,10 +94,21 @@ final class ChatViewModel: ObservableObject {
                 let chat = try await self.client.chat(id)
                 self.adopt(chat)
                 if let m = chat.models.first { self.selectedModel = m }
+                self.cache?.cacheChat(chat)   // keep the offline copy fresh
+                self.offline = false
                 self.historyLoaded = true
             } catch is CancellationError {
             } catch {
-                self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                // Offline / server error: fall back to the cached copy if we have one.
+                if let cached = self.cache?.cachedChat(id: id) {
+                    self.messages = cached.messages
+                    if let m = cached.models.first { self.selectedModel = m }
+                    if !cached.title.isEmpty { self.title = cached.title }
+                    self.offline = true
+                    self.historyLoaded = true
+                } else {
+                    self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                }
             }
         }
     }

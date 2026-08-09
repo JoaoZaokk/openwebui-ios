@@ -16,6 +16,8 @@ final class AppState: ObservableObject {
 
     let client: OpenWebUIClient
     let completions: ChatCompletionsClient
+    /// Shared on-device cache of server chats (offline read + full-text search).
+    let cache = ServerChatCache()
     private let keychain = OWKeychainStore()
 
     init() {
@@ -77,9 +79,9 @@ final class AppState: ObservableObject {
     }
 
     // Factories
-    func makeChatStore() -> ChatStore { ChatStore(client: client) }
+    func makeChatStore() -> ChatStore { ChatStore(client: client, cache: cache) }
     func makeChatViewModel(chat: OWChatSummary?, temporary: Bool = false) -> ChatViewModel {
         ChatViewModel(client: client, completions: completions, chat: chat,
-                      models: models, defaultModel: defaultModel, temporary: temporary)
+                      models: models, defaultModel: defaultModel, temporary: temporary, cache: cache)
     }
 }

@@ -177,13 +177,19 @@ public struct OWWebSource: Codable, Hashable, Sendable, Identifiable {
 
 /// One entry of the server's `sources` array (chat JSON and SSE frame share the
 /// shape): { source: {name…}, document: […], metadata: [{source: <url>…}] }.
-struct OWSourceEntry: Decodable {
+struct OWSourceEntry: Codable {
     var source: Src?
     var metadata: [Meta]
-    struct Src: Decodable { var name: String?; var url: String? }
-    struct Meta: Decodable { var source: String? }
+    struct Src: Codable { var name: String?; var url: String? }
+    struct Meta: Codable { var source: String? }
 
     enum CodingKeys: String, CodingKey { case source, metadata }
+
+    /// Rebuild the server shape from a citation (offline cache round-trip).
+    init(_ s: OWWebSource) {
+        source = Src(name: s.name, url: s.url)
+        metadata = s.url.map { [Meta(source: $0)] } ?? []
+    }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -244,7 +250,9 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         self.sources = sources
     }
 
-    enum CodingKeys: String, CodingKey { case id, role, content, model, timestamp, files, parentId, output, sources }
+    enum CodingKeys: String, CodingKey {
+        case id, role, content, model, timestamp, files, parentId, output, sources, reasoning
+    }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -279,8 +287,10 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         // disclosure can show it and the raw tags never leak into the bubble.
         let split = OWMessage.splitReasoning(body)
         content = split.content
-        reasoning = outputReasoning.isEmpty ? split.reasoning
-            : (split.reasoning.isEmpty ? outputReasoning : outputReasoning + "\n\n" + split.reasoning)
+        // A cached copy carries `reasoning` verbatim; server payloads never do.
+        let stored = (try? c.decodeIfPresent(String.self, forKey: .reasoning)) ?? nil
+        reasoning = stored ?? (outputReasoning.isEmpty ? split.reasoning
+            : (split.reasoning.isEmpty ? outputReasoning : outputReasoning + "\n\n" + split.reasoning))
         // Lossy per-element: one exotic file entry must not drop every attachment.
         if let files = try? c.decode([OWLossy<OWAttachment>].self, forKey: .files) {
             for f in files.compactMap(\.value) {
@@ -297,6 +307,9 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         parentId = try? c.decodeIfPresent(String.self, forKey: .parentId)
     }
 
+    /// Only the offline cache encodes an `OWMessage` (server payloads are built
+    /// by `OWChatPayload`), so `reasoning` and `sources` are written in the same
+    /// shape the decoder reads — otherwise a cached chat loses both on reload.
     public func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
         try c.encode(id, forKey: .id)
@@ -304,6 +317,10 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         try c.encode(content, forKey: .content)
         try c.encodeIfPresent(model, forKey: .model)
         try c.encodeIfPresent(timestamp, forKey: .timestamp)
+        if !reasoning.isEmpty { try c.encode(reasoning, forKey: .reasoning) }
+        if !sources.isEmpty {
+            try c.encode(sources.map(OWSourceEntry.init), forKey: .sources)
+        }
         var files = imageURLs.map { OWAttachment(type: "image", url: $0) }
         files += documents
         if !files.isEmpty { try c.encode(files, forKey: .files) }
@@ -339,15 +356,19 @@ public struct OWChatSummary: Decodable, Identifiable, Hashable, Sendable {
     public var createdAt: Double?
     public var pinned: Bool
     public var archived: Bool
+    /// A matching excerpt for full-text search results (not part of the API).
+    public var snippet: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case id, title, updated_at, created_at, pinned, archived
     }
 
     public init(id: String, title: String, updatedAt: Double? = nil,
-                createdAt: Double? = nil, pinned: Bool = false, archived: Bool = false) {
+                createdAt: Double? = nil, pinned: Bool = false, archived: Bool = false,
+                snippet: String? = nil) {
         self.id = id; self.title = title; self.updatedAt = updatedAt
         self.createdAt = createdAt; self.pinned = pinned; self.archived = archived
+        self.snippet = snippet
     }
 
     public init(from decoder: Decoder) throws {

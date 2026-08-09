@@ -192,4 +192,19 @@ final class OWChatDecodeTests: XCTestCase {
         XCTAssertEqual(split.content, "Just a normal answer.")
         XCTAssertEqual(split.reasoning, "")
     }
+
+    /// The offline cache encodes an OWMessage and decodes it back — reasoning and
+    /// web-search citations must survive that round-trip (they live in fields the
+    /// server shapes differently).
+    func testCacheRoundTripKeepsReasoningAndSources() throws {
+        var m = OWMessage(role: .assistant, content: "resposta", model: "x",
+                          timestamp: 1, reasoning: "pensando…")
+        m.sources = [OWWebSource(name: "Wikipedia", url: "https://pt.wikipedia.org/wiki/Chevette")]
+        let data = try JSONEncoder().encode(m)
+        let back = try JSONDecoder().decode(OWMessage.self, from: data)
+        XCTAssertEqual(back.content, "resposta")
+        XCTAssertEqual(back.reasoning, "pensando…")
+        XCTAssertEqual(back.sources.map(\.url), ["https://pt.wikipedia.org/wiki/Chevette"])
+        XCTAssertEqual(back.sources.first?.name, "Wikipedia")
+    }
 }
