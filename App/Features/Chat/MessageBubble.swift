@@ -26,6 +26,12 @@ struct MessageBubble: View {
             if isUser { Spacer(minLength: 36) }
             VStack(alignment: isUser ? .trailing : .leading, spacing: 6) {
                 if !isUser { header }
+                if !isUser, !toolUses.isEmpty {
+                    VStack(alignment: .leading, spacing: 6) {
+                        ForEach(toolUses) { ToolUseCard(tool: $0) }
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
                 if !message.imageURLs.isEmpty { imagesView }
                 if !message.documents.isEmpty { documentsView }
                 if !isUser && !message.reasoning.isEmpty {
@@ -33,7 +39,6 @@ struct MessageBubble: View {
                                         streaming: isStreaming && message.content.isEmpty)
                 }
                 if !message.content.isEmpty || (message.imageURLs.isEmpty && message.documents.isEmpty) { bubble }
-                if !isUser && !message.sources.isEmpty { sourcesView }
                 if !isStreaming { timeLabel }
             }
             if !isUser { Spacer(minLength: 36) }
@@ -110,33 +115,16 @@ struct MessageBubble: View {
         }
     }
 
-    /// Web-search citation chips (tappable when the source has a URL).
-    private var sourcesView: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 6) {
-                ForEach(message.sources) { s in
-                    if let u = s.url.flatMap(URL.init(string:)) {
-                        Link(destination: u) { sourceChip(s) }
-                    } else {
-                        sourceChip(s)
-                    }
-                }
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    private func sourceChip(_ s: OWWebSource) -> some View {
-        HStack(spacing: 4) {
-            Image(systemName: "globe").font(.ody(size: 10))
-            Text(s.url.flatMap { URL(string: $0)?.host } ?? s.name)
-                .font(.ody(size: 10, design: .monospaced))
-                .lineLimit(1)
-        }
-        .padding(.horizontal, 8).padding(.vertical, 5)
-        .foregroundStyle(theme.secondaryText)
-        .background(theme.panel, in: Capsule())
-        .overlay(Capsule().stroke(theme.border.opacity(0.5), lineWidth: 1))
+    /// Tool cards for this reply. A chat loaded from the server carries them in
+    /// `toolUses`; a search the app itself ran only produced citations, so fold
+    /// those into a card too — one affordance either way, never both.
+    private var toolUses: [OWToolUse] {
+        if !message.toolUses.isEmpty { return message.toolUses }
+        guard !message.sources.isEmpty else { return [] }
+        return [OWToolUse(action: "web_search", query: "", results: "",
+                          sources: message.sources.map {
+                              OWSource(title: $0.name, url: $0.url ?? "")
+                          })]
     }
 
     @ViewBuilder
@@ -289,6 +277,62 @@ struct ReasoningDisclosure: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+/// Expandable audit card for one tool run (web search / RAG): tap to reveal the
+/// raw context the model was given and tappable source links. Mirrors the
+/// "searched X → here's what it saw" affordance in the Claude app.
+struct ToolUseCard: View {
+    let tool: OWToolUse
+    @Environment(\.theme) private var theme
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Button { withAnimation(.easeInOut(duration: 0.18)) { expanded.toggle() } } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: tool.icon).font(.ody(size: 11))
+                    Text(tool.title).font(.ody(size: 12, design: .monospaced)).lineLimit(1)
+                    Spacer(minLength: 6)
+                    if !tool.sources.isEmpty {
+                        Text("\(tool.sources.count)").font(.ody(size: 10, design: .monospaced))
+                    }
+                    Image(systemName: "chevron.right")
+                        .font(.ody(size: 9, weight: .semibold))
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
+                }
+                .foregroundStyle(theme.secondaryText)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+
+            if expanded {
+                if !tool.results.isEmpty {
+                    Text(tool.results)
+                        .font(.ody(size: 11, design: .monospaced))
+                        .foregroundStyle(theme.secondaryText)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                if !tool.sources.isEmpty {
+                    VStack(alignment: .leading, spacing: 3) {
+                        ForEach(Array(tool.sources.enumerated()), id: \.offset) { i, s in
+                            if let url = URL(string: s.url) {
+                                Link(destination: url) {
+                                    Text("\(i + 1). \(s.title.isEmpty ? s.url : s.title)")
+                                        .font(.ody(size: 11)).foregroundStyle(theme.accent).lineLimit(1)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(theme.panel.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
+        .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.border.opacity(0.4), lineWidth: 1))
     }
 }
 
