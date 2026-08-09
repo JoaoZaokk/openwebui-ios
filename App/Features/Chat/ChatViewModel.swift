@@ -1,5 +1,9 @@
 import SwiftUI
 import OpenWebUIKit
+import UserNotifications
+#if canImport(UIKit)
+import UIKit
+#endif
 
 @MainActor
 final class ChatViewModel: ObservableObject {
@@ -193,6 +197,7 @@ final class ChatViewModel: ObservableObject {
         messages.append(assistant)
         isStreaming = true
         awaitingWebSearch = webSearch
+        beginBackgroundHold()   // let the reply finish if the user backgrounds the app
 
         // Context = everything except the empty assistant placeholder we stream into.
         var convo = messages.dropLast().map { OWChatMessageInput($0) }
@@ -273,6 +278,8 @@ final class ChatViewModel: ObservableObject {
         }
         awaitingWebSearch = false
         isStreaming = false
+        notifyReplyIfBackgrounded(assistantID)
+        endBackgroundHold()
         await persist()
     }
 
@@ -336,5 +343,65 @@ final class ChatViewModel: ObservableObject {
     }
     private func setContent(_ id: String, _ text: String) {
         if let i = index(of: id) { messages[i].content = text }
+    }
+
+    // MARK: - Background completion + local notification
+
+    /// Post a local notification if the reply finished while the app was
+    /// backgrounded — so a mid-stream reply the user walked away from pings them
+    /// when it's ready. No-op on macOS (no application-state concept here).
+    private func notifyReplyIfBackgrounded(_ id: String) {
+        #if canImport(UIKit)
+        guard UIApplication.shared.applicationState == .background else { return }
+        guard let i = index(of: id) else { return }
+        let body = messages[i].content
+            .replacingOccurrences(of: "\n", with: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !body.isEmpty else { return }
+        let snippet = body.count > 140 ? String(body.prefix(140)) + "…" : body
+        let heading = title.isEmpty ? L("Resposta pronta") : title
+        LocalNotifier.replyFinished(title: heading, body: snippet, threadID: chatID)
+        #endif
+    }
+
+    #if canImport(UIKit)
+    private static var askedForNotifications = false
+    private var backgroundHold: UIBackgroundTaskIdentifier = .invalid
+    private func beginBackgroundHold() {
+        if !Self.askedForNotifications { Self.askedForNotifications = true; LocalNotifier.requestAuthorization() }
+        endBackgroundHold()
+        backgroundHold = UIApplication.shared.beginBackgroundTask(withName: "chat-reply") { [weak self] in
+            self?.endBackgroundHold()
+        }
+    }
+    private func endBackgroundHold() {
+        guard backgroundHold != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(backgroundHold)
+        backgroundHold = .invalid
+    }
+    #else
+    private func beginBackgroundHold() {}
+    private func endBackgroundHold() {}
+    #endif
+}
+
+/// Local (on-device) notifications — pings when a chat reply finishes while the
+/// app is backgrounded. No push server or APNs: `UNUserNotificationCenter` posts
+/// these itself. Colocated here to avoid a new project file.
+enum LocalNotifier {
+    static func requestAuthorization() {
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { _, _ in }
+    }
+
+    /// Fire a notification for a finished reply. `threadID` (the chat id) collapses
+    /// repeat pings for the same chat into one thread.
+    static func replyFinished(title: String, body: String, threadID: String?) {
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        if let threadID { content.threadIdentifier = threadID }
+        let req = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil)
+        UNUserNotificationCenter.current().add(req)
     }
 }
