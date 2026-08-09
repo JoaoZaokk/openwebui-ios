@@ -30,6 +30,7 @@ struct MessageBubble: View {
                 if !message.documents.isEmpty { documentsView }
                 if !message.content.isEmpty || (message.imageURLs.isEmpty && message.documents.isEmpty) { bubble }
                 if !isUser && !message.sources.isEmpty { sourcesView }
+                if !isStreaming { timeLabel }
             }
             if !isUser { Spacer(minLength: 36) }
         }
@@ -39,6 +40,19 @@ struct MessageBubble: View {
         // flattens interactive children out of existence.
         .accessibilityElement(children: .contain)
         .fullScreenCover(item: $viewer) { v in ImageViewerView(url: v.url, client: client) }
+    }
+
+    private static let timeFmt: DateFormatter = {
+        let f = DateFormatter(); f.timeStyle = .short; f.dateStyle = .none; return f
+    }()
+    /// Subtle send time under each settled message (aligned with the bubble side).
+    @ViewBuilder private var timeLabel: some View {
+        if let t = message.timestamp {
+            Text(Self.timeFmt.string(from: Date(timeIntervalSince1970: t)))
+                .font(.ody(size: 10, design: .monospaced))
+                .foregroundStyle(theme.secondaryText.opacity(0.7))
+                .padding(.horizontal, 2)
+        }
     }
 
     private var header: some View {

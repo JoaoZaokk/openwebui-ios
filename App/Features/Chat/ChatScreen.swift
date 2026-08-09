@@ -132,6 +132,7 @@ struct ChatScreen: View {
                     }
                     LazyVStack(spacing: 16) {
                         ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, msg in
+                            daySeparator(idx)
                             MessageBubble(
                                 message: msg,
                                 isStreaming: vm.isStreaming && idx == vm.messages.count - 1 && msg.role == .assistant,
@@ -203,6 +204,30 @@ struct ChatScreen: View {
 
     private func scrollToBottom(_ proxy: ScrollViewProxy) {
         withAnimation(.easeOut(duration: 0.15)) { proxy.scrollTo("bottom", anchor: .bottom) }
+    }
+
+    /// A centered "Hoje / Ontem / date" pill, shown above a message when the
+    /// calendar day changes (and above the first message) — iMessage-style.
+    @ViewBuilder private func daySeparator(_ idx: Int) -> some View {
+        let cur = vm.messages[idx].timestamp
+        let prev = idx > 0 ? vm.messages[idx - 1].timestamp : nil
+        let newDay = prev == nil || (cur != nil && !Calendar.current.isDate(
+            Date(timeIntervalSince1970: cur!), inSameDayAs: Date(timeIntervalSince1970: prev!)))
+        if let cur, newDay {
+            Text(Self.dayLabel(cur))
+                .font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                .padding(.horizontal, 12).padding(.vertical, 4)
+                .background(theme.panel, in: Capsule())
+                .frame(maxWidth: .infinity).padding(.vertical, 2)
+        }
+    }
+
+    private static func dayLabel(_ t: Double) -> String {
+        let d = Date(timeIntervalSince1970: t), cal = Calendar.current
+        if cal.isDateInToday(d) { return L("Hoje") }
+        if cal.isDateInYesterday(d) { return L("Ontem") }
+        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .none
+        return f.string(from: d)
     }
 
     private var welcome: some View {

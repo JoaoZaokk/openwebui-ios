@@ -207,3 +207,7 @@
 "Remover aceleração Core ML" = "Remove Core ML acceleration";
 "Apagar modelo" = "Delete model";
 "Baixar modelo" = "Download model";
+
+/* Chat: message timestamps */
+"Hoje" = "Today";
+"Ontem" = "Yesterday";
