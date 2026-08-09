@@ -55,6 +55,9 @@ public struct OWStreamOptions: Sendable {
 public enum OWStreamUpdate: Sendable {
     case textDelta(String)
     case reasoningDelta(String)
+    /// Web-search citations (Open WebUI prepends a `data: {"sources": …}` frame
+    /// before the first token when the RAG web-search path runs).
+    case sources([OWWebSource])
     case error(String)
     case done
 }
@@ -85,6 +88,17 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                         throw OWError.http(http.statusCode, Self.extractError(body) ?? L("Falha ao iniciar o stream"))
                     }
 
+                    // Pipe/function models, filters and some providers answer with a
+                    // single JSON body instead of SSE — render it, don't show "(sem resposta)".
+                    let mime = ((resp as? HTTPURLResponse)?.value(forHTTPHeaderField: "Content-Type") ?? "").lowercased()
+                    if mime.contains("application/json") {
+                        var body = ""
+                        for try await line in bytes.lines { body += line; if body.count > 4_000_000 { break } }
+                        Self.yieldJSONCompletion(body, into: continuation)
+                        continuation.finish()
+                        return
+                    }
+
                     for try await rawLine in bytes.lines {
                         if Task.isCancelled { break }
                         let line = rawLine.trimmingCharacters(in: .whitespaces)
@@ -109,6 +123,13 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                                 if let t = delta.content, !t.isEmpty {
                                     continuation.yield(.textDelta(t))
                                 }
+                            }
+                            // Not a chunk/error: maybe the prepended web-search
+                            // sources frame ({"sources": [...]}, no choices key).
+                            if chunk.choices == nil,
+                               let frame = try? JSONDecoder().decode(OWSourcesFrame.self, from: data) {
+                                let srcs = frame.webSources
+                                if !srcs.isEmpty { continuation.yield(.sources(srcs)) }
                             }
                         }
                     }
@@ -138,7 +159,11 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         req.httpBody = try JSONEncoder().encode(
             Body(model: model, messages: messages, stream: true,
                  temperature: options.temperature, files: files.isEmpty ? nil : files,
-                 features: options.webSearch ? Body.Features(web_search: true) : nil)
+                 features: options.webSearch ? Body.Features(web_search: true) : nil,
+                 // Open WebUI >= 0.10 only runs the RAG web-search handler in
+                 // "legacy" function-calling mode; the "native" default needs a
+                 // socket.io session_id we don't have. Harmless on older servers.
+                 params: options.webSearch ? Body.Params(function_calling: "legacy") : nil)
         )
         return req
     }
@@ -150,7 +175,28 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         var temperature: Double?
         var files: [OWAttachment]?
         var features: Features?
+        var params: Params?
         struct Features: Encodable { var web_search: Bool }
+        struct Params: Encodable { var function_calling: String }
+    }
+
+    /// A whole-body JSON completion (non-streaming server path).
+    private static func yieldJSONCompletion(_ body: String,
+                                            into c: AsyncThrowingStream<OWStreamUpdate, Error>.Continuation) {
+        let trimmed = body.trimmingCharacters(in: .whitespacesAndNewlines)
+        // 0.6.x error path answers HTTP 200 with a literal `null` body.
+        guard !trimmed.isEmpty, trimmed != "null", let data = trimmed.data(using: .utf8) else {
+            c.yield(.error(L("Falha ao iniciar o stream"))); return
+        }
+        if let full = try? JSONDecoder().decode(OWFullCompletion.self, from: data) {
+            if let err = full.errorMessage { c.yield(.error(err)); return }
+            if let t = full.text, !t.isEmpty {
+                c.yield(.textDelta(t))
+                c.yield(.done)
+                return
+            }
+        }
+        if let err = extractError(trimmed) { c.yield(.error(err)) }
     }
 
     private static func extractError(_ body: String) -> String? {
@@ -165,6 +211,34 @@ public final class ChatCompletionsClient: @unchecked Sendable {
     }
 }
 
+/// `content` that may be a plain string or an array of typed parts.
+struct OWFlexText: Decodable {
+    var text: String
+    init(from decoder: Decoder) throws {
+        let sv = try decoder.singleValueContainer()
+        if let s = try? sv.decode(String.self) { text = s; return }
+        struct P: Decodable { var type: String?; var text: String? }
+        if let parts = try? sv.decode([P].self) {
+            text = parts.compactMap(\.text).joined(); return
+        }
+        text = ""
+    }
+}
+
+/// `error` that may be a string, {message}, or {detail}.
+struct OWErrorBody: Decodable {
+    var message: String?
+    enum CodingKeys: String, CodingKey { case message, detail }
+    init(from decoder: Decoder) throws {
+        if let s = try? decoder.singleValueContainer().decode(String.self) {
+            message = s; return
+        }
+        let c = try? decoder.container(keyedBy: CodingKeys.self)
+        message = c.flatMap { try? $0.decodeIfPresent(String.self, forKey: .message) }
+            ?? c.flatMap { try? $0.decodeIfPresent(String.self, forKey: .detail) }
+    }
+}
+
 /// A single SSE chunk from /api/chat/completions (OpenAI shape).
 struct OWCompletionChunk: Decodable {
     struct Choice: Decodable {
@@ -172,14 +246,47 @@ struct OWCompletionChunk: Decodable {
             var content: String?
             var reasoning: String?
             var reasoning_content: String?
+
+            enum CodingKeys: String, CodingKey { case content, reasoning, reasoning_content }
+            init(from decoder: Decoder) throws {
+                let c = try decoder.container(keyedBy: CodingKeys.self)
+                content = (try? c.decode(OWFlexText.self, forKey: .content))?.text
+                reasoning = try? c.decodeIfPresent(String.self, forKey: .reasoning)
+                reasoning_content = try? c.decodeIfPresent(String.self, forKey: .reasoning_content)
+            }
         }
         var delta: Delta?
     }
-    struct ErrorBody: Decodable { var message: String? }
 
     var choices: [Choice]?
-    var error: ErrorBody?
+    var error: OWErrorBody?
     var detail: String?
 
+    var errorMessage: String? { error?.message ?? detail }
+}
+
+/// The prepended web-search frame: `data: {"sources": [ … ]}` (no choices key).
+struct OWSourcesFrame: Decodable {
+    var sources: [OWLossy<OWSourceEntry>]?
+    var webSources: [OWWebSource] {
+        OWSourceEntry.webSources((sources ?? []).compactMap(\.value))
+    }
+}
+
+/// A complete (non-streamed) completion body.
+struct OWFullCompletion: Decodable {
+    struct Choice: Decodable {
+        struct Msg: Decodable {
+            var content: OWFlexText?
+            var reasoning_content: String?
+        }
+        var message: Msg?
+        var text: String?
+    }
+    var choices: [Choice]?
+    var error: OWErrorBody?
+    var detail: String?
+
+    var text: String? { choices?.first.flatMap { $0.message?.content?.text ?? $0.text } }
     var errorMessage: String? { error?.message ?? detail }
 }

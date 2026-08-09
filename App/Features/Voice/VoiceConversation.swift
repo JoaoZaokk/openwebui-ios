@@ -289,7 +289,8 @@ final class VoiceConversation: ObservableObject {
         let title = String(firstUser.prefix(50))
         do {
             if let id = chatID {
-                try await client.updateChat(id: id, title: title, model: model, messages: msgs)
+                // Merge-safe: appends only unseen turns, keeps web-side data.
+                try await client.syncChat(id: id, localMessages: msgs, model: model)
             } else {
                 let id = try await client.createChat(title: title, model: model, messages: msgs)
                 chatID = id

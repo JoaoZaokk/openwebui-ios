@@ -63,6 +63,78 @@ final class OWChatDecodeTests: XCTestCase {
         XCTAssertEqual(chat.messages.map(\.id), ["a", "b"])
     }
 
+    /// Open WebUI >= 0.10 persists assistant replies ONLY as structured
+    /// `output` items — flat content stays "". Text must be reconstructed.
+    func testEmptyContentReconstructedFromOutputItems() throws {
+        let json = """
+        {
+          "id": "c4", "title": "t",
+          "chat": {
+            "history": {
+              "currentId": "b",
+              "messages": {
+                "a": { "id": "a", "parentId": null, "childrenIds": ["b"],
+                       "role": "user", "content": "oi", "timestamp": 1 },
+                "b": { "id": "b", "parentId": "a", "childrenIds": [],
+                       "role": "assistant", "content": "", "timestamp": 2, "done": true,
+                       "output": [
+                         { "type": "reasoning", "content": [ {"type": "reasoning_text", "text": "hmm"} ] },
+                         { "type": "message", "content": [
+                             {"type": "output_text", "text": "Olá! "},
+                             {"type": "output_text", "text": "Tudo bem?"} ] }
+                       ] }
+              }
+            }
+          }
+        }
+        """
+        let chat = try JSONDecoder().decode(OWChat.self, from: Data(json.utf8))
+        XCTAssertEqual(chat.messages.last?.content, "Olá! Tudo bem?")
+    }
+
+    /// Web-search citations decode from the server `sources` shape (and from
+    /// the SSE frame, which shares it) into deduplicated OWWebSource values.
+    func testSourcesDecodeAndSSEFrame() throws {
+        let entry = """
+        [ { "source": { "name": "Wikipedia" },
+            "document": ["…"],
+            "metadata": [ {"source": "https://pt.wikipedia.org/wiki/Chevette"},
+                          {"source": "https://pt.wikipedia.org/wiki/Chevette"} ] },
+          { "source": { "name": "not-a-url" }, "metadata": [ null ] } ]
+        """
+        let msgJSON = """
+        { "id": "m", "role": "assistant", "content": "resp", "timestamp": 1,
+          "sources": \(entry) }
+        """
+        let m = try JSONDecoder().decode(OWMessage.self, from: Data(msgJSON.utf8))
+        XCTAssertEqual(m.sources.map(\.url), ["https://pt.wikipedia.org/wiki/Chevette", nil])
+        XCTAssertEqual(m.sources.map(\.name), ["Wikipedia", "not-a-url"])
+
+        let frame = try JSONDecoder().decode(OWSourcesFrame.self,
+                                             from: Data("{\"sources\": \(entry)}".utf8))
+        XCTAssertEqual(frame.webSources.first?.url, "https://pt.wikipedia.org/wiki/Chevette")
+    }
+
+    /// Delta content as an array of parts (some pipes) must not be dropped,
+    /// and error frames may carry a plain string.
+    func testChunkFlexibleShapes() throws {
+        let parts = """
+        { "choices": [ { "delta": { "content": [ {"type": "text", "text": "abc"} ] } } ] }
+        """
+        let c1 = try JSONDecoder().decode(OWCompletionChunk.self, from: Data(parts.utf8))
+        XCTAssertEqual(c1.choices?.first?.delta?.content, "abc")
+
+        let strErr = try JSONDecoder().decode(OWCompletionChunk.self,
+                                              from: Data("{\"error\": \"boom\"}".utf8))
+        XCTAssertEqual(strErr.errorMessage, "boom")
+
+        let full = """
+        { "choices": [ { "message": { "content": "resposta inteira" } } ] }
+        """
+        let f = try JSONDecoder().decode(OWFullCompletion.self, from: Data(full.utf8))
+        XCTAssertEqual(f.text, "resposta inteira")
+    }
+
     /// Multimodal content array + files documents still flatten correctly.
     func testMultimodalContentAndDocs() throws {
         let json = """

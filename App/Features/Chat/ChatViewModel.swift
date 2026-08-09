@@ -34,6 +34,8 @@ final class ChatViewModel: ObservableObject {
     private var streamTask: Task<Void, Never>?
     private var historyTask: Task<Void, Never>?
     private var historyLoaded = false
+    /// Guards send() while a save is in flight (prevents duplicate createChat).
+    private var isPersisting = false
 
     init(client: OpenWebUIClient, completions: ChatCompletionsClient,
          chat: OWChatSummary?, models: [OWModel], defaultModel: String?, temporary: Bool = false) {
@@ -77,15 +79,33 @@ final class ChatViewModel: ObservableObject {
             defer { self.isLoadingHistory = false; self.historyTask = nil }
             do {
                 let chat = try await self.client.chat(id)
-                self.messages = chat.messages
+                self.adopt(chat)
                 if let m = chat.models.first { self.selectedModel = m }
-                if !chat.title.isEmpty { self.title = chat.title }
                 self.historyLoaded = true
             } catch is CancellationError {
             } catch {
                 self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
             }
         }
+    }
+
+    /// Server wins for every message it knows; local-only (unsaved) messages are
+    /// kept at the end instead of being clobbered by a refresh.
+    private func adopt(_ chat: OWChat) {
+        let known = Set(chat.messages.map(\.id))
+        let localOnly = messages.filter { !known.contains($0.id) }
+        let merged = chat.messages + localOnly
+        if merged != messages { messages = merged }
+        if !chat.title.isEmpty, chat.title != title { title = chat.title }
+    }
+
+    /// Silent periodic refresh while the chat is on screen, so replies generated
+    /// on the web UI show up without leaving the conversation.
+    func refreshRemote() async {
+        guard let id = chatID, !isStreaming, !isPersisting, historyTask == nil else { return }
+        guard let chat = try? await client.chat(id) else { return }
+        guard !isStreaming, !isPersisting else { return }   // state may have changed mid-await
+        adopt(chat)
     }
 
     // MARK: - Sending
@@ -158,7 +178,8 @@ final class ChatViewModel: ObservableObject {
         let text = input.trimmingCharacters(in: .whitespacesAndNewlines)
         let images = pendingImageURLs
         let docs = pendingDocuments
-        guard (!text.isEmpty || !images.isEmpty || !docs.isEmpty), !isStreaming, let model = selectedModel else { return }
+        guard (!text.isEmpty || !images.isEmpty || !docs.isEmpty),
+              !isStreaming, !isPersisting, let model = selectedModel else { return }
         input = ""; pendingImageURLs = []; pendingDocuments = []; error = nil
 
         messages.append(OWMessage(role: .user, content: text,
@@ -191,6 +212,8 @@ final class ChatViewModel: ObservableObject {
                     append(assistantID, d)
                 case .reasoningDelta:
                     break   // TODO: surface reasoning in a disclosure (phase 2)
+                case .sources(let list):
+                    if let i = index(of: assistantID) { messages[i].sources = list }
                 case .error(let msg):
                     setContent(assistantID, friendlyError(msg))
                 case .done:
@@ -223,25 +246,19 @@ final class ChatViewModel: ObservableObject {
         return msg
     }
 
-    /// Saves the conversation to the server (creates on the first turn, updates after).
+    /// Saves the conversation to the server (creates on the first turn, appends after).
     private func persist() async {
         guard !temporary else { return }   // ephemeral — never saved
         guard !messages.isEmpty, let model = selectedModel else { return }
+        isPersisting = true; defer { isPersisting = false }
         let title = chatTitle()
         do {
             if let id = chatID {
-                // updateChat REPLACES the whole chat server-side. If the web UI
-                // added messages meanwhile (e.g. image generations), writing our
-                // stale local array would erase them — so merge first: adopt the
-                // fuller server history and re-append what only exists locally.
-                if let server = try? await client.chat(id), server.messages.count > 0 {
-                    let known = Set(server.messages.map(\.id))
-                    let localOnly = messages.filter { !known.contains($0.id) }
-                    if server.messages.count > messages.count - localOnly.count {
-                        messages = server.messages + localOnly
-                    }
-                }
-                try await client.updateChat(id: id, title: title, model: model, messages: messages)
+                // Merge-safe append: the server's copy — including web-generated
+                // `output` content, sources and the branching graph — is kept
+                // verbatim; only messages the server has never seen are added.
+                // On failure NOTHING is written (no destructive fallback).
+                try await client.syncChat(id: id, localMessages: messages, model: model)
             } else {
                 let id = try await client.createChat(title: title, model: model, messages: messages)
                 chatID = id
@@ -249,7 +266,9 @@ final class ChatViewModel: ObservableObject {
             }
             onChanged?()
         } catch {
-            // Non-fatal: the conversation stays on screen even if the save fails.
+            // Chat stays on screen, but tell the user the turn didn't reach the
+            // server instead of losing it silently.
+            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }
     }
 

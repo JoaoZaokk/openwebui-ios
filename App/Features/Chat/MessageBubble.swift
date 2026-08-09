@@ -22,6 +22,7 @@ struct MessageBubble: View {
                 if !message.imageURLs.isEmpty { imagesView }
                 if !message.documents.isEmpty { documentsView }
                 if !message.content.isEmpty || (message.imageURLs.isEmpty && message.documents.isEmpty) { bubble }
+                if !isUser && !message.sources.isEmpty { sourcesView }
             }
             if !isUser { Spacer(minLength: 36) }
         }
@@ -76,6 +77,35 @@ struct MessageBubble: View {
                 .overlay(Capsule().stroke(theme.border.opacity(0.5), lineWidth: 1))
             }
         }
+    }
+
+    /// Web-search citation chips (tappable when the source has a URL).
+    private var sourcesView: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 6) {
+                ForEach(message.sources) { s in
+                    if let u = s.url.flatMap(URL.init(string:)) {
+                        Link(destination: u) { sourceChip(s) }
+                    } else {
+                        sourceChip(s)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func sourceChip(_ s: OWWebSource) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: "globe").font(.ody(size: 10))
+            Text(s.url.flatMap { URL(string: $0)?.host } ?? s.name)
+                .font(.ody(size: 10, design: .monospaced))
+                .lineLimit(1)
+        }
+        .padding(.horizontal, 8).padding(.vertical, 5)
+        .foregroundStyle(theme.secondaryText)
+        .background(theme.panel, in: Capsule())
+        .overlay(Capsule().stroke(theme.border.opacity(0.5), lineWidth: 1))
     }
 
     @ViewBuilder

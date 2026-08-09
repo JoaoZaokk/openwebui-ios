@@ -123,6 +123,85 @@ struct OWContentPart: Decodable {
 /// {type:"image", url:"data:…"}).
 struct OWFileRef: Decodable { var type: String?; var url: String? }
 
+/// One item of the structured `output` array. Since Open WebUI 0.10 the server
+/// persists assistant replies ONLY here — flat `content` stays "" — so we must
+/// reconstruct the text or web-generated responses render empty.
+struct OWOutputItem: Decodable {
+    var type: String?
+    var text: String?
+    var parts: [Part]
+    struct Part: Decodable { var type: String?; var text: String? }
+
+    enum CodingKeys: String, CodingKey { case type, text, content }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        type = try? c.decodeIfPresent(String.self, forKey: .type)
+        text = try? c.decodeIfPresent(String.self, forKey: .text)
+        if let lossy = try? c.decode([OWLossy<Part>].self, forKey: .content) {
+            parts = lossy.compactMap(\.value)
+        } else if let s = try? c.decode(String.self, forKey: .content) {
+            parts = [Part(type: "output_text", text: s)]
+        } else {
+            parts = []
+        }
+    }
+
+    /// Flatten output items to displayable text ("message" items win; anything
+    /// carrying text is the fallback so future item types degrade gracefully).
+    static func flatten(_ items: [OWOutputItem]) -> String {
+        let messages = items.filter { $0.type == "message" || $0.type == nil }
+        let texts = messages.map { $0.parts.compactMap(\.text).joined() }.filter { !$0.isEmpty }
+        if !texts.isEmpty { return texts.joined(separator: "\n\n") }
+        return items.compactMap { $0.text ?? ($0.parts.compactMap(\.text).joined().isEmpty ? nil : $0.parts.compactMap(\.text).joined()) }
+            .joined(separator: "\n\n")
+    }
+}
+
+/// A web-search citation attached to an assistant message.
+public struct OWWebSource: Codable, Hashable, Sendable, Identifiable {
+    public var name: String
+    public var url: String?
+    public var id: String { url ?? name }
+    public init(name: String, url: String? = nil) { self.name = name; self.url = url }
+}
+
+/// One entry of the server's `sources` array (chat JSON and SSE frame share the
+/// shape): { source: {name…}, document: […], metadata: [{source: <url>…}] }.
+struct OWSourceEntry: Decodable {
+    var source: Src?
+    var metadata: [Meta]
+    struct Src: Decodable { var name: String?; var url: String? }
+    struct Meta: Decodable { var source: String? }
+
+    enum CodingKeys: String, CodingKey { case source, metadata }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        source = try? c.decodeIfPresent(Src.self, forKey: .source)
+        metadata = ((try? c.decode([OWLossy<Meta>].self, forKey: .metadata)) ?? []).compactMap(\.value)
+    }
+
+    /// Distinct citations across all entries.
+    static func webSources(_ entries: [OWSourceEntry]) -> [OWWebSource] {
+        var out: [OWWebSource] = []
+        var seen = Set<String>()
+        for e in entries {
+            let urls = e.metadata.compactMap(\.source).filter { $0.hasPrefix("http") }
+            if urls.isEmpty {
+                let u = e.source?.url ?? (e.source?.name?.hasPrefix("http") == true ? e.source?.name : nil)
+                guard let n = e.source?.name ?? u, !n.isEmpty else { continue }
+                if seen.insert(u ?? n).inserted { out.append(OWWebSource(name: n, url: u)) }
+            } else {
+                for u in urls where seen.insert(u).inserted {
+                    out.append(OWWebSource(name: e.source?.name ?? URL(string: u)?.host ?? u, url: u))
+                }
+            }
+        }
+        return out
+    }
+}
+
 /// A chat message. Open WebUI stores `content` as a plain string for text and as
 /// an array of parts for multimodal; we flatten to text here (images handled by
 /// the attachments layer later).
@@ -138,16 +217,20 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
     public var imageURLs: [String]
     /// Non-image attachments (documents → RAG).
     public var documents: [OWAttachment]
+    /// Web-search citations (from the server chat or the SSE sources frame).
+    public var sources: [OWWebSource]
 
     public init(id: String = UUID().uuidString, role: OWRole, content: String,
                 model: String? = nil, timestamp: Double? = nil,
-                imageURLs: [String] = [], documents: [OWAttachment] = []) {
+                imageURLs: [String] = [], documents: [OWAttachment] = [],
+                sources: [OWWebSource] = []) {
         self.id = id; self.role = role; self.content = content
         self.model = model; self.timestamp = timestamp
         self.imageURLs = imageURLs; self.documents = documents
+        self.sources = sources
     }
 
-    enum CodingKeys: String, CodingKey { case id, role, content, model, timestamp, files, parentId }
+    enum CodingKeys: String, CodingKey { case id, role, content, model, timestamp, files, parentId, output, sources }
 
     public init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
@@ -166,13 +249,22 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         } else {
             content = ""
         }
-        if let files = try? c.decode([OWAttachment].self, forKey: .files) {
-            for f in files {
+        // Open WebUI >= 0.10 saves assistant replies ONLY as structured `output`
+        // items (flat content stays "") — rebuild the text from there.
+        if content.isEmpty,
+           let items = try? c.decode([OWLossy<OWOutputItem>].self, forKey: .output) {
+            content = OWOutputItem.flatten(items.compactMap(\.value))
+        }
+        // Lossy per-element: one exotic file entry must not drop every attachment.
+        if let files = try? c.decode([OWLossy<OWAttachment>].self, forKey: .files) {
+            for f in files.compactMap(\.value) {
                 if f.isImage, let u = f.url { imgs.append(u) } else { docs.append(f) }
             }
         }
         imageURLs = imgs
         documents = docs
+        let entries = (try? c.decode([OWLossy<OWSourceEntry>].self, forKey: .sources))?.compactMap(\.value) ?? []
+        sources = OWSourceEntry.webSources(entries)
 
         model = try? c.decodeIfPresent(String.self, forKey: .model)
         timestamp = try? c.decode(Double.self, forKey: .timestamp)
@@ -298,7 +390,9 @@ public struct OWChat: Decodable, Sendable, Identifiable {
             let flat = ((try? inner.decode([OWLossy<OWMessage>].self, forKey: .messages)) ?? [])
                 .compactMap(\.value)
             let chain = (try? inner.decode(OWHistory.self, forKey: .history))?.ordered() ?? []
-            messages = chain.count > flat.count ? chain : flat
+            // The history chain is the web UI's source of truth (it shows the
+            // active branch); flat is only the fallback for broken/absent graphs.
+            messages = (!chain.isEmpty && chain.count >= flat.count) ? chain : flat
         } else {
             title = topTitle ?? "Conversa"
             models = []

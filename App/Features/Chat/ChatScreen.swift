@@ -69,6 +69,16 @@ struct ChatScreen: View {
                 Task { await vm.reloadHistory() }
             }
         }
+        // While the chat is on screen, poll quietly so replies generated on the
+        // web UI appear without backgrounding or pull-to-refresh. Cancelled
+        // automatically when the view goes away.
+        .task(id: vm.chatID) {
+            guard vm.chatID != nil else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(15))
+                await vm.refreshRemote()
+            }
+        }
         .fullScreenCover(isPresented: $showVoice) {
             VoiceView(app: app, seed: VoiceSeed(chatID: vm.chatID, messages: vm.messages, model: vm.selectedModel))
                 .environment(\.theme, theme)
