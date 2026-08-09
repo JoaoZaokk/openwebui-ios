@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Mesajları sesle yazdırmak için.";
+"NSSpeechRecognitionUsageDescription" = "Sesinizi cihazda metne dönüştürmek için.";
+"NSPhotoLibraryUsageDescription" = "Sohbetlere görsel eklemek için.";
+"NSCameraUsageDescription" = "Fotoğraf çekip sohbetlere eklemek için.";
+"NSPhotoLibraryAddUsageDescription" = "Sohbetlerdeki görselleri galerinize kaydetmek için.";
+"NSLocalNetworkUsageDescription" = "Uygulamanın yerel ağdaki Open WebUI sunucunuza erişmesi gerekiyor.";

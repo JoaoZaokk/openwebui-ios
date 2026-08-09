@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Para dictar mensajes por voz.";
+"NSSpeechRecognitionUsageDescription" = "Para transcribir tu voz a texto en el dispositivo.";
+"NSPhotoLibraryUsageDescription" = "Para adjuntar imágenes a las conversaciones.";
+"NSCameraUsageDescription" = "Para capturar y adjuntar fotos a las conversaciones.";
+"NSPhotoLibraryAddUsageDescription" = "Para guardar las imágenes de las conversaciones en tu fototeca.";
+"NSLocalNetworkUsageDescription" = "La app necesita acceder a tu servidor Open WebUI en la red local.";

@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "用于通过语音口述消息。";
+"NSSpeechRecognitionUsageDescription" = "用于在设备上将语音转换为文字。";
+"NSPhotoLibraryUsageDescription" = "用于将图像添加到会话中。";
+"NSCameraUsageDescription" = "用于拍摄照片并添加到会话中。";
+"NSPhotoLibraryAddUsageDescription" = "用于将会话中的图像保存到相册。";
+"NSLocalNetworkUsageDescription" = "应用需要访问本地网络中的 Open WebUI 服务器。";

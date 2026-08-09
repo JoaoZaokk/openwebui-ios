@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Untuk mendiktekan pesan dengan suara.";
+"NSSpeechRecognitionUsageDescription" = "Untuk mengubah suara Anda menjadi teks di perangkat.";
+"NSPhotoLibraryUsageDescription" = "Untuk melampirkan gambar ke percakapan.";
+"NSCameraUsageDescription" = "Untuk mengambil dan melampirkan foto ke percakapan.";
+"NSPhotoLibraryAddUsageDescription" = "Untuk menyimpan gambar dari percakapan ke galeri Anda.";
+"NSLocalNetworkUsageDescription" = "Aplikasi perlu mengakses server Open WebUI Anda di jaringan lokal.";

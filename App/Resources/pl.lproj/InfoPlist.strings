@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Aby dyktować wiadomości głosem.";
+"NSSpeechRecognitionUsageDescription" = "Aby zamieniać Twój głos na tekst na urządzeniu.";
+"NSPhotoLibraryUsageDescription" = "Aby dołączać obrazy do rozmów.";
+"NSCameraUsageDescription" = "Aby robić zdjęcia i dołączać je do rozmów.";
+"NSPhotoLibraryAddUsageDescription" = "Aby zapisywać obrazy z rozmów w Twojej bibliotece zdjęć.";
+"NSLocalNetworkUsageDescription" = "Aplikacja musi połączyć się z Twoim serwerem Open WebUI w sieci lokalnej.";

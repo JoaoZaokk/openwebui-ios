@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Чтобы диктовать сообщения голосом.";
+"NSSpeechRecognitionUsageDescription" = "Чтобы преобразовывать вашу речь в текст на устройстве.";
+"NSPhotoLibraryUsageDescription" = "Чтобы прикреплять изображения к разговорам.";
+"NSCameraUsageDescription" = "Чтобы снимать и прикреплять фото к разговорам.";
+"NSPhotoLibraryAddUsageDescription" = "Чтобы сохранять изображения из разговоров в вашу галерею.";
+"NSLocalNetworkUsageDescription" = "Приложению нужен доступ к вашему серверу Open WebUI в локальной сети.";

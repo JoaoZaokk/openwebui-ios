@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Để đọc chính tả tin nhắn bằng giọng nói.";
+"NSSpeechRecognitionUsageDescription" = "Để chuyển giọng nói của bạn thành văn bản ngay trên thiết bị.";
+"NSPhotoLibraryUsageDescription" = "Để đính kèm hình ảnh vào cuộc trò chuyện.";
+"NSCameraUsageDescription" = "Để chụp và đính kèm ảnh vào cuộc trò chuyện.";
+"NSPhotoLibraryAddUsageDescription" = "Để lưu hình ảnh từ cuộc trò chuyện vào thư viện của bạn.";
+"NSLocalNetworkUsageDescription" = "Ứng dụng cần truy cập máy chủ Open WebUI của bạn trong mạng nội bộ.";

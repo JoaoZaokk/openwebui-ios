@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "برای دیکته کردن پیام‌ها با صدا.";
+"NSSpeechRecognitionUsageDescription" = "برای تبدیل صدای شما به متن روی دستگاه.";
+"NSPhotoLibraryUsageDescription" = "برای پیوست کردن تصاویر به گفتگوها.";
+"NSCameraUsageDescription" = "برای گرفتن عکس و پیوست کردن آن به گفتگوها.";
+"NSPhotoLibraryAddUsageDescription" = "برای ذخیرهٔ تصاویر گفتگوها در گالری شما.";
+"NSLocalNetworkUsageDescription" = "برنامه برای دسترسی به سرور Open WebUI در شبکهٔ محلی شما نیاز دارد.";

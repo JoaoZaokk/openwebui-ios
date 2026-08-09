@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Pro diktování zpráv hlasem.";
+"NSSpeechRecognitionUsageDescription" = "Pro převod vašeho hlasu na text přímo v zařízení.";
+"NSPhotoLibraryUsageDescription" = "Pro přikládání obrázků ke konverzacím.";
+"NSCameraUsageDescription" = "Pro pořízení a přiložení fotek ke konverzacím.";
+"NSPhotoLibraryAddUsageDescription" = "Pro ukládání obrázků z konverzací do vaší knihovny fotek.";
+"NSLocalNetworkUsageDescription" = "Aplikace potřebuje přístup k vašemu serveru Open WebUI v místní síti.";

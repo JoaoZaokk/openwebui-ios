@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "За диктирање порука гласом.";
+"NSSpeechRecognitionUsageDescription" = "За претварање вашег гласа у текст на уређају.";
+"NSPhotoLibraryUsageDescription" = "За прилагање слика разговорима.";
+"NSCameraUsageDescription" = "За снимање и прилагање фотографија разговорима.";
+"NSPhotoLibraryAddUsageDescription" = "За чување слика из разговора у вашој галерији.";
+"NSLocalNetworkUsageDescription" = "Апликацији је потребан приступ вашем серверу Open WebUI на локалној мрежи.";

@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "כדי להכתיב הודעות בקול.";
+"NSSpeechRecognitionUsageDescription" = "כדי להמיר את הקול שלך לטקסט במכשיר.";
+"NSPhotoLibraryUsageDescription" = "כדי לצרף תמונות לשיחות.";
+"NSCameraUsageDescription" = "כדי לצלם ולצרף תמונות לשיחות.";
+"NSPhotoLibraryAddUsageDescription" = "כדי לשמור תמונות מהשיחות בגלריה שלך.";
+"NSLocalNetworkUsageDescription" = "האפליקציה צריכה גישה לשרת Open WebUI ברשת המקומית שלך.";

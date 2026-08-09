@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Fir Noriichten mat der Stëmm ze diktéieren.";
+"NSSpeechRecognitionUsageDescription" = "Fir Är Stëmm um Apparat an Text ëmzewandelen.";
+"NSPhotoLibraryUsageDescription" = "Fir Biller un d'Gespréicher unzehänken.";
+"NSCameraUsageDescription" = "Fir Fotoen ze maachen an un d'Gespréicher unzehänken.";
+"NSPhotoLibraryAddUsageDescription" = "Fir Biller aus de Gespréicher an Ärer Galerie ze späicheren.";
+"NSLocalNetworkUsageDescription" = "D'App muss op Äre Open WebUI Server am lokalen Netz zougräifen.";

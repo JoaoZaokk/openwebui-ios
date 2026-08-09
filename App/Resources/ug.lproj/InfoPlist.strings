@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "ئاۋاز ئارقىلىق ئۇچۇر يېزىش ئۈچۈن.";
+"NSSpeechRecognitionUsageDescription" = "ئاۋازىڭىزنى ئۈسكۈنىدە تېكىستكە ئايلاندۇرۇش ئۈچۈن.";
+"NSPhotoLibraryUsageDescription" = "سۆھبەتكە رەسىم قوشۇش ئۈچۈن.";
+"NSCameraUsageDescription" = "رەسىمگە تارتىپ سۆھبەتكە قوشۇش ئۈچۈن.";
+"NSPhotoLibraryAddUsageDescription" = "سۆھبەتتىكى رەسىملەرنى گالېرىيەگە ساقلاش ئۈچۈن.";
+"NSLocalNetworkUsageDescription" = "ئەپ يەرلىك تورىڭىزدىكى Open WebUI مۇلازىمېتىرىغا ئۇلىنىشى كېرەك.";

@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "কণ্ঠস্বর দিয়ে বার্তা লেখার জন্য।";
+"NSSpeechRecognitionUsageDescription" = "আপনার কণ্ঠস্বর ডিভাইসেই লেখায় রূপান্তর করার জন্য।";
+"NSPhotoLibraryUsageDescription" = "কথোপকথনে ছবি সংযুক্ত করার জন্য।";
+"NSCameraUsageDescription" = "ছবি তুলে কথোপকথনে সংযুক্ত করার জন্য।";
+"NSPhotoLibraryAddUsageDescription" = "কথোপকথনের ছবি আপনার গ্যালারিতে সংরক্ষণ করার জন্য।";
+"NSLocalNetworkUsageDescription" = "অ্যাপটির স্থানীয় নেটওয়ার্কে আপনার Open WebUI সার্ভারে প্রবেশাধিকার প্রয়োজন।";

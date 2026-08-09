@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "आवाज़ से संदेश बोलकर लिखने के लिए।";
+"NSSpeechRecognitionUsageDescription" = "आपकी आवाज़ को डिवाइस पर ही टेक्स्ट में बदलने के लिए।";
+"NSPhotoLibraryUsageDescription" = "बातचीत में छवियाँ जोड़ने के लिए।";
+"NSCameraUsageDescription" = "फ़ोटो लेकर बातचीत में जोड़ने के लिए।";
+"NSPhotoLibraryAddUsageDescription" = "बातचीत की छवियाँ आपकी गैलरी में सहेजने के लिए।";
+"NSLocalNetworkUsageDescription" = "ऐप को आपके लोकल नेटवर्क पर Open WebUI सर्वर तक पहुँच चाहिए।";

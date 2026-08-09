@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Za narekovanje sporočil z glasom.";
+"NSSpeechRecognitionUsageDescription" = "Za pretvorbo vašega glasu v besedilo v napravi.";
+"NSPhotoLibraryUsageDescription" = "Za pripenjanje slik k pogovorom.";
+"NSCameraUsageDescription" = "Za fotografiranje in pripenjanje fotografij k pogovorom.";
+"NSPhotoLibraryAddUsageDescription" = "Za shranjevanje slik iz pogovorov v vašo knjižnico fotografij.";
+"NSLocalNetworkUsageDescription" = "Aplikacija mora dostopati do vašega strežnika Open WebUI v krajevnem omrežju.";

@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "음성으로 메시지를 받아쓰기 위해 사용합니다.";
+"NSSpeechRecognitionUsageDescription" = "기기에서 음성을 텍스트로 변환하기 위해 사용합니다.";
+"NSPhotoLibraryUsageDescription" = "대화에 이미지를 첨부하기 위해 사용합니다.";
+"NSCameraUsageDescription" = "사진을 찍어 대화에 첨부하기 위해 사용합니다.";
+"NSPhotoLibraryAddUsageDescription" = "대화의 이미지를 갤러리에 저장하기 위해 사용합니다.";
+"NSLocalNetworkUsageDescription" = "로컬 네트워크의 Open WebUI 서버에 연결하기 위해 사용합니다.";

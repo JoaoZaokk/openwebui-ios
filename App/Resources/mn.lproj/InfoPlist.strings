@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Дуугаар мессеж бичүүлэхэд ашиглана.";
+"NSSpeechRecognitionUsageDescription" = "Таны дуу хоолойг төхөөрөмж дээр бичвэр болгоход ашиглана.";
+"NSPhotoLibraryUsageDescription" = "Яриа хэлцэлд зураг хавсаргахад ашиглана.";
+"NSCameraUsageDescription" = "Зураг авч яриа хэлцэлд хавсаргахад ашиглана.";
+"NSPhotoLibraryAddUsageDescription" = "Яриа хэлцлийн зургийг таны галерейд хадгалахад ашиглана.";
+"NSLocalNetworkUsageDescription" = "Апп таны дотоод сүлжээн дэх Open WebUI серверт холбогдох шаардлагатай.";

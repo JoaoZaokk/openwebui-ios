@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "För att diktera meddelanden med rösten.";
+"NSSpeechRecognitionUsageDescription" = "För att omvandla din röst till text på enheten.";
+"NSPhotoLibraryUsageDescription" = "För att bifoga bilder till konversationer.";
+"NSCameraUsageDescription" = "För att ta och bifoga foton till konversationer.";
+"NSPhotoLibraryAddUsageDescription" = "För att spara bilder från konversationer i ditt bildbibliotek.";
+"NSLocalNetworkUsageDescription" = "Appen behöver nå din Open WebUI-server i det lokala nätverket.";

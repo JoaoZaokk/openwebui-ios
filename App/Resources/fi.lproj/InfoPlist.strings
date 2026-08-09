@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Viestien sanelemiseen puheella.";
+"NSSpeechRecognitionUsageDescription" = "Puheesi muuntamiseen tekstiksi laitteella.";
+"NSPhotoLibraryUsageDescription" = "Kuvien liittämiseen keskusteluihin.";
+"NSCameraUsageDescription" = "Valokuvien ottamiseen ja liittämiseen keskusteluihin.";
+"NSPhotoLibraryAddUsageDescription" = "Keskustelujen kuvien tallentamiseen kuvakirjastoosi.";
+"NSLocalNetworkUsageDescription" = "Sovellus tarvitsee yhteyden Open WebUI -palvelimeesi lähiverkossa.";

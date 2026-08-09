@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "د غږ په واسطه پیغامونه لیکلو لپاره.";
+"NSSpeechRecognitionUsageDescription" = "ستاسو غږ په وسیله کې متن ته د اړولو لپاره.";
+"NSPhotoLibraryUsageDescription" = "په مکالمو کې د انځورونو ضمیمه کولو لپاره.";
+"NSCameraUsageDescription" = "د انځور اخیستلو او په مکالمو کې ضمیمه کولو لپاره.";
+"NSPhotoLibraryAddUsageDescription" = "د مکالمو انځورونه ستاسو په ګالري کې خوندي کولو لپاره.";
+"NSLocalNetworkUsageDescription" = "اپلیکیشن ته ستاسو په محلي شبکه کې د Open WebUI سرور ته لاسرسی اړین دی.";

@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "آواز سے پیغامات لکھوانے کے لیے۔";
+"NSSpeechRecognitionUsageDescription" = "آپ کی آواز کو آلے پر ہی متن میں بدلنے کے لیے۔";
+"NSPhotoLibraryUsageDescription" = "گفتگو میں تصاویر منسلک کرنے کے لیے۔";
+"NSCameraUsageDescription" = "تصویر لے کر گفتگو میں منسلک کرنے کے لیے۔";
+"NSPhotoLibraryAddUsageDescription" = "گفتگو کی تصاویر آپ کی گیلری میں محفوظ کرنے کے لیے۔";
+"NSLocalNetworkUsageDescription" = "ایپ کو مقامی نیٹ ورک پر آپ کے Open WebUI سرور تک رسائی درکار ہے۔";

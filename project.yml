@@ -60,7 +60,7 @@ targets:
         # which carries issue #12's fixes (voice language, server tools,
         # model nicknames) plus user-supplied Whisper models.
         MARKETING_VERSION: "1.6"
-        CURRENT_PROJECT_VERSION: "12"
+        CURRENT_PROJECT_VERSION: "13"
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor

@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Um Nachrichten per Sprache zu diktieren.";
+"NSSpeechRecognitionUsageDescription" = "Um deine Sprache am Gerät in Text umzuwandeln.";
+"NSPhotoLibraryUsageDescription" = "Um Bilder an Unterhaltungen anzuhängen.";
+"NSCameraUsageDescription" = "Um Fotos aufzunehmen und an Unterhaltungen anzuhängen.";
+"NSPhotoLibraryAddUsageDescription" = "Um Bilder aus Unterhaltungen in deiner Fotomediathek zu sichern.";
+"NSLocalNetworkUsageDescription" = "Die App muss deinen Open WebUI-Server im lokalen Netzwerk erreichen.";

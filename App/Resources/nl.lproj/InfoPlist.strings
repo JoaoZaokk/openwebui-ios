@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Om berichten met je stem te dicteren.";
+"NSSpeechRecognitionUsageDescription" = "Om je stem op het apparaat om te zetten in tekst.";
+"NSPhotoLibraryUsageDescription" = "Om afbeeldingen aan gesprekken toe te voegen.";
+"NSCameraUsageDescription" = "Om foto's te maken en aan gesprekken toe te voegen.";
+"NSPhotoLibraryAddUsageDescription" = "Om afbeeldingen uit gesprekken in je fotobibliotheek te bewaren.";
+"NSLocalNetworkUsageDescription" = "De app heeft toegang nodig tot je Open WebUI-server op het lokale netwerk.";

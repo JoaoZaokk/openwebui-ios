@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Üzenetek hangalapú diktálásához.";
+"NSSpeechRecognitionUsageDescription" = "A hangod szöveggé alakításához az eszközön.";
+"NSPhotoLibraryUsageDescription" = "Képek csatolásához a beszélgetésekhez.";
+"NSCameraUsageDescription" = "Fényképek készítéséhez és csatolásához a beszélgetésekhez.";
+"NSPhotoLibraryAddUsageDescription" = "A beszélgetések képeinek mentéséhez a galériádba.";
+"NSLocalNetworkUsageDescription" = "Az alkalmazásnak el kell érnie az Open WebUI kiszolgálót a helyi hálózaton.";

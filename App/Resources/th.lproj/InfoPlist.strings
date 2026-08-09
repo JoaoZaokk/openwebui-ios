@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "เพื่อบอกข้อความด้วยเสียง";
+"NSSpeechRecognitionUsageDescription" = "เพื่อแปลงเสียงของคุณเป็นข้อความบนอุปกรณ์";
+"NSPhotoLibraryUsageDescription" = "เพื่อแนบรูปภาพในการสนทนา";
+"NSCameraUsageDescription" = "เพื่อถ่ายและแนบรูปภาพในการสนทนา";
+"NSPhotoLibraryAddUsageDescription" = "เพื่อบันทึกรูปภาพจากการสนทนาลงแกลเลอรีของคุณ";
+"NSLocalNetworkUsageDescription" = "แอปต้องเข้าถึงเซิร์ฟเวอร์ Open WebUI ของคุณในเครือข่ายท้องถิ่น";

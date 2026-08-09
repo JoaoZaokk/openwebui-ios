@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Lai diktētu ziņas ar balsi.";
+"NSSpeechRecognitionUsageDescription" = "Lai pārvērstu jūsu balsi tekstā ierīcē.";
+"NSPhotoLibraryUsageDescription" = "Lai pievienotu attēlus sarunām.";
+"NSCameraUsageDescription" = "Lai uzņemtu un pievienotu fotoattēlus sarunām.";
+"NSPhotoLibraryAddUsageDescription" = "Lai saglabātu sarunu attēlus jūsu galerijā.";
+"NSLocalNetworkUsageDescription" = "Lietotnei nepieciešama piekļuve jūsu Open WebUI serverim lokālajā tīklā.";

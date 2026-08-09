@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "لإملاء الرسائل بالصوت.";
+"NSSpeechRecognitionUsageDescription" = "لتحويل صوتك إلى نص على جهازك.";
+"NSPhotoLibraryUsageDescription" = "لإرفاق الصور بالمحادثات.";
+"NSCameraUsageDescription" = "لالتقاط صور وإرفاقها بالمحادثات.";
+"NSPhotoLibraryAddUsageDescription" = "لحفظ صور المحادثات في المعرض.";
+"NSLocalNetworkUsageDescription" = "يحتاج التطبيق إلى الوصول إلى الخادم Open WebUI على شبكتك المحلية.";

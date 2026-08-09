@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "音声でメッセージを入力するために使用します。";
+"NSSpeechRecognitionUsageDescription" = "音声を端末上でテキストに変換するために使用します。";
+"NSPhotoLibraryUsageDescription" = "会話に画像を添付するために使用します。";
+"NSCameraUsageDescription" = "写真を撮影して会話に添付するために使用します。";
+"NSPhotoLibraryAddUsageDescription" = "会話の画像をギャラリーに保存するために使用します。";
+"NSLocalNetworkUsageDescription" = "ローカルネットワーク上の Open WebUI サーバーに接続するために使用します。";

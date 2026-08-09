@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "སྐད་ཐོག་ནས་འཕྲིན་ཡིག་འབྲི་བར་སྤྱོད།";
+"NSSpeechRecognitionUsageDescription" = "ཁྱེད་ཀྱི་སྐད་ཐབས་ཆས་སྟེང་ཡི་གེར་བསྒྱུར་བར་སྤྱོད།";
+"NSPhotoLibraryUsageDescription" = "གྲོས་མོལ་ལ་པར་རིས་ཟུར་སྦྱར་བྱེད་པར་སྤྱོད།";
+"NSCameraUsageDescription" = "པར་བླངས་ནས་གྲོས་མོལ་ལ་ཟུར་སྦྱར་བྱེད་པར་སྤྱོད།";
+"NSPhotoLibraryAddUsageDescription" = "གྲོས་མོལ་གྱི་པར་རིས་ཁྱེད་ཀྱི་པར་མཛོད་དུ་ཉར་བར་སྤྱོད།";
+"NSLocalNetworkUsageDescription" = "ཉེར་སྤྱོད་འདིས་ས་གནས་དྲ་རྒྱའི་སྟེང་གི་ Open WebUI སར་བར་ལ་འབྲེལ་མཐུད་དགོས།";

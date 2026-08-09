@@ -1,0 +1,6 @@
+"NSMicrophoneUsageDescription" = "Каб дыктаваць паведамленні голасам.";
+"NSSpeechRecognitionUsageDescription" = "Каб пераўтвараць ваш голас у тэкст на прыладзе.";
+"NSPhotoLibraryUsageDescription" = "Каб дадаваць выявы да размоў.";
+"NSCameraUsageDescription" = "Каб рабіць здымкі і дадаваць іх да размоў.";
+"NSPhotoLibraryAddUsageDescription" = "Каб захоўваць выявы з размоў у вашу галерэю.";
+"NSLocalNetworkUsageDescription" = "Праграме патрэбны доступ да вашага сервера Open WebUI у лакальнай сетцы.";
