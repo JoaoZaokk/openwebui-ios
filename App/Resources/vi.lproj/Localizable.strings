@@ -226,3 +226,11 @@
 "Apagar voz neural" = "Xoá giọng neural";
 "Apagar %@ (%@)" = "Xoá %@ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Xoá sẽ giải phóng dung lượng; giọng sẽ tải lại vào lần sau bạn dùng ngôn ngữ đó.";
+
+"Modelo próprio" = "Mô hình riêng";
+"Verificando…" = "Đang kiểm tra…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "Chỉ nhận liên kết https tới một mô hình Whisper ở định dạng ggml (.bin) — giống như trong danh mục bên dưới. Dán liên kết tới tệp; liên kết trang Hugging Face sẽ được tự chuyển đổi.";
+"Use um link https." = "Hãy dùng liên kết https.";
+"Não consegui acessar esse link: %@" = "Không truy cập được liên kết đó: %@";
+"Espaço insuficiente: são necessários %@ livres." = "Không đủ dung lượng: cần %@ trống.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Đây không giống mô hình Whisper ggml. Kiểm tra xem liên kết có trỏ tới tệp chứ không phải trang.";

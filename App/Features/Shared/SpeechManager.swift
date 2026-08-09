@@ -244,6 +244,9 @@ final class SpeechManager: NSObject, ObservableObject {
         neuralReady = false
         let m = PocketTtsManager(language: pack, precision: .int8)
         try await m.initialize()
+        // The cache only exists once FluidAudio has created it, so flag it after
+        // the first load rather than up front.
+        NeuralVoiceStore.excludeCacheFromBackup()
         pocket = m
         pocketLanguage = pack
         return m

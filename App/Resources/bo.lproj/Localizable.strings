@@ -223,3 +223,11 @@
 "Apagar voz neural" = "ནཱི་ཡོ་རལ་སྐད་སུབ།";
 "Apagar %@ (%@)" = "%@ སུབ། (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "སུབ་ན་བར་སྟོང་ཕྱིར་རག ཐེངས་རྗེས་མར་སྐད་ཡིག་དེ་སྤྱོད་སྐབས་སླར་ཡང་ཕབ་ལེན་བྱེད།";
+
+"Modelo próprio" = "རང་གི་དཔེ་དབྱིབས།";
+"Verificando…" = "ཞིབ་བཤེར་བྱེད་བཞིན།";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "ggml རྣམ་གཞག (.bin) གི་ Whisper དཔེ་དབྱིབས་ཀྱི་ https སྦྲེལ་ཐག་ཁོ་ན་འཇུག འོག་གི་དཀར་ཆག་དང་གཅིག་མཚུངས། ཡིག་ཆའི་སྦྲེལ་ཐག་སྦྱར། Hugging Face ཤོག་ངོས་ཀྱི་སྦྲེལ་ཐག་རང་འགུལ་གྱིས་བསྒྱུར།";
+"Use um link https." = "https སྦྲེལ་ཐག་སྤྱོད་རོགས།";
+"Não consegui acessar esse link: %@" = "སྦྲེལ་ཐག་དེར་འབྱོར་མ་ཐུབ། %@";
+"Espaço insuficiente: são necessários %@ livres." = "བར་སྟོང་མི་འདང་། %@ སྟོང་པ་དགོས།";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "འདི་ Whisper ggml དཔེ་དབྱིབས་ལྟ་བུ་མི་འདུག སྦྲེལ་ཐག་དེ་ཤོག་ངོས་མིན་པར་ཡིག་ཆ་ལ་སྟོན་མིན་ཞིབ་བཤེར་གནང་།";

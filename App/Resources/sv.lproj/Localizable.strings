@@ -223,3 +223,11 @@
 "Apagar voz neural" = "Radera neural röst";
 "Apagar %@ (%@)" = "Radera %@ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Radering frigör utrymmet; rösten laddas ner igen nästa gång du använder det språket.";
+
+"Modelo próprio" = "Egen modell";
+"Verificando…" = "Kontrollerar…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "Godtar bara en https-länk till en Whisper-modell i ggml-format (.bin) — samma som katalogen nedan. Klistra in länken till filen; en länk till Hugging Face-sidan konverteras automatiskt.";
+"Use um link https." = "Använd en https-länk.";
+"Não consegui acessar esse link: %@" = "Kunde inte nå den länken: %@";
+"Espaço insuficiente: são necessários %@ livres." = "Otillräckligt utrymme: %@ ledigt krävs.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Det här ser inte ut som en Whisper ggml-modell. Kontrollera att länken pekar på filen och inte på sidan.";

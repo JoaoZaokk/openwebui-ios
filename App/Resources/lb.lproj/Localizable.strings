@@ -223,3 +223,11 @@
 "Apagar voz neural" = "Neural Stëmm läschen";
 "Apagar %@ (%@)" = "%@ läschen (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "D'Läsche gëtt de Späicher fräi; d'Stëmm gëtt déi nächste Kéier an där Sprooch erëm erofgelueden.";
+
+"Modelo próprio" = "Eegent Modell";
+"Verificando…" = "Gëtt gepréift…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "Hëlt nëmmen en https-Link op e Whisper-Modell am ggml-Format (.bin) — datselwecht wéi de Katalog hei drënner. Pech de Link zur Datei; e Link op d'Hugging-Face-Säit gëtt automatesch ëmgewandelt.";
+"Use um link https." = "Benotz en https-Link.";
+"Não consegui acessar esse link: %@" = "Dëse Link war net erreechbar: %@";
+"Espaço insuficiente: são necessários %@ livres." = "Net genuch Späicher: %@ fräi néideg.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Dat gesäit net wéi e Whisper-ggml-Modell aus. Kuck no, ob de Link op d'Datei weist an net op d'Säit.";

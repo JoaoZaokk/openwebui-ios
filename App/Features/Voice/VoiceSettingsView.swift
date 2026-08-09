@@ -11,6 +11,8 @@ struct VoiceSettingsView: View {
     /// Non-nil while the delete confirmation is up. Freeing ~550 MB is cheap to
     /// undo (re-download) but slow, so it asks first.
     @State private var pendingDelete: NeuralVoiceStore.Pack?
+    @State private var customURL = ""
+    @State private var addingModel = false
 
     @AppStorage("voice.stt.engine") private var sttEngine = "native"
     @AppStorage("voice.stt.model") private var sttModelID = ""
@@ -134,6 +136,8 @@ struct VoiceSettingsView: View {
 
             neuralPacksSection
 
+            customModelSection
+
             modelSection(title: L("Modelos STT · Whisper"), task: .stt,
                          selectedID: sttModelID) { id in sttModelID = id; sttEngine = "model" }
 
@@ -175,6 +179,48 @@ struct VoiceSettingsView: View {
 
     private func modelName(_ id: String) -> String? {
         VoiceCatalog.all.first { $0.id == id }?.name
+    }
+
+    /// Install a Whisper checkpoint the app doesn't ship, by URL.
+    private var customModelSection: some View {
+        Section {
+            TextField("https://…/ggml-modelo.bin", text: $customURL)
+                .font(.ody(size: 12, design: .monospaced))
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .keyboardType(.URL)
+                .submitLabel(.go)
+                .onSubmit { addCustomModel() }
+            Button { addCustomModel() } label: {
+                if addingModel {
+                    HStack { ProgressView(); Text("Verificando…") }
+                } else {
+                    Label("Baixar modelo", systemImage: "arrow.down.circle")
+                }
+            }
+            .disabled(addingModel || customURL.trimmingCharacters(in: .whitespaces).isEmpty)
+        } header: {
+            Text("Modelo próprio")
+        } footer: {
+            Text("Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho.")
+                .font(.ody(size: 11, design: .monospaced))
+                .foregroundStyle(theme.secondaryText)
+        }
+    }
+
+    private func addCustomModel() {
+        let text = customURL
+        guard !addingModel, !text.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+        addingModel = true
+        Task {
+            do {
+                try await downloads.addCustomModel(from: text)
+                customURL = ""
+            } catch {
+                downloads.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            }
+            addingModel = false
+        }
     }
 
     /// Names what's being freed, so the destructive button isn't a bare "Delete".
@@ -312,11 +358,22 @@ struct VoiceSettingsView: View {
                 .accessibilityLabel(Text("Apagar modelo"))
             }
         } else {
-            Button { downloads.download(model) } label: {
-                Image(systemName: "arrow.down.circle").font(.ody(size: 20)).foregroundStyle(theme.accent)
+            HStack(spacing: 16) {
+                Button { downloads.download(model) } label: {
+                    Image(systemName: "arrow.down.circle").font(.ody(size: 20)).foregroundStyle(theme.accent)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel(Text("Baixar modelo"))
+                // A user-added model that failed or was cancelled still holds a
+                // row; catalog entries can't be removed, so this is custom-only.
+                if model.isCustom {
+                    Button(role: .destructive) { downloads.delete(model) } label: {
+                        Image(systemName: "trash").foregroundStyle(theme.accent)
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel(Text("Apagar modelo"))
+                }
             }
-            .buttonStyle(.borderless)
-            .accessibilityLabel(Text("Baixar modelo"))
         }
     }
 }

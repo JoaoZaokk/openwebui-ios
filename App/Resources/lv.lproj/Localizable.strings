@@ -223,3 +223,11 @@
 "Apagar voz neural" = "Dzēst neironu balsi";
 "Apagar %@ (%@)" = "Dzēst %@ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Dzēšana atbrīvo vietu; balss tiks lejupielādēta atkal, kad nākamreiz lietosiet šo valodu.";
+
+"Modelo próprio" = "Savs modelis";
+"Verificando…" = "Pārbauda…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "Pieņem tikai https saiti uz Whisper modeli ggml formātā (.bin) — tādu pašu kā katalogā zemāk. Ielīmējiet saiti uz failu; Hugging Face lapas saite tiek pārveidota automātiski.";
+"Use um link https." = "Izmantojiet https saiti.";
+"Não consegui acessar esse link: %@" = "Neizdevās piekļūt šai saitei: %@";
+"Espaço insuficiente: são necessários %@ livres." = "Nepietiek vietas: nepieciešami %@ brīvi.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Tas neizskatās pēc Whisper ggml modeļa. Pārbaudiet, vai saite ved uz failu, nevis uz lapu.";

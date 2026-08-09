@@ -226,3 +226,11 @@
 "Apagar voz neural" = "删除神经语音";
 "Apagar %@ (%@)" = "删除 %@ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "删除后可释放空间；下次使用该语言时会重新下载。";
+
+"Modelo próprio" = "自有模型";
+"Verificando…" = "检查中…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "只接受指向 ggml 格式（.bin）Whisper 模型的 https 链接，与下方目录相同。请粘贴文件链接；Hugging Face 的页面链接会自动转换。";
+"Use um link https." = "请使用 https 链接。";
+"Não consegui acessar esse link: %@" = "无法访问该链接：%@";
+"Espaço insuficiente: são necessários %@ livres." = "空间不足：需要 %@ 可用空间。";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "这看起来不是 Whisper 的 ggml 模型。请检查链接是否指向文件而不是页面。";

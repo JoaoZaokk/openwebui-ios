@@ -66,6 +66,14 @@ final class NeuralVoiceStore: ObservableObject {
             .appendingPathComponent("fluidaudio", isDirectory: true)
     }
 
+    /// FluidAudio creates its own cache and never marks it, so ~550 MB per
+    /// language pack would otherwise ride along in the user's iCloud backup.
+    /// Idempotent — called whenever a pack is about to be loaded.
+    nonisolated static func excludeCacheFromBackup() {
+        guard let root = cacheRoot(), FileManager.default.fileExists(atPath: root.path) else { return }
+        ModelDownloadManager.excludeFromBackup(root)
+    }
+
     private nonisolated static func scan() async -> [Pack] {
         await Task.detached(priority: .utility) { () -> [Pack] in
             let fm = FileManager.default

@@ -226,3 +226,11 @@
 "Apagar voz neural" = "न्यूरल आवाज़ हटाएँ";
 "Apagar %@ (%@)" = "%@ हटाएँ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "हटाने से जगह खाली होती है; अगली बार उस भाषा का उपयोग करने पर आवाज़ फिर डाउनलोड हो जाएगी।";
+
+"Modelo próprio" = "अपना मॉडल";
+"Verificando…" = "जाँच हो रही है…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "सिर्फ़ ggml प्रारूप (.bin) वाले Whisper मॉडल का https लिंक स्वीकार करता है — नीचे दिए कैटलॉग जैसा ही। फ़ाइल का लिंक चिपकाएँ; Hugging Face के पेज का लिंक अपने आप बदल जाता है।";
+"Use um link https." = "https लिंक का उपयोग करें।";
+"Não consegui acessar esse link: %@" = "उस लिंक तक नहीं पहुँच सका: %@";
+"Espaço insuficiente: são necessários %@ livres." = "जगह कम है: %@ खाली चाहिए।";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "यह Whisper का ggml मॉडल नहीं लगता। जाँचें कि लिंक फ़ाइल की ओर है, पेज की ओर नहीं।";

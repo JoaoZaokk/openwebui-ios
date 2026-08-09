@@ -226,3 +226,11 @@
 "Apagar voz neural" = "Hapus suara neural";
 "Apagar %@ (%@)" = "Hapus %@ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Menghapus membebaskan ruang; suara akan diunduh lagi saat Anda memakai bahasa itu berikutnya.";
+
+"Modelo próprio" = "Model sendiri";
+"Verificando…" = "Memeriksa…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "Hanya menerima tautan https ke model Whisper berformat ggml (.bin) — sama seperti katalog di bawah. Tempel tautan berkasnya; tautan halaman Hugging Face dikonversi otomatis.";
+"Use um link https." = "Gunakan tautan https.";
+"Não consegui acessar esse link: %@" = "Tidak bisa mengakses tautan itu: %@";
+"Espaço insuficiente: são necessários %@ livres." = "Ruang tidak cukup: butuh %@ kosong.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Ini tidak tampak seperti model Whisper ggml. Periksa apakah tautan mengarah ke berkas, bukan ke halaman.";

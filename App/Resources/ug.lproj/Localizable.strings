@@ -223,3 +223,11 @@
 "Apagar voz neural" = "نېرۋا ئۈنىنى ئۆچۈرۈش";
 "Apagar %@ (%@)" = "%@ نى ئۆچۈرۈش (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "ئۆچۈرسىڭىز بوشلۇق بوشايدۇ؛ كېيىنكى قېتىم شۇ تىلنى ئىشلەتكەندە قايتا چۈشۈرۈلىدۇ.";
+
+"Modelo próprio" = "ئۆز مودېلىڭىز";
+"Verificando…" = "تەكشۈرۈۋاتىدۇ…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "پەقەت ggml شەكلىدىكى (.bin) Whisper مودېلىنىڭ https ئۇلانمىسىنىلا قوبۇل قىلىدۇ — تۆۋەندىكى كاتالوگ بىلەن ئوخشاش. ھۆججەت ئۇلانمىسىنى چاپلاڭ؛ Hugging Face بەت ئۇلانمىسى ئۆزلۈكىدىن ئايلىنىدۇ.";
+"Use um link https." = "https ئۇلانمىسى ئىشلىتىڭ.";
+"Não consegui acessar esse link: %@" = "بۇ ئۇلانمىغا يېتەلمىدىم: %@";
+"Espaço insuficiente: são necessários %@ livres." = "بوشلۇق يېتىشمەيدۇ: %@ بوش بوشلۇق كېرەك.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "بۇ Whisper نىڭ ggml مودېلىغا ئوخشىمايدۇ. ئۇلانمىنىڭ بەتكە ئەمەس ھۆججەتكە قارىتىلغانلىقىنى تەكشۈرۈڭ.";

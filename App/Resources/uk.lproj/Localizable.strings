@@ -226,3 +226,11 @@
 "Apagar voz neural" = "Видалити нейронний голос";
 "Apagar %@ (%@)" = "Видалити %@ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Видалення звільняє місце; голос завантажиться знову наступного разу, коли ви скористаєтеся цією мовою.";
+
+"Modelo próprio" = "Власна модель";
+"Verificando…" = "Перевіряю…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "Приймає лише https-посилання на модель Whisper у форматі ggml (.bin) — таку саму, як у каталозі нижче. Вставте посилання на файл; посилання на сторінку Hugging Face перетворюється автоматично.";
+"Use um link https." = "Використайте https-посилання.";
+"Não consegui acessar esse link: %@" = "Не вдалося відкрити це посилання: %@";
+"Espaço insuficiente: são necessários %@ livres." = "Недостатньо місця: потрібно %@ вільних.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Це не схоже на модель Whisper ggml. Перевірте, чи посилання веде на файл, а не на сторінку.";

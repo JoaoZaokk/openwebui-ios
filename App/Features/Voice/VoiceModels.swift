@@ -36,7 +36,19 @@ struct VoiceModel: Identifiable, Hashable, Sendable {
     let lang: VoiceLang
     let bytes: Int64
     let url: URL
-    var filename: String { url.lastPathComponent }
+
+    /// On-disk name. `localURL` prefixes it with the model id, so this only has
+    /// to be file-system safe — a URL that ends in a slash or carries a query
+    /// would otherwise yield an empty or path-bearing name.
+    var filename: String {
+        let last = url.lastPathComponent.replacingOccurrences(of: "/", with: "")
+        return last.isEmpty ? "model.bin" : last
+    }
+
+    /// Added by the user from a URL (see `CustomModels`), not from the shipped
+    /// catalog. Same "u-" prefix convention the download manager uses for its
+    /// "ml:" Core ML tasks.
+    var isCustom: Bool { id.hasPrefix("u-") }
 
     /// Size bucket the user asked to group by.
     enum Bucket: String, CaseIterable {
@@ -58,6 +70,51 @@ struct VoiceModel: Identifiable, Hashable, Sendable {
     }
 }
 
+/// A Whisper model the user added by pasting a URL. Stored locally so the model
+/// list survives relaunches; the file itself lives with the catalog downloads.
+struct CustomVoiceModel: Codable, Sendable, Hashable {
+    var id: String
+    var name: String
+    var urlString: String
+    var bytes: Int64
+
+    var model: VoiceModel? {
+        guard let url = URL(string: urlString) else { return nil }
+        // Always `.universal`: we can't know what a user-supplied checkpoint was
+        // tuned for, and universal makes the transcriber follow the app language
+        // instead of pinning a wrong one.
+        return VoiceModel(id: id, name: name, task: .stt, lang: .universal, bytes: bytes, url: url)
+    }
+}
+
+/// The user's own models. Read from every thread (the download delegate is
+/// nonisolated), so the decoded list is cached behind a lock instead of
+/// re-parsing UserDefaults on each SwiftUI body pass.
+enum CustomModels {
+    private static let key = "voice.stt.customModels"
+    private static let lock = NSLock()
+    nonisolated(unsafe) private static var cache: [CustomVoiceModel]?
+
+    static var list: [CustomVoiceModel] {
+        lock.lock(); defer { lock.unlock() }
+        if let cache { return cache }
+        let data = UserDefaults.standard.data(forKey: key) ?? Data()
+        let decoded = (try? JSONDecoder().decode([CustomVoiceModel].self, from: data)) ?? []
+        cache = decoded
+        return decoded
+    }
+
+    static func add(_ m: CustomVoiceModel) { write(list.filter { $0.id != m.id } + [m]) }
+    static func remove(id: String) { write(list.filter { $0.id != id }) }
+
+    private static func write(_ items: [CustomVoiceModel]) {
+        lock.lock()
+        cache = items
+        UserDefaults.standard.set(try? JSONEncoder().encode(items), forKey: key)
+        lock.unlock()
+    }
+}
+
 enum VoiceCatalog {
     private static func whisper(_ file: String) -> URL {
         URL(string: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/\(file)")!
@@ -66,7 +123,12 @@ enum VoiceCatalog {
         URL(string: "https://huggingface.co/onnx-community/Kokoro-82M-v1.0-ONNX/resolve/main/onnx/\(file)")!
     }
 
-    static let all: [VoiceModel] = [
+    /// Everything the app knows how to install: the shipped catalog plus the
+    /// user's own URLs. Every lookup by id goes through here, so a custom model
+    /// behaves exactly like a catalog one (select, delete, transcribe).
+    static var all: [VoiceModel] { builtIn + CustomModels.list.compactMap(\.model) }
+
+    private static let builtIn: [VoiceModel] = [
         // ── STT · Whisper (whisper.cpp GGUF) ──
         .init(id: "w-tiny",            name: "Whisper Tiny",            task: .stt, lang: .universal, bytes:  75_000_000, url: whisper("ggml-tiny.bin")),
         .init(id: "w-tiny-en",         name: "Whisper Tiny (EN)",       task: .stt, lang: .english,   bytes:  75_000_000, url: whisper("ggml-tiny.en.bin")),

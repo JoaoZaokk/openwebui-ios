@@ -223,3 +223,11 @@
 "Apagar voz neural" = "מחיקת קול נוירלי";
 "Apagar %@ (%@)" = "מחיקת %@ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "המחיקה מפנה את המקום; הקול יורד שוב בפעם הבאה שתשתמשו בשפה הזו.";
+
+"Modelo próprio" = "מודל משלך";
+"Verificando…" = "בודק…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "מקבל רק קישור https למודל Whisper בפורמט ggml (.bin) — כמו בקטלוג שלמטה. הדביקו את הקישור לקובץ; קישור לדף של Hugging Face מומר אוטומטית.";
+"Use um link https." = "השתמשו בקישור https.";
+"Não consegui acessar esse link: %@" = "לא הצלחתי להגיע לקישור הזה: %@";
+"Espaço insuficiente: são necessários %@ livres." = "אין מספיק מקום: נדרשים %@ פנויים.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "זה לא נראה כמו מודל Whisper בפורמט ggml. בדקו שהקישור מפנה לקובץ ולא לדף.";

@@ -226,3 +226,11 @@
 "Apagar voz neural" = "عصبي غږ ړنګ کړئ";
 "Apagar %@ (%@)" = "%@ ړنګ کړئ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "ړنګول ځای خلاصوي؛ بله ځل چې هغه ژبه وکاروئ، غږ به بیا ښکته شي.";
+
+"Modelo próprio" = "خپل ماډل";
+"Verificando…" = "کتنه کیږي…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "یوازې د ggml بڼې (.bin) د Whisper ماډل https لینک مني — لکه لاندې کتلاګ. د فایل لینک ولګوئ؛ د Hugging Face د پاڼې لینک پخپله اوړي.";
+"Use um link https." = "د https لینک وکاروئ.";
+"Não consegui acessar esse link: %@" = "دې لینک ته لاسرسی ونشو: %@";
+"Espaço insuficiente: são necessários %@ livres." = "ځای ناکافي دی: %@ خالي ته اړتیا ده.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "دا د Whisper ggml ماډل نه ښکاري. وګورئ چې لینک فایل ته اشاره کوي، نه پاڼې ته.";

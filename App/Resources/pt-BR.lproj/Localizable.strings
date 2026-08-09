@@ -226,3 +226,11 @@
 "Apagar voz neural" = "Apagar voz neural";
 "Apagar %@ (%@)" = "Apagar %@ (%@)";
 "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma.";
+
+"Modelo próprio" = "Modelo próprio";
+"Verificando…" = "Verificando…";
+"Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho." = "Aceita só link https de um modelo Whisper no formato ggml (.bin) — o mesmo do catálogo abaixo. Cole o link do arquivo; o link da página do Hugging Face é convertido sozinho.";
+"Use um link https." = "Use um link https.";
+"Não consegui acessar esse link: %@" = "Não consegui acessar esse link: %@";
+"Espaço insuficiente: são necessários %@ livres." = "Espaço insuficiente: são necessários %@ livres.";
+"Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página.";
