@@ -357,7 +357,10 @@ final class ChatViewModel: ObservableObject {
         else { return }
         guard let generated = await generateTitle(model: model, user: user, reply: reply) else { return }
         self.title = generated
-        try? await client.updateChat(id: id, title: generated, model: model, messages: messages)
+        // renameChat patches the title on the raw server JSON. updateChat would
+        // rewrite the whole chat through our lossy model and drop whatever the
+        // server keeps that we don't model (`output` text, sources, branches).
+        try? await client.renameChat(id, to: generated)
         onChanged?()
     }
 
@@ -382,7 +385,7 @@ final class ChatViewModel: ObservableObject {
                 case .textDelta(let d): out += d
                 case .done: break
                 case .error: return nil
-                case .reasoningDelta: break
+                case .reasoningDelta, .sources: break
                 }
             }
         } catch { return nil }
