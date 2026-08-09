@@ -218,3 +218,8 @@
 "Neural (indisponível)" = "Neural (nav pieejams)";
 "Voz neural indisponível para %@ — usando a voz nativa." = "Neironu balss %@ nav pieejama — tiek izmantota iebūvētā balss.";
 "Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), daudz dabiskāka par iebūvēto balsi. Pieejama portugāļu, angļu, spāņu, franču, vācu un itāļu valodā — seko lietotnes valodai un pirmajā reizē lejupielādē ~550 MB katrai valodai. Darbojas tikai uz fiziska iPhone (ne simulatorā).";
+
+"Vozes neurais baixadas" = "Lejupielādētās neironu balsis";
+"Apagar voz neural" = "Dzēst neironu balsi";
+"Apagar %@ (%@)" = "Dzēst %@ (%@)";
+"Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Dzēšana atbrīvo vietu; balss tiks lejupielādēta atkal, kad nākamreiz lietosiet šo valodu.";

@@ -221,3 +221,8 @@
 "Neural (indisponível)" = "Neural (non disponibile)";
 "Voz neural indisponível para %@ — usando a voz nativa." = "Voce neurale non disponibile per %@ — si usa la voce integrata.";
 "Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), molto più naturale della voce integrata. Disponibile in portoghese, inglese, spagnolo, francese, tedesco e italiano — segue la lingua dell'app e scarica ~550 MB per lingua la prima volta. Funziona solo su un iPhone fisico (non nel simulatore).";
+
+"Vozes neurais baixadas" = "Voci neurali scaricate";
+"Apagar voz neural" = "Elimina voce neurale";
+"Apagar %@ (%@)" = "Elimina %@ (%@)";
+"Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Eliminarla libera lo spazio; la voce viene scaricata di nuovo la prossima volta che usi quella lingua.";

@@ -221,3 +221,8 @@
 "Neural (indisponível)" = "ニューラル (利用不可)";
 "Voz neural indisponível para %@ — usando a voz nativa." = "%@ のニューラル音声は利用できません。内蔵の音声を使います。";
 "Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "ニューラル = PocketTTS (Core ML/Neural Engine)。内蔵の音声よりずっと自然です。ポルトガル語・英語・スペイン語・フランス語・ドイツ語・イタリア語に対応し、アプリの言語に従って初回に言語ごとに約 550 MB をダウンロードします。実機の iPhone でのみ動作します（シミュレータは不可）。";
+
+"Vozes neurais baixadas" = "ダウンロード済みのニューラル音声";
+"Apagar voz neural" = "ニューラル音声を削除";
+"Apagar %@ (%@)" = "%@ を削除 (%@)";
+"Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "削除すると空き容量が戻ります。その言語を次に使うときに再ダウンロードされます。";

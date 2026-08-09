@@ -226,6 +226,16 @@ final class SpeechManager: NSObject, ObservableObject {
         }
     }
 
+    /// Drops the in-memory manager when its pack was deleted from disk, so the
+    /// next 🔊 re-downloads instead of speaking from a half-freed cache.
+    func forgetPack(_ pack: PocketTtsLanguage) {
+        guard pocketLanguage == pack else { return }
+        stop()
+        pocket = nil
+        pocketLanguage = nil
+        neuralReady = false
+    }
+
     /// Loads (downloading on first use) the manager for `pack`, reusing the
     /// cached one only when it's the same pack — each language is a separate
     /// ~550 MB download and a separate set of weights.

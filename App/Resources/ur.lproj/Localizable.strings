@@ -221,3 +221,8 @@
 "Neural (indisponível)" = "نیورل (دستیاب نہیں)";
 "Voz neural indisponível para %@ — usando a voz nativa." = "%@ کے لیے نیورل آواز دستیاب نہیں — بلٹ اِن آواز استعمال ہو رہی ہے۔";
 "Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "نیورل = PocketTTS (Core ML/Neural Engine)، بلٹ اِن آواز سے کہیں زیادہ فطری۔ پرتگالی، انگریزی، ہسپانوی، فرانسیسی، جرمن اور اطالوی میں دستیاب — ایپ کی زبان کی پیروی کرتا ہے اور پہلی بار فی زبان تقریباً 550 MB ڈاؤن لوڈ کرتا ہے۔ صرف اصلی iPhone پر چلتا ہے (سمیولیٹر پر نہیں)۔";
+
+"Vozes neurais baixadas" = "ڈاؤن لوڈ کی گئی نیورل آوازیں";
+"Apagar voz neural" = "نیورل آواز حذف کریں";
+"Apagar %@ (%@)" = "%@ حذف کریں (%@)";
+"Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "حذف کرنے سے جگہ خالی ہوتی ہے؛ اگلی بار وہ زبان استعمال کرنے پر آواز دوبارہ ڈاؤن لوڈ ہو جائے گی۔";

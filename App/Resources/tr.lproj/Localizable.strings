@@ -221,3 +221,8 @@
 "Neural (indisponível)" = "Neural (kullanılamıyor)";
 "Voz neural indisponível para %@ — usando a voz nativa." = "%@ için sinirsel ses kullanılamıyor — yerleşik ses kullanılıyor.";
 "Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), yerleşik sesten çok daha doğal. Portekizce, İngilizce, İspanyolca, Fransızca, Almanca ve İtalyanca için var — uygulama dilini izler ve ilk seferde dil başına ~550 MB indirir. Yalnızca fiziksel iPhone'da çalışır (simülatörde değil).";
+
+"Vozes neurais baixadas" = "İndirilen sinirsel sesler";
+"Apagar voz neural" = "Sinirsel sesi sil";
+"Apagar %@ (%@)" = "%@ sil (%@)";
+"Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Silmek yeri boşaltır; o dili bir daha kullandığınızda ses yeniden indirilir.";

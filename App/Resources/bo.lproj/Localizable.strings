@@ -218,3 +218,8 @@
 "Neural (indisponível)" = "ནཱི་ཡོ་རལ། (མི་ཐུབ།)";
 "Voz neural indisponível para %@ — usando a voz nativa." = "%@ ཡི་ནཱི་ཡོ་རལ་སྐད་མི་ཐུབ། ནང་འདུས་སྐད་བེད་སྤྱོད་བྱེད་བཞིན་ཡོད།";
 "Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "ནཱི་ཡོ་རལ། = PocketTTS (Core ML/Neural Engine)། ནང་འདུས་སྐད་ལས་རང་བཞིན་ཆེ། པོར་ཐུ་གྷལ། དབྱིན་ཇི། སི་པན། ཧྥ་རན་སི། འཇར་མན། ཨི་ཏ་ལི་བཅས་ལ་ཡོད། མཉེན་ཆས་ཀྱི་སྐད་ཡིག་རྗེས་འབྲང་བྱེད་ཅིང་ཐོག་མར་སྐད་ཡིག་རེར་ 550 MB ཙམ་ཕབ་ལེན་བྱེད། iPhone དངོས་སུ་ཁོ་ན་འཁོར། (སྒྲིག་བཟོའི་ནང་མིན།)";
+
+"Vozes neurais baixadas" = "ཕབ་ལེན་བྱས་པའི་ནཱི་ཡོ་རལ་སྐད།";
+"Apagar voz neural" = "ནཱི་ཡོ་རལ་སྐད་སུབ།";
+"Apagar %@ (%@)" = "%@ སུབ། (%@)";
+"Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "སུབ་ན་བར་སྟོང་ཕྱིར་རག ཐེངས་རྗེས་མར་སྐད་ཡིག་དེ་སྤྱོད་སྐབས་སླར་ཡང་ཕབ་ལེན་བྱེད།";

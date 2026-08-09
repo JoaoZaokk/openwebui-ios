@@ -7,6 +7,10 @@ struct VoiceSettingsView: View {
     @ObservedObject private var speech = SpeechManager.shared
     // Observed so the neural row re-labels the moment the app language changes.
     @ObservedObject private var uiLanguage = LanguageManager.shared
+    @ObservedObject private var neural = NeuralVoiceStore.shared
+    /// Non-nil while the delete confirmation is up. Freeing ~550 MB is cheap to
+    /// undo (re-download) but slow, so it asks first.
+    @State private var pendingDelete: NeuralVoiceStore.Pack?
 
     @AppStorage("voice.stt.engine") private var sttEngine = "native"
     @AppStorage("voice.stt.model") private var sttModelID = ""
@@ -128,13 +132,15 @@ struct VoiceSettingsView: View {
                 .pickerStyle(.menu)
             }
 
+            neuralPacksSection
+
             modelSection(title: L("Modelos STT · Whisper"), task: .stt,
                          selectedID: sttModelID) { id in sttModelID = id; sttEngine = "model" }
 
-            if downloads.totalInstalledBytes() > 0 {
+            if totalOnDisk > 0 {
                 Section {
                     LabeledContent("Espaço usado",
-                                   value: ByteCountFormatter.string(fromByteCount: downloads.totalInstalledBytes(), countStyle: .file))
+                                   value: ByteCountFormatter.string(fromByteCount: totalOnDisk, countStyle: .file))
                 }
             }
         }
@@ -143,7 +149,24 @@ struct VoiceSettingsView: View {
         .scrollContentBackground(.hidden)
         .background(theme.bg)
         .tint(theme.accent)
-        .onAppear { downloads.refresh() }
+        .onAppear { downloads.refresh(); neural.refresh() }
+        // Re-scan after a download finishes, so the new pack (and the freed or
+        // claimed space) shows up without leaving the screen.
+        .onChange(of: speech.neuralReady) { _, ready in if ready { neural.refresh() } }
+        .confirmationDialog(
+            Text("Apagar voz neural"),
+            isPresented: Binding(get: { pendingDelete != nil },
+                                 set: { if !$0 { pendingDelete = nil } }),
+            titleVisibility: .visible
+        ) {
+            Button(deleteButtonTitle, role: .destructive) {
+                if let p = pendingDelete { neural.delete(p) }
+                pendingDelete = nil
+            }
+            Button("Cancelar", role: .cancel) { pendingDelete = nil }
+        } message: {
+            Text("Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma.")
+        }
         .task(id: ttsEngine) { if ttsEngine == "server" { await speech.loadServerVoices() } }
         .alert("Erro no download", isPresented: Binding(get: { downloads.error != nil }, set: { if !$0 { downloads.error = nil } })) {
             Button("OK") { downloads.error = nil }
@@ -152,6 +175,52 @@ struct VoiceSettingsView: View {
 
     private func modelName(_ id: String) -> String? {
         VoiceCatalog.all.first { $0.id == id }?.name
+    }
+
+    /// Names what's being freed, so the destructive button isn't a bare "Delete".
+    private var deleteButtonTitle: String {
+        guard let p = pendingDelete else { return L("Apagar") }
+        return L("Apagar %@ (%@)", NeuralVoiceStore.label(p.language),
+                 ByteCountFormatter.string(fromByteCount: p.bytes, countStyle: .file))
+    }
+
+    /// Whisper models + the PocketTTS packs — everything this screen downloaded.
+    private var totalOnDisk: Int64 {
+        downloads.totalInstalledBytes() + neural.totalBytes
+    }
+
+    /// Downloaded neural voice packs, with what each costs and a way out.
+    /// Only rendered once something is actually on disk, so the common case
+    /// (never touched the neural engine) shows nothing.
+    @ViewBuilder
+    private var neuralPacksSection: some View {
+        if !neural.packs.isEmpty {
+            Section {
+                ForEach(neural.packs) { pack in
+                    HStack(spacing: 10) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(verbatim: NeuralVoiceStore.label(pack.language))
+                                .font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                            Text(verbatim: ByteCountFormatter.string(fromByteCount: pack.bytes, countStyle: .file))
+                                .font(.ody(size: 10, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                        }
+                        Spacer()
+                        Button(role: .destructive) { pendingDelete = pack } label: {
+                            Image(systemName: "trash").font(.ody(size: 16))
+                        }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel(Text("Apagar voz neural"))
+                    }
+                    .listRowBackground(theme.bg)
+                }
+            } header: {
+                Text("Vozes neurais baixadas")
+            } footer: {
+                Text("Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma.")
+                    .font(.ody(size: 11, design: .monospaced))
+                    .foregroundStyle(theme.secondaryText)
+            }
+        }
     }
 
     /// ⚡ = Core ML / Neural Engine acceleration for a Whisper model.

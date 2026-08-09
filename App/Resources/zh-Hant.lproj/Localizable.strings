@@ -221,3 +221,8 @@
 "Neural (indisponível)" = "神經語音 (無法使用)";
 "Voz neural indisponível para %@ — usando a voz nativa." = "%@ 的神經語音無法使用，改用內建語音。";
 "Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "神經語音 = PocketTTS（Core ML/神經網路引擎），比內建語音自然得多。支援葡萄牙文、英文、西班牙文、法文、德文和義大利文，會跟隨應用程式語言，首次每種語言下載約 550 MB。僅能在實體 iPhone 上執行（模擬器無法使用）。";
+
+"Vozes neurais baixadas" = "已下載的神經語音";
+"Apagar voz neural" = "刪除神經語音";
+"Apagar %@ (%@)" = "刪除 %@ (%@)";
+"Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "刪除後可釋放空間；下次使用該語言時會重新下載。";

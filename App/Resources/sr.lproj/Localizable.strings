@@ -221,3 +221,8 @@
 "Neural (indisponível)" = "Neural (недоступно)";
 "Voz neural indisponível para %@ — usando a voz nativa." = "Неуронски глас није доступан за %@ — користи се уграђени глас.";
 "Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), знатно природнији од уграђеног гласа. Постоји на португалском, енглеском, шпанском, француском, немачком и италијанском — прати језик апликације и први пут преузима ~550 MB по језику. Ради само на физичком iPhone уређају (не у симулатору).";
+
+"Vozes neurais baixadas" = "Преузети неуронски гласови";
+"Apagar voz neural" = "Обриши неуронски глас";
+"Apagar %@ (%@)" = "Обриши %@ (%@)";
+"Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma." = "Брисање ослобађа простор; глас се поново преузима када следећи пут употребите тај језик.";
