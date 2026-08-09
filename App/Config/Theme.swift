@@ -1,5 +1,8 @@
 import SwiftUI
 import OpenWebUIKit
+#if canImport(UIKit)
+import UIKit
+#endif
 
 /// A color theme, mirroring the Odysseus web app's theme system (see
 /// `static/js/theme.js`). The web stores 5 base colors per theme — bg, fg,
@@ -24,6 +27,8 @@ struct Theme: Equatable, Identifiable {
     var userBubble: Color
     var aiBubble: Color
     var secondaryText: Color
+    var danger: Color           // semantic error red — never the brand accent
+    var onAccent: Color         // text/icon color on accent-filled controls
 
     /// Build a theme from base colors (+ optional `advanced` overrides for
     /// bubbles) and a brand font.
@@ -48,6 +53,12 @@ struct Theme: Equatable, Identifiable {
         self.secondaryText = Color(hex: fg).opacity(0.55)
         // The web has no per-theme green; pick one that reads on this background.
         self.green = Color(hex: dark ? "5fd97a" : "2f9e5b")
+        // Semantic error red, per background — errors must not wear the brand
+        // accent (several themes use it for non-error meanings).
+        self.danger = Color(hex: dark ? "ff6b6b" : "c62828")
+        // Foreground on accent fills: white on darker accents, near-black on the
+        // light ones (mint/gold/neon/pink), decided by the accent's luma.
+        self.onAccent = Theme.luma(red) < 0.6 ? .white : Color(hex: "1a1a1a")
     }
 
     static func == (l: Theme, r: Theme) -> Bool { l.id == r.id }
@@ -118,15 +129,17 @@ struct Theme: Equatable, Identifiable {
     // MARK: - Helpers
 
     /// Relative luminance of a hex color (perceptual), to decide light vs dark.
-    static func isDarkHex(_ hex: String) -> Bool {
+    static func isDarkHex(_ hex: String) -> Bool { luma(hex) < 0.5 }
+
+    /// sRGB luma of a hex color (0 = black, 1 = white).
+    static func luma(_ hex: String) -> Double {
         let s = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
         var v: UInt64 = 0
         Scanner(string: s).scanHexInt64(&v)
         let r = Double((v >> 16) & 0xFF) / 255
         let g = Double((v >> 8) & 0xFF) / 255
         let b = Double(v & 0xFF) / 255
-        // sRGB luma
-        return (0.299 * r + 0.587 * g + 0.114 * b) < 0.5
+        return 0.299 * r + 0.587 * g + 0.114 * b
     }
 }
 
@@ -178,9 +191,28 @@ enum Appearance {
     }
     static func font(size: CGFloat, weight: Font.Weight) -> Font {
         if let name = fontFamily.customName {
-            return .custom(name, fixedSize: size).weight(weight)
+            // relativeTo: .body → tracks Dynamic Type (identity at the default
+            // Large setting); the app-root `.dynamicTypeSize` cap bounds it.
+            return .custom(name, size: size, relativeTo: .body).weight(weight)
         }
-        return .system(size: size, weight: weight, design: fontFamily.design)
+        return .system(size: scaledSize(size), weight: weight, design: fontFamily.design)
+    }
+
+    /// Dynamic Type for fixed point sizes. On iOS the size scales with the
+    /// user's text setting via UIFontMetrics (neutral at the default Large),
+    /// clamped at XXL to mirror the app-root `.dynamicTypeSize(...xxLarge)` cap
+    /// — SwiftUI's cap only reaches style-based fonts, so pre-scaled point
+    /// sizes must clamp themselves. macOS has no Dynamic Type; sizes stay fixed.
+    static func scaledSize(_ size: CGFloat) -> CGFloat {
+        #if os(iOS)
+        var cat = UITraitCollection.current.preferredContentSizeCategory
+        if cat == .unspecified { cat = .large }
+        if cat > .extraExtraLarge { cat = .extraExtraLarge }
+        return UIFontMetrics.default.scaledValue(
+            for: size, compatibleWith: UITraitCollection(preferredContentSizeCategory: cat))
+        #else
+        return size
+        #endif
     }
     static func pointSize(_ s: Font.TextStyle) -> CGFloat {
         switch s {

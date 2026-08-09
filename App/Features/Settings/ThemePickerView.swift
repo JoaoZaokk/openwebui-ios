@@ -128,7 +128,7 @@ struct ThemePickerView: View {
             Text(label)
                 .font(labelFont ?? .ody(size: 12, design: .monospaced))
                 .padding(.horizontal, 12).padding(.vertical, 7)
-                .foregroundStyle(selected ? .white : theme.secondaryText)
+                .foregroundStyle(selected ? theme.onAccent : theme.secondaryText)
                 .background(selected ? theme.accent : theme.panel, in: Capsule())
                 .overlay(Capsule().stroke(theme.border, lineWidth: selected ? 0 : 1))
         }

@@ -30,6 +30,11 @@ struct MessageBubble: View {
             }
             if !isUser { Spacer(minLength: 36) }
         }
+        // `.contain` (not `.combine`): VoiceOver treats the whole message as one
+        // navigable group while keeping the interactive children — the speaker
+        // button and image thumbnails — individually reachable. `.combine`
+        // flattens interactive children out of existence.
+        .accessibilityElement(children: .contain)
         .fullScreenCover(item: $viewer) { v in ImageViewerView(url: v.url, client: client) }
     }
 
@@ -50,6 +55,7 @@ struct MessageBubble: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .accessibilityLabel(Text(speech.isSpeaking(message.id) ? "Parar leitura" : "Ler em voz alta"))
             }
         }
     }

@@ -23,6 +23,10 @@ struct OpenWebUIApp: App {
                 .environment(\.layoutDirection, lang.layoutDirection)   // RTL for ar/fa/ur/ps
                 .preferredColorScheme(themes.theme.isDark ? .dark : .light)
                 .tint(themes.theme.accent)
+                // Dynamic Type is honored up to XXL; the accessibility sizes
+                // would overflow the composer/chips/toolbars. Appearance
+                // .scaledSize applies the same clamp to point-sized fonts.
+                .dynamicTypeSize(...DynamicTypeSize.xxLarge)
                 // Font family is read by the non-View `Font.ody` helper via a
                 // global; bump identity so the whole tree re-renders on change.
                 // The language code is folded in so a language switch rebuilds

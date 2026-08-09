@@ -157,7 +157,7 @@ struct ImageGenView: View {
                         controls
                         generateButton
                         if let err = store.error {
-                            Text(err).font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.accent)
+                            Text(err).font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.danger)
                         }
                         results
                     }
@@ -173,6 +173,7 @@ struct ImageGenView: View {
                     Button { showHistory = true } label: {
                         Image(systemName: "clock.arrow.circlepath").foregroundStyle(theme.accent)
                     }
+                    .accessibilityLabel(Text("Histórico"))
                 }
                 // Keyboard-accessory "Concluído" (the ergonomic spot, on device).
                 ToolbarItemGroup(placement: .keyboard) {
@@ -264,6 +265,7 @@ struct ImageGenView: View {
                         Image(systemName: "arrow.up.circle.fill")
                             .font(.system(size: 28)).foregroundStyle(theme.accent)
                     }
+                    .accessibilityLabel(Text("Usar prompt"))
                 }
                 .padding(10)
                 .background(theme.bg.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
@@ -340,13 +342,13 @@ struct ImageGenView: View {
             Task { await store.generate() }
         } label: {
             HStack {
-                if store.generating { ProgressView().tint(.white) }
+                if store.generating { ProgressView().tint(theme.onAccent) }
                 Text(LocalizedStringKey(store.generating ? "Gerando…" : "Gerar imagem"))
                     .font(.ody(.headline, design: .monospaced))
                 Image(systemName: "sparkles")
             }
             .frame(maxWidth: .infinity).padding(.vertical, 14)
-            .background(theme.accent, in: RoundedRectangle(cornerRadius: 12)).foregroundStyle(.white)
+            .background(theme.accent, in: RoundedRectangle(cornerRadius: 12)).foregroundStyle(theme.onAccent)
         }
         .disabled(store.generating || store.prompt.trimmingCharacters(in: .whitespaces).isEmpty)
         .opacity(store.generating || store.prompt.trimmingCharacters(in: .whitespaces).isEmpty ? 0.6 : 1)

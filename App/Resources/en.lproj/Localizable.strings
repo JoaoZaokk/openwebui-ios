@@ -187,3 +187,21 @@
 "Nenhuma conversa arquivada." = "No archived chats.";
 "Restaurar" = "Restore";
 "Concluir" = "Done";
+
+/* Accessibility (VoiceOver) labels + error banner */
+"Escolher modelo" = "Choose model";
+"Ditar mensagem" = "Dictate message";
+"Parar ditado" = "Stop dictation";
+"Enviar mensagem" = "Send message";
+"Parar resposta" = "Stop response";
+"Remover anexo" = "Remove attachment";
+"Ler em voz alta" = "Read aloud";
+"Parar leitura" = "Stop reading";
+"Salvar imagem" = "Save image";
+"Dispensar erro" = "Dismiss error";
+"Usar prompt" = "Use prompt";
+"Cancelar download" = "Cancel download";
+"Ativar aceleração Core ML" = "Enable Core ML acceleration";
+"Remover aceleração Core ML" = "Remove Core ML acceleration";
+"Apagar modelo" = "Delete model";
+"Baixar modelo" = "Download model";
