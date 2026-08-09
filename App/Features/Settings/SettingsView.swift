@@ -157,5 +157,10 @@ struct ServerSheet: View {
         .tint(theme.accent)
         // Start empty on first run (don't pre-fill the placeholder); keep the saved one otherwise.
         .onAppear { text = ServerConfig.isConfigured ? app.serverConfig.baseURL.absoluteString : "" }
+        #if os(macOS)
+        // The iOS-shaped sheet comes up cramped on the Mac — give it a comfortable
+        // fixed floor (same idiom as the fullScreenCover shim in PlatformCompat).
+        .frame(minWidth: 480, minHeight: 320)
+        #endif
     }
 }
