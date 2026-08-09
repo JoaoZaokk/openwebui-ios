@@ -49,12 +49,18 @@ targets:
       - package: FluidAudio
     settings:
       base:
+        # Dev/simulator id. The App Store listing is `com.zao.openwebui` — pass
+        # PRODUCT_BUNDLE_IDENTIFIER=com.zao.openwebui on the archive command, or
+        # the export fails with "No profiles for 'com.example.openwebui'".
         PRODUCT_BUNDLE_IDENTIFIER: com.example.openwebui
         PRODUCT_NAME: OpenWebUI
         # 1.3 (7) went live on the App Store 2026-07 — that train is closed.
         # 1.4 (9) was staged on ASC but never submitted; superseded by 1.5.
-        MARKETING_VERSION: "1.5"
-        CURRENT_PROJECT_VERSION: "11"
+        # 1.5 (11) was likewise staged and never submitted; superseded by 1.6,
+        # which carries issue #12's fixes (voice language, server tools,
+        # model nicknames) plus user-supplied Whisper models.
+        MARKETING_VERSION: "1.6"
+        CURRENT_PROJECT_VERSION: "12"
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
