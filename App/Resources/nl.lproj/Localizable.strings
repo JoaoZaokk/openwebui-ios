@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "Geen chats.";
 "Nenhuma nota ainda" = "Nog geen notities";
 "Nenhuma nota." = "Geen notities.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neuraal = PocketTTS in het Portugees (Core ML/Neural Engine), veel natuurlijker dan de ingebouwde stem. Downloadt ~550 MB op het apparaat de eerste keer; werkt alleen op een fysieke iPhone (niet in de simulator).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Notities";
 "Nova conversa" = "Nieuw gesprek";
 "Nova nota" = "Nieuwe notitie";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Verandert alleen de naam op dit apparaat — het model dat naar de server gaat blijft hetzelfde. Laat leeg om de originele naam terug te zetten.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "De ingebouwde stem en ingebouwde herkenning volgen de app-taal (Instellingen › Taal).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Spraakherkenning niet beschikbaar voor %@ op dit apparaat.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (niet beschikbaar)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Neurale stem niet beschikbaar voor %@ — de ingebouwde stem wordt gebruikt.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), veel natuurlijker dan de ingebouwde stem. Beschikbaar in het Portugees, Engels, Spaans, Frans, Duits en Italiaans — volgt de app-taal en downloadt de eerste keer ~550 MB per taal. Werkt alleen op een echte iPhone (niet in de simulator).";

@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "কোনো চ্যাট নেই।";
 "Nenhuma nota ainda" = "এখনও কোনো নোট নেই";
 "Nenhuma nota." = "কোনো নোট নেই।";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "নিউরাল = পর্তুগিজে PocketTTS (Core ML/Neural Engine), নেটিভ ভয়েসের চেয়ে অনেক স্বাভাবিক। প্রথমবার ডিভাইসে ~550 MB ডাউনলোড হয়; শুধু আসল iPhone-এ চলে (সিমুলেটরে নয়)।";
-"Neural pt-BR" = "নিউরাল pt-BR";
 "Notas" = "নোট";
 "Nova conversa" = "নতুন চ্যাট";
 "Nova nota" = "নতুন নোট";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "শুধু এই ডিভাইসে দেখানো নাম বদলায় — সার্ভারে পাঠানো মডেল একই থাকে। আসল নামে ফিরতে ফাঁকা রাখুন।";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "অন্তর্নির্মিত কণ্ঠ ও অন্তর্নির্মিত শনাক্তকরণ অ্যাপের ভাষা অনুসরণ করে (সেটিংস › ভাষা)।";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "এই ডিভাইসে %@ এর জন্য বাক্ শনাক্তকরণ উপলব্ধ নয়।";
+
+"Neural (%@)" = "নিউরাল (%@)";
+"Neural (indisponível)" = "নিউরাল (অনুপলব্ধ)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "%@ এর জন্য নিউরাল কণ্ঠ অনুপলব্ধ — অন্তর্নির্মিত কণ্ঠ ব্যবহার করা হচ্ছে।";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "নিউরাল = PocketTTS (Core ML/Neural Engine), অন্তর্নির্মিত কণ্ঠের চেয়ে অনেক বেশি স্বাভাবিক। পর্তুগিজ, ইংরেজি, স্প্যানিশ, ফরাসি, জার্মান ও ইতালীয় ভাষায় আছে — অ্যাপের ভাষা অনুসরণ করে এবং প্রথমবার প্রতি ভাষায় ~550 MB ডাউনলোড করে। শুধু আসল iPhone-এ চলে (সিমুলেটরে নয়)।";

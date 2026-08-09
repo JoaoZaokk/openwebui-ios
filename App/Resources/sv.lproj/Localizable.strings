@@ -83,8 +83,6 @@
 "Nenhuma conversa." = "Inga konversationer.";
 "Nenhuma nota ainda" = "Inga anteckningar än";
 "Nenhuma nota." = "Inga anteckningar.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS på portugisiska (CoreML/Neural Engine), mycket mer naturlig än den nativa rösten. Laddar ner ~550 MB på enheten första gången; körs bara på en fysisk iPhone (inte i simulatorn).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Anteckningar";
 "Nova conversa" = "Ny konversation";
 "Nova nota" = "Ny anteckning";
@@ -215,3 +213,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Ändrar bara namnet som visas på den här enheten — modellen som skickas till servern är densamma. Lämna tomt för att återställa originalnamnet.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Den inbyggda rösten och den inbyggda igenkänningen följer appens språk (Inställningar › Språk).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Taligenkänning är inte tillgänglig för %@ på den här enheten.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (inte tillgänglig)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Neural röst är inte tillgänglig för %@ — den inbyggda rösten används.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), mycket naturligare än den inbyggda rösten. Finns på portugisiska, engelska, spanska, franska, tyska och italienska — följer appens språk och laddar ner ~550 MB per språk första gången. Fungerar bara på en fysisk iPhone (inte i simulatorn).";

@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "Brak czatów.";
 "Nenhuma nota ainda" = "Nie ma jeszcze notatek";
 "Nenhuma nota." = "Brak notatek.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS po portugalsku (Core ML/Neural Engine), znacznie bardziej naturalny niż głos natywny. Pobiera ~550 MB na urządzeniu za pierwszym razem; działa tylko na fizycznym iPhonie (nie w symulatorze).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Notatki";
 "Nova conversa" = "Nowy czat";
 "Nova nota" = "Nowa notatka";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Zmienia tylko nazwę wyświetlaną na tym urządzeniu — model wysyłany na serwer pozostaje ten sam. Zostaw puste, aby przywrócić oryginalną nazwę.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Wbudowany głos i wbudowane rozpoznawanie podążają za językiem aplikacji (Ustawienia › Język).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Rozpoznawanie mowy niedostępne dla %@ na tym urządzeniu.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (niedostępny)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Głos neuronowy niedostępny dla języka %@ — używany jest głos wbudowany.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), o wiele naturalniejszy niż głos wbudowany. Dostępny po portugalsku, angielsku, hiszpańsku, francusku, niemiecku i włosku — podąża za językiem aplikacji i za pierwszym razem pobiera ~550 MB na język. Działa tylko na fizycznym iPhonie (nie w symulatorze).";

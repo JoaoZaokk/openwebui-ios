@@ -83,8 +83,6 @@
 "Nenhuma conversa." = "Nav sarunu.";
 "Nenhuma nota ainda" = "Vēl nav piezīmju";
 "Nenhuma nota." = "Nav piezīmju.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neironu = PocketTTS portugāļu valodā (CoreML/Neural Engine), daudz dabiskāka par natīvo balsi. Pirmajā reizē lejupielādē ~550 MB ierīcē; darbojas tikai fiziskā iPhone (ne simulatorā).";
-"Neural pt-BR" = "Neironu pt-BR";
 "Notas" = "Piezīmes";
 "Nova conversa" = "Jauna saruna";
 "Nova nota" = "Jauna piezīme";
@@ -215,3 +213,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Maina tikai šajā ierīcē redzamo nosaukumu — serverim nosūtītais modelis paliek tas pats. Atstājiet tukšu, lai atjaunotu sākotnējo nosaukumu.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Iebūvētā balss un iebūvētā atpazīšana seko lietotnes valodai (Iestatījumi › Valoda).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Runas atpazīšana šajā ierīcē %@ nav pieejama.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (nav pieejams)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Neironu balss %@ nav pieejama — tiek izmantota iebūvētā balss.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), daudz dabiskāka par iebūvēto balsi. Pieejama portugāļu, angļu, spāņu, franču, vācu un itāļu valodā — seko lietotnes valodai un pirmajā reizē lejupielādē ~550 MB katrai valodai. Darbojas tikai uz fiziska iPhone (ne simulatorā).";

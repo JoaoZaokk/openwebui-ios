@@ -83,8 +83,6 @@
 "Nenhuma conversa." = "Ei keskusteluja.";
 "Nenhuma nota ainda" = "Ei vielä muistiinpanoja";
 "Nenhuma nota." = "Ei muistiinpanoja.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS portugaliksi (CoreML/Neural Engine), paljon luonnollisempi kuin natiiviääni. Lataa ~550 MB laitteelle ensimmäisellä kerralla; toimii vain fyysisessä iPhonessa (ei simulaattorissa).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Muistiinpanot";
 "Nova conversa" = "Uusi keskustelu";
 "Nova nota" = "Uusi muistiinpano";
@@ -215,3 +213,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Muuttaa vain tällä laitteella näkyvän nimen — palvelimelle lähetettävä malli pysyy samana. Jätä tyhjäksi palauttaaksesi alkuperäisen nimen.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Sisäänrakennettu ääni ja tunnistus seuraavat sovelluksen kieltä (Asetukset › Kieli).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Puheentunnistus ei ole käytettävissä kielelle %@ tällä laitteella.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (ei käytettävissä)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Neuroääni ei ole käytettävissä kielelle %@ — käytetään sisäänrakennettua ääntä.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML / Neural Engine), paljon luonnollisempi kuin sisäänrakennettu ääni. Saatavilla portugaliksi, englanniksi, espanjaksi, ranskaksi, saksaksi ja italiaksi — seuraa sovelluksen kieltä ja lataa ensimmäisellä kerralla noin 550 Mt kieltä kohden. Toimii vain fyysisellä iPhonella (ei simulaattorissa).";

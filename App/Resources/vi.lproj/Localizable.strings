@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "Không có cuộc trò chuyện nào.";
 "Nenhuma nota ainda" = "Chưa có ghi chú nào";
 "Nenhuma nota." = "Không có ghi chú nào.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS tiếng Bồ Đào Nha (Core ML/Neural Engine), tự nhiên hơn nhiều so với giọng đọc gốc. Lần đầu tải ~550 MB trên thiết bị; chỉ chạy trên iPhone thật (không phải trình giả lập).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Ghi chú";
 "Nova conversa" = "Cuộc trò chuyện mới";
 "Nova nota" = "Ghi chú mới";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Chỉ đổi tên hiển thị trên thiết bị này — mô hình gửi đến máy chủ vẫn giữ nguyên. Để trống để khôi phục tên gốc.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Giọng nói và nhận dạng tích hợp đi theo ngôn ngữ của ứng dụng (Cài đặt › Ngôn ngữ).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Nhận dạng giọng nói không khả dụng cho %@ trên thiết bị này.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (không khả dụng)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Giọng neural không khả dụng cho %@ — dùng giọng tích hợp.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), tự nhiên hơn nhiều so với giọng tích hợp. Có tiếng Bồ Đào Nha, Anh, Tây Ban Nha, Pháp, Đức và Ý — đi theo ngôn ngữ của ứng dụng và tải ~550 MB mỗi ngôn ngữ trong lần đầu. Chỉ chạy trên iPhone thật (không phải trình mô phỏng).";

@@ -83,8 +83,6 @@
 "Nenhuma conversa." = "གྲོས་མོལ་གང་ཡང་མེད།";
 "Nenhuma nota ainda" = "ད་དུང་ཟིན་བྲིས་གང་ཡང་མེད།";
 "Nenhuma nota." = "ཟིན་བྲིས་གང་ཡང་མེད།";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = པོར་ཐུ་གལ་སྐད་ཀྱི་ PocketTTS (CoreML/Neural Engine), ངོ་མའི་སྐད་ལས་ཧ་ཅང་རང་བཞིན་ལྡན། ཐེངས་དང་པོར་སྒྲིག་ཆས་སྟེང་ ~550 MB ཕབ་ལེན་བྱེད། iPhone དངོས་སུ་ཁོ་ན་ལ་འཁོར། (simulator ནང་མིན།)";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "ཟིན་བྲིས།";
 "Nova conversa" = "གྲོས་མོལ་གསར་པ།";
 "Nova nota" = "ཟིན་བྲིས་གསར་པ།";
@@ -215,3 +213,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "སྒྲིག་ཆས་འདིའི་སྟེང་མངོན་པའི་མིང་ཙམ་བརྗེ་བ་ཡིན། ཞབས་ཞུ་བར་སྐུར་བའི་དཔེ་དབྱིབས་སྔར་བཞིན་ཡིན། མིང་གཞི་མར་ལོག་ན་སྟོང་པར་བཞག";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "ནང་འདུས་སྐད་དང་ནང་འདུས་ངོས་འཛིན་གཉིས་ཀྱིས་མཉེན་ཆས་ཀྱི་སྐད་ཡིག་རྗེས་འབྲང་བྱེད། (སྒྲིག་འགོད། › སྐད་ཡིག)";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "སྒྲིག་ཆས་འདིའི་སྟེང་ %@ ཡི་སྐད་ངོས་འཛིན་མི་ཐུབ།";
+
+"Neural (%@)" = "ནཱི་ཡོ་རལ། (%@)";
+"Neural (indisponível)" = "ནཱི་ཡོ་རལ། (མི་ཐུབ།)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "%@ ཡི་ནཱི་ཡོ་རལ་སྐད་མི་ཐུབ། ནང་འདུས་སྐད་བེད་སྤྱོད་བྱེད་བཞིན་ཡོད།";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "ནཱི་ཡོ་རལ། = PocketTTS (Core ML/Neural Engine)། ནང་འདུས་སྐད་ལས་རང་བཞིན་ཆེ། པོར་ཐུ་གྷལ། དབྱིན་ཇི། སི་པན། ཧྥ་རན་སི། འཇར་མན། ཨི་ཏ་ལི་བཅས་ལ་ཡོད། མཉེན་ཆས་ཀྱི་སྐད་ཡིག་རྗེས་འབྲང་བྱེད་ཅིང་ཐོག་མར་སྐད་ཡིག་རེར་ 550 MB ཙམ་ཕབ་ལེན་བྱེད། iPhone དངོས་སུ་ཁོ་ན་འཁོར། (སྒྲིག་བཟོའི་ནང་མིན།)";

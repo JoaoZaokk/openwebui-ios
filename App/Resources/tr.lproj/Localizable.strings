@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "Sohbet yok.";
 "Nenhuma nota ainda" = "Henüz not yok";
 "Nenhuma nota." = "Not yok.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Nöral = Portekizce PocketTTS (Core ML/Neural Engine), yerel sesten çok daha doğal. İlk seferde cihazda ~550 MB indirir; yalnızca fiziksel iPhone'da çalışır (simülatörde değil).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Notlar";
 "Nova conversa" = "Yeni sohbet";
 "Nova nota" = "Yeni not";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Yalnızca bu cihazda gösterilen adı değiştirir — sunucuya gönderilen model aynı kalır. Özgün ada dönmek için boş bırakın.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Yerleşik ses ve yerleşik tanıma, uygulama dilini izler (Ayarlar › Dil).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Konuşma tanıma bu cihazda %@ için kullanılamıyor.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (kullanılamıyor)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "%@ için sinirsel ses kullanılamıyor — yerleşik ses kullanılıyor.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), yerleşik sesten çok daha doğal. Portekizce, İngilizce, İspanyolca, Fransızca, Almanca ve İtalyanca için var — uygulama dilini izler ve ilk seferde dil başına ~550 MB indirir. Yalnızca fiziksel iPhone'da çalışır (simülatörde değil).";

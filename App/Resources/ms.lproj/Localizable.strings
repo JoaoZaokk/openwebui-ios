@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "Tiada sembang.";
 "Nenhuma nota ainda" = "Belum ada nota";
 "Nenhuma nota." = "Tiada nota.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS dalam bahasa Portugis (Core ML/Neural Engine), jauh lebih semula jadi daripada suara asli. Muat turun ~550 MB pada peranti buat kali pertama; hanya berjalan pada iPhone fizikal (bukan simulator).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Nota";
 "Nova conversa" = "Perbualan baru";
 "Nova nota" = "Nota baru";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Hanya menukar nama yang dipaparkan pada peranti ini — model yang dihantar ke pelayan kekal sama. Biarkan kosong untuk kembali kepada nama asal.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Suara dan pengecaman terbina dalam mengikut bahasa apl (Tetapan › Bahasa).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Pengecaman pertuturan tidak tersedia untuk %@ pada peranti ini.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (tidak tersedia)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Suara neural tidak tersedia untuk %@ — menggunakan suara terbina dalam.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), jauh lebih semula jadi daripada suara terbina dalam. Ada dalam bahasa Portugis, Inggeris, Sepanyol, Perancis, Jerman dan Itali — mengikut bahasa apl dan memuat turun ~550 MB setiap bahasa pada kali pertama. Hanya berjalan pada iPhone fizikal (bukan simulator).";

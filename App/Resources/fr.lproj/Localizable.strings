@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "Aucune discussion.";
 "Nenhuma nota ainda" = "Aucune note pour l'instant";
 "Nenhuma nota." = "Aucune note.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS en portugais (Core ML/Neural Engine), bien plus naturelle que la voix native. Télécharge ~550 MB sur l'appareil la première fois ; fonctionne uniquement sur un iPhone physique (pas dans le simulateur).";
-"Neural pt-BR" = "Neuronale pt-BR";
 "Notas" = "Notes";
 "Nova conversa" = "Nouvelle conversation";
 "Nova nota" = "Nouvelle note";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Ne change que le nom affiché sur cet appareil — le modèle envoyé au serveur reste le même. Laissez vide pour revenir au nom d'origine.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "La voix intégrée et la reconnaissance intégrée suivent la langue de l'app (Réglages › Langue).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Reconnaissance vocale indisponible pour %@ sur cet appareil.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (indisponible)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Voix neuronale indisponible pour %@ — utilisation de la voix intégrée.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), bien plus naturel que la voix intégrée. Disponible en portugais, anglais, espagnol, français, allemand et italien — il suit la langue de l'app et télécharge ~550 Mo par langue la première fois. Fonctionne uniquement sur un iPhone physique (pas le simulateur).";

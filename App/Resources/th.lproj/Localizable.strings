@@ -83,8 +83,6 @@
 "Nenhuma conversa." = "ไม่มีการสนทนา";
 "Nenhuma nota ainda" = "ยังไม่มีโน้ต";
 "Nenhuma nota." = "ไม่มีโน้ต";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS ภาษาโปรตุเกส (CoreML/Neural Engine) เป็นธรรมชาติกว่าเสียงเนทีฟมาก ดาวน์โหลด ~550 MB ลงเครื่องในครั้งแรก ใช้งานได้เฉพาะบน iPhone จริง (ไม่รองรับซิมูเลเตอร์)";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "โน้ต";
 "Nova conversa" = "การสนทนาใหม่";
 "Nova nota" = "โน้ตใหม่";
@@ -215,3 +213,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "เปลี่ยนเฉพาะชื่อที่แสดงบนเครื่องนี้ — โมเดลที่ส่งไปยังเซิร์ฟเวอร์ยังคงเดิม เว้นว่างไว้เพื่อกลับไปใช้ชื่อเดิม";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "เสียงในตัวและการรู้จำเสียงในตัวจะใช้ภาษาของแอป (การตั้งค่า › ภาษา)";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "เครื่องนี้ไม่รองรับการรู้จำเสียงสำหรับ %@";
+
+"Neural (%@)" = "นิวรัล (%@)";
+"Neural (indisponível)" = "นิวรัล (ไม่พร้อมใช้งาน)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "เสียงนิวรัลไม่พร้อมใช้งานสำหรับ %@ — ใช้เสียงในตัวแทน";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "นิวรัล = PocketTTS (Core ML/Neural Engine) เป็นธรรมชาติกว่าเสียงในตัวมาก มีภาษาโปรตุเกส อังกฤษ สเปน ฝรั่งเศส เยอรมัน และอิตาลี โดยจะใช้ภาษาของแอปและดาวน์โหลดประมาณ 550 MB ต่อภาษาในครั้งแรก ทำงานเฉพาะบน iPhone จริงเท่านั้น (ไม่ใช่ตัวจำลอง)";

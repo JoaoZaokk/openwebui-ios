@@ -83,8 +83,6 @@
 "Nenhuma conversa." = "Keng Gespréicher.";
 "Nenhuma nota ainda" = "Nach keng Notizen";
 "Nenhuma nota." = "Keng Notizen.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS op Portugisesch (CoreML/Neural Engine), vill méi natierlech wéi déi nativ Stëmm. Luet ~550 MB on-device beim éischte Mol erof; leeft nëmmen um physeschen iPhone (net am Simulator).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Notizen";
 "Nova conversa" = "Neit Gespréich";
 "Nova nota" = "Nei Notiz";
@@ -215,3 +213,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Ännert nëmmen den Numm, deen op dësem Apparat ugewise gëtt — de Modell, deen un de Server geschéckt gëtt, bleift deeselwechten. Eidel loosse fir den originalen Numm zréckzesetzen.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Déi agebaute Stëmm an déi agebauten Erkennung follegen der App-Sprooch (Astellungen › Sprooch).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Spracherkennung ass fir %@ op dësem Apparat net verfügbar.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (net verfügbar)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Neural Stëmm fir %@ net verfügbar — déi agebaute Stëmm gëtt benotzt.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), vill natierlecher wéi déi agebaute Stëmm. Gëtt et op Portugisesch, Englesch, Spuenesch, Franséisch, Däitsch an Italienesch — follegt der App-Sprooch a lued déi éischte Kéier ~550 MB pro Sprooch erof. Leeft nëmmen op engem richtegen iPhone (net am Simulator).";

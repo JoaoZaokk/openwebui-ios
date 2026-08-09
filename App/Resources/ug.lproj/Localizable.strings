@@ -83,8 +83,6 @@
 "Nenhuma conversa." = "سۆھبەت يوق.";
 "Nenhuma nota ainda" = "تېخى خاتىرە يوق";
 "Nenhuma nota." = "خاتىرە يوق.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS پورتۇگالچە (CoreML/Neural Engine)، ئەسلىي ئاۋازدىن كۆپ تەبىئىي. تۇنجى قېتىم ئۈسكۈنىگە ~550 MB چۈشۈرىدۇ؛ پەقەت رەئال iPhone دا ئىشلەيدۇ (تەقلىدلىگۈچتە ئەمەس).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "خاتىرىلەر";
 "Nova conversa" = "يېڭى سۆھبەت";
 "Nova nota" = "يېڭى خاتىرە";
@@ -215,3 +213,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "پەقەت بۇ ئۈسكۈنىدە كۆرۈنىدىغان ئىسىمنىلا ئۆزگەرتىدۇ — مۇلازىمېتىرغا ئەۋەتىلىدىغان مودېل ئۆزگەرمەيدۇ. ئەسلى ئىسىمغا قايتىش ئۈچۈن بوش قويۇڭ.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "ئىچكى ئۈن ۋە ئىچكى تونۇش ئەپ تىلىغا ئەگىشىدۇ (تەڭشەكلەر › تىل).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "بۇ ئۈسكۈنىدە %@ ئۈچۈن نۇتۇق تونۇش ئىشلەتكىلى بولمايدۇ.";
+
+"Neural (%@)" = "نېرۋا (%@)";
+"Neural (indisponível)" = "نېرۋا (ئىشلەتكىلى بولمايدۇ)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "%@ ئۈچۈن نېرۋا ئۈنى يوق — ئىچكى ئۈن ئىشلىتىلىدۇ.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "نېرۋا = PocketTTS (Core ML/Neural Engine)، ئىچكى ئۈندىن كۆپ تەبىئىي. پورتۇگالچە، ئىنگلىزچە، ئىسپانچە، فرانسۇزچە، گېرمانچە ۋە ئىتالىيانچە بار — ئەپ تىلىغا ئەگىشىدۇ ۋە تۇنجى قېتىم ھەر تىل ئۈچۈن 550 MB ئەتراپىدا چۈشۈرىدۇ. پەقەت ھەقىقىي iPhone دا ئىشلەيدۇ (تەقلىدلىگۈچتە ئەمەس).";

@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "채팅이 없습니다.";
 "Nenhuma nota ainda" = "아직 노트가 없습니다";
 "Nenhuma nota." = "노트가 없습니다.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "신경 = 포르투갈어 PocketTTS(Core ML/Neural Engine)로, 기본 음성보다 훨씬 자연스럽습니다. 첫 번째 실행 시 기기에서 약 550 MB를 다운로드합니다. 실제 iPhone에서만 실행됩니다(시뮬레이터 불가).";
-"Neural pt-BR" = "신경 pt-BR";
 "Notas" = "노트";
 "Nova conversa" = "새 대화";
 "Nova nota" = "새 메모";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "이 기기에 표시되는 이름만 바뀝니다. 서버로 보내는 모델은 그대로입니다. 비워 두면 원래 이름으로 돌아갑니다.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "내장 음성과 내장 인식은 앱 언어를 따릅니다(설정 › 언어).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "이 기기에서는 %@ 음성 인식을 사용할 수 없습니다.";
+
+"Neural (%@)" = "뉴럴 (%@)";
+"Neural (indisponível)" = "뉴럴 (사용 불가)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "%@ 뉴럴 음성을 사용할 수 없어 내장 음성을 사용합니다.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "뉴럴 = PocketTTS(Core ML/뉴럴 엔진)로 내장 음성보다 훨씬 자연스럽습니다. 포르투갈어, 영어, 스페인어, 프랑스어, 독일어, 이탈리아어를 지원하며 앱 언어를 따르고 처음에 언어당 약 550MB를 내려받습니다. 실제 iPhone에서만 작동합니다(시뮬레이터 불가).";

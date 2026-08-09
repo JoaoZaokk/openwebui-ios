@@ -9,10 +9,11 @@ import UIKit
 /// Text-to-speech with three engines, chosen in Settings:
 /// - **native**: Apple `AVSpeechSynthesizer`, in the app's UI language
 ///   (instant, robotic).
-/// - **neural**: FluidAudio **PocketTTS** Portuguese pack (CoreML/ANE, much more
-///   natural). Downloads ~550 MB on first use, then synthesizes on-device.
-///   Portuguese only — upstream ships one voice list per language pack, so the
-///   Settings row labels it and the native engine stays the default.
+/// - **neural**: FluidAudio **PocketTTS** (CoreML/ANE, much more natural), in
+///   the pack matching the app's UI language — Portuguese, English, Spanish,
+///   French, German or Italian. ~550 MB per language, downloaded on first use
+///   and then synthesized on-device. Any other UI language has no pack upstream
+///   and falls back to the native voice.
 /// - **server**: the Open WebUI instance's own `/audio/speech`.
 @MainActor
 final class SpeechManager: NSObject, ObservableObject {
@@ -68,8 +69,11 @@ final class SpeechManager: NSObject, ObservableObject {
     /// English replies come out in a Portuguese voice).
     private var language: String { LanguageManager.shared.current.speechLocale }
 
-    // Neural (PocketTTS pt-BR)
+    // Neural (PocketTTS). One manager per language pack — `pocketLanguage`
+    // records which pack is loaded so switching the app language swaps it
+    // instead of speaking German with the Portuguese weights.
     private var pocket: PocketTtsManager?
+    private var pocketLanguage: PocketTtsLanguage?
     private var player: AVAudioPlayer?
     private var neuralTask: Task<Void, Never>?
 
@@ -121,26 +125,61 @@ final class SpeechManager: NSObject, ObservableObject {
 
     // MARK: - Neural (PocketTTS)
 
-    /// Proactively downloads + loads the PocketTTS pt model (so the first 🔊 isn't
-    /// a multi-minute wait). Safe to call repeatedly.
+    /// The PocketTTS pack for the app's UI language, or nil when upstream ships
+    /// none. Kyutai publishes six packs; everything else falls back to the
+    /// native voice rather than reading, say, Japanese with Italian weights.
+    static func pocketPack(for lang: AppLanguage) -> PocketTtsLanguage? {
+        switch lang {
+        case .ptBR:             return .portuguese
+        case .en:               return .english
+        case .es:               return .spanish
+        case .fr:               return .french24L   // upstream ships only the 24-layer French pack
+        case .de, .deAT, .deCH: return .german
+        case .it:               return .italian
+        default:                return nil
+        }
+    }
+
+    /// True when the neural engine can actually speak the current UI language.
+    var neuralAvailableForCurrentLanguage: Bool {
+        Self.pocketPack(for: LanguageManager.shared.current) != nil
+    }
+
+    /// Proactively downloads + loads the PocketTTS pack for the current language
+    /// (so the first 🔊 isn't a multi-minute wait). Safe to call repeatedly.
     func prepareNeural() {
-        guard pocket == nil, preparingID == nil else { return }
+        guard preparingID == nil else { return }
+        let lang = LanguageManager.shared.current
+        guard let pack = Self.pocketPack(for: lang) else {
+            neuralError = L("Voz neural indisponível para %@ — usando a voz nativa.", lang.endonym)
+            return
+        }
+        guard pocket == nil || pocketLanguage != pack else { return }
         preparingID = "__prepare__"
         neuralError = nil
         neuralTask = Task {
-            do { _ = try await ensurePocket(); neuralReady = true }
+            do { _ = try await ensurePocket(pack); neuralReady = true }
             catch { neuralError = msg(error) }
             if preparingID == "__prepare__" { preparingID = nil }
         }
     }
 
     private func speakNeural(_ clean: String, id: String) {
+        let lang = LanguageManager.shared.current
+        // No pack for this language: say so once and still speak, natively.
+        // Silently swapping engines would look like the neural setting is
+        // ignored; refusing to speak at all would be worse.
+        guard let pack = Self.pocketPack(for: lang) else {
+            neuralError = L("Voz neural indisponível para %@ — usando a voz nativa.", lang.endonym)
+            speakNative(clean, id: id)
+            return
+        }
         preparingID = id
         neuralError = nil
         let voice = neuralVoice
         neuralTask = Task {
             do {
-                let m = try await ensurePocket()
+                let m = try await ensurePocket(pack)
                 neuralReady = true
                 let wav = try await m.synthesize(text: clean, voice: voice)
                 if Task.isCancelled { preparingID = nil; return }
@@ -187,11 +226,16 @@ final class SpeechManager: NSObject, ObservableObject {
         }
     }
 
-    private func ensurePocket() async throws -> PocketTtsManager {
-        if let pocket { return pocket }
-        let m = PocketTtsManager(language: .portuguese, precision: .int8)
+    /// Loads (downloading on first use) the manager for `pack`, reusing the
+    /// cached one only when it's the same pack — each language is a separate
+    /// ~550 MB download and a separate set of weights.
+    private func ensurePocket(_ pack: PocketTtsLanguage) async throws -> PocketTtsManager {
+        if let pocket, pocketLanguage == pack { return pocket }
+        neuralReady = false
+        let m = PocketTtsManager(language: pack, precision: .int8)
         try await m.initialize()
         pocket = m
+        pocketLanguage = pack
         return m
     }
 
@@ -260,9 +304,15 @@ private extension SpeechManager {
     }
 }
 
-/// The PocketTTS Portuguese voices (from FluidInference/pocket-tts-coreml).
+/// The PocketTTS voices (from FluidInference/pocket-tts-coreml).
+///
+/// The same 26 names ship in **every** language pack — only the acoustic
+/// embedding behind each name differs (verified against the repo tree: all of
+/// `v2.1/{english,spanish,french_24l,german,italian,portuguese}/constants_bin/`
+/// hold an identical set of `<voice>.safetensors`). So one list serves all
+/// languages, and a voice the user picked keeps working after switching.
 enum PocketVoices {
-    static let portuguese = [
+    static let all = [
         "alba", "anna", "azelma", "bill_boerst", "caro_davy", "charles", "cosette",
         "eponine", "estelle", "eve", "fantine", "george", "giovanni", "jane", "javert",
         "jean", "juergen", "lola", "marius", "mary", "michael", "paul", "peter_yearsley",

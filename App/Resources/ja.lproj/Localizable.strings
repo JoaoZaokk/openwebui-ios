@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "チャットがありません。";
 "Nenhuma nota ainda" = "まだノートがありません";
 "Nenhuma nota." = "ノートがありません。";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "ニューラル = ポルトガル語のPocketTTS（Core ML/Neural Engine）。ネイティブ音声よりずっと自然です。初回に約550 MBを端末にダウンロード。実機のiPhoneでのみ動作（シミュレータ不可）。";
-"Neural pt-BR" = "ニューラル pt-BR";
 "Notas" = "ノート";
 "Nova conversa" = "新しいチャット";
 "Nova nota" = "新しいノート";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "この端末で表示される名前だけを変更します。サーバーに送信されるモデルは変わりません。空欄にすると元の名前に戻ります。";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "内蔵の音声と内蔵の認識はアプリの言語に従います（設定 › 言語）。";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "この端末では %@ の音声認識を利用できません。";
+
+"Neural (%@)" = "ニューラル (%@)";
+"Neural (indisponível)" = "ニューラル (利用不可)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "%@ のニューラル音声は利用できません。内蔵の音声を使います。";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "ニューラル = PocketTTS (Core ML/Neural Engine)。内蔵の音声よりずっと自然です。ポルトガル語・英語・スペイン語・フランス語・ドイツ語・イタリア語に対応し、アプリの言語に従って初回に言語ごとに約 550 MB をダウンロードします。実機の iPhone でのみ動作します（シミュレータは不可）。";

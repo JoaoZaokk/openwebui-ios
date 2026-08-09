@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "Nincsenek csevegések.";
 "Nenhuma nota ainda" = "Még nincsenek jegyzetek";
 "Nenhuma nota." = "Nincsenek jegyzetek.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neurális = PocketTTS portugálul (Core ML/Neural Engine), sokkal természetesebb a natív hangnál. Első alkalommal ~550 MB-ot tölt le az eszközre; csak fizikai iPhone-on fut (szimulátorban nem).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Jegyzetek";
 "Nova conversa" = "Új csevegés";
 "Nova nota" = "Új note";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Csak az ezen az eszközön megjelenő nevet változtatja meg — a kiszolgálónak küldött modell ugyanaz marad. Hagyd üresen az eredeti név visszaállításához.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "A beépített hang és a beépített felismerés az alkalmazás nyelvét követi (Beállítások › Nyelv).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "A beszédfelismerés nem érhető el %@ nyelvhez ezen a készüléken.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (nem érhető el)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "A neurális hang nem érhető el %@ nyelvhez — a beépített hang lesz használva.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), sokkal természetesebb a beépített hangnál. Portugál, angol, spanyol, francia, német és olasz nyelven létezik — az alkalmazás nyelvét követi, és első alkalommal nyelvenként ~550 MB-ot tölt le. Csak fizikai iPhone-on fut (a szimulátoron nem).";

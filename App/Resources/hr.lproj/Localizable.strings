@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "Nema razgovora.";
 "Nenhuma nota ainda" = "Još nema bilješki";
 "Nenhuma nota." = "Nema bilješki.";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS na portugalskom (Core ML/Neural Engine), daleko prirodniji od izvornog glasa. Preuzima ~550 MB na uređaj prvi put; radi samo na fizičkom iPhoneu (ne u simulatoru).";
-"Neural pt-BR" = "Neural pt-BR";
 "Notas" = "Bilješke";
 "Nova conversa" = "Novi razgovor";
 "Nova nota" = "Nova bilješka";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Mijenja samo naziv prikazan na ovom uređaju — model koji se šalje poslužitelju ostaje isti. Ostavite prazno za povratak izvornog naziva.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Ugrađeni glas i ugrađeno prepoznavanje prate jezik aplikacije (Postavke › Jezik).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Prepoznavanje govora nije dostupno za %@ na ovom uređaju.";
+
+"Neural (%@)" = "Neural (%@)";
+"Neural (indisponível)" = "Neural (nedostupno)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "Neuronski glas nije dostupan za %@ — koristi se ugrađeni glas.";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "Neural = PocketTTS (Core ML/Neural Engine), znatno prirodniji od ugrađenog glasa. Dostupan na portugalskom, engleskom, španjolskom, francuskom, njemačkom i talijanskom — prati jezik aplikacije i prvi put preuzima ~550 MB po jeziku. Radi samo na fizičkom iPhoneu (ne u simulatoru).";

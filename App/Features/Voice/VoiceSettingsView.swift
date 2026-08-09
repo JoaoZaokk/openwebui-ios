@@ -5,6 +5,8 @@ struct VoiceSettingsView: View {
     @Environment(\.theme) private var theme
     @StateObject private var downloads = ModelDownloadManager.shared
     @ObservedObject private var speech = SpeechManager.shared
+    // Observed so the neural row re-labels the moment the app language changes.
+    @ObservedObject private var uiLanguage = LanguageManager.shared
 
     @AppStorage("voice.stt.engine") private var sttEngine = "native"
     @AppStorage("voice.stt.model") private var sttModelID = ""
@@ -39,7 +41,11 @@ struct VoiceSettingsView: View {
             Section {
                 Picker("Voz da IA (TTS)", selection: $ttsEngine) {
                     Text("Nativo iOS").tag("native")
-                    Text("Neural pt-BR").tag("neural")
+                    // Names the pack that will actually be used, so picking
+                    // "Neural" in a language with no pack isn't a surprise.
+                    Text(verbatim: speech.neuralAvailableForCurrentLanguage
+                         ? L("Neural (%@)", uiLanguage.current.endonym)
+                         : L("Neural (indisponível)")).tag("neural")
                     Text("Servidor").tag("server")
                 }
                 if ttsEngine == "server" {
@@ -68,9 +74,12 @@ struct VoiceSettingsView: View {
                     }
                 }
                 if ttsEngine == "neural" {
+                    // The 26 voice names are identical in every pack, so the
+                    // picker never has to change with the language.
                     Picker("Voz", selection: $pocketVoice) {
-                        ForEach(PocketVoices.portuguese, id: \.self) { Text($0).tag($0) }
+                        ForEach(PocketVoices.all, id: \.self) { Text($0).tag($0) }
                     }
+                    .disabled(!speech.neuralAvailableForCurrentLanguage)
                     Button { speech.prepareNeural() } label: {
                         if speech.isPreparing("__prepare__") {
                             HStack { ProgressView(); Text("Baixando voz neural…") }
@@ -81,13 +90,14 @@ struct VoiceSettingsView: View {
                             Label("Baixar voz neural (~550 MB)", systemImage: "arrow.down.circle")
                         }
                     }
-                    .disabled(speech.isPreparing("__prepare__") || speech.neuralReady)
+                    .disabled(speech.isPreparing("__prepare__") || speech.neuralReady
+                              || !speech.neuralAvailableForCurrentLanguage)
                     if let e = speech.neuralError {
                         Text(e).font(.footnote).foregroundStyle(theme.accent)
                     }
                 }
             } header: { Text("Texto → Voz") } footer: {
-                Text("Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador).")
+                Text("Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador).")
             }
 
             Section {

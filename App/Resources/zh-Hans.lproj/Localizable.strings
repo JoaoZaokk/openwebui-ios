@@ -84,8 +84,6 @@
 "Nenhuma conversa." = "没有对话。";
 "Nenhuma nota ainda" = "还没有笔记";
 "Nenhuma nota." = "没有笔记。";
-"Neural = PocketTTS em português (CoreML/Neural Engine), bem mais natural que a voz nativa. Baixa ~550 MB on-device na primeira vez; roda só no iPhone físico (não no simulador)." = "神经 = 葡萄牙语的 PocketTTS（Core ML/Neural Engine），比原生语音自然得多。首次在设备上下载约 550 MB；仅在实体 iPhone 上运行（不支持模拟器）。";
-"Neural pt-BR" = "神经 pt-BR";
 "Notas" = "笔记";
 "Nova conversa" = "新对话";
 "Nova nota" = "新备忘";
@@ -218,3 +216,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "仅更改本机显示的名称，发送给服务器的模型不变。留空可恢复原名。";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "内置语音和内置识别跟随应用语言（设置 › 语言）。";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "本机不支持 %@ 的语音识别。";
+
+"Neural (%@)" = "神经语音 (%@)";
+"Neural (indisponível)" = "神经语音 (不可用)";
+"Voz neural indisponível para %@ — usando a voz nativa." = "%@ 的神经语音不可用，改用内置语音。";
+"Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador)." = "神经语音 = PocketTTS（Core ML/神经网络引擎），比内置语音自然得多。支持葡萄牙语、英语、西班牙语、法语、德语和意大利语，跟随应用语言，首次每种语言下载约 550 MB。仅在真机 iPhone 上运行（模拟器不可用）。";
