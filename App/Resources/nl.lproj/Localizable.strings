@@ -102,7 +102,6 @@
 "Português" = "Portugees";
 "Pétalas" = "Bloemblaadjes";
 "Reconhecimento (STT)" = "Herkenning (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Spraakherkenning niet beschikbaar voor pt-BR op dit apparaat.";
 "Reconhecimento: %@" = "Herkenning: %@";
 "Renomear" = "Hernoemen";
 "Renomear conversa" = "Gesprek hernoemen";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "Antwoord klaar";
 "Busca na web" = "Zoeken op internet";
 "Clima" = "Weer";
+
+"Ferramentas" = "Tools";
+"Nenhuma ferramenta neste servidor." = "Geen tools op deze server.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "De tool draait op de server en het resultaat komt in het antwoord.";
+"Pronto" = "Klaar";
+"MODELOS" = "MODELLEN";
+"Nomes dos modelos" = "Modelnamen";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Verandert alleen de naam op dit apparaat — het model dat naar de server gaat blijft hetzelfde. Laat leeg om de originele naam terug te zetten.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "De ingebouwde stem en ingebouwde herkenning volgen de app-taal (Instellingen › Taal).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Spraakherkenning niet beschikbaar voor %@ op dit apparaat.";

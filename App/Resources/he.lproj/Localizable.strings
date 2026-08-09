@@ -101,7 +101,6 @@
 "Português" = "פורטוגזית";
 "Pétalas" = "עלי כותרת";
 "Reconhecimento (STT)" = "זיהוי (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "זיהוי הדיבור אינו זמין ל-pt-BR במכשיר זה.";
 "Reconhecimento: %@" = "זיהוי: %@";
 "Renomear" = "שינוי שם";
 "Renomear conversa" = "שנה שם שיחה";
@@ -206,3 +205,13 @@
 "Resposta pronta" = "התשובה מוכנה";
 "Busca na web" = "חיפוש באינטרנט";
 "Clima" = "מזג אוויר";
+
+"Ferramentas" = "כלים";
+"Nenhuma ferramenta neste servidor." = "אין כלים בשרת הזה.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "הכלי רץ בשרת והתוצאה שלו נכנסת לתשובה.";
+"Pronto" = "סיום";
+"MODELOS" = "דגמים";
+"Nomes dos modelos" = "שמות הדגמים";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "משנה רק את השם המוצג במכשיר הזה — הדגם שנשלח לשרת נשאר אותו דגם. השאירו ריק כדי לחזור לשם המקורי.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "הקול המובנה והזיהוי המובנה עוקבים אחרי שפת האפליקציה (הגדרות › שפה).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "זיהוי דיבור אינו זמין עבור %@ במכשיר הזה.";

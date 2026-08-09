@@ -102,7 +102,6 @@
 "Português" = "Tiếng Bồ Đào Nha";
 "Pétalas" = "Cánh hoa";
 "Reconhecimento (STT)" = "Nhận dạng (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Nhận dạng giọng nói không khả dụng cho pt-BR trên thiết bị này.";
 "Reconhecimento: %@" = "Nhận dạng: %@";
 "Renomear" = "Đổi tên";
 "Renomear conversa" = "Đổi tên cuộc trò chuyện";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "Phản hồi đã sẵn sàng";
 "Busca na web" = "Tìm kiếm web";
 "Clima" = "Thời tiết";
+
+"Ferramentas" = "Công cụ";
+"Nenhuma ferramenta neste servidor." = "Không có công cụ nào trên máy chủ này.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Công cụ chạy trên máy chủ và kết quả được đưa vào câu trả lời.";
+"Pronto" = "Xong";
+"MODELOS" = "MÔ HÌNH";
+"Nomes dos modelos" = "Tên mô hình";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Chỉ đổi tên hiển thị trên thiết bị này — mô hình gửi đến máy chủ vẫn giữ nguyên. Để trống để khôi phục tên gốc.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Giọng nói và nhận dạng tích hợp đi theo ngôn ngữ của ứng dụng (Cài đặt › Ngôn ngữ).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Nhận dạng giọng nói không khả dụng cho %@ trên thiết bị này.";

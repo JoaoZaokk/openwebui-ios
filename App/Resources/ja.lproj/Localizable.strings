@@ -102,7 +102,6 @@
 "Português" = "ポルトガル語";
 "Pétalas" = "花びら";
 "Reconhecimento (STT)" = "認識（STT）";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "この端末ではpt-BRの音声認識を利用できません。";
 "Reconhecimento: %@" = "認識: %@";
 "Renomear" = "名前を変更";
 "Renomear conversa" = "チャット名を変更";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "返信の準備ができました";
 "Busca na web" = "ウェブ検索";
 "Clima" = "天気";
+
+"Ferramentas" = "ツール";
+"Nenhuma ferramenta neste servidor." = "このサーバーにツールはありません。";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "ツールはサーバー上で実行され、その結果が返信に含まれます。";
+"Pronto" = "完了";
+"MODELOS" = "モデル";
+"Nomes dos modelos" = "モデル名";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "この端末で表示される名前だけを変更します。サーバーに送信されるモデルは変わりません。空欄にすると元の名前に戻ります。";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "内蔵の音声と内蔵の認識はアプリの言語に従います（設定 › 言語）。";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "この端末では %@ の音声認識を利用できません。";

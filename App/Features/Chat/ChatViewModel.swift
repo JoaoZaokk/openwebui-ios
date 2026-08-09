@@ -27,6 +27,14 @@ final class ChatViewModel: ObservableObject {
     /// over plain SSE, so we show a local "Pesquisando na web…" status.
     @Published var awaitingWebSearch = false
 
+    /// Workspace tools (`/api/v1/tools/`) the server may call for the next
+    /// reply. Empty = none, which is what every version before this shipped.
+    @Published var selectedToolIDs: Set<String> = []
+    /// Tools this account can reach — loaded lazily the first time the picker
+    /// opens, so a chat that never uses tools costs no request.
+    @Published private(set) var availableTools: [OWNamedItem] = []
+    @Published private(set) var loadingTools = false
+
     let models: [OWModel]
 
     /// A temporary chat is never saved to the server (ephemeral).
@@ -65,7 +73,7 @@ final class ChatViewModel: ObservableObject {
 
     var selectedModelName: String {
         guard let id = selectedModel else { return L("Selecionar modelo") }
-        return models.first { $0.id == id }?.shortName ?? id
+        return ModelAliases.shared.display(id: id, fallback: models.first { $0.id == id }?.shortName)
     }
 
     func selectModel(_ id: String) { selectedModel = id }
@@ -198,6 +206,22 @@ final class ChatViewModel: ObservableObject {
         pendingDocuments.append(OWAttachment(type: "collection", id: kb.id, name: kb.name))
     }
 
+    /// Fetches the workspace tool list once (idempotent — safe to call on every
+    /// picker open).
+    func loadTools() {
+        guard availableTools.isEmpty, !loadingTools else { return }
+        loadingTools = true
+        Task {
+            defer { loadingTools = false }
+            guard let list = try? await client.tools() else { return }
+            availableTools = list
+            // Drop selections for tools this account lost access to, so we never
+            // send a tool_id the server will reject.
+            let ids = Set(list.map(\.id))
+            selectedToolIDs.formIntersection(ids)
+        }
+    }
+
     func send() {
         let text = input.trimmingCharacters(in: .whitespacesAndNewlines)
         let images = pendingImageURLs
@@ -258,8 +282,10 @@ final class ChatViewModel: ObservableObject {
             }
         }
         do {
+            let options = OWStreamOptions(webSearch: legacyFallback,
+                                          toolIDs: Array(selectedToolIDs))
             for try await update in completions.stream(model: model, messages: convo, files: streamFiles,
-                                                       options: OWStreamOptions(webSearch: legacyFallback)) {
+                                                       options: options) {
                 awaitingWebSearch = false
                 switch update {
                 case .textDelta(let d):

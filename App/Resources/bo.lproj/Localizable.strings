@@ -101,7 +101,6 @@
 "Português" = "པོར་ཐུ་གལ་སྐད།";
 "Pétalas" = "མེ་ཏོག་འདབ་མ།";
 "Reconhecimento (STT)" = "ངོས་འཛིན། (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "སྒྲིག་ཆས་འདིར་ pt-BR ཡི་སྐད་ངོས་འཛིན་སྤྱོད་མི་ཐུབ།";
 "Reconhecimento: %@" = "ངོས་འཛིན། %@";
 "Renomear" = "མིང་བསྒྱུར།";
 "Renomear conversa" = "གྲོས་མོལ་མིང་བསྒྱུར།";
@@ -206,3 +205,13 @@
 "Resposta pronta" = "ལན་གྲ་སྒྲིག་ཟིན།";
 "Busca na web" = "དྲ་ཐོག་འཚོལ་ཞིབ།";
 "Clima" = "གནམ་གཤིས།";
+
+"Ferramentas" = "ལག་ཆ།";
+"Nenhuma ferramenta neste servidor." = "ཞབས་ཞུ་བ་འདིར་ལག་ཆ་མེད།";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "ལག་ཆ་དེ་ཞབས་ཞུ་བའི་སྟེང་དུ་འཁོར་ཞིང་གྲུབ་འབྲས་ལན་ནང་དུ་འཇུག";
+"Pronto" = "གྲུབ།";
+"MODELOS" = "དཔེ་དབྱིབས།";
+"Nomes dos modelos" = "དཔེ་དབྱིབས་ཀྱི་མིང་།";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "སྒྲིག་ཆས་འདིའི་སྟེང་མངོན་པའི་མིང་ཙམ་བརྗེ་བ་ཡིན། ཞབས་ཞུ་བར་སྐུར་བའི་དཔེ་དབྱིབས་སྔར་བཞིན་ཡིན། མིང་གཞི་མར་ལོག་ན་སྟོང་པར་བཞག";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "ནང་འདུས་སྐད་དང་ནང་འདུས་ངོས་འཛིན་གཉིས་ཀྱིས་མཉེན་ཆས་ཀྱི་སྐད་ཡིག་རྗེས་འབྲང་བྱེད། (སྒྲིག་འགོད། › སྐད་ཡིག)";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "སྒྲིག་ཆས་འདིའི་སྟེང་ %@ ཡི་སྐད་ངོས་འཛིན་མི་ཐུབ།";

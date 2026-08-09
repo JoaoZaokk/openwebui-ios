@@ -101,7 +101,6 @@
 "Português" = "Португал";
 "Pétalas" = "Дэлбээ";
 "Reconhecimento (STT)" = "Таних (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Энэ төхөөрөмж дээр pt-BR-ийн дуу таних боломжгүй.";
 "Reconhecimento: %@" = "Таних: %@";
 "Renomear" = "Нэр солих";
 "Renomear conversa" = "Ярианы нэрийг солих";
@@ -206,3 +205,13 @@
 "Resposta pronta" = "Хариулт бэлэн боллоо";
 "Busca na web" = "Вэб хайлт";
 "Clima" = "Цаг агаар";
+
+"Ferramentas" = "Хэрэгслүүд";
+"Nenhuma ferramenta neste servidor." = "Энэ серверт хэрэгсэл алга.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Хэрэгсэл сервер дээр ажиллаж, үр дүн нь хариултад ордог.";
+"Pronto" = "Болсон";
+"MODELOS" = "ЗАГВАРУУД";
+"Nomes dos modelos" = "Загваруудын нэр";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Зөвхөн энэ төхөөрөмж дээр харагдах нэрийг өөрчилнө — сервер рүү илгээгдэх загвар хэвээр үлдэнэ. Анхны нэр рүү буцаахын тулд хоосон орхино уу.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Суурилуулсан хоолой ба таних систем нь аппын хэлийг дагана (Тохиргоо › Хэл).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Энэ төхөөрөмж дээр %@ хэлний яриа таних боломжгүй.";

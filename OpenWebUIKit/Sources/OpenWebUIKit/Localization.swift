@@ -122,6 +122,26 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
         self == .ar || self == .fa || self == .ur || self == .ps || self == .he || self == .ug
     }
 
+    /// Region-qualified BCP-47 tag for Apple's speech frameworks
+    /// (`AVSpeechSynthesisVoice` and `SFSpeechRecognizer` both key off these,
+    /// and neither accepts a bare "zh"/"pt"). Callers must still degrade
+    /// gracefully — not every tag has a voice or a recognizer installed.
+    public var speechLocale: String {
+        switch self {
+        case .ptBR: "pt-BR"; case .en: "en-US"; case .es: "es-ES"; case .fr: "fr-FR"
+        case .it: "it-IT"; case .de: "de-DE"; case .deAT: "de-AT"; case .deCH: "de-CH"
+        case .nl: "nl-NL"; case .pl: "pl-PL"; case .cs: "cs-CZ"; case .sk: "sk-SK"
+        case .sl: "sl-SI"; case .hr: "hr-HR"; case .bg: "bg-BG"; case .mk: "mk-MK"
+        case .sr: "sr-RS"; case .uk: "uk-UA"; case .be: "be-BY"; case .ru: "ru-RU"
+        case .tr: "tr-TR"; case .hu: "hu-HU"; case .vi: "vi-VN"; case .ind: "id-ID"
+        case .ms: "ms-MY"; case .ja: "ja-JP"; case .ko: "ko-KR"; case .zhHans: "zh-CN"
+        case .zhHant: "zh-TW"; case .hi: "hi-IN"; case .bn: "bn-IN"; case .ar: "ar-SA"
+        case .fa: "fa-IR"; case .ur: "ur-PK"; case .ps: "ps-AF"; case .lb: "lb-LU"
+        case .lv: "lv-LV"; case .fi: "fi-FI"; case .sv: "sv-SE"; case .he: "he-IL"
+        case .th: "th-TH"; case .ug: "ug-CN"; case .bo: "bo-CN"; case .mn: "mn-MN"
+        }
+    }
+
     /// Best shipped match for a device/system BCP-47 code (e.g. "ja-JP", "zh-Hant-TW", "de-CH").
     static func match(_ code: String) -> AppLanguage? {
         let c = code.lowercased()
@@ -184,6 +204,11 @@ public final class LanguageManager: ObservableObject {
     public var isAutomatic: Bool { override == nil }
 
     public var locale: Locale { Locale(identifier: current.rawValue) }
+
+    /// The locale TTS and STT must speak/listen in — the single language
+    /// resolution point for voice, so the speaker button and the mic can never
+    /// drift from the UI language.
+    public var speechLocale: Locale { Locale(identifier: current.speechLocale) }
 
     /// Layout direction for the active language (RTL for ar/fa/ur/ps).
     public var layoutDirection: LayoutDirection { current.isRTL ? .rightToLeft : .leftToRight }

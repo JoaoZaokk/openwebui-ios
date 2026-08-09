@@ -30,7 +30,10 @@ struct VoiceSettingsView: View {
                     LabeledContent("Modelo ativo", value: modelName(sttModelID) ?? L("nenhum"))
                 }
             } header: { Text("Voz → Texto") } footer: {
-                Text("Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim).")
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim).")
+                    Text("A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma).")
+                }
             }
 
             Section {

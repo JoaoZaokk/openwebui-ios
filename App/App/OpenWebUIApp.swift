@@ -7,6 +7,7 @@ struct OpenWebUIApp: App {
     @StateObject private var themes = ThemeStore()
     // Singleton, observed (not owned) — @ObservedObject is the correct wrapper.
     @ObservedObject private var lang = LanguageManager.shared
+    @ObservedObject private var modelAliases = ModelAliases.shared
 
     init() { FontLoader.registerBundledFonts() }
 
@@ -16,6 +17,7 @@ struct OpenWebUIApp: App {
                 .environmentObject(app)
                 .environmentObject(themes)
                 .environmentObject(lang)
+                .environmentObject(modelAliases)
                 .environment(\.theme, themes.effectiveTheme)
                 // Drives SwiftUI `Text("literal")` localization; the picker flips
                 // this and `L(_:)`'s bundle together via LanguageManager.

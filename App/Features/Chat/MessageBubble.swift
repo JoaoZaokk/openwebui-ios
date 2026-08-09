@@ -64,10 +64,17 @@ struct MessageBubble: View {
         }
     }
 
+    /// The nickname the user gave this model, else its short id.
+    private var modelLabel: String {
+        guard let id = message.model, !id.isEmpty else { return "Open WebUI" }
+        return ModelAliases.shared.display(id: id,
+                                           fallback: id.split(separator: "/").last.map(String.init))
+    }
+
     private var header: some View {
         HStack(spacing: 6) {
             BrandMark(size: 16)
-            Text(message.model?.split(separator: "/").last.map(String.init) ?? "Open WebUI")
+            Text(verbatim: modelLabel)
                 .font(.ody(size: 11, design: .monospaced))
                 .foregroundStyle(theme.secondaryText)
             if !message.content.isEmpty {

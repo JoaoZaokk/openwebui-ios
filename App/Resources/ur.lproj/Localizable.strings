@@ -102,7 +102,6 @@
 "Português" = "پرتگالی";
 "Pétalas" = "پنکھڑیاں";
 "Reconhecimento (STT)" = "شناخت (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "اس آلے پر pt-BR کے لیے صوتی شناخت دستیاب نہیں۔";
 "Reconhecimento: %@" = "شناخت: %@";
 "Renomear" = "نام بدلیں";
 "Renomear conversa" = "گفتگو کا نام بدلیں";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "جواب تیار ہے";
 "Busca na web" = "ویب تلاش";
 "Clima" = "موسم";
+
+"Ferramentas" = "ٹولز";
+"Nenhuma ferramenta neste servidor." = "اس سرور پر کوئی ٹول نہیں ہے۔";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "ٹول سرور پر چلتا ہے اور اس کا نتیجہ جواب میں شامل ہو جاتا ہے۔";
+"Pronto" = "ہو گیا";
+"MODELOS" = "ماڈلز";
+"Nomes dos modelos" = "ماڈلز کے نام";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "صرف اس ڈیوائس پر دکھایا جانے والا نام بدلتا ہے — سرور کو بھیجا جانے والا ماڈل وہی رہتا ہے۔ اصل نام پر واپس جانے کے لیے خالی چھوڑ دیں۔";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "بلٹ اِن آواز اور بلٹ اِن شناخت ایپ کی زبان کی پیروی کرتی ہیں (ترتیبات › زبان)۔";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "اس ڈیوائس پر %@ کے لیے تقریر کی شناخت دستیاب نہیں ہے۔";

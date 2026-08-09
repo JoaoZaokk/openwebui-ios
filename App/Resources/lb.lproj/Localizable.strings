@@ -101,7 +101,6 @@
 "Português" = "Portugisesch";
 "Pétalas" = "Blummeblieder";
 "Reconhecimento (STT)" = "Erkennung (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Sproocherkennung net disponibel fir pt-BR op dësem Apparat.";
 "Reconhecimento: %@" = "Erkennung: %@";
 "Renomear" = "Ëmbenennen";
 "Renomear conversa" = "Gespréich ëmbenennen";
@@ -206,3 +205,13 @@
 "Resposta pronta" = "Äntwert fäerdeg";
 "Busca na web" = "Websich";
 "Clima" = "Wieder";
+
+"Ferramentas" = "Tools";
+"Nenhuma ferramenta neste servidor." = "Keng Tools op dësem Server.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "D'Tool leeft um Server an d'Resultat kënnt an d'Äntwert.";
+"Pronto" = "Fäerdeg";
+"MODELOS" = "MODELLER";
+"Nomes dos modelos" = "Modellnimm";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Ännert nëmmen den Numm, deen op dësem Apparat ugewise gëtt — de Modell, deen un de Server geschéckt gëtt, bleift deeselwechten. Eidel loosse fir den originalen Numm zréckzesetzen.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Déi agebaute Stëmm an déi agebauten Erkennung follegen der App-Sprooch (Astellungen › Sprooch).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Spracherkennung ass fir %@ op dësem Apparat net verfügbar.";

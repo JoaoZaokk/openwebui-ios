@@ -6,10 +6,14 @@ import OpenWebUIKit
 import UIKit
 #endif
 
-/// Text-to-speech with two engines, chosen in Settings:
-/// - **native**: Apple `AVSpeechSynthesizer` (pt-BR, instant, robotic).
+/// Text-to-speech with three engines, chosen in Settings:
+/// - **native**: Apple `AVSpeechSynthesizer`, in the app's UI language
+///   (instant, robotic).
 /// - **neural**: FluidAudio **PocketTTS** Portuguese pack (CoreML/ANE, much more
 ///   natural). Downloads ~550 MB on first use, then synthesizes on-device.
+///   Portuguese only — upstream ships one voice list per language pack, so the
+///   Settings row labels it and the native engine stays the default.
+/// - **server**: the Open WebUI instance's own `/audio/speech`.
 @MainActor
 final class SpeechManager: NSObject, ObservableObject {
     static let shared = SpeechManager()
@@ -59,7 +63,10 @@ final class SpeechManager: NSObject, ObservableObject {
     }
 
     private let synth = AVSpeechSynthesizer()
-    private let language = "pt-BR"
+    /// Read fresh on every utterance — the user can change the app language at
+    /// any time and the next 🔊 must follow it (a stored constant is what made
+    /// English replies come out in a Portuguese voice).
+    private var language: String { LanguageManager.shared.current.speechLocale }
 
     // Neural (PocketTTS pt-BR)
     private var pocket: PocketTtsManager?
@@ -192,14 +199,29 @@ final class SpeechManager: NSObject, ObservableObject {
 
     // MARK: - Helpers
 
+    /// Best installed voice for `lang`, degrading region → language → nil.
+    /// Returning nil is deliberate: AVSpeechSynthesizer then picks the system
+    /// default, which is far better than reading e.g. Japanese with a Brazilian
+    /// voice just because that identifier happened to be hard-coded.
     private static func bestVoice(for lang: String) -> AVSpeechSynthesisVoice? {
         func rank(_ v: AVSpeechSynthesisVoice) -> Int {
             switch v.quality { case .premium: return 3; case .enhanced: return 2; default: return 1 }
         }
-        let exact = AVSpeechSynthesisVoice.speechVoices()
+        let installed = AVSpeechSynthesisVoice.speechVoices()
+        let exact = installed
             .filter { $0.language.caseInsensitiveCompare(lang) == .orderedSame }
             .sorted { rank($0) > rank($1) }
-        return exact.first ?? AVSpeechSynthesisVoice(language: lang)
+        if let v = exact.first { return v }
+
+        // "de-AT" with no Austrian voice installed should still speak German,
+        // not fall through to the system default (often English).
+        let base = lang.split(separator: "-").first.map(String.init) ?? lang
+        let sameLanguage = installed
+            .filter { $0.language.lowercased().hasPrefix(base.lowercased() + "-") }
+            .sorted { rank($0) > rank($1) }
+        if let v = sameLanguage.first { return v }
+
+        return AVSpeechSynthesisVoice(language: lang) ?? AVSpeechSynthesisVoice(language: base)
     }
 
     private static func strip(_ s: String) -> String {

@@ -101,7 +101,6 @@
 "Português" = "โปรตุเกส";
 "Pétalas" = "กลีบดอกไม้";
 "Reconhecimento (STT)" = "การรู้จำเสียง (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "การรู้จำเสียงไม่รองรับ pt-BR บนเครื่องนี้";
 "Reconhecimento: %@" = "การรู้จำเสียง: %@";
 "Renomear" = "เปลี่ยนชื่อ";
 "Renomear conversa" = "เปลี่ยนชื่อการสนทนา";
@@ -206,3 +205,13 @@
 "Resposta pronta" = "คำตอบพร้อมแล้ว";
 "Busca na web" = "ค้นหาเว็บ";
 "Clima" = "สภาพอากาศ";
+
+"Ferramentas" = "เครื่องมือ";
+"Nenhuma ferramenta neste servidor." = "ไม่มีเครื่องมือบนเซิร์ฟเวอร์นี้";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "เครื่องมือทำงานบนเซิร์ฟเวอร์ และผลลัพธ์จะเข้าไปอยู่ในคำตอบ";
+"Pronto" = "เสร็จ";
+"MODELOS" = "โมเดล";
+"Nomes dos modelos" = "ชื่อโมเดล";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "เปลี่ยนเฉพาะชื่อที่แสดงบนเครื่องนี้ — โมเดลที่ส่งไปยังเซิร์ฟเวอร์ยังคงเดิม เว้นว่างไว้เพื่อกลับไปใช้ชื่อเดิม";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "เสียงในตัวและการรู้จำเสียงในตัวจะใช้ภาษาของแอป (การตั้งค่า › ภาษา)";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "เครื่องนี้ไม่รองรับการรู้จำเสียงสำหรับ %@";

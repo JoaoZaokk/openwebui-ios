@@ -237,6 +237,46 @@ final class OWChatDecodeTests: XCTestCase {
         XCTAssertEqual(back.sources.first?.name, "Wikipedia")
     }
 
+    /// Selected workspace tools must reach the server as top-level `tool_ids`
+    /// AND flip function calling to "legacy" — Open WebUI runs
+    /// `chat_completion_tools_handler` only in that mode, so without the params
+    /// the request looks fine and silently calls nothing.
+    func testToolIDsForceLegacyFunctionCalling() throws {
+        let client = ChatCompletionsClient(
+            client: OpenWebUIClient(config: OWConfig(baseURL: URL(string: "https://x.test")!)))
+        let msgs = [OWChatMessageInput(role: "user", text: "oi")]
+
+        let withTools = try client.buildRequest(model: "m", messages: msgs, files: [],
+                                                options: .init(toolIDs: ["calc", "weather"]))
+        let body = try XCTUnwrap(withTools.httpBody)
+        let json = try XCTUnwrap(try JSONSerialization.jsonObject(with: body) as? [String: Any])
+        XCTAssertEqual(json["tool_ids"] as? [String], ["calc", "weather"])
+        XCTAssertEqual((json["params"] as? [String: Any])?["function_calling"] as? String, "legacy")
+        XCTAssertNil(json["features"])   // tools alone must not turn web search on
+
+        // Plain turn: neither key, so servers < 0.10 and native tool calling are untouched.
+        let plain = try client.buildRequest(model: "m", messages: msgs, files: [], options: .init())
+        let plainJSON = try XCTUnwrap(
+            try JSONSerialization.jsonObject(with: XCTUnwrap(plain.httpBody)) as? [String: Any])
+        XCTAssertNil(plainJSON["tool_ids"])
+        XCTAssertNil(plainJSON["params"])
+    }
+
+    /// Every shipped language must resolve to a region-qualified speech tag —
+    /// Apple's TTS/STT reject bare "pt"/"zh", and a missing case here is what
+    /// silently pinned both engines to Brazilian Portuguese.
+    func testEveryLanguageHasARegionQualifiedSpeechLocale() {
+        for lang in AppLanguage.allCases {
+            let tag = lang.speechLocale
+            XCTAssertTrue(tag.contains("-"), "\(lang.rawValue) → \(tag) sem região")
+            XCTAssertEqual(Locale(identifier: tag).language.languageCode?.identifier,
+                           Locale(identifier: tag).language.languageCode?.identifier)
+        }
+        XCTAssertEqual(AppLanguage.en.speechLocale, "en-US")
+        XCTAssertEqual(AppLanguage.zhHant.speechLocale, "zh-TW")
+        XCTAssertEqual(AppLanguage.deAT.speechLocale, "de-AT")
+    }
+
     /// Tool cards round-trip through `statusHistory` so re-persisting a chat (a
     /// later turn) doesn't drop them.
     func testToolUsesRoundTripThroughStatusHistory() throws {

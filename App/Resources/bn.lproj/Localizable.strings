@@ -102,7 +102,6 @@
 "Português" = "পর্তুগিজ";
 "Pétalas" = "পাপড়ি";
 "Reconhecimento (STT)" = "শনাক্তকরণ (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "এই ডিভাইসে pt-BR-এর জন্য ভয়েস শনাক্তকরণ উপলব্ধ নেই।";
 "Reconhecimento: %@" = "শনাক্তকরণ: %@";
 "Renomear" = "নাম পরিবর্তন";
 "Renomear conversa" = "চ্যাটের নাম পরিবর্তন";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "উত্তর প্রস্তুত";
 "Busca na web" = "ওয়েব অনুসন্ধান";
 "Clima" = "আবহাওয়া";
+
+"Ferramentas" = "টুল";
+"Nenhuma ferramenta neste servidor." = "এই সার্ভারে কোনো টুল নেই।";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "টুল সার্ভারে চলে এবং তার ফলাফল উত্তরে যুক্ত হয়।";
+"Pronto" = "সম্পন্ন";
+"MODELOS" = "মডেল";
+"Nomes dos modelos" = "মডেলের নাম";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "শুধু এই ডিভাইসে দেখানো নাম বদলায় — সার্ভারে পাঠানো মডেল একই থাকে। আসল নামে ফিরতে ফাঁকা রাখুন।";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "অন্তর্নির্মিত কণ্ঠ ও অন্তর্নির্মিত শনাক্তকরণ অ্যাপের ভাষা অনুসরণ করে (সেটিংস › ভাষা)।";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "এই ডিভাইসে %@ এর জন্য বাক্ শনাক্তকরণ উপলব্ধ নয়।";

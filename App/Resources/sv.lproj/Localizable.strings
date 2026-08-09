@@ -101,7 +101,6 @@
 "Português" = "Portugisiska";
 "Pétalas" = "Kronblad";
 "Reconhecimento (STT)" = "Igenkänning (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Röstigenkänning är otillgänglig för pt-BR på den här enheten.";
 "Reconhecimento: %@" = "Igenkänning: %@";
 "Renomear" = "Byt namn";
 "Renomear conversa" = "Byt namn på konversation";
@@ -206,3 +205,13 @@
 "Resposta pronta" = "Svaret är klart";
 "Busca na web" = "Webbsökning";
 "Clima" = "Väder";
+
+"Ferramentas" = "Verktyg";
+"Nenhuma ferramenta neste servidor." = "Inga verktyg på den här servern.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Verktyget körs på servern och resultatet hamnar i svaret.";
+"Pronto" = "Klar";
+"MODELOS" = "MODELLER";
+"Nomes dos modelos" = "Modellnamn";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Ändrar bara namnet som visas på den här enheten — modellen som skickas till servern är densamma. Lämna tomt för att återställa originalnamnet.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Den inbyggda rösten och den inbyggda igenkänningen följer appens språk (Inställningar › Språk).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Taligenkänning är inte tillgänglig för %@ på den här enheten.";

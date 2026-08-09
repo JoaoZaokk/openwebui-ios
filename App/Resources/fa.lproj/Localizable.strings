@@ -102,7 +102,6 @@
 "Português" = "پرتغالی";
 "Pétalas" = "گلبرگ‌ها";
 "Reconhecimento (STT)" = "تشخیص (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "تشخیص گفتار برای pt-BR روی این دستگاه در دسترس نیست.";
 "Reconhecimento: %@" = "تشخیص: %@";
 "Renomear" = "تغییر نام";
 "Renomear conversa" = "تغییر نام گفتگو";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "پاسخ آماده است";
 "Busca na web" = "جستجوی وب";
 "Clima" = "آب‌وهوا";
+
+"Ferramentas" = "ابزارها";
+"Nenhuma ferramenta neste servidor." = "هیچ ابزاری روی این سرور نیست.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "ابزار روی سرور اجرا می‌شود و نتیجه‌اش وارد پاسخ می‌شود.";
+"Pronto" = "انجام شد";
+"MODELOS" = "مدل‌ها";
+"Nomes dos modelos" = "نام مدل‌ها";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "فقط نام نمایش‌داده‌شده در این دستگاه را تغییر می‌دهد — مدلی که به سرور فرستاده می‌شود همان می‌ماند. برای بازگشت به نام اصلی خالی بگذارید.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "صدای داخلی و تشخیص داخلی از زبان برنامه پیروی می‌کنند (تنظیمات › زبان).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "تشخیص گفتار برای %@ روی این دستگاه در دسترس نیست.";

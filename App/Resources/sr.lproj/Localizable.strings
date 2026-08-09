@@ -102,7 +102,6 @@
 "Português" = "Португалски";
 "Pétalas" = "Латице";
 "Reconhecimento (STT)" = "Препознавање (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Препознавање говора није доступно за pt-BR на овом уређају.";
 "Reconhecimento: %@" = "Препознавање: %@";
 "Renomear" = "Преименуј";
 "Renomear conversa" = "Преименуј разговор";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "Одговор је спреман";
 "Busca na web" = "Претрага веба";
 "Clima" = "Време";
+
+"Ferramentas" = "Алати";
+"Nenhuma ferramenta neste servidor." = "Нема алата на овом серверу.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Алат се извршава на серверу, а резултат улази у одговор.";
+"Pronto" = "Готово";
+"MODELOS" = "МОДЕЛИ";
+"Nomes dos modelos" = "Називи модела";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Мења само назив приказан на овом уређају — модел који се шаље серверу остаје исти. Оставите празно за повратак оригиналног назива.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Уграђени глас и уграђено препознавање прате језик апликације (Подешавања › Језик).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Препознавање говора није доступно за %@ на овом уређају.";

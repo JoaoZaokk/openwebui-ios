@@ -102,7 +102,6 @@
 "Português" = "Португальский";
 "Pétalas" = "Лепестки";
 "Reconhecimento (STT)" = "Распознавание (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Распознавание речи недоступно для pt-BR на этом устройстве.";
 "Reconhecimento: %@" = "Распознавание: %@";
 "Renomear" = "Переименовать";
 "Renomear conversa" = "Переименовать разговор";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "Ответ готов";
 "Busca na web" = "Веб-поиск";
 "Clima" = "Погода";
+
+"Ferramentas" = "Инструменты";
+"Nenhuma ferramenta neste servidor." = "На этом сервере нет инструментов.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Инструмент выполняется на сервере, а его результат попадает в ответ.";
+"Pronto" = "Готово";
+"MODELOS" = "МОДЕЛИ";
+"Nomes dos modelos" = "Имена моделей";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Меняет только имя, показываемое на этом устройстве — модель, отправляемая на сервер, остаётся прежней. Оставьте пустым, чтобы вернуть исходное имя.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Встроенный голос и встроенное распознавание следуют языку приложения (Настройки › Язык).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Распознавание речи недоступно для %@ на этом устройстве.";

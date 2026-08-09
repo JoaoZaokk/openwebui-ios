@@ -102,7 +102,6 @@
 "Português" = "البرتغالية";
 "Pétalas" = "بتلات";
 "Reconhecimento (STT)" = "التعرّف (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "التعرّف على الصوت غير متاح للغة pt-BR على هذا الجهاز.";
 "Reconhecimento: %@" = "التعرّف: %@";
 "Renomear" = "إعادة التسمية";
 "Renomear conversa" = "إعادة تسمية المحادثة";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "الرد جاهز";
 "Busca na web" = "بحث ويب";
 "Clima" = "الطقس";
+
+"Ferramentas" = "الأدوات";
+"Nenhuma ferramenta neste servidor." = "لا توجد أدوات على هذا الخادم.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "تعمل الأداة على الخادم وتدخل نتيجتها في الرد.";
+"Pronto" = "تم";
+"MODELOS" = "النماذج";
+"Nomes dos modelos" = "أسماء النماذج";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "يغيّر الاسم المعروض على هذا الجهاز فقط — النموذج المُرسَل إلى الخادم يبقى كما هو. اتركه فارغًا للعودة إلى الاسم الأصلي.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "يتبع الصوت المدمج والتعرّف المدمج لغة التطبيق (الإعدادات › اللغة).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "التعرّف على الكلام غير متاح لـ %@ على هذا الجهاز.";

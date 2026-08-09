@@ -102,7 +102,6 @@
 "Português" = "Portugis";
 "Pétalas" = "Kelopak";
 "Reconhecimento (STT)" = "Pengenalan (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Pengenalan suara tidak tersedia untuk pt-BR di perangkat ini.";
 "Reconhecimento: %@" = "Pengenalan: %@";
 "Renomear" = "Ganti nama";
 "Renomear conversa" = "Ganti nama percakapan";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "Balasan siap";
 "Busca na web" = "Pencarian web";
 "Clima" = "Cuaca";
+
+"Ferramentas" = "Alat";
+"Nenhuma ferramenta neste servidor." = "Tidak ada alat di server ini.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Alat berjalan di server dan hasilnya masuk ke dalam jawaban.";
+"Pronto" = "Selesai";
+"MODELOS" = "MODEL";
+"Nomes dos modelos" = "Nama model";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Hanya mengubah nama yang tampil di perangkat ini — model yang dikirim ke server tetap sama. Kosongkan untuk mengembalikan nama asli.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Suara dan pengenalan bawaan mengikuti bahasa aplikasi (Pengaturan › Bahasa).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Pengenalan suara tidak tersedia untuk %@ di perangkat ini.";

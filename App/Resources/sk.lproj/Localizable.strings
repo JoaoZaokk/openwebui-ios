@@ -102,7 +102,6 @@
 "Português" = "Portugalčina";
 "Pétalas" = "Lupienky";
 "Reconhecimento (STT)" = "Rozpoznávanie (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Rozpoznávanie hlasu nie je pre pt-BR na tomto zariadení dostupné.";
 "Reconhecimento: %@" = "Rozpoznávanie: %@";
 "Renomear" = "Premenovať";
 "Renomear conversa" = "Premenovať konverzáciu";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "Odpoveď je hotová";
 "Busca na web" = "Vyhľadávanie na webe";
 "Clima" = "Počasie";
+
+"Ferramentas" = "Nástroje";
+"Nenhuma ferramenta neste servidor." = "Na tomto serveri nie sú žiadne nástroje.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Nástroj beží na serveri a jeho výsledok sa dostane do odpovede.";
+"Pronto" = "Hotovo";
+"MODELOS" = "MODELY";
+"Nomes dos modelos" = "Názvy modelov";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Mení iba názov zobrazený na tomto zariadení — model odosielaný na server zostáva rovnaký. Nechajte prázdne pre návrat k pôvodnému názvu.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Vstavaný hlas a vstavané rozpoznávanie sa riadia jazykom aplikácie (Nastavenia › Jazyk).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Rozpoznávanie reči nie je pre %@ na tomto zariadení dostupné.";

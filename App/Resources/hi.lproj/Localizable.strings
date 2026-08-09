@@ -102,7 +102,6 @@
 "Português" = "पुर्तगाली";
 "Pétalas" = "पंखुड़ियाँ";
 "Reconhecimento (STT)" = "पहचान (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "इस डिवाइस पर pt-BR के लिए वॉइस पहचान उपलब्ध नहीं है।";
 "Reconhecimento: %@" = "पहचान: %@";
 "Renomear" = "नाम बदलें";
 "Renomear conversa" = "चैट का नाम बदलें";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "उत्तर तैयार है";
 "Busca na web" = "वेब खोज";
 "Clima" = "मौसम";
+
+"Ferramentas" = "टूल";
+"Nenhuma ferramenta neste servidor." = "इस सर्वर पर कोई टूल नहीं है।";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "टूल सर्वर पर चलता है और उसका नतीजा जवाब में जुड़ जाता है।";
+"Pronto" = "हो गया";
+"MODELOS" = "मॉडल";
+"Nomes dos modelos" = "मॉडल के नाम";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "सिर्फ़ इस डिवाइस पर दिखने वाला नाम बदलता है — सर्वर को भेजा जाने वाला मॉडल वही रहता है। मूल नाम पर लौटने के लिए खाली छोड़ें।";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "अंतर्निहित आवाज़ और अंतर्निहित पहचान ऐप की भाषा का अनुसरण करती हैं (सेटिंग्स › भाषा)।";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "इस डिवाइस पर %@ के लिए वाक् पहचान उपलब्ध नहीं है।";

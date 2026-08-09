@@ -204,10 +204,13 @@ struct VoiceView: View {
 
     private var modelPicker: some View {
         Menu {
-            ForEach(convo.models) { m in Button(m.shortName) { convo.model = m.id } }
+            ForEach(convo.models) { m in
+                Button(ModelAliases.shared.display(m)) { convo.model = m.id }
+            }
         } label: {
             HStack(spacing: 3) {
-                Text(convo.models.first { $0.id == convo.model }?.shortName ?? "Modelo")
+                Text(verbatim: convo.models.first { $0.id == convo.model }
+                        .map { ModelAliases.shared.display($0) } ?? L("Modelo"))
                     .font(.ody(size: 11, design: .monospaced)).lineLimit(1)
                 Image(systemName: "chevron.up.chevron.down").font(.system(size: 8))
             }

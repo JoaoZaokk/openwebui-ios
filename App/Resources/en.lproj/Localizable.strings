@@ -104,7 +104,6 @@
 "Português" = "Portuguese";
 "Pétalas" = "Petals";
 "Reconhecimento (STT)" = "Recognition (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Voice recognition unavailable for pt-BR on this device.";
 "Reconhecimento: %@" = "Recognition: %@";
 "Renomear" = "Rename";
 "Renomear conversa" = "Rename chat";
@@ -215,3 +214,13 @@
 "Resposta pronta" = "Reply ready";
 "Busca na web" = "Web search";
 "Clima" = "Weather";
+
+"Ferramentas" = "Tools";
+"Nenhuma ferramenta neste servidor." = "No tools on this server.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "The tool runs on the server and its result goes into the reply.";
+"Pronto" = "Done";
+"MODELOS" = "MODELS";
+"Nomes dos modelos" = "Model names";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Only changes the name shown on this device — the model sent to the server stays the same. Leave blank to restore the original name.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "The built-in voice and built-in recognition follow the app language (Settings › Language).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Speech recognition isn't available for %@ on this device.";

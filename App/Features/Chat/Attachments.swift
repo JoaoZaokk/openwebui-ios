@@ -243,6 +243,68 @@ struct KBPickerSheet: View {
     }
 }
 
+/// Arms workspace tools for the next reply. Multi-select (unlike the other
+/// pickers, which attach one thing and close) because a turn can expose several
+/// tools at once, exactly like the web client's 🔧 menu.
+struct ToolPickerSheet: View {
+    @ObservedObject var vm: ChatViewModel
+    @Environment(\.theme) private var theme
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                theme.bg.ignoresSafeArea()
+                if vm.loadingTools { ProgressView().tint(theme.accent) }
+                else if vm.availableTools.isEmpty {
+                    Text("Nenhuma ferramenta neste servidor.")
+                        .font(.ody(.footnote, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                        .multilineTextAlignment(.center).padding(.horizontal, 32)
+                } else {
+                    List {
+                        Section {
+                            ForEach(vm.availableTools) { tool in
+                                Button { toggle(tool.id) } label: { row(tool) }
+                                    .buttonStyle(.plain).listRowBackground(theme.bg)
+                            }
+                        } footer: {
+                            Text("A ferramenta roda no servidor e o resultado entra na resposta.")
+                                .font(.ody(size: 11, design: .monospaced))
+                                .foregroundStyle(theme.secondaryText)
+                        }
+                    }
+                    .listStyle(.plain).scrollContentBackground(.hidden)
+                }
+            }
+            .navigationTitle("Ferramentas").navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Pronto") { dismiss() } } }
+        }
+        .tint(theme.accent)
+    }
+
+    private func row(_ tool: OWNamedItem) -> some View {
+        let on = vm.selectedToolIDs.contains(tool.id)
+        return HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(systemName: on ? "checkmark.circle.fill" : "circle")
+                .font(.ody(size: 14)).foregroundStyle(on ? theme.accent : theme.secondaryText)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(tool.name).font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                if let d = tool.description, !d.isEmpty {
+                    Text(d).font(.ody(size: 11, design: .monospaced))
+                        .foregroundStyle(theme.secondaryText).lineLimit(2)
+                }
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(.vertical, 6).contentShape(Rectangle())
+    }
+
+    private func toggle(_ id: String) {
+        if vm.selectedToolIDs.contains(id) { vm.selectedToolIDs.remove(id) }
+        else { vm.selectedToolIDs.insert(id) }
+    }
+}
+
 /// Fullscreen image viewer — pinch/double-tap to zoom, with a Save button.
 struct ImageViewerView: View {
     let url: String

@@ -5,6 +5,7 @@ import OpenWebUIKit
 
 struct ChatScreen: View {
     @EnvironmentObject private var app: AppState
+    @EnvironmentObject private var aliases: ModelAliases
     @Environment(\.theme) private var theme
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var vm: ChatViewModel
@@ -20,6 +21,7 @@ struct ChatScreen: View {
     @State private var showWebInput = false
     @State private var webURL = ""
     @State private var comingSoon: String?
+    @State private var showTools = false
     @State private var showVoice = false
     /// Whether the user is at (or near) the end of the transcript. Streaming only
     /// auto-scrolls while pinned, so scrolling up to re-read mid-reply sticks.
@@ -102,9 +104,9 @@ struct ChatScreen: View {
             ForEach(app.models) { m in
                 Button { vm.selectModel(m.id) } label: {
                     if vm.selectedModel == m.id {
-                        Label(m.shortName, systemImage: "checkmark")
+                        Label(aliases.display(m), systemImage: "checkmark")
                     } else {
-                        Text(m.shortName)
+                        Text(verbatim: aliases.display(m))
                     }
                 }
             }
@@ -250,6 +252,7 @@ struct ChatScreen: View {
             if vm.isStreaming { Divider().overlay(theme.border) }
             HStack(spacing: 8) {
                 toggleChip(system: "globe", label: "Buscar na web", on: $vm.webSearch)
+                toolsChip
                 Spacer()
             }
             .padding(.horizontal, 12)
@@ -298,6 +301,7 @@ struct ChatScreen: View {
         .sheet(isPresented: $showKBPicker) {
             KBPickerSheet(client: app.client) { kb in vm.attachKnowledge(kb) }
         }
+        .sheet(isPresented: $showTools) { ToolPickerSheet(vm: vm) }
         .alert("Anexar Página Web", isPresented: $showWebInput) {
             TextField("https://…", text: $webURL)
                 .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
@@ -469,6 +473,30 @@ struct ChatScreen: View {
         }
         .accessibilityLabel(Text(vm.isStreaming ? "Parar resposta" : "Enviar mensagem"))
         .disabled(!voice.isRecording && !vm.isStreaming && !canSend)
+    }
+
+    /// Opens the workspace tool picker. Lights up like the web-search chip when
+    /// at least one tool is armed, with the count so the state is readable
+    /// without opening the sheet.
+    private var toolsChip: some View {
+        let count = vm.selectedToolIDs.count
+        let on = count > 0
+        return Button {
+            vm.loadTools()
+            showTools = true
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "wrench.and.screwdriver").font(.ody(size: 11))
+                Text("Ferramentas").font(.ody(size: 12, design: .monospaced))
+                if on { Text(verbatim: "\(count)").font(.ody(size: 11, design: .monospaced)) }
+            }
+            .padding(.horizontal, 10).padding(.vertical, 6)
+            .foregroundStyle(on ? theme.onAccent : theme.secondaryText)
+            .background(on ? theme.accent : theme.panel, in: Capsule())
+            .overlay(Capsule().stroke(theme.border, lineWidth: on ? 0 : 1))
+        }
+        .buttonStyle(.plain)
+        .accessibilityAddTraits(on ? .isSelected : [])
     }
 
     private func toggleChip(system: String, label: String, on: Binding<Bool>) -> some View {

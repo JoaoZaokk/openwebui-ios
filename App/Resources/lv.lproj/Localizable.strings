@@ -101,7 +101,6 @@
 "Português" = "Portugāļu";
 "Pétalas" = "Ziedlapiņas";
 "Reconhecimento (STT)" = "Atpazīšana (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Balss atpazīšana nav pieejama pt-BR šajā ierīcē.";
 "Reconhecimento: %@" = "Atpazīšana: %@";
 "Renomear" = "Pārdēvēt";
 "Renomear conversa" = "Pārdēvēt sarunu";
@@ -206,3 +205,13 @@
 "Resposta pronta" = "Atbilde gatava";
 "Busca na web" = "Meklēšana tīmeklī";
 "Clima" = "Laikapstākļi";
+
+"Ferramentas" = "Rīki";
+"Nenhuma ferramenta neste servidor." = "Šajā serverī nav rīku.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Rīks darbojas serverī, un tā rezultāts nonāk atbildē.";
+"Pronto" = "Gatavs";
+"MODELOS" = "MODEĻI";
+"Nomes dos modelos" = "Modeļu nosaukumi";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Maina tikai šajā ierīcē redzamo nosaukumu — serverim nosūtītais modelis paliek tas pats. Atstājiet tukšu, lai atjaunotu sākotnējo nosaukumu.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Iebūvētā balss un iebūvētā atpazīšana seko lietotnes valodai (Iestatījumi › Valoda).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Runas atpazīšana šajā ierīcē %@ nav pieejama.";

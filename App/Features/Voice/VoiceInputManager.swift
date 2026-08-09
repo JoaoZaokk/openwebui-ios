@@ -26,7 +26,6 @@ final class VoiceInputManager: ObservableObject {
     // start/stop is unstable on macOS (the 2nd use hung the audio HAL on the main
     // thread and then crashed). A new engine means a clean input node + tap.
     private var engine = AVAudioEngine()
-    private let recognizer = SFSpeechRecognizer(locale: Locale(identifier: "pt-BR"))
 
     private static let targetRate: Double = 16_000
     private static let targetFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32,
@@ -101,9 +100,10 @@ final class VoiceInputManager: ObservableObject {
         captureToModel = useModel || useServer   // both buffer raw audio to upload/transcribe
 
         if !useModel && !useServer {
-            guard let rec = recognizer, rec.isAvailable else {
+            guard let rec = Self.recognizer(for: LanguageManager.shared.current), rec.isAvailable else {
                 deactivateSession()
-                error = L("Reconhecimento de voz indisponível para pt-BR neste aparelho.")
+                error = L("Reconhecimento de voz indisponível para %@ neste aparelho.",
+                          LanguageManager.shared.current.endonym)
                 return false
             }
             let req = SFSpeechAudioBufferRecognitionRequest()
@@ -280,6 +280,24 @@ final class VoiceInputManager: ObservableObject {
             d.append(u16(UInt16(bitPattern: s)))
         }
         return d
+    }
+
+    /// Apple's recognizer for the app's UI language, degrading region →
+    /// language → whatever the device offers. Built per recording (not stored)
+    /// so switching the app language takes effect on the very next tap; a fixed
+    /// pt-BR instance is what made the mic transcribe every language as
+    /// Portuguese.
+    private static func recognizer(for lang: AppLanguage) -> SFSpeechRecognizer? {
+        let tag = lang.speechLocale
+        if let r = SFSpeechRecognizer(locale: Locale(identifier: tag)), r.isAvailable { return r }
+
+        let base = tag.split(separator: "-").first.map(String.init) ?? tag
+        let supported = SFSpeechRecognizer.supportedLocales()
+        if let match = supported.first(where: { $0.identifier.replacingOccurrences(of: "_", with: "-")
+                                                 .lowercased().hasPrefix(base.lowercased() + "-") }),
+           let r = SFSpeechRecognizer(locale: match), r.isAvailable { return r }
+
+        return SFSpeechRecognizer()   // device default
     }
 
     /// Maps the app's UI language to a Whisper language for the universal

@@ -102,7 +102,6 @@
 "Português" = "Portugál";
 "Pétalas" = "Szirmok";
 "Reconhecimento (STT)" = "Felismerés (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "A hangfelismerés nem érhető el a pt-BR nyelvhez ezen az eszközön.";
 "Reconhecimento: %@" = "Felismerés: %@";
 "Renomear" = "Átnevezés";
 "Renomear conversa" = "Csevegés átnevezése";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "A válasz kész";
 "Busca na web" = "Webes keresés";
 "Clima" = "Időjárás";
+
+"Ferramentas" = "Eszközök";
+"Nenhuma ferramenta neste servidor." = "Nincs eszköz ezen a kiszolgálón.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Az eszköz a kiszolgálón fut, az eredménye pedig bekerül a válaszba.";
+"Pronto" = "Kész";
+"MODELOS" = "MODELLEK";
+"Nomes dos modelos" = "Modellnevek";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Csak az ezen az eszközön megjelenő nevet változtatja meg — a kiszolgálónak küldött modell ugyanaz marad. Hagyd üresen az eredeti név visszaállításához.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "A beépített hang és a beépített felismerés az alkalmazás nyelvét követi (Beállítások › Nyelv).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "A beszédfelismerés nem érhető el %@ nyelvhez ezen a készüléken.";

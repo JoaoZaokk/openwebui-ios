@@ -102,7 +102,6 @@
 "Português" = "پرتګالي";
 "Pétalas" = "ګلبرګونه";
 "Reconhecimento (STT)" = "پېژندنه (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "په دې وسیله کې د pt-BR لپاره د غږ پېژندنه شتون نلري.";
 "Reconhecimento: %@" = "پېژندنه: %@";
 "Renomear" = "نوم بدلول";
 "Renomear conversa" = "د خبرو اترو نوم بدلول";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "ځواب چمتو دی";
 "Busca na web" = "ویب لټون";
 "Clima" = "هوا";
+
+"Ferramentas" = "اوزار";
+"Nenhuma ferramenta neste servidor." = "پر دې سرور کې هیڅ اوزار نشته.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "اوزار پر سرور چلیږي او پایله یې په ځواب کې راځي.";
+"Pronto" = "ترسره شو";
+"MODELOS" = "ماډلونه";
+"Nomes dos modelos" = "د ماډلونو نومونه";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "یوازې هغه نوم بدلوي چې پر دې وسیله ښکاري — هغه ماډل چې سرور ته لیږل کیږي همغه پاتې کیږي. اصلي نوم ته د بیرته راستنیدو لپاره یې تش پرېږدئ.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "جوړ شوی غږ او جوړ شوې پېژندنه د اپلیکېشن ژبې تعقیبوي (تنظیمات › ژبه).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "پر دې وسیله د %@ لپاره د وینا پېژندنه شتون نلري.";

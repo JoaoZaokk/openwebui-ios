@@ -101,7 +101,6 @@
 "Português" = "پورتۇگالچە";
 "Pétalas" = "گۈل بەرگلىرى";
 "Reconhecimento (STT)" = "تونۇش (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "بۇ ئۈسكۈنىدە pt-BR ئۈچۈن ئاۋاز تونۇش ئىشلەتكىلى بولمايدۇ.";
 "Reconhecimento: %@" = "تونۇش: %@";
 "Renomear" = "ئات ئۆزگەرتىش";
 "Renomear conversa" = "سۆھبەت ئېتىنى ئۆزگەرتىش";
@@ -206,3 +205,13 @@
 "Resposta pronta" = "جاۋاب تەييار";
 "Busca na web" = "تور ئىزدەش";
 "Clima" = "ھاۋا رايى";
+
+"Ferramentas" = "قوراللار";
+"Nenhuma ferramenta neste servidor." = "بۇ مۇلازىمېتىردا قورال يوق.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "قورال مۇلازىمېتىردا ئىجرا بولىدۇ، نەتىجىسى جاۋابقا كىرىدۇ.";
+"Pronto" = "تامام";
+"MODELOS" = "مودېللار";
+"Nomes dos modelos" = "مودېل ئىسىملىرى";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "پەقەت بۇ ئۈسكۈنىدە كۆرۈنىدىغان ئىسىمنىلا ئۆزگەرتىدۇ — مۇلازىمېتىرغا ئەۋەتىلىدىغان مودېل ئۆزگەرمەيدۇ. ئەسلى ئىسىمغا قايتىش ئۈچۈن بوش قويۇڭ.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "ئىچكى ئۈن ۋە ئىچكى تونۇش ئەپ تىلىغا ئەگىشىدۇ (تەڭشەكلەر › تىل).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "بۇ ئۈسكۈنىدە %@ ئۈچۈن نۇتۇق تونۇش ئىشلەتكىلى بولمايدۇ.";

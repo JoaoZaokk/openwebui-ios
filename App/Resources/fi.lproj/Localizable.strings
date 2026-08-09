@@ -101,7 +101,6 @@
 "Português" = "Portugali";
 "Pétalas" = "Terälehdet";
 "Reconhecimento (STT)" = "Tunnistus (STT)";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "Puheentunnistus ei ole käytettävissä pt-BR:lle tässä laitteessa.";
 "Reconhecimento: %@" = "Tunnistus: %@";
 "Renomear" = "Nimeä uudelleen";
 "Renomear conversa" = "Nimeä keskustelu uudelleen";
@@ -206,3 +205,13 @@
 "Resposta pronta" = "Vastaus valmis";
 "Busca na web" = "Verkkohaku";
 "Clima" = "Sää";
+
+"Ferramentas" = "Työkalut";
+"Nenhuma ferramenta neste servidor." = "Tällä palvelimella ei ole työkaluja.";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "Työkalu suoritetaan palvelimella ja sen tulos päätyy vastaukseen.";
+"Pronto" = "Valmis";
+"MODELOS" = "MALLIT";
+"Nomes dos modelos" = "Mallien nimet";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Muuttaa vain tällä laitteella näkyvän nimen — palvelimelle lähetettävä malli pysyy samana. Jätä tyhjäksi palauttaaksesi alkuperäisen nimen.";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Sisäänrakennettu ääni ja tunnistus seuraavat sovelluksen kieltä (Asetukset › Kieli).";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "Puheentunnistus ei ole käytettävissä kielelle %@ tällä laitteella.";

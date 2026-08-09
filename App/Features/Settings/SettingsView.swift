@@ -46,6 +46,16 @@ struct SettingsView: View {
                         .listRowBackground(theme.panel)
                     }
 
+                    section("MODELOS") {
+                        NavigationLink {
+                            ModelNamesView(models: app.models)
+                        } label: {
+                            Label { Text("Nomes dos modelos").font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg) }
+                            icon: { Image(systemName: "text.badge.star").foregroundStyle(theme.accent) }
+                        }
+                        .listRowBackground(theme.panel)
+                    }
+
                     section("VOZ") {
                         NavigationLink {
                             VoiceSettingsView()

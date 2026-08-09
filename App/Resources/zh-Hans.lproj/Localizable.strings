@@ -102,7 +102,6 @@
 "Português" = "葡萄牙语";
 "Pétalas" = "花瓣";
 "Reconhecimento (STT)" = "识别（STT）";
-"Reconhecimento de voz indisponível para pt-BR neste aparelho." = "此设备不支持 pt-BR 的语音识别。";
 "Reconhecimento: %@" = "识别：%@";
 "Renomear" = "重命名";
 "Renomear conversa" = "重命名对话";
@@ -209,3 +208,13 @@
 "Resposta pronta" = "回复已就绪";
 "Busca na web" = "网络搜索";
 "Clima" = "天气";
+
+"Ferramentas" = "工具";
+"Nenhuma ferramenta neste servidor." = "此服务器上没有工具。";
+"A ferramenta roda no servidor e o resultado entra na resposta." = "工具在服务器上运行，结果会写入回复。";
+"Pronto" = "完成";
+"MODELOS" = "模型";
+"Nomes dos modelos" = "模型名称";
+"Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "仅更改本机显示的名称，发送给服务器的模型不变。留空可恢复原名。";
+"A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "内置语音和内置识别跟随应用语言（设置 › 语言）。";
+"Reconhecimento de voz indisponível para %@ neste aparelho." = "本机不支持 %@ 的语音识别。";

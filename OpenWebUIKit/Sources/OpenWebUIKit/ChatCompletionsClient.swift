@@ -46,8 +46,11 @@ public struct OWChatMessageInput: Encodable, Sendable {
 public struct OWStreamOptions: Sendable {
     public var temperature: Double?
     public var webSearch: Bool
-    public init(temperature: Double? = nil, webSearch: Bool = false) {
-        self.temperature = temperature; self.webSearch = webSearch
+    /// Workspace tool ids the server should make callable for this reply
+    /// (`/api/v1/tools/`). Forces legacy function calling — see `buildRequest`.
+    public var toolIDs: [String]
+    public init(temperature: Double? = nil, webSearch: Bool = false, toolIDs: [String] = []) {
+        self.temperature = temperature; self.webSearch = webSearch; self.toolIDs = toolIDs
     }
 }
 
@@ -146,24 +149,31 @@ public final class ChatCompletionsClient: @unchecked Sendable {
 
     // MARK: - Request
 
-    private func buildRequest(model: String,
-                             messages: [OWChatMessageInput],
-                             files: [OWAttachment],
-                             options: OWStreamOptions) throws -> URLRequest {
+    // Internal (not private) so the tests can assert the wire format — the
+    // web-search and tool gates both live in the request body and are invisible
+    // from the outside otherwise.
+    func buildRequest(model: String,
+                      messages: [OWChatMessageInput],
+                      files: [OWAttachment],
+                      options: OWStreamOptions) throws -> URLRequest {
         var req = URLRequest(url: client.config.url("/api/chat/completions"))
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.setValue("text/event-stream", forHTTPHeaderField: "Accept")
         if let t = client.token { req.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization") }
         req.timeoutInterval = 300
+        // Open WebUI >= 0.10 only runs its server-side handlers (the RAG
+        // web-search gate, and `chat_completion_tools_handler` for tool_ids) in
+        // "legacy" function-calling mode; the "native" default drives tools over
+        // a socket.io session we don't have, so the call would silently do
+        // nothing. Harmless on older servers.
+        let needsLegacy = options.webSearch || !options.toolIDs.isEmpty
         req.httpBody = try JSONEncoder().encode(
             Body(model: model, messages: messages, stream: true,
                  temperature: options.temperature, files: files.isEmpty ? nil : files,
+                 tool_ids: options.toolIDs.isEmpty ? nil : options.toolIDs,
                  features: options.webSearch ? Body.Features(web_search: true) : nil,
-                 // Open WebUI >= 0.10 only runs the RAG web-search handler in
-                 // "legacy" function-calling mode; the "native" default needs a
-                 // socket.io session_id we don't have. Harmless on older servers.
-                 params: options.webSearch ? Body.Params(function_calling: "legacy") : nil)
+                 params: needsLegacy ? Body.Params(function_calling: "legacy") : nil)
         )
         return req
     }
@@ -174,6 +184,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         var stream: Bool
         var temperature: Double?
         var files: [OWAttachment]?
+        var tool_ids: [String]?
         var features: Features?
         var params: Params?
         struct Features: Encodable { var web_search: Bool }
