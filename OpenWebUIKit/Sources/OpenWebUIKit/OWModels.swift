@@ -156,6 +156,15 @@ struct OWOutputItem: Decodable {
         return items.compactMap { $0.text ?? ($0.parts.compactMap(\.text).joined().isEmpty ? nil : $0.parts.compactMap(\.text).joined()) }
             .joined(separator: "\n\n")
     }
+
+    /// The chain-of-thought the server stored alongside the answer, for the
+    /// reasoning disclosure. Kept out of `flatten` so it never reaches the bubble.
+    static func reasoningText(_ items: [OWOutputItem]) -> String {
+        items.filter { $0.type == "reasoning" }
+            .map { $0.parts.compactMap(\.text).joined() }
+            .filter { !$0.isEmpty }
+            .joined(separator: "\n\n")
+    }
 }
 
 /// A web-search citation attached to an assistant message.
@@ -213,6 +222,11 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
     public var timestamp: Double?
     /// Parent in the branching history graph (decode-only; drives ordered()).
     public var parentId: String?
+    /// The model's chain-of-thought, shown in a collapsible disclosure and kept
+    /// separate from the visible reply. Filled from streamed `reasoning` deltas or
+    /// split out of an inline `<think>…</think>` block on decode. Display-only —
+    /// never re-encoded, so it isn't pushed back to the server.
+    public var reasoning: String
     /// Attached images as URLs (data: URLs for local attachments, server urls otherwise).
     public var imageURLs: [String]
     /// Non-image attachments (documents → RAG).
@@ -221,11 +235,11 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
     public var sources: [OWWebSource]
 
     public init(id: String = UUID().uuidString, role: OWRole, content: String,
-                model: String? = nil, timestamp: Double? = nil,
+                model: String? = nil, timestamp: Double? = nil, reasoning: String = "",
                 imageURLs: [String] = [], documents: [OWAttachment] = [],
                 sources: [OWWebSource] = []) {
         self.id = id; self.role = role; self.content = content
-        self.model = model; self.timestamp = timestamp
+        self.model = model; self.timestamp = timestamp; self.reasoning = reasoning
         self.imageURLs = imageURLs; self.documents = documents
         self.sources = sources
     }
@@ -241,20 +255,32 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
 
         var imgs: [String] = []
         var docs: [OWAttachment] = []
+        var body: String
         if let s = try? c.decode(String.self, forKey: .content) {
-            content = s
+            body = s
         } else if let parts = try? c.decode([OWContentPart].self, forKey: .content) {
-            content = parts.compactMap(\.text).joined(separator: "\n")
+            body = parts.compactMap(\.text).joined(separator: "\n")
             imgs += parts.compactMap(\.imageURL)
         } else {
-            content = ""
+            body = ""
         }
         // Open WebUI >= 0.10 saves assistant replies ONLY as structured `output`
-        // items (flat content stays "") — rebuild the text from there.
-        if content.isEmpty,
+        // items (flat content stays "") — rebuild the text from there, and take
+        // the reasoning items it keeps alongside the answer.
+        var outputReasoning = ""
+        if body.isEmpty,
            let items = try? c.decode([OWLossy<OWOutputItem>].self, forKey: .output) {
-            content = OWOutputItem.flatten(items.compactMap(\.value))
+            let list = items.compactMap(\.value)
+            body = OWOutputItem.flatten(list)
+            outputReasoning = OWOutputItem.reasoningText(list)
         }
+        // Thinking models (and Open WebUI itself) persist chain-of-thought inline
+        // as a leading <think>…</think> block. Lift it into `reasoning` so the
+        // disclosure can show it and the raw tags never leak into the bubble.
+        let split = OWMessage.splitReasoning(body)
+        content = split.content
+        reasoning = outputReasoning.isEmpty ? split.reasoning
+            : (split.reasoning.isEmpty ? outputReasoning : outputReasoning + "\n\n" + split.reasoning)
         // Lossy per-element: one exotic file entry must not drop every attachment.
         if let files = try? c.decode([OWLossy<OWAttachment>].self, forKey: .files) {
             for f in files.compactMap(\.value) {
@@ -281,6 +307,24 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         var files = imageURLs.map { OWAttachment(type: "image", url: $0) }
         files += documents
         if !files.isEmpty { try c.encode(files, forKey: .files) }
+    }
+
+    /// Pulls a leading `<think>…</think>` span out of a message body, returning
+    /// the reasoning text and the remaining visible content. A `<think>` with no
+    /// closing tag (mid-stream persistence) is treated as all-reasoning. Bodies
+    /// with no think block are returned unchanged.
+    static func splitReasoning(_ body: String) -> (content: String, reasoning: String) {
+        let trimmed = body.drop { $0 == "\n" || $0 == " " }
+        guard trimmed.hasPrefix("<think>") else { return (body, "") }
+        let afterOpen = trimmed.dropFirst("<think>".count)
+        if let close = afterOpen.range(of: "</think>") {
+            let reasoning = afterOpen[afterOpen.startIndex..<close.lowerBound]
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            let rest = afterOpen[close.upperBound...]
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+            return (rest, reasoning)
+        }
+        return ("", afterOpen.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 }
 

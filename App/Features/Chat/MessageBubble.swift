@@ -28,6 +28,10 @@ struct MessageBubble: View {
                 if !isUser { header }
                 if !message.imageURLs.isEmpty { imagesView }
                 if !message.documents.isEmpty { documentsView }
+                if !isUser && !message.reasoning.isEmpty {
+                    ReasoningDisclosure(text: message.reasoning,
+                                        streaming: isStreaming && message.content.isEmpty)
+                }
                 if !message.content.isEmpty || (message.imageURLs.isEmpty && message.documents.isEmpty) { bubble }
                 if !isUser && !message.sources.isEmpty { sourcesView }
                 if !isStreaming { timeLabel }
@@ -240,22 +244,70 @@ struct CodeBlockView: View {
     }
 }
 
+/// Collapsible chain-of-thought shown above an assistant reply, mirroring the
+/// extended-thinking disclosure in the Claude app. Auto-expands while the model
+/// is still reasoning (no visible reply yet) and collapses once the answer lands.
+struct ReasoningDisclosure: View {
+    let text: String
+    var streaming: Bool = false
+    @Environment(\.theme) private var theme
+    @State private var expanded = false
+    @State private var userToggled = false
+
+    private var isOpen: Bool { userToggled ? expanded : streaming }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Button {
+                userToggled = true
+                withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() }
+            } label: {
+                HStack(spacing: 5) {
+                    Image(systemName: "brain")
+                        .font(.ody(size: 11))
+                    Text(L("Raciocínio"))
+                        .font(.ody(size: 11, design: .monospaced))
+                    if streaming && text.isEmpty { ProgressView().controlSize(.mini) }
+                    Image(systemName: "chevron.right")
+                        .font(.ody(size: 9))
+                        .rotationEffect(.degrees(isOpen ? 90 : 0))
+                }
+                .foregroundStyle(theme.secondaryText)
+            }
+            .buttonStyle(.plain)
+
+            if isOpen && !text.isEmpty {
+                Text(text)
+                    .font(.ody(size: 12, design: .monospaced))
+                    .foregroundStyle(theme.secondaryText)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.leading, 8)
+                    .overlay(alignment: .leading) {
+                        Rectangle().fill(theme.border).frame(width: 2)
+                    }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
 /// Three-dot pulsing indicator while waiting for the first token.
 struct TypingDots: View {
     @Environment(\.theme) private var theme
-    @State private var phase = 0.0
+    @State private var animating = false
     var body: some View {
         HStack(spacing: 5) {
             ForEach(0..<3) { i in
                 Circle()
                     .fill(theme.fg.opacity(0.7))
                     .frame(width: 7, height: 7)
-                    .scaleEffect(phase == Double(i) ? 1.0 : 0.5)
+                    .scaleEffect(animating ? 1 : 0.5)
+                    .animation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true).delay(Double(i) * 0.16),
+                               value: animating)
             }
         }
-        .onAppear {
-            withAnimation(.easeInOut(duration: 0.5).repeatForever()) { phase = 2 }
-        }
+        .onAppear { animating = true }
         .frame(height: 14)
     }
 }

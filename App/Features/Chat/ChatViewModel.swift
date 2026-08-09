@@ -244,8 +244,8 @@ final class ChatViewModel: ObservableObject {
                 case .textDelta(let d):
                     sawText = true
                     append(assistantID, d)
-                case .reasoningDelta:
-                    break   // TODO: surface reasoning in a disclosure (phase 2)
+                case .reasoningDelta(let d):
+                    appendReasoning(assistantID, d)
                 case .sources(let list):
                     if let i = index(of: assistantID) { messages[i].sources = list }
                 case .error(let msg):
@@ -254,7 +254,11 @@ final class ChatViewModel: ObservableObject {
                     break
                 }
             }
-            if !sawText, let i = index(of: assistantID), messages[i].content.isEmpty {
+            // A reply that is only reasoning still said something — the
+            // disclosure shows it, so don't stamp it "(no response)" (which
+            // would then be persisted over a real turn).
+            if !sawText, let i = index(of: assistantID),
+               messages[i].content.isEmpty, messages[i].reasoning.isEmpty {
                 messages[i].content = L("_(sem resposta)_")
             }
         } catch is CancellationError {
@@ -326,6 +330,9 @@ final class ChatViewModel: ObservableObject {
     private func index(of id: String) -> Int? { messages.firstIndex { $0.id == id } }
     private func append(_ id: String, _ text: String) {
         if let i = index(of: id) { messages[i].content += text }
+    }
+    private func appendReasoning(_ id: String, _ text: String) {
+        if let i = index(of: id) { messages[i].reasoning += text }
     }
     private func setContent(_ id: String, _ text: String) {
         if let i = index(of: id) { messages[i].content = text }
