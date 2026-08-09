@@ -180,3 +180,10 @@
 "Limpar histórico" = "Clear History";
 "Pesquisando na web…" = "Searching the web…";
 "Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "Web search is unavailable on the server. Check the search engine in Open WebUI.";
+
+/* Archived chats screen */
+"Arquivadas" = "Archived";
+"Conversas arquivadas" = "Archived chats";
+"Nenhuma conversa arquivada." = "No archived chats.";
+"Restaurar" = "Restore";
+"Concluir" = "Done";

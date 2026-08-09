@@ -177,3 +177,8 @@
 "Limpar histórico" = "Түүх цэвэрлэх";
 "Pesquisando na web…" = "Вэбээс хайж байна…";
 "Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "Сервер дээр вэб хайлт ажиллахгүй байна. Open WebUI дахь хайлтын системийг шалгана уу.";
+"Arquivadas" = "Архивласан";
+"Conversas arquivadas" = "Архивласан яриа";
+"Nenhuma conversa arquivada." = "Архивласан яриа алга.";
+"Restaurar" = "Сэргээх";
+"Concluir" = "Болсон";

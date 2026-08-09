@@ -180,3 +180,8 @@
 "Limpar histórico" = "مسح السجل";
 "Pesquisando na web…" = "جارٍ البحث في الويب…";
 "Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "البحث في الويب غير متاح على الخادم. تحقّق من محرّك البحث في Open WebUI.";
+"Arquivadas" = "المؤرشفة";
+"Conversas arquivadas" = "المحادثات المؤرشفة";
+"Nenhuma conversa arquivada." = "لا توجد محادثات مؤرشفة.";
+"Restaurar" = "استعادة";
+"Concluir" = "تم";

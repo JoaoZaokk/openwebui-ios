@@ -180,3 +180,8 @@
 "Limpar histórico" = "Verlauf löschen";
 "Pesquisando na web…" = "Websuche läuft…";
 "Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "Die Websuche ist auf dem Server nicht verfügbar. Prüfe die Suchmaschine in Open WebUI.";
+"Arquivadas" = "Archiviert";
+"Conversas arquivadas" = "Archivierte Chats";
+"Nenhuma conversa arquivada." = "Keine archivierten Chats.";
+"Restaurar" = "Wiederherstellen";
+"Concluir" = "Fertig";

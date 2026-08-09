@@ -180,3 +180,8 @@
 "Limpar histórico" = "清除历史记录";
 "Pesquisando na web…" = "正在搜索网页…";
 "Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "服务器上的网页搜索不可用。请检查 Open WebUI 中的搜索引擎设置。";
+"Arquivadas" = "已归档";
+"Conversas arquivadas" = "已归档的对话";
+"Nenhuma conversa arquivada." = "没有已归档的对话。";
+"Restaurar" = "恢复";
+"Concluir" = "完成";

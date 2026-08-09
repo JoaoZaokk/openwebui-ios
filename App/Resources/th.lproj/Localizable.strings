@@ -177,3 +177,8 @@
 "Limpar histórico" = "ล้างประวัติ";
 "Pesquisando na web…" = "กำลังค้นหาเว็บ…";
 "Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "การค้นหาเว็บใช้งานไม่ได้บนเซิร์ฟเวอร์ ตรวจสอบเครื่องมือค้นหาใน Open WebUI";
+"Arquivadas" = "เก็บถาวรแล้ว";
+"Conversas arquivadas" = "การสนทนาที่เก็บถาวร";
+"Nenhuma conversa arquivada." = "ไม่มีการสนทนาที่เก็บถาวร";
+"Restaurar" = "กู้คืน";
+"Concluir" = "เสร็จ";

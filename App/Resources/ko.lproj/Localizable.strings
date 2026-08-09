@@ -180,3 +180,8 @@
 "Limpar histórico" = "기록 지우기";
 "Pesquisando na web…" = "웹 검색 중…";
 "Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "서버에서 웹 검색을 사용할 수 없습니다. Open WebUI의 검색 엔진을 확인하세요.";
+"Arquivadas" = "보관됨";
+"Conversas arquivadas" = "보관된 대화";
+"Nenhuma conversa arquivada." = "보관된 대화가 없습니다.";
+"Restaurar" = "복원";
+"Concluir" = "완료";

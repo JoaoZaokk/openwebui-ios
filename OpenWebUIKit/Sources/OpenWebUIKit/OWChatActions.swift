@@ -9,9 +9,16 @@ extension OpenWebUIClient {
         _ = try await send(request("/api/v1/chats/\(encPath(id))/pin", method: "POST"))
     }
 
-    /// POST /api/v1/chats/{id}/archive — toggles archived.
+    /// POST /api/v1/chats/{id}/archive — toggles archived. Calling it again on an
+    /// archived chat unarchives it (that's how the web UI restores).
     public func archiveChat(_ id: String) async throws {
         _ = try await send(request("/api/v1/chats/\(encPath(id))/archive", method: "POST"))
+    }
+
+    /// GET /api/v1/chats/archived — the user's archived chats (id / title / dates),
+    /// so an "Archived" screen can restore or delete them.
+    public func archivedChats() async throws -> [OWChatSummary] {
+        decodeList(OWChatSummary.self, try await send(request("/api/v1/chats/archived")))
     }
 
     /// POST /api/v1/chats/{id}/clone — duplicates the chat; returns the new id.
