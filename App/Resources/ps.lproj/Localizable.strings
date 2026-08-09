@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "تر اوسه هېڅ انځور نه دی جوړ شوی۔";
 "Limpar histórico" = "تاریخچه پاکه کړئ";
 "Pesquisando na web…" = "په ویب کې لټون روان دی…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "په سرور کې ویب لټون شتون نلري. په Open WebUI کې د لټون ماشین وګورئ.";

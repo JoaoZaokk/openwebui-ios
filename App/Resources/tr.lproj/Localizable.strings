@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "Henüz hiç görsel oluşturulmadı.";
 "Limpar histórico" = "Geçmişi temizle";
 "Pesquisando na web…" = "Web'de aranıyor…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "Web'de arama sunucuda kullanılamıyor. Open WebUI'daki arama motorunu kontrol edin.";

@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "Aún no se han generado imágenes.";
 "Limpar histórico" = "Borrar historial";
 "Pesquisando na web…" = "Buscando en la web…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "La búsqueda web no está disponible en el servidor. Revisa el motor de búsqueda en Open WebUI.";

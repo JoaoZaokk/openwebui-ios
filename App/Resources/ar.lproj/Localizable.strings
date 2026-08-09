@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "لم يتم إنشاء أي صور بعد.";
 "Limpar histórico" = "مسح السجل";
 "Pesquisando na web…" = "جارٍ البحث في الويب…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "البحث في الويب غير متاح على الخادم. تحقّق من محرّك البحث في Open WebUI.";

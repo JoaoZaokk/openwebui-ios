@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "まだ画像は生成されていません。";
 "Limpar histórico" = "履歴を消去";
 "Pesquisando na web…" = "ウェブを検索中…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "サーバーでウェブ検索を利用できません。Open WebUI の検索エンジン設定を確認してください。";

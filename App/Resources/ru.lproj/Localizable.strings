@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "Пока нет сгенерированных изображений.";
 "Limpar histórico" = "Очистить историю";
 "Pesquisando na web…" = "Поиск в интернете…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "Поиск в интернете недоступен на сервере. Проверьте поисковую систему в Open WebUI.";

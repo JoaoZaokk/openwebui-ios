@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "এখনও কোনো ছবি তৈরি করা হয়নি।";
 "Limpar histórico" = "ইতিহাস মুছুন";
 "Pesquisando na web…" = "ওয়েবে খোঁজা হচ্ছে…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "সার্ভারে ওয়েব অনুসন্ধান উপলব্ধ নয়। Open WebUI-তে সার্চ ইঞ্জিন পরীক্ষা করুন।";

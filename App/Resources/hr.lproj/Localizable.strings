@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "Još nema generiranih slika.";
 "Limpar histórico" = "Očisti povijest";
 "Pesquisando na web…" = "Pretraživanje weba…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "Pretraživanje weba nije dostupno na poslužitelju. Provjerite tražilicu u Open WebUI-ju.";

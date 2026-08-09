@@ -176,3 +176,4 @@
 "Nenhuma imagem gerada ainda." = "ད་དུང་པར་རིས་གང་ཡང་མ་བཟོས།";
 "Limpar histórico" = "ལོ་རྒྱུས་གཙང་སེལ།";
 "Pesquisando na web…" = "དྲ་ཐོག་ཏུ་འཚོལ་ཞིབ་བྱེད་བཞིན་པ…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "ཞབས་ཞུ་བ་སྟེང་དྲ་ཐོག་འཚོལ་ཞིབ་བེད་སྤྱོད་བྱེད་མི་ཐུབ། Open WebUI ནང་འཚོལ་ཞིབ་འཕྲུལ་འཁོར་ལ་ཞིབ་བཤེར་བྱོས།";

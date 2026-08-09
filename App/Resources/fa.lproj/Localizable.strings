@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "هنوز تصویری تولید نشده است.";
 "Limpar histórico" = "پاک کردن تاریخچه";
 "Pesquisando na web…" = "در حال جستجو در وب…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "جستجوی وب روی سرور در دسترس نیست. موتور جستجو را در Open WebUI بررسی کنید.";

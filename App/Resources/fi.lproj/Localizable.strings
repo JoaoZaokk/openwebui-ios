@@ -176,3 +176,4 @@
 "Nenhuma imagem gerada ainda." = "Ei vielä luotuja kuvia.";
 "Limpar histórico" = "Tyhjennä historia";
 "Pesquisando na web…" = "Haetaan verkosta…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "Verkkohaku ei ole käytettävissä palvelimella. Tarkista hakukone Open WebUI:ssa.";

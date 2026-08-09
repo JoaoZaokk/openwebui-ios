@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "Nog geen afbeeldingen gegenereerd.";
 "Limpar histórico" = "Geschiedenis wissen";
 "Pesquisando na web…" = "Zoeken op internet…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "Zoeken op internet is niet beschikbaar op de server. Controleer de zoekmachine in Open WebUI.";

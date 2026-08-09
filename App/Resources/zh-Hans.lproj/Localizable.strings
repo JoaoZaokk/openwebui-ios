@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "尚未生成任何图片。";
 "Limpar histórico" = "清除历史记录";
 "Pesquisando na web…" = "正在搜索网页…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "服务器上的网页搜索不可用。请检查 Open WebUI 中的搜索引擎设置。";

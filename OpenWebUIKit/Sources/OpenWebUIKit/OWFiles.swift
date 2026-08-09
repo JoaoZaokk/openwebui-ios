@@ -1,13 +1,31 @@
 import Foundation
 
+/// One pre-loaded document from the web-search endpoint (bypass-embedding mode).
+public struct OWSearchDoc: Codable, Hashable, Sendable {
+    public var content: String
+    public var metadata: [String: String]?
+}
+
 /// A reference attached to a message / completion. Images use
 /// {type:"image", url:"data:…"}; documents use {type:"file", id, name} and
 /// trigger RAG injection in the completion (verified on the live 0.9.6 server).
+/// Web-search results attach as {type:"web_search", collection_name, urls,
+/// queries} — the exact entry chat_web_search_handler builds server-side.
 public struct OWAttachment: Codable, Identifiable, Hashable, Sendable {
     public var type: String
     public var id: String?
     public var url: String?
     public var name: String?
+    // web_search entries
+    public var collectionName: String?
+    public var urls: [String]?
+    public var queries: [String]?
+    public var docs: [OWSearchDoc]?
+
+    enum CodingKeys: String, CodingKey {
+        case type, id, url, name, urls, queries, docs
+        case collectionName = "collection_name"
+    }
 
     public init(type: String, id: String? = nil, url: String? = nil, name: String? = nil) {
         self.type = type; self.id = id; self.url = url; self.name = name
@@ -71,6 +89,42 @@ extension OpenWebUIClient {
         let r = try decode(Resp.self, try await send(req))
         return (r.file?.meta?.name ?? r.filename ?? url, r.file?.data?.content ?? "")
     }
+
+    /// POST /api/v1/retrieval/process/web/search — runs the SERVER's web search
+    /// (same engine/config the web UI uses) and returns a ready-to-attach
+    /// `files` entry. Doing the search client-side sidesteps every
+    /// version-dependent feature gate in /api/chat/completions.
+    public func searchWeb(queries: [String]) async throws -> OWWebSearchResult {
+        struct Body: Encodable { var queries: [String] }
+        struct Resp: Decodable {
+            var status: Bool?
+            var collection_name: String?
+            var collection_names: [String]?
+            var filenames: [String]?
+            var docs: [OWSearchDoc]?
+        }
+        let req = try jsonRequest("/api/v1/retrieval/process/web/search", method: "POST", body: Body(queries: queries))
+        let r = try decode(Resp.self, try await send(req, long: true))
+        let urls = r.filenames ?? []
+        var att = OWAttachment(type: "web_search", name: queries.joined(separator: ", "))
+        if let col = r.collection_names?.first ?? r.collection_name {
+            att.collectionName = col
+        } else if let docs = r.docs, !docs.isEmpty {
+            att.docs = docs
+        } else {
+            throw OWError.decoding("web_search")
+        }
+        att.urls = urls
+        att.queries = queries
+        return OWWebSearchResult(attachment: att, urls: urls)
+    }
+}
+
+/// Result of a client-driven web search: the attachment to send with the next
+/// completion plus the source URLs (for citation chips).
+public struct OWWebSearchResult: Sendable {
+    public var attachment: OWAttachment
+    public var urls: [String]
 }
 
 /// Minimal multipart/form-data builder.

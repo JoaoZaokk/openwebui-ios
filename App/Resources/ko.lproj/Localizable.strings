@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "아직 생성된 이미지가 없습니다.";
 "Limpar histórico" = "기록 지우기";
 "Pesquisando na web…" = "웹 검색 중…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "서버에서 웹 검색을 사용할 수 없습니다. Open WebUI의 검색 엔진을 확인하세요.";

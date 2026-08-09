@@ -202,15 +202,43 @@ final class ChatViewModel: ObservableObject {
         if convo.count > 1 {
             for i in convo.indices.dropLast() { convo[i].imageURLs = [] }
         }
-        streamTask = Task { await self.runStream(model: model, convo: convo, files: docs, assistantID: assistant.id) }
+        streamTask = Task { await self.runStream(model: model, convo: convo, files: docs,
+                                                 assistantID: assistant.id, query: text) }
     }
 
     private func runStream(model: String, convo: [OWChatMessageInput],
-                           files: [OWAttachment], assistantID: String) async {
+                           files: [OWAttachment], assistantID: String, query: String) async {
         var sawText = false
+        var streamFiles = files
+        // Web search: run it OURSELVES via /api/v1/retrieval/process/web/search
+        // (same engine the web UI uses) and attach the result — works on every
+        // server version. features.web_search stays only as fallback: some
+        // servers never run the legacy RAG gate in /api/chat/completions.
+        var legacyFallback = false
+        if webSearch {
+            do {
+                let res = try await client.searchWeb(queries: [query])
+                streamFiles.append(res.attachment)
+                if let i = index(of: assistantID) {
+                    messages[i].sources = res.urls.map {
+                        OWWebSource(name: URL(string: $0)?.host ?? $0, url: $0)
+                    }
+                }
+            } catch is CancellationError {
+                return
+            } catch {
+                // The server's own search failed (engine misconfigured, blocked
+                // or rate-limited). Open WebUI reports this only over socket.io,
+                // so without saying it here the model just answers "I have no
+                // internet access" and the user blames the app.
+                self.error = L("Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI.")
+                awaitingWebSearch = false
+                legacyFallback = true
+            }
+        }
         do {
-            for try await update in completions.stream(model: model, messages: convo, files: files,
-                                                       options: OWStreamOptions(webSearch: webSearch)) {
+            for try await update in completions.stream(model: model, messages: convo, files: streamFiles,
+                                                       options: OWStreamOptions(webSearch: legacyFallback)) {
                 awaitingWebSearch = false
                 switch update {
                 case .textDelta(let d):

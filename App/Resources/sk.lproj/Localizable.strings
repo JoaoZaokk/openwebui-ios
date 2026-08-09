@@ -179,3 +179,4 @@
 "Nenhuma imagem gerada ainda." = "Zatiaľ neboli vygenerované žiadne obrázky.";
 "Limpar histórico" = "Vymazať históriu";
 "Pesquisando na web…" = "Vyhľadávanie na webe…";
+"Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI." = "Vyhľadávanie na webe nie je na serveri dostupné. Skontrolujte vyhľadávač v Open WebUI.";
