@@ -5,6 +5,10 @@ import OpenWebUIKit
 struct MessageBubble: View {
     let message: OWMessage
     var isStreaming: Bool = false
+    /// Local status shown instead of the typing dots while the bubble is still
+    /// empty (e.g. "Pesquisando na web…" — the server sends no progress events
+    /// over plain SSE).
+    var statusText: String? = nil
     var client: OpenWebUIClient? = nil
     @Environment(\.theme) private var theme
     @ObservedObject private var speech = SpeechManager.shared
@@ -112,7 +116,17 @@ struct MessageBubble: View {
     private var bubble: some View {
         Group {
             if message.content.isEmpty && isStreaming {
-                TypingDots()
+                if let status = statusText {
+                    HStack(spacing: 7) {
+                        ProgressView().controlSize(.mini).tint(theme.secondaryText)
+                        Text(status)
+                            .font(.ody(size: 12, design: .monospaced))
+                            .foregroundStyle(theme.secondaryText)
+                    }
+                    .frame(height: 14)
+                } else {
+                    TypingDots()
+                }
             } else if isUser {
                 Text(message.content)
                     .font(.ody(.body, design: .monospaced))

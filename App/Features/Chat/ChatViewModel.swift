@@ -18,6 +18,10 @@ final class ChatViewModel: ObservableObject {
     @Published var uploading = false
     /// Composer toggle: web search for the next reply.
     @Published var webSearch = false
+    /// True from send() until the first stream signal, when web search is on —
+    /// the server searches before the first token and emits no progress events
+    /// over plain SSE, so we show a local "Pesquisando na web…" status.
+    @Published var awaitingWebSearch = false
 
     let models: [OWModel]
 
@@ -188,6 +192,7 @@ final class ChatViewModel: ObservableObject {
         let assistant = OWMessage(role: .assistant, content: "", model: model)
         messages.append(assistant)
         isStreaming = true
+        awaitingWebSearch = webSearch
 
         // Context = everything except the empty assistant placeholder we stream into.
         var convo = messages.dropLast().map { OWChatMessageInput($0) }
@@ -206,6 +211,7 @@ final class ChatViewModel: ObservableObject {
         do {
             for try await update in completions.stream(model: model, messages: convo, files: files,
                                                        options: OWStreamOptions(webSearch: webSearch)) {
+                awaitingWebSearch = false
                 switch update {
                 case .textDelta(let d):
                     sawText = true
@@ -233,6 +239,7 @@ final class ChatViewModel: ObservableObject {
                 self.error = msg
             }
         }
+        awaitingWebSearch = false
         isStreaming = false
         await persist()
     }
@@ -283,6 +290,7 @@ final class ChatViewModel: ObservableObject {
     func stop() {
         streamTask?.cancel()
         isStreaming = false
+        awaitingWebSearch = false
     }
 
     // MARK: - Mutation helpers

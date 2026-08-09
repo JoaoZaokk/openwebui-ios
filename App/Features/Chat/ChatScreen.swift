@@ -120,6 +120,8 @@ struct ChatScreen: View {
                         MessageBubble(
                             message: msg,
                             isStreaming: vm.isStreaming && idx == vm.messages.count - 1 && msg.role == .assistant,
+                            statusText: (vm.awaitingWebSearch && idx == vm.messages.count - 1 && msg.role == .assistant)
+                                ? L("Pesquisando na web…") : nil,
                             client: app.client
                         )
                         .id(msg.id)
