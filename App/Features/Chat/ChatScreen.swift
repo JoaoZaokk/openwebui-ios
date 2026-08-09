@@ -21,6 +21,11 @@ struct ChatScreen: View {
     @State private var webURL = ""
     @State private var comingSoon: String?
     @State private var showVoice = false
+    /// Whether the user is at (or near) the end of the transcript. Streaming only
+    /// auto-scrolls while pinned, so scrolling up to re-read mid-reply sticks.
+    @State private var pinnedToBottom = true
+    /// Bumped on each send so `.sensoryFeedback` fires a light tap.
+    @State private var sendFeedback = 0
 
     init(app: AppState, chat: OWChatSummary?, temporary: Bool = false, onChanged: @escaping () -> Void) {
         let model = app.makeChatViewModel(chat: chat, temporary: temporary)
@@ -36,6 +41,12 @@ struct ChatScreen: View {
                 composer
             }
         }
+        #if os(iOS)
+        // Haptics: a light tap on send, a success tap when the reply finishes
+        // (true→false only — not when a stream starts).
+        .sensoryFeedback(.impact(weight: .light), trigger: sendFeedback)
+        .sensoryFeedback(.success, trigger: vm.isStreaming) { old, new in old && !new }
+        #endif
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .principal) {
@@ -111,32 +122,82 @@ struct ChatScreen: View {
     // MARK: - Messages
 
     private var messages: some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                if vm.isLoadingHistory && vm.messages.isEmpty {
-                    ProgressView().tint(theme.accent).padding(.top, 80)
-                } else if vm.messages.isEmpty {
-                    welcome.padding(.top, 60)
+        GeometryReader { viewport in
+            ScrollViewReader { proxy in
+                ScrollView {
+                    if vm.isLoadingHistory && vm.messages.isEmpty {
+                        ProgressView().tint(theme.accent).padding(.top, 80)
+                    } else if vm.messages.isEmpty {
+                        welcome.padding(.top, 60)
+                    }
+                    LazyVStack(spacing: 16) {
+                        ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, msg in
+                            MessageBubble(
+                                message: msg,
+                                isStreaming: vm.isStreaming && idx == vm.messages.count - 1 && msg.role == .assistant,
+                                statusText: (vm.awaitingWebSearch && idx == vm.messages.count - 1 && msg.role == .assistant)
+                                    ? L("Pesquisando na web…") : nil,
+                                client: app.client
+                            )
+                            .id(msg.id)
+                        }
+                    }
+                    .padding(.horizontal, 14).padding(.vertical, 16)
+                    // Bottom sentinel: its position inside the viewport tells us
+                    // whether the user is pinned to the end of the transcript.
+                    Color.clear.frame(height: 1).id("bottom")
+                        .background(GeometryReader { geo in
+                            Color.clear.preference(key: BottomEdgeKey.self,
+                                                   value: geo.frame(in: .named("chatScroll")).minY)
+                        })
                 }
-                LazyVStack(spacing: 16) {
-                    ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, msg in
-                        MessageBubble(
-                            message: msg,
-                            isStreaming: vm.isStreaming && idx == vm.messages.count - 1 && msg.role == .assistant,
-                            statusText: (vm.awaitingWebSearch && idx == vm.messages.count - 1 && msg.role == .assistant)
-                                ? L("Pesquisando na web…") : nil,
-                            client: app.client
-                        )
-                        .id(msg.id)
+                .coordinateSpace(name: "chatScroll")
+                .onPreferenceChange(BottomEdgeKey.self) { minY in
+                    let pinned = minY < viewport.size.height + 60
+                    if pinned != pinnedToBottom { pinnedToBottom = pinned }
+                }
+                .scrollDismissesKeyboard(.interactively)
+                .refreshable { await vm.reloadHistory() }
+                // Per-token updates: follow the stream only while pinned, and
+                // without animation — animated per-token scrolls rubber-band.
+                .onChange(of: vm.messages.last?.content) { _, _ in
+                    if pinnedToBottom { proxy.scrollTo("bottom", anchor: .bottom) }
+                }
+                // A new message (send/regenerate) is user-initiated — scroll
+                // gently and re-pin. Same when the keyboard opens.
+                .onChange(of: vm.messages.count) { _, _ in
+                    pinnedToBottom = true
+                    scrollToBottom(proxy)
+                }
+                .onChange(of: inputFocused) { _, focused in
+                    if focused {
+                        pinnedToBottom = true
+                        scrollToBottom(proxy)
                     }
                 }
-                .padding(.horizontal, 14).padding(.vertical, 16)
-                Color.clear.frame(height: 1).id("bottom")
+                // "Jump to latest" pill, shown only while scrolled up.
+                .overlay(alignment: .bottomTrailing) {
+                    if !pinnedToBottom {
+                        Button {
+                            pinnedToBottom = true
+                            scrollToBottom(proxy)
+                        } label: {
+                            Image(systemName: "chevron.down")
+                                .font(.ody(size: 14, weight: .semibold))
+                                .foregroundStyle(theme.fg)
+                                .frame(width: 38, height: 38)
+                                .background(theme.panel, in: Capsule())
+                                .overlay(Capsule().stroke(theme.border, lineWidth: 1))
+                                .shadow(color: .black.opacity(0.18), radius: 6, y: 2)
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.trailing, 14).padding(.bottom, 10)
+                        .transition(.opacity.combined(with: .scale(scale: 0.85)))
+                        .accessibilityLabel(Text("Ir para o fim"))
+                    }
+                }
+                .animation(.easeInOut(duration: 0.15), value: pinnedToBottom)
             }
-            .scrollDismissesKeyboard(.interactively)
-            .refreshable { await vm.reloadHistory() }
-            .onChange(of: vm.messages.last?.content) { _, _ in scrollToBottom(proxy) }
-            .onChange(of: vm.messages.count) { _, _ in scrollToBottom(proxy) }
         }
     }
 
@@ -367,11 +428,11 @@ struct ChatScreen: View {
     private var sendButton: some View {
         Button {
             if voice.isRecording {
-                Task { appendTranscript(await stopVoiceCapturing()); inputFocused = false; if canSend { vm.send() } }
+                Task { appendTranscript(await stopVoiceCapturing()); inputFocused = false; if canSend { submitComposer() } }
             } else if vm.isStreaming {
                 vm.stop()
             } else {
-                vm.send(); inputFocused = false
+                submitComposer(); inputFocused = false
             }
         } label: {
             let active = canSend || vm.isStreaming || voice.isRecording
@@ -405,4 +466,17 @@ struct ChatScreen: View {
             || !vm.pendingImageURLs.isEmpty || !vm.pendingDocuments.isEmpty)
             && vm.selectedModel != nil
     }
+
+    /// Send a chat turn, with a light haptic tap.
+    private func submitComposer() {
+        sendFeedback += 1
+        vm.send()
+    }
+}
+
+/// Where the bottom sentinel sits inside the scroll viewport (its minY in the
+/// "chatScroll" coordinate space) — drives the pinned-to-bottom detection.
+private struct BottomEdgeKey: PreferenceKey {
+    static var defaultValue: CGFloat = .infinity
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }

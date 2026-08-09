@@ -35,6 +35,7 @@
 "Conversa por voz" = "Voice conversation";
 "Conversa temporária" = "Temporary chat";
 "Conversas" = "Chats";
+"Copiar" = "Copy";
 "Descreva a imagem…" = "Describe the image…";
 "Descreva sua ideia em palavras simples…" = "Describe your idea in simple words…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI SERVER ADDRESS";
@@ -66,6 +67,7 @@
 "Imagem gerada, mas não foi possível carregá-la." = "Image generated, but it couldn't be loaded.";
 "Inglês" = "English";
 "Interromper ao falar (barge-in)" = "Interrupt by speaking (barge-in)";
+"Ir para o fim" = "Jump to latest";
 "Microfone indisponível." = "Microphone unavailable.";
 "Microfone só funciona no iPhone (não no simulador)." = "The microphone only works on iPhone (not the simulator).";
 "Modelo" = "Model";
