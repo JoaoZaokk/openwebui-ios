@@ -328,6 +328,9 @@ final class ChatViewModel: ObservableObject {
                 let id = try await client.createChat(title: title, model: model, messages: messages)
                 chatID = id
                 self.title = title
+                onChanged?()
+                await autoTitle(id: id, model: model)   // replace the first-message stub
+                return
             }
             onChanged?()
         } catch {
@@ -343,6 +346,57 @@ final class ChatViewModel: ObservableObject {
             return String(first.prefix(50))
         }
         return title
+    }
+
+    /// After the first exchange, ask the model for a concise title (the server
+    /// otherwise keeps the truncated first message). Best-effort: any failure
+    /// leaves the stub title in place. Runs once, right after the chat is created.
+    private func autoTitle(id: String, model: String) async {
+        guard let user = messages.first(where: { $0.role == .user })?.content, !user.isEmpty,
+              let reply = messages.first(where: { $0.role == .assistant && !$0.content.isEmpty })?.content
+        else { return }
+        guard let generated = await generateTitle(model: model, user: user, reply: reply) else { return }
+        self.title = generated
+        try? await client.updateChat(id: id, title: generated, model: model, messages: messages)
+        onChanged?()
+    }
+
+    /// One-shot, non-persisted completion that returns a short chat title in the
+    /// conversation's own language. Reuses the streaming endpoint and concatenates.
+    private func generateTitle(model: String, user: String, reply: String) async -> String? {
+        let prompt = """
+        Generate a concise 3-6 word title for the following conversation. \
+        Use the same language as the conversation. Reply with ONLY the title — \
+        no quotes, no punctuation at the end, no preamble.
+
+        User: \(user.prefix(600))
+        Assistant: \(reply.prefix(600))
+        """
+        var out = ""
+        do {
+            for try await update in completions.stream(
+                model: model,
+                messages: [OWChatMessageInput(role: "user", text: prompt)],
+                files: [], options: OWStreamOptions()) {
+                switch update {
+                case .textDelta(let d): out += d
+                case .done: break
+                case .error: return nil
+                case .reasoningDelta: break
+                }
+            }
+        } catch { return nil }
+        return Self.cleanTitle(out)
+    }
+
+    /// Trims a model's title reply down to a single clean line.
+    static func cleanTitle(_ raw: String) -> String? {
+        var s = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Drop a leading <think>…</think> block a reasoning model may prepend.
+        if let close = s.range(of: "</think>") { s = String(s[close.upperBound...]) }
+        s = s.split(whereSeparator: \.isNewline).first.map(String.init) ?? s
+        s = s.trimmingCharacters(in: CharacterSet(charactersIn: " \t\"'`.。"))
+        return s.isEmpty ? nil : String(s.prefix(60))
     }
 
     func stop() {
