@@ -38,11 +38,14 @@
 "Descreva a imagem…" = "Aprakstiet attēlu…";
 "Descreva sua ideia em palavras simples…" = "Aprakstiet savu ideju vienkāršos vārdos…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI SERVERA ADRESE";
+"Editar" = "Rediģēt";
+"Editar mensagem" = "Rediģēt ziņu";
 "Em breve" = "Drīzumā";
 "Email" = "E-pasts";
 "Endereço" = "Adrese";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Kamēr MI runā, runāšanas sākšana pārtrauc atbildi un tas jūs sadzird. Augsta jutība pārtrauc jau pie klusas balss (bet var nostrādāt pati no sevis atbalss dēļ); zema prasa runāt stingrāk.";
 "Entrar" = "Pieteikties";
+"Enviar" = "Sūtīt";
 "Erro %@" = "Kļūda %@";
 "Erro no download" = "Lejupielādes kļūda";
 "Escreva em markdown…" = "Rakstiet markdown formātā…";
@@ -98,11 +101,14 @@
 "Passos" = "Soļi";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Mikrofona/balss atļauja liegta (iPhone iestatījumi).";
 "Português" = "Portugāļu";
+"Próxima resposta" = "Nākamā atbilde";
 "Pétalas" = "Ziedlapiņas";
 "Reconhecimento (STT)" = "Atpazīšana (STT)";
 "Reconhecimento: %@" = "Atpazīšana: %@";
+"Regenerar" = "Ģenerēt vēlreiz";
 "Renomear" = "Pārdēvēt";
 "Renomear conversa" = "Pārdēvēt sarunu";
+"Resposta anterior" = "Iepriekšējā atbilde";
 "Resposta inesperada do servidor: %@" = "Negaidīta servera atbilde: %@";
 "SERVIDOR" = "SERVERIS";
 "Sair" = "Izrakstīties";
@@ -120,6 +126,7 @@
 "Tamanho" = "Izmērs";
 "Tema" = "Motīvs";
 "Temas" = "Motīvi";
+"Tentar com outro modelo" = "Izmēģināt citu modeli";
 "Testar voz" = "Pārbaudīt balsi";
 "Texto → Voz" = "Teksts → Balss";
 "Todos" = "Visi";

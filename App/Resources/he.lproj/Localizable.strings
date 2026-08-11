@@ -38,11 +38,14 @@
 "Descreva a imagem…" = "תאר את התמונה…";
 "Descreva sua ideia em palavras simples…" = "תאר את הרעיון שלך במילים פשוטות…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "כתובת שרת Open WebUI";
+"Editar" = "עריכה";
+"Editar mensagem" = "עריכת ההודעה";
 "Em breve" = "בקרוב";
 "Email" = "אימייל";
 "Endereço" = "כתובת";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "בזמן שה-AI מדבר, התחלת דיבור קוטעת את התשובה והוא מקשיב לך. רגישות גבוהה קוטעת גם בקול חלש (אך עלולה לפעול מעצמה בגלל ההד); נמוכה דורשת לדבר בבירור רב יותר.";
 "Entrar" = "כניסה";
+"Enviar" = "שליחה";
 "Erro %@" = "שגיאה %@";
 "Erro no download" = "שגיאה בהורדה";
 "Escreva em markdown…" = "כתוב ב-markdown…";
@@ -98,11 +101,14 @@
 "Passos" = "צעדים";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "הרשאת מיקרופון/קול נדחתה (הגדרות ה-iPhone).";
 "Português" = "פורטוגזית";
+"Próxima resposta" = "התשובה הבאה";
 "Pétalas" = "עלי כותרת";
 "Reconhecimento (STT)" = "זיהוי (STT)";
 "Reconhecimento: %@" = "זיהוי: %@";
+"Regenerar" = "יצירה מחדש";
 "Renomear" = "שינוי שם";
 "Renomear conversa" = "שנה שם שיחה";
+"Resposta anterior" = "התשובה הקודמת";
 "Resposta inesperada do servidor: %@" = "תגובה בלתי צפויה מהשרת: %@";
 "SERVIDOR" = "שרת";
 "Sair" = "התנתקות";
@@ -120,6 +126,7 @@
 "Tamanho" = "גודל";
 "Tema" = "ערכת נושא";
 "Temas" = "ערכות נושא";
+"Tentar com outro modelo" = "לנסות מודל אחר";
 "Testar voz" = "בדוק קול";
 "Texto → Voz" = "טקסט ← קול";
 "Todos" = "הכל";

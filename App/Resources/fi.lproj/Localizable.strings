@@ -38,11 +38,14 @@
 "Descreva a imagem…" = "Kuvaile kuvaa…";
 "Descreva sua ideia em palavras simples…" = "Kuvaile ideaasi yksinkertaisin sanoin…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI -PALVELIMEN OSOITE";
+"Editar" = "Muokkaa";
+"Editar mensagem" = "Muokkaa viestiä";
 "Em breve" = "Tulossa pian";
 "Email" = "Sähköposti";
 "Endereço" = "Osoite";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Kun tekoäly puhuu, puhumaan alkaminen katkaisee vastauksen ja se kuuntelee sinua. Korkea herkkyys keskeyttää pienelläkin äänellä (mutta voi laueta itsestään kaiun takia); matala vaatii jämäkämpää puhetta.";
 "Entrar" = "Kirjaudu sisään";
+"Enviar" = "Lähetä";
 "Erro %@" = "Virhe %@";
 "Erro no download" = "Latausvirhe";
 "Escreva em markdown…" = "Kirjoita markdownilla…";
@@ -98,11 +101,14 @@
 "Passos" = "Vaiheet";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Mikrofonin/äänen käyttöoikeus evätty (iPhonen asetukset).";
 "Português" = "Portugali";
+"Próxima resposta" = "Seuraava vastaus";
 "Pétalas" = "Terälehdet";
 "Reconhecimento (STT)" = "Tunnistus (STT)";
 "Reconhecimento: %@" = "Tunnistus: %@";
+"Regenerar" = "Luo uudelleen";
 "Renomear" = "Nimeä uudelleen";
 "Renomear conversa" = "Nimeä keskustelu uudelleen";
+"Resposta anterior" = "Edellinen vastaus";
 "Resposta inesperada do servidor: %@" = "Odottamaton vastaus palvelimelta: %@";
 "SERVIDOR" = "PALVELIN";
 "Sair" = "Kirjaudu ulos";
@@ -120,6 +126,7 @@
 "Tamanho" = "Koko";
 "Tema" = "Teema";
 "Temas" = "Teemat";
+"Tentar com outro modelo" = "Kokeile toista mallia";
 "Testar voz" = "Testaa ääni";
 "Texto → Voz" = "Teksti → Puhe";
 "Todos" = "Kaikki";

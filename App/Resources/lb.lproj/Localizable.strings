@@ -38,11 +38,14 @@
 "Descreva a imagem…" = "Beschreift d'Bild…";
 "Descreva sua ideia em palavras simples…" = "Beschreift Är Iddi an einfache Wierder…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI SERVER-ADRESS";
+"Editar" = "Änneren";
+"Editar mensagem" = "Noriicht änneren";
 "Em breve" = "Geschwënn";
 "Email" = "E-Mail";
 "Endereço" = "Adress";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Wärend d'KI schwätzt, ënnerbrécht d'Ufänke vum Schwätzen d'Äntwert a si lauschtert Iech. Héich Empfindlechkeet ënnerbrécht mat wéineg Stëmm (kann awer duerch den Echo vu sech eleng ausléisen); niddreg verlaangt méi fest ze schwätzen.";
 "Entrar" = "Umellen";
+"Enviar" = "Schécken";
 "Erro %@" = "Feeler %@";
 "Erro no download" = "Feeler beim Eroflueden";
 "Escreva em markdown…" = "Schreift a Markdown…";
@@ -98,11 +101,14 @@
 "Passos" = "Schrëtt";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Mikro-/Stëmm-Erlaabnis verweigert (iPhone-Astellungen).";
 "Português" = "Portugisesch";
+"Próxima resposta" = "Nächst Äntwert";
 "Pétalas" = "Blummeblieder";
 "Reconhecimento (STT)" = "Erkennung (STT)";
 "Reconhecimento: %@" = "Erkennung: %@";
+"Regenerar" = "Nei generéieren";
 "Renomear" = "Ëmbenennen";
 "Renomear conversa" = "Gespréich ëmbenennen";
+"Resposta anterior" = "Vireg Äntwert";
 "Resposta inesperada do servidor: %@" = "Onerwaart Äntwert vum Server: %@";
 "SERVIDOR" = "SERVER";
 "Sair" = "Ofmellen";
@@ -120,6 +126,7 @@
 "Tamanho" = "Gréisst";
 "Tema" = "Thema";
 "Temas" = "Themen";
+"Tentar com outro modelo" = "Anert Modell probéieren";
 "Testar voz" = "Stëmm testen";
 "Texto → Voz" = "Text → Stëmm";
 "Todos" = "All";

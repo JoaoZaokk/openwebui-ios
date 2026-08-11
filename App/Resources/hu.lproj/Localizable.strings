@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Írd le a képet…";
 "Descreva sua ideia em palavras simples…" = "Írd le az ötleted egyszerű szavakkal…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI SZERVERCÍM";
+"Editar" = "Szerkesztés";
+"Editar mensagem" = "Üzenet szerkesztése";
 "Em breve" = "Hamarosan";
 "Email" = "E-mail";
 "Endereço" = "Cím";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Amíg az MI beszél, ha megszólalsz, az megszakítja a választ, és téged hallgat. A magas érzékenység már kevés beszédnél megszakítja (de a visszhang miatt magától is kioldhat); az alacsony határozottabb beszédet igényel.";
 "Entrar" = "Bejelentkezés";
+"Enviar" = "Küldés";
 "Erro %@" = "Hiba: %@";
 "Erro no download" = "Letöltési hiba";
 "Escreva em markdown…" = "Írj Markdown-ban…";
@@ -99,11 +102,14 @@
 "Passos" = "Lépések";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "A mikrofon-/hangengedély megtagadva (iPhone Beállítások).";
 "Português" = "Portugál";
+"Próxima resposta" = "Következő válasz";
 "Pétalas" = "Szirmok";
 "Reconhecimento (STT)" = "Felismerés (STT)";
 "Reconhecimento: %@" = "Felismerés: %@";
+"Regenerar" = "Újragenerálás";
 "Renomear" = "Átnevezés";
 "Renomear conversa" = "Csevegés átnevezése";
+"Resposta anterior" = "Előző válasz";
 "Resposta inesperada do servidor: %@" = "Váratlan szerverválasz: %@";
 "SERVIDOR" = "SZERVER";
 "Sair" = "Kijelentkezés";
@@ -121,6 +127,7 @@
 "Tamanho" = "Méret";
 "Tema" = "Téma";
 "Temas" = "Témák";
+"Tentar com outro modelo" = "Másik modell kipróbálása";
 "Testar voz" = "Hang tesztelése";
 "Texto → Voz" = "Szöveg → Hang";
 "Todos" = "Összes";

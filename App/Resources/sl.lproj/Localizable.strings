@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Opišite sliko…";
 "Descreva sua ideia em palavras simples…" = "Opišite svojo zamisel s preprostimi besedami…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "NASLOV STREŽNIKA OPEN WEBUI";
+"Editar" = "Uredi";
+"Editar mensagem" = "Uredi sporočilo";
 "Em breve" = "Kmalu";
 "Email" = "E-pošta";
 "Endereço" = "Naslov";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Ko AI govori, se ob začetku vašega govora odgovor prekine in vas AI posluša. Visoka občutljivost prekine že ob malo govora (a se lahko sproži tudi zaradi odmeva); nizka zahteva odločnejši govor.";
 "Entrar" = "Prijavi se";
+"Enviar" = "Pošlji";
 "Erro %@" = "Napaka %@";
 "Erro no download" = "Napaka pri prenosu";
 "Escreva em markdown…" = "Pišite v markdownu…";
@@ -99,11 +102,14 @@
 "Passos" = "Koraki";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Dovoljenje za mikrofon/glas je zavrnjeno (Nastavitve iPhona).";
 "Português" = "Portugalščina";
+"Próxima resposta" = "Naslednji odgovor";
 "Pétalas" = "Cvetni listi";
 "Reconhecimento (STT)" = "Prepoznavanje (STT)";
 "Reconhecimento: %@" = "Prepoznavanje: %@";
+"Regenerar" = "Znova ustvari";
 "Renomear" = "Preimenuj";
 "Renomear conversa" = "Preimenuj pogovor";
+"Resposta anterior" = "Prejšnji odgovor";
 "Resposta inesperada do servidor: %@" = "Nepričakovan odziv strežnika: %@";
 "SERVIDOR" = "STREŽNIK";
 "Sair" = "Odjava";
@@ -121,6 +127,7 @@
 "Tamanho" = "Velikost";
 "Tema" = "Tema";
 "Temas" = "Teme";
+"Tentar com outro modelo" = "Poskusi z drugim modelom";
 "Testar voz" = "Preizkusi glas";
 "Texto → Voz" = "Besedilo → Govor";
 "Todos" = "Vse";

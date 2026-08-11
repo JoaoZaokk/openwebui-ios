@@ -179,3 +179,115 @@ extension OpenWebUIClient {
         _ = try await send(req)
     }
 }
+
+// MARK: - Branching writes (edit / regenerate / retry)
+
+extension OpenWebUIClient {
+    /// Folds a local history tree into a raw server `chat` dict.
+    ///
+    /// The rule is the same one `syncChat` follows and the reason this exists at
+    /// all: **a node the server already knows is never re-encoded.** Round-tripping
+    /// an existing node through `OWMessage` would silently drop every field this
+    /// client doesn't model — `output`, `sources`, `statusHistory`, usage, tool
+    /// calls — and an edit deep in a conversation would strip them from the whole
+    /// history, not just the edited turn.
+    ///
+    /// What this adds over `syncChat` is shape rather than a tail: new nodes keep
+    /// their own `parentId`, `childrenIds` is recomputed across the merged set (a
+    /// derived field — a stale list from either side hides a branch in the web UI),
+    /// and `currentId` moves to the leaf the app is showing.
+    ///
+    /// Returns false when nothing changed, so switching to a branch that is already
+    /// current doesn't cost a write.
+    static func mergeTree(into chat: inout [String: Any],
+                          tree: [OWMessage], currentId leaf: String?,
+                          model: String) -> Bool {
+        var history = chat["history"] as? [String: Any] ?? [:]
+        var nodes = history["messages"] as? [String: [String: Any]] ?? [:]
+        // Legacy/empty graph: seed it from the flat list so linking still works.
+        if nodes.isEmpty, let flat = chat["messages"] as? [[String: Any]] {
+            for m in flat { if let mid = m["id"] as? String { nodes[mid] = m } }
+        }
+
+        let now = Int(Date().timeIntervalSince1970)
+        var added = false
+        for m in tree where nodes[m.id] == nil {
+            var node = OWChatPayload.node(for: m, model: model, now: now)
+            node["parentId"] = m.parentId ?? NSNull()
+            nodes[m.id] = node
+            added = true
+        }
+
+        let previousLeaf = history["currentId"] as? String
+        let newLeaf = leaf.flatMap { nodes[$0] != nil ? $0 : nil } ?? previousLeaf
+        guard added || newLeaf != previousLeaf else { return false }
+
+        // childrenIds is derived, never trusted: oldest child first, which is the
+        // order the branch switcher counts through.
+        var childrenOf: [String: [String]] = [:]
+        let ordered = nodes.sorted {
+            ($0.value["timestamp"] as? Int ?? 0, $0.key) < ($1.value["timestamp"] as? Int ?? 0, $1.key)
+        }
+        for (nid, n) in ordered {
+            if let p = n["parentId"] as? String { childrenOf[p, default: []].append(nid) }
+        }
+        for key in nodes.keys { nodes[key]?["childrenIds"] = childrenOf[key] ?? [] }
+
+        history["messages"] = nodes
+        history["currentId"] = newLeaf ?? NSNull()
+        chat["history"] = history
+
+        // Flat list = the active branch, exactly what the web UI itself stores.
+        var chain: [[String: Any]] = []
+        var walk = newLeaf
+        var guardCount = 0
+        while let w = walk, let n = nodes[w], guardCount < 10_000 {
+            chain.append(n)
+            walk = n["parentId"] as? String
+            guardCount += 1
+        }
+        if !chain.isEmpty { chat["messages"] = Array(chain.reversed()) }
+        return true
+    }
+
+    /// Creates a new chat from a history tree. Returns the new chat id.
+    public func createChatTree(title: String, models: [String],
+                               tree: [OWMessage], currentId: String?) async throws -> String {
+        var chat: [String: Any] = [
+            "title": title,
+            "models": models,
+            "params": [String: String](),
+            "tags": [String](),
+            "timestamp": Int(Date().timeIntervalSince1970) * 1000,
+        ]
+        _ = Self.mergeTree(into: &chat, tree: tree, currentId: currentId, model: models.first ?? "")
+
+        var req = request("/api/v1/chats/new", method: "POST")
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try JSONSerialization.data(withJSONObject: ["chat": chat])
+        struct R: Decodable { var id: String }
+        return try decode(R.self, try await send(req)).id
+    }
+
+    /// Merge-safe save for a branching history — the tree counterpart of `syncChat`,
+    /// and the only write path the edit/regenerate flows may use. `updateChatTree`
+    /// does not exist on purpose: replacing the chat wholesale is what destroys
+    /// web-side data.
+    public func syncChatTree(id: String, title: String, models: [String],
+                             tree: [OWMessage], currentId: String?) async throws {
+        let data = try await send(request("/api/v1/chats/\(encPath(id))"))
+        guard let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              var chat = obj["chat"] as? [String: Any] else { throw OWError.decoding("chat") }
+
+        let model = models.first ?? (chat["models"] as? [String])?.first ?? ""
+        guard Self.mergeTree(into: &chat, tree: tree, currentId: currentId, model: model) else { return }
+
+        if !title.isEmpty { chat["title"] = title }
+        if !models.isEmpty { chat["models"] = models }
+
+        var req = request("/api/v1/chats/\(encPath(id))", method: "POST")
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try JSONSerialization.data(withJSONObject: ["chat": chat])
+        _ = try await send(req)
+    }
+}

@@ -140,7 +140,13 @@ struct ChatScreen: View {
                                 isStreaming: vm.isStreaming && idx == vm.messages.count - 1 && msg.role == .assistant,
                                 statusText: (vm.awaitingWebSearch && idx == vm.messages.count - 1 && msg.role == .assistant)
                                     ? L("Pesquisando na web…") : nil,
-                                client: app.client
+                                client: app.client,
+                                branch: vm.branchInfo(for: msg.id),
+                                models: msg.role == .assistant ? vm.models : [],
+                                onEdit: msg.role == .user ? { vm.editUser(messageID: msg.id, newText: $0) } : nil,
+                                onRegenerate: msg.role == .assistant ? { vm.regenerate(messageID: msg.id) } : nil,
+                                onRetryModel: msg.role == .assistant ? { vm.regenerate(messageID: msg.id, model: $0) } : nil,
+                                onBranch: { vm.switchBranch(messageID: msg.id, delta: $0) }
                             )
                             .id(msg.id)
                         }

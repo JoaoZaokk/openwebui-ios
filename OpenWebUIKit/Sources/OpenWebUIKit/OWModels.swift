@@ -409,6 +409,9 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         try c.encode(content, forKey: .content)
         try c.encodeIfPresent(model, forKey: .model)
         try c.encodeIfPresent(timestamp, forKey: .timestamp)
+        // Persist the branch link — without it a written history flattens on the
+        // next save and sibling branches become unreachable.
+        try c.encodeIfPresent(parentId, forKey: .parentId)
         if !reasoning.isEmpty { try c.encode(reasoning, forKey: .reasoning) }
         if !sources.isEmpty {
             try c.encode(sources.map(OWSourceEntry.init), forKey: .sources)
@@ -532,13 +535,47 @@ public struct OWChat: Decodable, Sendable, Identifiable {
     public var id: String
     public var title: String
     public var models: [String]
+    /// The active branch (currentId → root chain) — what the UI renders by default.
     public var messages: [OWMessage]
+    /// EVERY node in the branching history, not just the active branch. Needed to
+    /// navigate and preserve sibling branches (edit / regenerate) instead of
+    /// flattening them away on the next save.
+    public var allMessages: [OWMessage]
+    /// The active leaf the server considers current.
+    public var currentId: String?
 
     enum Top: String, CodingKey { case id, title, chat }
     enum Inner: String, CodingKey { case id, title, models, messages, history }
 
     public init(id: String, title: String, models: [String] = [], messages: [OWMessage] = []) {
         self.id = id; self.title = title; self.models = models; self.messages = messages
+        self.allMessages = messages; self.currentId = messages.last?.id
+    }
+
+    /// Rebuilds a chat from a history tree (all nodes + the active leaf). `messages`
+    /// is derived by walking the `currentId → root` chain.
+    public init(id: String, title: String, models: [String],
+                allMessages: [OWMessage], currentId: String?) {
+        self.id = id; self.title = title; self.models = models
+        self.allMessages = allMessages; self.currentId = currentId
+        self.messages = OWChat.activeBranch(allMessages, currentId: currentId)
+    }
+
+    /// The active branch (currentId → root, reversed) from a flat node list.
+    /// Falls back to timestamp order when the leaf is unknown, so a chat with a
+    /// broken graph still renders in a sane order.
+    public static func activeBranch(_ nodes: [OWMessage], currentId: String?) -> [OWMessage] {
+        let map = Dictionary(nodes.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
+        guard let cur = currentId, map[cur] != nil else {
+            return nodes.sorted { ($0.timestamp ?? 0) < ($1.timestamp ?? 0) }
+        }
+        var chain: [OWMessage] = []
+        var id: String? = cur
+        var guardCount = 0
+        while let i = id, let m = map[i], guardCount < 10_000 {
+            chain.append(m); id = m.parentId; guardCount += 1
+        }
+        return chain.reversed()
     }
 
     public init(from decoder: Decoder) throws {
@@ -555,14 +592,21 @@ public struct OWChat: Decodable, Sendable, Identifiable {
             // message must not drop the rest of the conversation.
             let flat = ((try? inner.decode([OWLossy<OWMessage>].self, forKey: .messages)) ?? [])
                 .compactMap(\.value)
-            let chain = (try? inner.decode(OWHistory.self, forKey: .history))?.ordered() ?? []
+            let history = try? inner.decode(OWHistory.self, forKey: .history)
+            let chain = history?.ordered() ?? []
             // The history chain is the web UI's source of truth (it shows the
             // active branch); flat is only the fallback for broken/absent graphs.
             messages = (!chain.isEmpty && chain.count >= flat.count) ? chain : flat
+            // Keep the full node set and the server's leaf so branches created in
+            // the web UI stay navigable — and survive our next write.
+            allMessages = history.map { Array($0.messages.values) } ?? messages
+            currentId = history?.currentId ?? messages.last?.id
         } else {
             title = topTitle ?? "Conversa"
             models = []
             messages = []
+            allMessages = []
+            currentId = nil
         }
     }
 }

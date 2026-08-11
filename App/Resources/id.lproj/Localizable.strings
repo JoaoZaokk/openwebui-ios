@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Deskripsikan gambar…";
 "Descreva sua ideia em palavras simples…" = "Deskripsikan ide Anda dengan kata-kata sederhana…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "ALAMAT SERVER Open WebUI";
+"Editar" = "Edit";
+"Editar mensagem" = "Edit pesan";
 "Em breve" = "Segera hadir";
 "Email" = "Email";
 "Endereço" = "Alamat";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Saat AI berbicara, mulai berbicara akan memotong balasannya dan ia mendengarkan Anda. Sensitivitas tinggi menginterupsi dengan sedikit suara (tetapi bisa terpicu sendiri oleh gema); rendah menuntut Anda berbicara lebih tegas.";
 "Entrar" = "Masuk";
+"Enviar" = "Kirim";
 "Erro %@" = "Kesalahan %@";
 "Erro no download" = "Kesalahan unduhan";
 "Escreva em markdown…" = "Tulis dalam markdown…";
@@ -99,11 +102,14 @@
 "Passos" = "Langkah";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Izin mikrofon/suara ditolak (Pengaturan iPhone).";
 "Português" = "Portugis";
+"Próxima resposta" = "Balasan berikutnya";
 "Pétalas" = "Kelopak";
 "Reconhecimento (STT)" = "Pengenalan (STT)";
 "Reconhecimento: %@" = "Pengenalan: %@";
+"Regenerar" = "Buat ulang";
 "Renomear" = "Ganti nama";
 "Renomear conversa" = "Ganti nama percakapan";
+"Resposta anterior" = "Balasan sebelumnya";
 "Resposta inesperada do servidor: %@" = "Respons server tidak terduga: %@";
 "SERVIDOR" = "SERVER";
 "Sair" = "Keluar";
@@ -121,6 +127,7 @@
 "Tamanho" = "Ukuran";
 "Tema" = "Tema";
 "Temas" = "Tema";
+"Tentar com outro modelo" = "Coba model lain";
 "Testar voz" = "Uji suara";
 "Texto → Voz" = "Teks → Suara";
 "Todos" = "Semua";

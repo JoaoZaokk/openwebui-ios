@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Beschrijf de afbeelding…";
 "Descreva sua ideia em palavras simples…" = "Beschrijf je idee in eenvoudige woorden…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI-SERVERADRES";
+"Editar" = "Bewerken";
+"Editar mensagem" = "Bericht bewerken";
 "Em breve" = "Binnenkort beschikbaar";
 "Email" = "E-mail";
 "Endereço" = "Adres";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Terwijl de AI praat, onderbreekt beginnen met praten het antwoord en luistert de AI naar je. Een hoge gevoeligheid onderbreekt bij weinig spraak (maar kan vanzelf afgaan door de echo); een lage vereist dat je steviger praat.";
 "Entrar" = "Inloggen";
+"Enviar" = "Versturen";
 "Erro %@" = "Fout %@";
 "Erro no download" = "Downloadfout";
 "Escreva em markdown…" = "Schrijf in markdown…";
@@ -99,11 +102,14 @@
 "Passos" = "Stappen";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Toestemming voor microfoon/stem geweigerd (iPhone-instellingen).";
 "Português" = "Portugees";
+"Próxima resposta" = "Volgend antwoord";
 "Pétalas" = "Bloemblaadjes";
 "Reconhecimento (STT)" = "Herkenning (STT)";
 "Reconhecimento: %@" = "Herkenning: %@";
+"Regenerar" = "Opnieuw genereren";
 "Renomear" = "Hernoemen";
 "Renomear conversa" = "Gesprek hernoemen";
+"Resposta anterior" = "Vorig antwoord";
 "Resposta inesperada do servidor: %@" = "Onverwacht antwoord van server: %@";
 "SERVIDOR" = "SERVER";
 "Sair" = "Uitloggen";
@@ -121,6 +127,7 @@
 "Tamanho" = "Grootte";
 "Tema" = "Thema";
 "Temas" = "Thema's";
+"Tentar com outro modelo" = "Ander model proberen";
 "Testar voz" = "Stem testen";
 "Texto → Voz" = "Tekst → Spraak";
 "Todos" = "Alle";

@@ -38,11 +38,14 @@
 "Descreva a imagem…" = "อธิบายรูปภาพ…";
 "Descreva sua ideia em palavras simples…" = "อธิบายไอเดียของคุณด้วยคำง่าย ๆ…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "ที่อยู่เซิร์ฟเวอร์ Open WebUI";
+"Editar" = "แก้ไข";
+"Editar mensagem" = "แก้ไขข้อความ";
 "Em breve" = "เร็ว ๆ นี้";
 "Email" = "อีเมล";
 "Endereço" = "ที่อยู่";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "ขณะที่ AI กำลังพูด การเริ่มพูดจะตัดคำตอบและให้ AI ฟังคุณ ความไวสูงจะขัดจังหวะแม้เสียงเบา (แต่อาจทำงานเองจากเสียงสะท้อน) ส่วนความไวต่ำต้องพูดให้หนักแน่นขึ้น";
 "Entrar" = "เข้าสู่ระบบ";
+"Enviar" = "ส่ง";
 "Erro %@" = "ข้อผิดพลาด %@";
 "Erro no download" = "ดาวน์โหลดผิดพลาด";
 "Escreva em markdown…" = "เขียนด้วย markdown…";
@@ -98,11 +101,14 @@
 "Passos" = "ขั้นตอน";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "การอนุญาตไมโครโฟน/เสียงถูกปฏิเสธ (การตั้งค่า iPhone)";
 "Português" = "โปรตุเกส";
+"Próxima resposta" = "คำตอบถัดไป";
 "Pétalas" = "กลีบดอกไม้";
 "Reconhecimento (STT)" = "การรู้จำเสียง (STT)";
 "Reconhecimento: %@" = "การรู้จำเสียง: %@";
+"Regenerar" = "สร้างใหม่";
 "Renomear" = "เปลี่ยนชื่อ";
 "Renomear conversa" = "เปลี่ยนชื่อการสนทนา";
+"Resposta anterior" = "คำตอบก่อนหน้า";
 "Resposta inesperada do servidor: %@" = "การตอบกลับจากเซิร์ฟเวอร์ไม่คาดคิด: %@";
 "SERVIDOR" = "เซิร์ฟเวอร์";
 "Sair" = "ออกจากระบบ";
@@ -120,6 +126,7 @@
 "Tamanho" = "ขนาด";
 "Tema" = "ธีม";
 "Temas" = "ธีม";
+"Tentar com outro modelo" = "ลองโมเดลอื่น";
 "Testar voz" = "ทดสอบเสียง";
 "Texto → Voz" = "ข้อความ → เสียง";
 "Todos" = "ทั้งหมด";

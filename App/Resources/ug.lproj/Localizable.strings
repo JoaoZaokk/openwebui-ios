@@ -38,11 +38,14 @@
 "Descreva a imagem…" = "رەسىمنى تەسۋىرلەڭ…";
 "Descreva sua ideia em palavras simples…" = "پىكرىڭىزنى ئاددىي سۆزلەر بىلەن تەسۋىرلەڭ…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI مۇلازىمېتىر ئادرېسى";
+"Editar" = "تەھرىرلەش";
+"Editar mensagem" = "ئۇچۇرنى تەھرىرلەش";
 "Em breve" = "پات يېقىندا";
 "Email" = "ئېلخەت";
 "Endereço" = "ئادرېس";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI سۆزلەۋاتقاندا، سىز سۆزلەشكە باشلىسىڭىز جاۋاب ئۈزۈلۈپ، ئۇ سىزنى ئاڭلايدۇ. يۇقىرى سەزگۈرلۈك ئاز ئاۋاز بىلەنلا ئۈزىدۇ (بىراق ئەكس-سادا بىلەن ئۆزلۈكىدىن قوزغىلىشى مۇمكىن)؛ تۆۋەن سەزگۈرلۈك تېخىمۇ ئېنىق سۆزلەشنى تەلەپ قىلىدۇ.";
 "Entrar" = "كىرىش";
+"Enviar" = "يوللاش";
 "Erro %@" = "خاتالىق %@";
 "Erro no download" = "چۈشۈرۈشتە خاتالىق";
 "Escreva em markdown…" = "markdown دا يېزىڭ…";
@@ -98,11 +101,14 @@
 "Passos" = "باسقۇچلار";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "مىكروفون/ئاۋاز رۇخسىتى رەت قىلىندى (iPhone تەڭشەكلىرى).";
 "Português" = "پورتۇگالچە";
+"Próxima resposta" = "كېيىنكى جاۋاب";
 "Pétalas" = "گۈل بەرگلىرى";
 "Reconhecimento (STT)" = "تونۇش (STT)";
 "Reconhecimento: %@" = "تونۇش: %@";
+"Regenerar" = "قايتا ھاسىللاش";
 "Renomear" = "ئات ئۆزگەرتىش";
 "Renomear conversa" = "سۆھبەت ئېتىنى ئۆزگەرتىش";
+"Resposta anterior" = "ئالدىنقى جاۋاب";
 "Resposta inesperada do servidor: %@" = "مۇلازىمېتىردىن كۈتۈلمىگەن جاۋاب: %@";
 "SERVIDOR" = "مۇلازىمېتىر";
 "Sair" = "چىقىش";
@@ -120,6 +126,7 @@
 "Tamanho" = "چوڭلۇقى";
 "Tema" = "تېما";
 "Temas" = "تېمالار";
+"Tentar com outro modelo" = "باشقا مودېلنى سىناش";
 "Testar voz" = "ئاۋازنى سىناش";
 "Texto → Voz" = "تېكىست → ئاۋاز";
 "Todos" = "ھەممىسى";

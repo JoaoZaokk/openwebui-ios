@@ -38,11 +38,14 @@
 "Descreva a imagem…" = "པར་རིས་འགྲེལ་བརྗོད་གྱིས…";
 "Descreva sua ideia em palavras simples…" = "ཁྱེད་ཀྱི་བསམ་ཚུལ་ཚིག་ཕལ་པས་འགྲེལ་བརྗོད་གྱིས…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI སར་བར་གྱི་ཁ་བྱང་།";
+"Editar" = "ཞུ་དག";
+"Editar mensagem" = "འཕྲིན་ཡིག་ཞུ་དག";
 "Em breve" = "རིང་མིན་དུ།";
 "Email" = "གློག་འཕྲིན།";
 "Endereço" = "ཁ་བྱང་།";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI སྐད་ཆ་བཤད་བཞིན་པའི་སྐབས་ཁྱེད་ཀྱིས་སྐད་ཆ་འགོ་བཙུགས་ན་ལན་བཅད་ནས་ཁྱེད་ལ་ཉན། ཚོར་སྣང་མཐོ་ན་སྐད་ཆུང་ཆུང་གིས་ཀྱང་མཚམས་གཅོད། (འོན་ཀྱང་བྲག་ཅས་རང་བཞིན་གྱིས་སྐུལ་སྲིད); དམའ་ན་སྐད་བརྟན་པོས་བཤད་དགོས།";
 "Entrar" = "ནང་འཛུལ།";
+"Enviar" = "སྐུར།";
 "Erro %@" = "ནོར་འཁྲུལ། %@";
 "Erro no download" = "ཕབ་ལེན་ནོར་འཁྲུལ།";
 "Escreva em markdown…" = "markdown ནང་འབྲི…";
@@ -98,11 +101,14 @@
 "Passos" = "རིམ་པ།";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "སྒྲ་འཛིན/སྐད་ཀྱི་ཆོག་མཆན་བཀག (iPhone སྒྲིག་འགོད)";
 "Português" = "པོར་ཐུ་གལ་སྐད།";
+"Próxima resposta" = "རྗེས་མའི་ལན།";
 "Pétalas" = "མེ་ཏོག་འདབ་མ།";
 "Reconhecimento (STT)" = "ངོས་འཛིན། (STT)";
 "Reconhecimento: %@" = "ངོས་འཛིན། %@";
+"Regenerar" = "སླར་བཟོ།";
 "Renomear" = "མིང་བསྒྱུར།";
 "Renomear conversa" = "གྲོས་མོལ་མིང་བསྒྱུར།";
+"Resposta anterior" = "སྔོན་མའི་ལན།";
 "Resposta inesperada do servidor: %@" = "སར་བར་ནས་མ་རེ་བའི་ལན། %@";
 "SERVIDOR" = "སར་བར།";
 "Sair" = "ཕྱིར་ཐོན།";
@@ -120,6 +126,7 @@
 "Tamanho" = "ཆེ་ཆུང་།";
 "Tema" = "རྣམ་པ།";
 "Temas" = "རྣམ་པ་རྣམས།";
+"Tentar com outro modelo" = "དཔེ་གཞི་གཞན་ཞིག་ཚོད་ལྟ།";
 "Testar voz" = "སྐད་ཚོད་ལྟ།";
 "Texto → Voz" = "ཡི་གེ → སྐད།";
 "Todos" = "ཚང་མ།";

@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "画像を説明してください…";
 "Descreva sua ideia em palavras simples…" = "アイデアを簡単な言葉で説明してください…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI サーバーアドレス";
+"Editar" = "編集";
+"Editar mensagem" = "メッセージを編集";
 "Em breve" = "近日公開";
 "Email" = "メール";
 "Endereço" = "アドレス";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AIが話している間に話し始めると、返答が中断されAIがあなたの声を聞きます。感度が高いと小さな声でも中断します（エコーで誤作動することも）。低いとはっきり話す必要があります。";
 "Entrar" = "ログイン";
+"Enviar" = "送信";
 "Erro %@" = "エラー %@";
 "Erro no download" = "ダウンロードエラー";
 "Escreva em markdown…" = "Markdownで記述…";
@@ -99,11 +102,14 @@
 "Passos" = "ステップ";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "マイク/音声の許可が拒否されました（iPhoneの設定）。";
 "Português" = "ポルトガル語";
+"Próxima resposta" = "次の回答";
 "Pétalas" = "花びら";
 "Reconhecimento (STT)" = "認識（STT）";
 "Reconhecimento: %@" = "認識: %@";
+"Regenerar" = "再生成";
 "Renomear" = "名前を変更";
 "Renomear conversa" = "チャット名を変更";
+"Resposta anterior" = "前の回答";
 "Resposta inesperada do servidor: %@" = "サーバーから予期しない応答: %@";
 "SERVIDOR" = "サーバー";
 "Sair" = "ログアウト";
@@ -121,6 +127,7 @@
 "Tamanho" = "サイズ";
 "Tema" = "テーマ";
 "Temas" = "テーマ";
+"Tentar com outro modelo" = "別のモデルで試す";
 "Testar voz" = "音声をテスト";
 "Texto → Voz" = "テキスト → 音声";
 "Todos" = "すべて";

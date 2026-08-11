@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Опишете ја сликата…";
 "Descreva sua ideia em palavras simples…" = "Опишете ја вашата идеја со едноставни зборови…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "АДРЕСА НА OPEN WEBUI СЕРВЕРОТ";
+"Editar" = "Уреди";
+"Editar mensagem" = "Уреди порака";
 "Em breve" = "Наскоро";
 "Email" = "Email";
 "Endereço" = "Адреса";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Додека AI зборува, ако почнете да зборувате, одговорот се прекинува и тој ве слуша. Високата чувствителност прекинува и при малку говор (но може да се активира и поради ехо); ниската бара да зборувате поодлучно.";
 "Entrar" = "Најави се";
+"Enviar" = "Испрати";
 "Erro %@" = "Грешка %@";
 "Erro no download" = "Грешка при преземање";
 "Escreva em markdown…" = "Пишувајте во markdown…";
@@ -99,11 +102,14 @@
 "Passos" = "Чекори";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Дозволата за микрофон/глас е одбиена (Поставки на iPhone).";
 "Português" = "Португалски";
+"Próxima resposta" = "Следен одговор";
 "Pétalas" = "Ливчиња";
 "Reconhecimento (STT)" = "Препознавање (STT)";
 "Reconhecimento: %@" = "Препознавање: %@";
+"Regenerar" = "Генерирај повторно";
 "Renomear" = "Преименувај";
 "Renomear conversa" = "Преименувај разговор";
+"Resposta anterior" = "Претходен одговор";
 "Resposta inesperada do servidor: %@" = "Неочекуван одговор од серверот: %@";
 "SERVIDOR" = "СЕРВЕР";
 "Sair" = "Одјави се";
@@ -121,6 +127,7 @@
 "Tamanho" = "Големина";
 "Tema" = "Тема";
 "Temas" = "Теми";
+"Tentar com outro modelo" = "Пробај друг модел";
 "Testar voz" = "Тестирај глас";
 "Texto → Voz" = "Текст → Говор";
 "Todos" = "Сите";

@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Beschreibe das Bild…";
 "Descreva sua ideia em palavras simples…" = "Beschreibe deine Idee in einfachen Worten…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI SERVERADRESSE";
+"Editar" = "Bearbeiten";
+"Editar mensagem" = "Nachricht bearbeiten";
 "Em breve" = "Demnächst";
 "Email" = "E-Mail";
 "Endereço" = "Adresse";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Während die KI spricht, unterbricht das Sprechen die Antwort und sie hört dir zu. Hohe Empfindlichkeit unterbricht schon bei wenig Sprache (kann aber durch das Echo selbst auslösen); niedrige erfordert festeres Sprechen.";
 "Entrar" = "Anmelden";
+"Enviar" = "Senden";
 "Erro %@" = "Fehler %@";
 "Erro no download" = "Download-Fehler";
 "Escreva em markdown…" = "In Markdown schreiben…";
@@ -99,11 +102,14 @@
 "Passos" = "Schritte";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Mikrofon-/Sprachberechtigung verweigert (iPhone-Einstellungen).";
 "Português" = "Portugiesisch";
+"Próxima resposta" = "Nächste Antwort";
 "Pétalas" = "Blütenblätter";
 "Reconhecimento (STT)" = "Erkennung (STT)";
 "Reconhecimento: %@" = "Erkennung: %@";
+"Regenerar" = "Neu generieren";
 "Renomear" = "Umbenennen";
 "Renomear conversa" = "Gespräch umbenennen";
+"Resposta anterior" = "Vorherige Antwort";
 "Resposta inesperada do servidor: %@" = "Unerwartete Serverantwort: %@";
 "SERVIDOR" = "SERVER";
 "Sair" = "Abmelden";
@@ -121,6 +127,7 @@
 "Tamanho" = "Grösse";
 "Tema" = "Design";
 "Temas" = "Designs";
+"Tentar com outro modelo" = "Anderes Modell versuchen";
 "Testar voz" = "Stimme testen";
 "Texto → Voz" = "Text → Sprache";
 "Todos" = "Alle";

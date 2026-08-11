@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "描述圖像…";
 "Descreva sua ideia em palavras simples…" = "用簡單的話描述你的想法…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "Open WebUI 伺服器位址";
+"Editar" = "編輯";
+"Editar mensagem" = "編輯訊息";
 "Em breve" = "即將推出";
 "Email" = "郵件";
 "Endereço" = "位址";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI 說話時，你開始說話會打斷回覆並開始聽你說。高靈敏度只需很小的聲音就能打斷（但可能因回音自行觸發）；低靈敏度則需要說得更用力。";
 "Entrar" = "登入";
+"Enviar" = "傳送";
 "Erro %@" = "錯誤 %@";
 "Erro no download" = "下載錯誤";
 "Escreva em markdown…" = "用 markdown 書寫…";
@@ -99,11 +102,14 @@
 "Passos" = "步數";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "麥克風/語音權限遭拒（iPhone 設定）。";
 "Português" = "葡萄牙語";
+"Próxima resposta" = "下一則回覆";
 "Pétalas" = "花瓣";
 "Reconhecimento (STT)" = "辨識（STT）";
 "Reconhecimento: %@" = "辨識：%@";
+"Regenerar" = "重新生成";
 "Renomear" = "重新命名";
 "Renomear conversa" = "重新命名對話";
+"Resposta anterior" = "上一則回覆";
 "Resposta inesperada do servidor: %@" = "伺服器回應異常：%@";
 "SERVIDOR" = "伺服器";
 "Sair" = "登出";
@@ -121,6 +127,7 @@
 "Tamanho" = "大小";
 "Tema" = "主題";
 "Temas" = "主題";
+"Tentar com outro modelo" = "換個模型試試";
 "Testar voz" = "測試語音";
 "Texto → Voz" = "文字 → 語音";
 "Todos" = "全部";

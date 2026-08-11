@@ -40,11 +40,14 @@
 "Descreva a imagem…" = "Describe the image…";
 "Descreva sua ideia em palavras simples…" = "Describe your idea in simple words…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI SERVER ADDRESS";
+"Editar" = "Edit";
+"Editar mensagem" = "Edit message";
 "Em breve" = "Coming soon";
 "Email" = "Email";
 "Endereço" = "Address";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "While the AI is speaking, starting to talk cuts off the reply and it listens to you. High sensitivity interrupts with little speech (but may trigger on echo); low requires speaking more firmly.";
 "Entrar" = "Sign in";
+"Enviar" = "Send";
 "Erro %@" = "Error %@";
 "Erro no download" = "Download error";
 "Escreva em markdown…" = "Write in markdown…";
@@ -101,11 +104,14 @@
 "Passos" = "Steps";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Microphone/voice permission denied (iPhone Settings).";
 "Português" = "Portuguese";
+"Próxima resposta" = "Next reply";
 "Pétalas" = "Petals";
 "Reconhecimento (STT)" = "Recognition (STT)";
 "Reconhecimento: %@" = "Recognition: %@";
+"Regenerar" = "Regenerate";
 "Renomear" = "Rename";
 "Renomear conversa" = "Rename chat";
+"Resposta anterior" = "Previous reply";
 "Resposta inesperada do servidor: %@" = "Unexpected server response: %@";
 "SERVIDOR" = "SERVER";
 "Sair" = "Sign out";
@@ -123,6 +129,7 @@
 "Tamanho" = "Size";
 "Tema" = "Theme";
 "Temas" = "Themes";
+"Tentar com outro modelo" = "Try another model";
 "Testar voz" = "Test voice";
 "Texto → Voz" = "Text → Speech";
 "Todos" = "All";

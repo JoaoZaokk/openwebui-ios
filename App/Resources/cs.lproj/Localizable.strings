@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Popište obrázek…";
 "Descreva sua ideia em palavras simples…" = "Popište svůj nápad jednoduchými slovy…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "ADRESA SERVERU OPEN WEBUI";
+"Editar" = "Upravit";
+"Editar mensagem" = "Upravit zprávu";
 "Em breve" = "Již brzy";
 "Email" = "E-mail";
 "Endereço" = "Adresa";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Když AI mluví, začnete-li mluvit, přeruší se odpověď a AI vás poslouchá. Vysoká citlivost přeruší i při málo řeči (ale může se spustit i ozvěnou); nízká vyžaduje mluvit důrazněji.";
 "Entrar" = "Přihlásit se";
+"Enviar" = "Odeslat";
 "Erro %@" = "Chyba %@";
 "Erro no download" = "Chyba stahování";
 "Escreva em markdown…" = "Pište v markdownu…";
@@ -99,11 +102,14 @@
 "Passos" = "Kroky";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Oprávnění k mikrofonu/hlasu bylo zamítnuto (Nastavení iPhonu).";
 "Português" = "Portugalština";
+"Próxima resposta" = "Další odpověď";
 "Pétalas" = "Okvětní lístky";
 "Reconhecimento (STT)" = "Rozpoznávání (STT)";
 "Reconhecimento: %@" = "Rozpoznávání: %@";
+"Regenerar" = "Vygenerovat znovu";
 "Renomear" = "Přejmenovat";
 "Renomear conversa" = "Přejmenovat konverzaci";
+"Resposta anterior" = "Předchozí odpověď";
 "Resposta inesperada do servidor: %@" = "Neočekávaná odpověď serveru: %@";
 "SERVIDOR" = "SERVER";
 "Sair" = "Odhlásit se";
@@ -121,6 +127,7 @@
 "Tamanho" = "Velikost";
 "Tema" = "Téma";
 "Temas" = "Témata";
+"Tentar com outro modelo" = "Zkusit jiný model";
 "Testar voz" = "Otestovat hlas";
 "Texto → Voz" = "Text → Řeč";
 "Todos" = "Vše";

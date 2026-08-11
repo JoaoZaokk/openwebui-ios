@@ -38,11 +38,14 @@
 "Descreva a imagem…" = "Зургаа тайлбарлана уу…";
 "Descreva sua ideia em palavras simples…" = "Санаагаа энгийн үгээр тайлбарлана уу…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI СЕРВЕРИЙН ХАЯГ";
+"Editar" = "Засах";
+"Editar mensagem" = "Мессежийг засах";
 "Em breve" = "Удахгүй";
 "Email" = "Имэйл";
 "Endereço" = "Хаяг";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI ярьж байх үед ярьж эхэлбэл хариултыг таслаж, таныг сонсоно. Өндөр мэдрэмж бага дуугаар тасалдуулна (гэхдээ цуурайнаас болж өөрөө ажиллаж магадгүй); бага мэдрэмж илүү тод ярихыг шаардана.";
 "Entrar" = "Нэвтрэх";
+"Enviar" = "Илгээх";
 "Erro %@" = "Алдаа %@";
 "Erro no download" = "Татахад алдаа гарлаа";
 "Escreva em markdown…" = "Markdown хэлбэрээр бичнэ үү…";
@@ -98,11 +101,14 @@
 "Passos" = "Алхмууд";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Микрофон/дууны зөвшөөрөл татгалзсан (iPhone-ийн Тохиргоо).";
 "Português" = "Португал";
+"Próxima resposta" = "Дараагийн хариулт";
 "Pétalas" = "Дэлбээ";
 "Reconhecimento (STT)" = "Таних (STT)";
 "Reconhecimento: %@" = "Таних: %@";
+"Regenerar" = "Дахин үүсгэх";
 "Renomear" = "Нэр солих";
 "Renomear conversa" = "Ярианы нэрийг солих";
+"Resposta anterior" = "Өмнөх хариулт";
 "Resposta inesperada do servidor: %@" = "Серверээс гэнэтийн хариу: %@";
 "SERVIDOR" = "СЕРВЕР";
 "Sair" = "Гарах";
@@ -120,6 +126,7 @@
 "Tamanho" = "Хэмжээ";
 "Tema" = "Сэдэв";
 "Temas" = "Сэдвүүд";
+"Tentar com outro modelo" = "Өөр загвар туршиж үзэх";
 "Testar voz" = "Дуу хоолой турших";
 "Texto → Voz" = "Текст → Дуу хоолой";
 "Todos" = "Бүгд";

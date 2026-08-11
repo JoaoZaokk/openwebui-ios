@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "صف الصورة…";
 "Descreva sua ideia em palavras simples…" = "صف فكرتك بكلمات بسيطة…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "عنوان خادم Open WebUI";
+"Editar" = "تعديل";
+"Editar mensagem" = "تعديل الرسالة";
 "Em breve" = "قريباً";
 "Email" = "البريد الإلكتروني";
 "Endereço" = "العنوان";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "أثناء تحدّث الذكاء الاصطناعي، بدء الكلام يقطع الرد فيبدأ الإنصات إليك. الحساسية العالية تقاطع بأقل قدر من الكلام (لكنها قد تنطلق تلقائياً بسبب الصدى)؛ والمنخفضة تتطلّب التحدث بصوت أوضح.";
 "Entrar" = "تسجيل الدخول";
+"Enviar" = "إرسال";
 "Erro %@" = "خطأ %@";
 "Erro no download" = "خطأ في التنزيل";
 "Escreva em markdown…" = "اكتب بصيغة markdown…";
@@ -99,11 +102,14 @@
 "Passos" = "الخطوات";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "تم رفض إذن الميكروفون/الصوت (إعدادات iPhone).";
 "Português" = "البرتغالية";
+"Próxima resposta" = "الرد التالي";
 "Pétalas" = "بتلات";
 "Reconhecimento (STT)" = "التعرّف (STT)";
 "Reconhecimento: %@" = "التعرّف: %@";
+"Regenerar" = "إعادة التوليد";
 "Renomear" = "إعادة التسمية";
 "Renomear conversa" = "إعادة تسمية المحادثة";
+"Resposta anterior" = "الرد السابق";
 "Resposta inesperada do servidor: %@" = "استجابة غير متوقعة من الخادم: %@";
 "SERVIDOR" = "الخادم";
 "Sair" = "تسجيل الخروج";
@@ -121,6 +127,7 @@
 "Tamanho" = "الحجم";
 "Tema" = "السمة";
 "Temas" = "السمات";
+"Tentar com outro modelo" = "جرّب نموذجًا آخر";
 "Testar voz" = "اختبار الصوت";
 "Texto → Voz" = "نص → كلام";
 "Todos" = "الكل";

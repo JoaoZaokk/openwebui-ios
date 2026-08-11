@@ -290,4 +290,109 @@ final class OWChatDecodeTests: XCTestCase {
         XCTAssertEqual(decoded.toolUses.first?.query, "swift")
         XCTAssertEqual(decoded.toolUses.first?.sources.first?.url, "https://swift.org")
     }
+
+    // MARK: - Branching history
+
+    /// A forked history (one question, two replies) must expose the FULL node set
+    /// in `allMessages` while `messages` follows `currentId`.
+    func testBranchingHistoryExposesAllNodesAndActiveBranch() throws {
+        let json = """
+        {
+          "id": "c6", "title": "t",
+          "chat": {
+            "history": {
+              "currentId": "a2",
+              "messages": {
+                "u1": { "id": "u1", "parentId": null, "childrenIds": ["a1","a2"],
+                        "role": "user", "content": "hi", "timestamp": 1 },
+                "a1": { "id": "a1", "parentId": "u1", "childrenIds": [],
+                        "role": "assistant", "content": "first reply", "timestamp": 2 },
+                "a2": { "id": "a2", "parentId": "u1", "childrenIds": [],
+                        "role": "assistant", "content": "second reply", "timestamp": 3 }
+              }
+            }
+          }
+        }
+        """
+        let chat = try JSONDecoder().decode(OWChat.self, from: Data(json.utf8))
+        XCTAssertEqual(chat.currentId, "a2")
+        XCTAssertEqual(chat.messages.map(\.id), ["u1", "a2"])                // active branch
+        XCTAssertEqual(Set(chat.allMessages.map(\.id)), ["u1", "a1", "a2"])  // full tree
+    }
+
+    /// `activeBranch` walks currentId → root and reverses.
+    func testActiveBranchWalksToRoot() {
+        var reply = OWMessage(id: "a1", role: .assistant, content: "a", timestamp: 2)
+        reply.parentId = "u1"
+        let nodes = [OWMessage(id: "u1", role: .user, content: "q", timestamp: 1), reply]
+        XCTAssertEqual(OWChat.activeBranch(nodes, currentId: "a1").map(\.id), ["u1", "a1"])
+    }
+
+    /// The tree write path depends on `parentId` surviving encode — without it a
+    /// saved history flattens on the next write.
+    func testParentIdSurvivesEncode() throws {
+        var m = OWMessage(role: .assistant, content: "x")
+        m.parentId = "root"
+        let decoded = try JSONDecoder().decode(OWMessage.self, from: try JSONEncoder().encode(m))
+        XCTAssertEqual(decoded.parentId, "root")
+    }
+
+    /// THE regression this whole write path exists for: adding a branch must not
+    /// re-encode nodes the server already has. A reply carrying `output`, `sources`
+    /// and `usage` — none of which this client models — has to come back byte-identical.
+    func testMergeTreeKeepsServerOnlyFieldsOnKnownNodes() throws {
+        var chat: [String: Any] = [
+            "models": ["m1"],
+            "history": [
+                "currentId": "a1",
+                "messages": [
+                    "u1": ["id": "u1", "role": "user", "content": "q",
+                           "parentId": NSNull(), "childrenIds": ["a1"], "timestamp": 1],
+                    "a1": ["id": "a1", "role": "assistant", "content": "",
+                           "parentId": "u1", "childrenIds": [], "timestamp": 2,
+                           "output": "written by the web UI",
+                           "sources": [["source": ["name": "wiki"]]],
+                           "usage": ["prompt_tokens": 10]],
+                ],
+            ],
+        ]
+
+        // Regenerate: a fresh sibling of a1 under u1, leaf moves to it.
+        var fresh = OWMessage(id: "a2", role: .assistant, content: "new reply", timestamp: 3)
+        fresh.parentId = "u1"
+        let known = [OWMessage(id: "u1", role: .user, content: "q", timestamp: 1), fresh]
+
+        XCTAssertTrue(OpenWebUIClient.mergeTree(into: &chat, tree: known, currentId: "a2", model: "m1"))
+
+        let nodes = (chat["history"] as! [String: Any])["messages"] as! [String: [String: Any]]
+        let a1 = nodes["a1"]!
+        XCTAssertEqual(a1["output"] as? String, "written by the web UI")
+        XCTAssertNotNil(a1["sources"])
+        XCTAssertNotNil(a1["usage"])
+        XCTAssertEqual(a1["content"] as? String, "")   // still the server's own value
+
+        // The new node landed with its parent link, and childrenIds was rebuilt so
+        // the web UI can see both branches.
+        XCTAssertEqual(nodes["a2"]?["parentId"] as? String, "u1")
+        XCTAssertEqual(nodes["u1"]?["childrenIds"] as? [String], ["a1", "a2"])
+        XCTAssertEqual((chat["history"] as! [String: Any])["currentId"] as? String, "a2")
+
+        // Flat list = the active branch.
+        let flat = chat["messages"] as! [[String: Any]]
+        XCTAssertEqual(flat.map { $0["id"] as? String }, ["u1", "a2"])
+    }
+
+    /// Switching back to a branch that is already current changes nothing, so it
+    /// must not cost a write.
+    func testMergeTreeReportsNoChangeWhenNothingMoved() {
+        var chat: [String: Any] = [
+            "history": [
+                "currentId": "u1",
+                "messages": ["u1": ["id": "u1", "role": "user", "content": "q",
+                                    "parentId": NSNull(), "childrenIds": [], "timestamp": 1]],
+            ],
+        ]
+        let same = [OWMessage(id: "u1", role: .user, content: "q", timestamp: 1)]
+        XCTAssertFalse(OpenWebUIClient.mergeTree(into: &chat, tree: same, currentId: "u1", model: "m1"))
+    }
 }

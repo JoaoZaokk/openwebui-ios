@@ -38,11 +38,14 @@
 "Descreva a imagem…" = "Beskriv bilden…";
 "Descreva sua ideia em palavras simples…" = "Beskriv din idé med enkla ord…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI-SERVERADRESS";
+"Editar" = "Redigera";
+"Editar mensagem" = "Redigera meddelande";
 "Em breve" = "Kommer snart";
 "Email" = "E-post";
 "Endereço" = "Adress";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "När AI:n talar avbryter du svaret genom att börja prata, och den lyssnar på dig. Hög känslighet avbryter vid låg röst (men kan utlösas av ekot); låg kräver att du talar tydligare.";
 "Entrar" = "Logga in";
+"Enviar" = "Skicka";
 "Erro %@" = "Fel %@";
 "Erro no download" = "Fel vid nedladdning";
 "Escreva em markdown…" = "Skriv i markdown…";
@@ -98,11 +101,14 @@
 "Passos" = "Steg";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Mikrofon-/rösttillstånd nekat (iPhone-inställningar).";
 "Português" = "Portugisiska";
+"Próxima resposta" = "Nästa svar";
 "Pétalas" = "Kronblad";
 "Reconhecimento (STT)" = "Igenkänning (STT)";
 "Reconhecimento: %@" = "Igenkänning: %@";
+"Regenerar" = "Generera igen";
 "Renomear" = "Byt namn";
 "Renomear conversa" = "Byt namn på konversation";
+"Resposta anterior" = "Föregående svar";
 "Resposta inesperada do servidor: %@" = "Oväntat svar från servern: %@";
 "SERVIDOR" = "SERVER";
 "Sair" = "Logga ut";
@@ -120,6 +126,7 @@
 "Tamanho" = "Storlek";
 "Tema" = "Tema";
 "Temas" = "Teman";
+"Tentar com outro modelo" = "Prova en annan modell";
 "Testar voz" = "Testa röst";
 "Texto → Voz" = "Text → Röst";
 "Todos" = "Alla";

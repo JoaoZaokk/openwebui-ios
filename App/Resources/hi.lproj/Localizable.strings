@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "छवि का वर्णन करें…";
 "Descreva sua ideia em palavras simples…" = "अपने विचार को सरल शब्दों में बताएँ…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI सर्वर पता";
+"Editar" = "संपादित करें";
+"Editar mensagem" = "संदेश संपादित करें";
 "Em breve" = "जल्द आ रहा है";
 "Email" = "ईमेल";
 "Endereço" = "पता";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "जब AI बोल रहा हो, तब बोलना शुरू करने पर उत्तर रुक जाता है और वह आपकी सुनता है। उच्च संवेदनशीलता हल्की आवाज़ पर भी रोक देती है (पर इको से अपने आप चल सकती है); कम संवेदनशीलता के लिए अधिक स्पष्ट बोलना पड़ता है।";
 "Entrar" = "साइन इन करें";
+"Enviar" = "भेजें";
 "Erro %@" = "त्रुटि %@";
 "Erro no download" = "डाउनलोड त्रुटि";
 "Escreva em markdown…" = "मार्कडाउन में लिखें…";
@@ -99,11 +102,14 @@
 "Passos" = "चरण";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "माइक्रोफ़ोन/आवाज़ की अनुमति अस्वीकृत (iPhone सेटिंग्स)।";
 "Português" = "पुर्तगाली";
+"Próxima resposta" = "अगला उत्तर";
 "Pétalas" = "पंखुड़ियाँ";
 "Reconhecimento (STT)" = "पहचान (STT)";
 "Reconhecimento: %@" = "पहचान: %@";
+"Regenerar" = "फिर से बनाएँ";
 "Renomear" = "नाम बदलें";
 "Renomear conversa" = "चैट का नाम बदलें";
+"Resposta anterior" = "पिछला उत्तर";
 "Resposta inesperada do servidor: %@" = "सर्वर से अप्रत्याशित प्रतिक्रिया: %@";
 "SERVIDOR" = "सर्वर";
 "Sair" = "साइन आउट";
@@ -121,6 +127,7 @@
 "Tamanho" = "आकार";
 "Tema" = "थीम";
 "Temas" = "थीम";
+"Tentar com outro modelo" = "दूसरा मॉडल आज़माएँ";
 "Testar voz" = "आवाज़ जाँचें";
 "Texto → Voz" = "टेक्स्ट → आवाज़";
 "Todos" = "सभी";

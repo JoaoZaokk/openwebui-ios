@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "ছবিটি বর্ণনা করুন…";
 "Descreva sua ideia em palavras simples…" = "আপনার ধারণা সহজ ভাষায় বর্ণনা করুন…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "OPEN WEBUI সার্ভার ঠিকানা";
+"Editar" = "সম্পাদনা";
+"Editar mensagem" = "বার্তা সম্পাদনা";
 "Em breve" = "শীঘ্রই আসছে";
 "Email" = "ইমেইল";
 "Endereço" = "ঠিকানা";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI কথা বলার সময় আপনি কথা বললে উত্তর থেমে যায় এবং সে আপনার কথা শোনে। উচ্চ সংবেদনশীলতা অল্প শব্দেও থামায় (তবে ইকোতে নিজে থেকে চালু হতে পারে); কম সংবেদনশীলতায় আরও স্পষ্ট করে বলতে হয়।";
 "Entrar" = "সাইন ইন";
+"Enviar" = "পাঠান";
 "Erro %@" = "ত্রুটি %@";
 "Erro no download" = "ডাউনলোড ত্রুটি";
 "Escreva em markdown…" = "মার্কডাউনে লিখুন…";
@@ -99,11 +102,14 @@
 "Passos" = "ধাপ";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "মাইক্রোফোন/ভয়েসের অনুমতি প্রত্যাখ্যাত (iPhone সেটিংস)।";
 "Português" = "পর্তুগিজ";
+"Próxima resposta" = "পরের উত্তর";
 "Pétalas" = "পাপড়ি";
 "Reconhecimento (STT)" = "শনাক্তকরণ (STT)";
 "Reconhecimento: %@" = "শনাক্তকরণ: %@";
+"Regenerar" = "আবার তৈরি করুন";
 "Renomear" = "নাম পরিবর্তন";
 "Renomear conversa" = "চ্যাটের নাম পরিবর্তন";
+"Resposta anterior" = "আগের উত্তর";
 "Resposta inesperada do servidor: %@" = "সার্ভার থেকে অপ্রত্যাশিত উত্তর: %@";
 "SERVIDOR" = "সার্ভার";
 "Sair" = "সাইন আউট";
@@ -121,6 +127,7 @@
 "Tamanho" = "আকার";
 "Tema" = "থিম";
 "Temas" = "থিম";
+"Tentar com outro modelo" = "অন্য মডেল চেষ্টা করুন";
 "Testar voz" = "ভয়েস পরীক্ষা করুন";
 "Texto → Voz" = "টেক্সট → ভয়েস";
 "Todos" = "সব";

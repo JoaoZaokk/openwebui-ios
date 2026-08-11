@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Describe la imagen…";
 "Descreva sua ideia em palavras simples…" = "Describe tu idea en palabras sencillas…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "DIRECCIÓN DEL SERVIDOR OPEN WEBUI";
+"Editar" = "Editar";
+"Editar mensagem" = "Editar mensaje";
 "Em breve" = "Próximamente";
 "Email" = "Email";
 "Endereço" = "Dirección";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Mientras la IA habla, empezar a hablar corta la respuesta y te escucha. Una sensibilidad alta interrumpe con poca voz (pero puede activarse sola por el eco); una baja exige hablar con más firmeza.";
 "Entrar" = "Iniciar sesión";
+"Enviar" = "Enviar";
 "Erro %@" = "Error %@";
 "Erro no download" = "Error de descarga";
 "Escreva em markdown…" = "Escribe en markdown…";
@@ -99,11 +102,14 @@
 "Passos" = "Pasos";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Permiso de micrófono/voz denegado (Ajustes del iPhone).";
 "Português" = "Portugués";
+"Próxima resposta" = "Respuesta siguiente";
 "Pétalas" = "Pétalos";
 "Reconhecimento (STT)" = "Reconocimiento (STT)";
 "Reconhecimento: %@" = "Reconocimiento: %@";
+"Regenerar" = "Regenerar";
 "Renomear" = "Renombrar";
 "Renomear conversa" = "Renombrar conversación";
+"Resposta anterior" = "Respuesta anterior";
 "Resposta inesperada do servidor: %@" = "Respuesta inesperada del servidor: %@";
 "SERVIDOR" = "SERVIDOR";
 "Sair" = "Cerrar sesión";
@@ -121,6 +127,7 @@
 "Tamanho" = "Tamaño";
 "Tema" = "Tema";
 "Temas" = "Temas";
+"Tentar com outro modelo" = "Probar con otro modelo";
 "Testar voz" = "Probar voz";
 "Texto → Voz" = "Texto → Voz";
 "Todos" = "Todos";

@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "이미지를 설명하세요…";
 "Descreva sua ideia em palavras simples…" = "당신의 아이디어를 간단한 말로 설명하세요…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "Open WebUI 서버 주소";
+"Editar" = "편집";
+"Editar mensagem" = "메시지 편집";
 "Em breve" = "곧 제공 예정";
 "Email" = "이메일";
 "Endereço" = "주소";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI가 말하는 동안 말을 시작하면 답변이 중단되고 AI가 당신의 말을 듣습니다. 감도가 높으면 작은 소리에도 중단됩니다(다만 에코로 인해 저절로 실행될 수 있음). 낮으면 더 또렷하게 말해야 합니다.";
 "Entrar" = "로그인";
+"Enviar" = "보내기";
 "Erro %@" = "오류 %@";
 "Erro no download" = "다운로드 오류";
 "Escreva em markdown…" = "markdown으로 작성하세요…";
@@ -99,11 +102,14 @@
 "Passos" = "스텝";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "마이크/음성 권한이 거부되었습니다(iPhone 설정).";
 "Português" = "포르투갈어";
+"Próxima resposta" = "다음 답변";
 "Pétalas" = "꽃잎";
 "Reconhecimento (STT)" = "인식 (STT)";
 "Reconhecimento: %@" = "인식: %@";
+"Regenerar" = "다시 생성";
 "Renomear" = "이름 변경";
 "Renomear conversa" = "대화 이름 변경";
+"Resposta anterior" = "이전 답변";
 "Resposta inesperada do servidor: %@" = "예기치 않은 서버 응답: %@";
 "SERVIDOR" = "서버";
 "Sair" = "로그아웃";
@@ -121,6 +127,7 @@
 "Tamanho" = "크기";
 "Tema" = "테마";
 "Temas" = "테마";
+"Tentar com outro modelo" = "다른 모델로 시도";
 "Testar voz" = "음성 테스트";
 "Texto → Voz" = "텍스트 → 음성";
 "Todos" = "전체";

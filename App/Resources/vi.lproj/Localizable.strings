@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Mô tả hình ảnh…";
 "Descreva sua ideia em palavras simples…" = "Mô tả ý tưởng của bạn bằng những từ đơn giản…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "ĐỊA CHỈ MÁY CHỦ Open WebUI";
+"Editar" = "Sửa";
+"Editar mensagem" = "Sửa tin nhắn";
 "Em breve" = "Sắp ra mắt";
 "Email" = "Email";
 "Endereço" = "Địa chỉ";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Trong khi AI đang nói, việc bắt đầu nói sẽ cắt ngang câu trả lời và nó lắng nghe bạn. Độ nhạy cao ngắt lời chỉ với một chút giọng nói (nhưng có thể tự kích hoạt do tiếng vọng); thấp đòi hỏi bạn nói dứt khoát hơn.";
 "Entrar" = "Đăng nhập";
+"Enviar" = "Gửi";
 "Erro %@" = "Lỗi %@";
 "Erro no download" = "Lỗi tải xuống";
 "Escreva em markdown…" = "Viết bằng markdown…";
@@ -99,11 +102,14 @@
 "Passos" = "Bước";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Quyền micrô/giọng nói bị từ chối (Cài đặt iPhone).";
 "Português" = "Tiếng Bồ Đào Nha";
+"Próxima resposta" = "Câu trả lời sau";
 "Pétalas" = "Cánh hoa";
 "Reconhecimento (STT)" = "Nhận dạng (STT)";
 "Reconhecimento: %@" = "Nhận dạng: %@";
+"Regenerar" = "Tạo lại";
 "Renomear" = "Đổi tên";
 "Renomear conversa" = "Đổi tên cuộc trò chuyện";
+"Resposta anterior" = "Câu trả lời trước";
 "Resposta inesperada do servidor: %@" = "Phản hồi máy chủ không mong đợi: %@";
 "SERVIDOR" = "MÁY CHỦ";
 "Sair" = "Đăng xuất";
@@ -121,6 +127,7 @@
 "Tamanho" = "Kích thước";
 "Tema" = "Chủ đề";
 "Temas" = "Chủ đề";
+"Tentar com outro modelo" = "Thử mô hình khác";
 "Testar voz" = "Thử giọng nói";
 "Texto → Voz" = "Văn bản → Giọng nói";
 "Todos" = "Tất cả";

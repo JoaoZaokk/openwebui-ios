@@ -56,6 +56,14 @@ final class ChatViewModel: ObservableObject {
     /// True when the currently-shown history came from the offline cache.
     @Published private(set) var offline = false
 
+    // MARK: - Branching history
+    // The full node tree (id → node) is the source of truth for structure; the
+    // rendered `messages` array is only the active branch (currentLeafId → root).
+    // Edit / regenerate / retry add SIBLING nodes and move the leaf — nothing is
+    // ever deleted, so branches (including ones made in the web UI) survive.
+    private var tree: [String: OWMessage] = [:]
+    private var currentLeafId: String?
+
     init(client: OpenWebUIClient, completions: ChatCompletionsClient,
          chat: OWChatSummary?, models: [OWModel], defaultModel: String?,
          temporary: Bool = false, cache: ServerChatCache? = nil) {
@@ -109,9 +117,8 @@ final class ChatViewModel: ObservableObject {
             } catch {
                 // Offline / server error: fall back to the cached copy if we have one.
                 if let cached = self.cache?.cachedChat(id: id) {
-                    self.messages = cached.messages
+                    self.adopt(cached)
                     if let m = cached.models.first { self.selectedModel = m }
-                    if !cached.title.isEmpty { self.title = cached.title }
                     self.offline = true
                     self.historyLoaded = true
                 } else {
@@ -121,13 +128,32 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
-    /// Server wins for every message it knows; local-only (unsaved) messages are
-    /// kept at the end instead of being clobbered by a refresh.
+    /// Server wins for every node it knows; local-only (unsaved) nodes are kept
+    /// instead of being clobbered by a refresh.
+    ///
+    /// The leaf is only taken from the server when it points at a node we've never
+    /// seen — that means the web UI produced something new. Otherwise the branch
+    /// the user is currently looking at wins, so a background refresh can't yank
+    /// them off the branch they just switched to.
     private func adopt(_ chat: OWChat) {
-        let known = Set(chat.messages.map(\.id))
-        let localOnly = messages.filter { !known.contains($0.id) }
-        let merged = chat.messages + localOnly
-        if merged != messages { messages = merged }
+        let serverNodes = chat.allMessages.isEmpty ? chat.messages : chat.allMessages
+        let serverLeafIsNew = chat.currentId.map { tree[$0] == nil } ?? false
+        // A turn we haven't managed to save yet must not be scrolled off screen by
+        // a refresh, so it pins the leaf until the next successful write.
+        let known = Set(serverNodes.map(\.id))
+        let hasUnsaved = tree.keys.contains { !known.contains($0) }
+
+        for n in serverNodes { tree[n.id] = n }
+        if currentLeafId == nil || tree[currentLeafId!] == nil || (serverLeafIsNew && !hasUnsaved) {
+            currentLeafId = chat.currentId ?? serverNodes.last?.id ?? chat.messages.last?.id
+        }
+        rebuildActiveBranch()
+        // Broken/absent graph: fall back to whatever flat list the server gave us,
+        // still keeping anything local it doesn't know about.
+        if messages.isEmpty, !chat.messages.isEmpty {
+            let known = Set(chat.messages.map(\.id))
+            messages = chat.messages + tree.values.filter { !known.contains($0.id) }
+        }
         if !chat.title.isEmpty, chat.title != title { title = chat.title }
     }
 
@@ -230,16 +256,30 @@ final class ChatViewModel: ObservableObject {
               !isStreaming, !isPersisting, let model = selectedModel else { return }
         input = ""; pendingImageURLs = []; pendingDocuments = []; error = nil
 
-        messages.append(OWMessage(role: .user, content: text,
-                                  timestamp: Date().timeIntervalSince1970,
-                                  imageURLs: images, documents: docs))
-        let assistant = OWMessage(role: .assistant, content: "", model: model)
-        messages.append(assistant)
+        let now = Date().timeIntervalSince1970
+        var user = OWMessage(role: .user, content: text, timestamp: now,
+                             imageURLs: images, documents: docs)
+        user.parentId = currentLeafId
+        var assistant = OWMessage(role: .assistant, content: "", model: model, timestamp: now + 0.001)
+        assistant.parentId = user.id
+        tree[user.id] = user
+        tree[assistant.id] = assistant
+        currentLeafId = assistant.id
+        rebuildActiveBranch()
+
+        startAssistantTurn(model: model, assistantID: assistant.id, files: docs, query: text)
+    }
+
+    /// Streams into the (already-created, empty) assistant node at the leaf. Shared
+    /// by send / regenerate / retry / edit so all four get the same context rules,
+    /// web-search handling and background hold.
+    private func startAssistantTurn(model: String, assistantID: String,
+                                    files: [OWAttachment], query: String) {
         isStreaming = true
         awaitingWebSearch = webSearch
         beginBackgroundHold()   // let the reply finish if the user backgrounds the app
 
-        // Context = everything except the empty assistant placeholder we stream into.
+        // Context = the active branch except the empty assistant we stream into.
         var convo = messages.dropLast().map { OWChatMessageInput($0) }
         // Only the CURRENT (last) message keeps its images. Re-sending historical
         // images on every turn breaks non-vision models with "No endpoints found
@@ -247,8 +287,8 @@ final class ChatViewModel: ObservableObject {
         if convo.count > 1 {
             for i in convo.indices.dropLast() { convo[i].imageURLs = [] }
         }
-        streamTask = Task { await self.runStream(model: model, convo: convo, files: docs,
-                                                 assistantID: assistant.id, query: text) }
+        streamTask = Task { await self.runStream(model: model, convo: convo, files: files,
+                                                 assistantID: assistantID, query: query) }
     }
 
     private func runStream(model: String, convo: [OWChatMessageInput],
@@ -343,15 +383,19 @@ final class ChatViewModel: ObservableObject {
         guard !messages.isEmpty, let model = selectedModel else { return }
         isPersisting = true; defer { isPersisting = false }
         let title = chatTitle()
+        syncBranchIntoTree()
         do {
             if let id = chatID {
-                // Merge-safe append: the server's copy — including web-generated
-                // `output` content, sources and the branching graph — is kept
-                // verbatim; only messages the server has never seen are added.
-                // On failure NOTHING is written (no destructive fallback).
-                try await client.syncChat(id: id, localMessages: messages, model: model)
+                // Merge-safe tree write: the server's copy — including web-generated
+                // `output` content, sources and every sibling branch — is kept
+                // verbatim; only nodes the server has never seen are added, and the
+                // leaf moves to the branch on screen. On failure NOTHING is written
+                // (no destructive fallback).
+                try await client.syncChatTree(id: id, title: title, models: [model],
+                                              tree: Array(tree.values), currentId: currentLeafId)
             } else {
-                let id = try await client.createChat(title: title, model: model, messages: messages)
+                let id = try await client.createChatTree(title: title, models: [model],
+                                                         tree: Array(tree.values), currentId: currentLeafId)
                 chatID = id
                 self.title = title
                 onChanged?()
@@ -490,6 +534,118 @@ final class ChatViewModel: ObservableObject {
     private func endBackgroundHold() {}
     private func askForNotificationsOnce() {}
     #endif
+
+    // MARK: - Branching (edit / regenerate / retry / switch)
+
+    /// Regenerate an assistant reply, optionally with a different model. Adds a
+    /// fresh sibling under the same parent and moves the leaf — the old reply stays
+    /// reachable through the branch switcher.
+    func regenerate(messageID: String, model: String? = nil) {
+        guard !isStreaming, !isPersisting, let node = tree[messageID], node.role == .assistant else { return }
+        guard let mdl = model ?? node.model ?? selectedModel else { return }
+        error = nil
+        var reply = OWMessage(role: .assistant, content: "", model: mdl,
+                              timestamp: Date().timeIntervalSince1970)
+        reply.parentId = node.parentId
+        tree[reply.id] = reply
+        currentLeafId = reply.id
+        if model != nil { selectedModel = mdl }   // reflect the retry model in the picker
+        rebuildActiveBranch()
+        startAssistantTurn(model: mdl, assistantID: reply.id,
+                           files: [], query: question(above: reply.id))
+    }
+
+    /// Edit a user message: forks a new user node with the new text plus a fresh
+    /// reply, as a sibling branch — the original question and its answer are kept.
+    func editUser(messageID: String, newText: String) {
+        let text = newText.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !isStreaming, !isPersisting, !text.isEmpty,
+              let node = tree[messageID], node.role == .user,
+              let model = selectedModel else { return }
+        error = nil
+        let now = Date().timeIntervalSince1970
+        var user = OWMessage(role: .user, content: text, timestamp: now,
+                             imageURLs: node.imageURLs, documents: node.documents)
+        user.parentId = node.parentId
+        var reply = OWMessage(role: .assistant, content: "", model: model, timestamp: now + 0.001)
+        reply.parentId = user.id
+        tree[user.id] = user
+        tree[reply.id] = reply
+        currentLeafId = reply.id
+        rebuildActiveBranch()
+        startAssistantTurn(model: model, assistantID: reply.id,
+                           files: node.documents, query: text)
+    }
+
+    /// Switch the visible branch at a forked message (the `‹ n/m ›` control).
+    func switchBranch(messageID: String, delta: Int) {
+        guard !isStreaming, !isPersisting, tree[messageID] != nil else { return }
+        let sibs = siblings(of: messageID)
+        guard sibs.count > 1, let idx = sibs.firstIndex(where: { $0.id == messageID }) else { return }
+        let target = idx + delta
+        guard sibs.indices.contains(target) else { return }
+        currentLeafId = leaf(from: sibs[target].id)
+        rebuildActiveBranch()
+        Task { await self.persist() }   // remember the active branch server-side
+    }
+
+    /// For the UI: this message's position among its siblings (1-based) and the
+    /// sibling count, or nil when it isn't a fork point.
+    func branchInfo(for messageID: String) -> (index: Int, total: Int)? {
+        let sibs = siblings(of: messageID)
+        guard sibs.count > 1, let idx = sibs.firstIndex(where: { $0.id == messageID }) else { return nil }
+        return (idx + 1, sibs.count)
+    }
+
+    // MARK: - Tree internals
+
+    /// Rebuild the rendered active branch by walking currentLeafId → root.
+    private func rebuildActiveBranch() {
+        guard let leaf = currentLeafId, tree[leaf] != nil else { return }
+        var chain: [OWMessage] = []
+        var id: String? = leaf
+        var guardCount = 0
+        while let i = id, let m = tree[i], guardCount < 10_000 {
+            chain.append(m); id = m.parentId; guardCount += 1
+        }
+        let branch = Array(chain.reversed())
+        if branch != messages { messages = branch }
+    }
+
+    /// Fold the streamed active branch back into the tree before a write — the
+    /// rendered array is what the stream mutates, the tree is what gets saved.
+    private func syncBranchIntoTree() {
+        for m in messages { tree[m.id] = m }
+    }
+
+    private func children(of id: String?) -> [OWMessage] {
+        tree.values
+            .filter { $0.parentId == id }
+            .sorted { ($0.timestamp ?? 0, $0.id) < ($1.timestamp ?? 0, $1.id) }
+    }
+
+    private func siblings(of id: String) -> [OWMessage] {
+        guard let node = tree[id] else { return [] }
+        return children(of: node.parentId)
+    }
+
+    /// Walk down from a node to a leaf, always taking the newest child.
+    private func leaf(from id: String) -> String {
+        var cur = id, guardCount = 0
+        while guardCount < 10_000, let next = children(of: cur).last { cur = next.id; guardCount += 1 }
+        return cur
+    }
+
+    /// The user question this reply answers — the query web search should run.
+    private func question(above replyID: String) -> String {
+        var id = tree[replyID]?.parentId
+        var guardCount = 0
+        while let i = id, let m = tree[i], guardCount < 10_000 {
+            if m.role == .user { return m.content }
+            id = m.parentId; guardCount += 1
+        }
+        return ""
+    }
 }
 
 /// Local (on-device) notifications — pings when a chat reply finishes while the

@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "تصویر کی وضاحت کریں…";
 "Descreva sua ideia em palavras simples…" = "اپنے خیال کو سادہ الفاظ میں بیان کریں…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "Open WebUI سرور کا پتہ";
+"Editar" = "ترمیم";
+"Editar mensagem" = "پیغام میں ترمیم";
 "Em breve" = "جلد آ رہا ہے";
 "Email" = "ای میل";
 "Endereço" = "پتہ";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "جب مصنوعی ذہانت بول رہی ہو، بولنا شروع کرنے سے جواب کٹ جاتا ہے اور وہ آپ کی بات سننے لگتی ہے۔ زیادہ حساسیت تھوڑی سی آواز پر مداخلت کرتی ہے (لیکن گونج سے خود بخود چل سکتی ہے)؛ کم حساسیت زیادہ مضبوطی سے بولنے کا تقاضا کرتی ہے۔";
 "Entrar" = "لاگ ان کریں";
+"Enviar" = "بھیجیں";
 "Erro %@" = "خرابی %@";
 "Erro no download" = "ڈاؤن لوڈ میں خرابی";
 "Escreva em markdown…" = "markdown میں لکھیں…";
@@ -99,11 +102,14 @@
 "Passos" = "مراحل";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "مائیکروفون/آواز کی اجازت مسترد (iPhone ترتیبات)۔";
 "Português" = "پرتگالی";
+"Próxima resposta" = "اگلا جواب";
 "Pétalas" = "پنکھڑیاں";
 "Reconhecimento (STT)" = "شناخت (STT)";
 "Reconhecimento: %@" = "شناخت: %@";
+"Regenerar" = "دوبارہ بنائیں";
 "Renomear" = "نام بدلیں";
 "Renomear conversa" = "گفتگو کا نام بدلیں";
+"Resposta anterior" = "پچھلا جواب";
 "Resposta inesperada do servidor: %@" = "سرور کا غیر متوقع جواب: %@";
 "SERVIDOR" = "سرور";
 "Sair" = "سائن آؤٹ";
@@ -121,6 +127,7 @@
 "Tamanho" = "سائز";
 "Tema" = "تھیم";
 "Temas" = "تھیمز";
+"Tentar com outro modelo" = "دوسرا ماڈل آزمائیں";
 "Testar voz" = "آواز آزمائیں";
 "Texto → Voz" = "متن → آواز";
 "Todos" = "سب";

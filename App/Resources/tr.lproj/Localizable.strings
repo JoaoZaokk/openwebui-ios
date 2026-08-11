@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Görseli tanımlayın…";
 "Descreva sua ideia em palavras simples…" = "Fikrinizi basit kelimelerle anlatın…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "Open WebUI SUNUCU ADRESİ";
+"Editar" = "Düzenle";
+"Editar mensagem" = "Mesajı düzenle";
 "Em breve" = "Yakında";
 "Email" = "E-posta";
 "Endereço" = "Adres";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI konuşurken konuşmaya başlamak yanıtı keser ve sizi dinler. Yüksek hassasiyet az bir sesle araya girer (ancak yankıyla kendiliğinden tetiklenebilir); düşük ise daha net konuşmanızı gerektirir.";
 "Entrar" = "Giriş yap";
+"Enviar" = "Gönder";
 "Erro %@" = "Hata %@";
 "Erro no download" = "İndirme hatası";
 "Escreva em markdown…" = "markdown ile yazın…";
@@ -99,11 +102,14 @@
 "Passos" = "Adımlar";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Mikrofon/ses izni reddedildi (iPhone Ayarları).";
 "Português" = "Portekizce";
+"Próxima resposta" = "Sonraki yanıt";
 "Pétalas" = "Taç yaprakları";
 "Reconhecimento (STT)" = "Tanıma (STT)";
 "Reconhecimento: %@" = "Tanıma: %@";
+"Regenerar" = "Yeniden oluştur";
 "Renomear" = "Yeniden adlandır";
 "Renomear conversa" = "Konuşmayı yeniden adlandır";
+"Resposta anterior" = "Önceki yanıt";
 "Resposta inesperada do servidor: %@" = "Beklenmeyen sunucu yanıtı: %@";
 "SERVIDOR" = "SUNUCU";
 "Sair" = "Çıkış yap";
@@ -121,6 +127,7 @@
 "Tamanho" = "Boyut";
 "Tema" = "Tema";
 "Temas" = "Temalar";
+"Tentar com outro modelo" = "Başka bir model dene";
 "Testar voz" = "Sesi test et";
 "Texto → Voz" = "Metin → Konuşma";
 "Todos" = "Tümü";

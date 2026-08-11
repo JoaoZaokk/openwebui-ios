@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "Опишіть зображення…";
 "Descreva sua ideia em palavras simples…" = "Опишіть свою ідею простими словами…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "АДРЕСА СЕРВЕРА OPEN WEBUI";
+"Editar" = "Змінити";
+"Editar mensagem" = "Змінити повідомлення";
 "Em breve" = "Незабаром";
 "Email" = "Email";
 "Endereço" = "Адреса";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Поки ШІ говорить, почавши говорити, ви перериваєте відповідь, і він вас слухає. Висока чутливість перериває навіть за тихого голосу (але може спрацьовувати сама від відлуння); низька вимагає говорити твердіше.";
 "Entrar" = "Увійти";
+"Enviar" = "Надіслати";
 "Erro %@" = "Помилка %@";
 "Erro no download" = "Помилка завантаження";
 "Escreva em markdown…" = "Пишіть у markdown…";
@@ -99,11 +102,14 @@
 "Passos" = "Кроки";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "Доступ до мікрофона або голосу заборонено (Налаштування iPhone).";
 "Português" = "Португальська";
+"Próxima resposta" = "Наступна відповідь";
 "Pétalas" = "Пелюстки";
 "Reconhecimento (STT)" = "Розпізнавання (STT)";
 "Reconhecimento: %@" = "Розпізнавання: %@";
+"Regenerar" = "Згенерувати ще раз";
 "Renomear" = "Перейменувати";
 "Renomear conversa" = "Перейменувати розмову";
+"Resposta anterior" = "Попередня відповідь";
 "Resposta inesperada do servidor: %@" = "Неочікувана відповідь сервера: %@";
 "SERVIDOR" = "СЕРВЕР";
 "Sair" = "Вийти";
@@ -121,6 +127,7 @@
 "Tamanho" = "Розмір";
 "Tema" = "Тема";
 "Temas" = "Теми";
+"Tentar com outro modelo" = "Спробувати іншу модель";
 "Testar voz" = "Перевірити голос";
 "Texto → Voz" = "Текст → Мовлення";
 "Todos" = "Всі";

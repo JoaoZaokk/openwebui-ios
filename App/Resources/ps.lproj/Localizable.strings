@@ -39,11 +39,14 @@
 "Descreva a imagem…" = "انځور تشریح کړئ…";
 "Descreva sua ideia em palavras simples…" = "خپل نظر په ساده کلمو تشریح کړئ…";
 "ENDEREÇO DO SERVIDOR OPEN WEBUI" = "د Open WebUI د سرور پته";
+"Editar" = "سمون";
+"Editar mensagem" = "پیغام سمول";
 "Em breve" = "ډېر ژر";
 "Email" = "بریښنالیک";
 "Endereço" = "پته";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "کله چې مصنوعي ذهانت خبرې کوي، د خبرو پیل ځواب پرېکوي او هغه ستاسو خبرو ته غوږ نیسي. لوړ حساسیت په لږ غږ مداخله کوي (خو ممکن د انعکاس له امله پخپله فعال شي)؛ ټیټ حساسیت نور کلک خبرې کول غواړي.";
 "Entrar" = "ننوتل";
+"Enviar" = "لیږل";
 "Erro %@" = "تېروتنه %@";
 "Erro no download" = "د ډاونلوډ کې تیروتنه";
 "Escreva em markdown…" = "په markdown ولیکئ…";
@@ -99,11 +102,14 @@
 "Passos" = "ګامونه";
 "Permissão de microfone/voz negada (Ajustes do iPhone)." = "د مایکروفون/غږ اجازه رد شوه (د iPhone تنظیمات).";
 "Português" = "پرتګالي";
+"Próxima resposta" = "راتلونکی ځواب";
 "Pétalas" = "ګلبرګونه";
 "Reconhecimento (STT)" = "پېژندنه (STT)";
 "Reconhecimento: %@" = "پېژندنه: %@";
+"Regenerar" = "بیا جوړول";
 "Renomear" = "نوم بدلول";
 "Renomear conversa" = "د خبرو اترو نوم بدلول";
+"Resposta anterior" = "پخوانی ځواب";
 "Resposta inesperada do servidor: %@" = "د سرور ناڅاپه ځواب: %@";
 "SERVIDOR" = "سرور";
 "Sair" = "وتل";
@@ -121,6 +127,7 @@
 "Tamanho" = "اندازه";
 "Tema" = "تیم";
 "Temas" = "تیمونه";
+"Tentar com outro modelo" = "بل ماډل آزمویل";
 "Testar voz" = "غږ وازموئ";
 "Texto → Voz" = "متن → غږ";
 "Todos" = "ټول";

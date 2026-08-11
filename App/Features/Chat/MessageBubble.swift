@@ -13,9 +13,20 @@ struct MessageBubble: View {
     /// over plain SSE).
     var statusText: String? = nil
     var client: OpenWebUIClient? = nil
+    /// Position among sibling branches (1-based index, total) — nil when this
+    /// message isn't a fork point.
+    var branch: (index: Int, total: Int)? = nil
+    /// Models offered in the "retry with a different model" menu.
+    var models: [OWModel] = []
+    var onEdit: ((String) -> Void)? = nil          // edited user text
+    var onRegenerate: (() -> Void)? = nil
+    var onRetryModel: ((String) -> Void)? = nil    // model id
+    var onBranch: ((Int) -> Void)? = nil           // ±1 to switch branch
     @Environment(\.theme) private var theme
     @ObservedObject private var speech = SpeechManager.shared
     @State private var viewer: ViewerImage?
+    @State private var editing = false
+    @State private var draft = ""
 
     struct ViewerImage: Identifiable { let id = UUID(); let url: String }
 
@@ -38,7 +49,12 @@ struct MessageBubble: View {
                     ReasoningDisclosure(text: message.reasoning,
                                         streaming: isStreaming && message.content.isEmpty)
                 }
-                if !message.content.isEmpty || (message.imageURLs.isEmpty && message.documents.isEmpty) { bubble }
+                if editing {
+                    editor
+                } else if !message.content.isEmpty || (message.imageURLs.isEmpty && message.documents.isEmpty) {
+                    bubble.contextMenu { messageMenu }
+                }
+                if !editing, !isStreaming { actionBar }
                 if !isStreaming { timeLabel }
             }
             if !isUser { Spacer(minLength: 36) }
@@ -49,6 +65,95 @@ struct MessageBubble: View {
         // flattens interactive children out of existence.
         .accessibilityElement(children: .contain)
         .fullScreenCover(item: $viewer) { v in ImageViewerView(url: v.url, client: client) }
+    }
+
+    /// Inline actions under a settled message: branch switcher plus, on a reply,
+    /// regenerate and retry-with-another-model. Deliberately subtle — it sits under
+    /// every message, so it has to disappear until you look for it.
+    @ViewBuilder
+    private var actionBar: some View {
+        let hasActions = branch != nil || (!isUser && (onRegenerate != nil || onRetryModel != nil))
+        if hasActions {
+            HStack(spacing: 16) {
+                if let b = branch { branchNav(b) }
+                if !isUser, let onRegenerate {
+                    Button { onRegenerate() } label: { Image(systemName: "arrow.clockwise") }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(L("Regenerar"))
+                }
+                if !isUser, !models.isEmpty, let onRetryModel {
+                    Menu {
+                        ForEach(models) { m in
+                            Button(ModelAliases.shared.display(m)) { onRetryModel(m.id) }
+                        }
+                    } label: {
+                        Image(systemName: "arrow.triangle.2.circlepath")
+                    }
+                    .accessibilityLabel(L("Tentar com outro modelo"))
+                }
+            }
+            .font(.ody(size: 12))
+            .foregroundStyle(theme.secondaryText)
+            .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
+            .padding(.horizontal, 2)
+        }
+    }
+
+    private func branchNav(_ b: (index: Int, total: Int)) -> some View {
+        HStack(spacing: 9) {
+            Button { onBranch?(-1) } label: { Image(systemName: "chevron.left") }
+                .buttonStyle(.plain).disabled(b.index <= 1)
+                .accessibilityLabel(L("Resposta anterior"))
+            Text(verbatim: "\(b.index)/\(b.total)")
+                .font(.ody(size: 11, design: .monospaced))
+            Button { onBranch?(1) } label: { Image(systemName: "chevron.right") }
+                .buttonStyle(.plain).disabled(b.index >= b.total)
+                .accessibilityLabel(L("Próxima resposta"))
+        }
+    }
+
+    @ViewBuilder
+    private var messageMenu: some View {
+        if !message.content.isEmpty {
+            Button {
+                #if os(iOS)
+                UIPasteboard.general.string = message.content
+                #endif
+            } label: { Label(L("Copiar"), systemImage: "doc.on.doc") }
+        }
+        if isUser, onEdit != nil {
+            Button { draft = message.content; editing = true } label: {
+                Label(L("Editar"), systemImage: "pencil")
+            }
+        }
+        if !isUser, let onRegenerate {
+            Button { onRegenerate() } label: { Label(L("Regenerar"), systemImage: "arrow.clockwise") }
+        }
+    }
+
+    /// Editable field shown in place of the user bubble while editing. Sending
+    /// forks a new branch instead of overwriting — the original stays reachable.
+    private var editor: some View {
+        VStack(alignment: .trailing, spacing: 6) {
+            TextField(L("Editar mensagem"), text: $draft, axis: .vertical)
+                .textFieldStyle(.plain)
+                .font(.ody(.body, design: .monospaced))
+                .foregroundStyle(theme.fg)
+                .padding(.horizontal, 14).padding(.vertical, 10)
+                .background(theme.userBubble, in: RoundedRectangle(cornerRadius: 14))
+            HStack(spacing: 12) {
+                Button(L("Cancelar")) { editing = false }
+                    .buttonStyle(.plain).foregroundStyle(theme.secondaryText)
+                Button(L("Enviar")) {
+                    editing = false
+                    onEdit?(draft)
+                }
+                .buttonStyle(.plain).foregroundStyle(theme.accent)
+                .disabled(draft.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+            .font(.ody(size: 13))
+        }
+        .frame(maxWidth: .infinity, alignment: .trailing)
     }
 
     private static let timeFmt: DateFormatter = {
