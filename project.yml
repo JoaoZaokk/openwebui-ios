@@ -59,8 +59,10 @@ targets:
         # 1.5 (11) was likewise staged and never submitted; superseded by 1.6,
         # which carries issue #12's fixes (voice language, server tools,
         # model nicknames) plus user-supplied Whisper models.
-        MARKETING_VERSION: "1.6"
-        CURRENT_PROJECT_VERSION: "13"
+        # 1.6 (13) is staged on ASC awaiting the owner's Submit. 1.8 is the next
+        # train — 1.7 skipped, the owner's call.
+        MARKETING_VERSION: "1.8"
+        CURRENT_PROJECT_VERSION: "14"
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
