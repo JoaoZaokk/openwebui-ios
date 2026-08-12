@@ -21,6 +21,9 @@ Models/
 # Scratch
 .shots/
 .tmp_shots/
+# Release screenshot captures (per version) — the App Store copies live in the
+# deliver pack, not here.
+prints*/
 
 # macOS
 .DS_Store
