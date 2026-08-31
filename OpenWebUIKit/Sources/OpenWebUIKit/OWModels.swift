@@ -234,9 +234,13 @@ public struct OWToolUse: Identifiable, Hashable, Sendable {
     public var sources: [OWSource]
     public var id: String { "\(action)|\(query)|\(sources.count)|\(results.count)" }
     public var title: String {
+        if !query.isEmpty { return query }
         switch action {
-        case "web_search": return query.isEmpty ? L("Busca na web") : query
-        case "weather":    return query.isEmpty ? L("Clima") : query
+        case "web_search": return L("Busca na web")
+        case "weather":    return L("Clima")
+        // Named after the files themselves whenever the server said which; the
+        // generic fallback is the same word the attachment list already uses.
+        case "files":      return L("arquivo")
         default:           return action
         }
     }
@@ -244,6 +248,7 @@ public struct OWToolUse: Identifiable, Hashable, Sendable {
         switch action {
         case "web_search": return "magnifyingglass"
         case "weather":    return "cloud.sun"
+        case "files":      return "doc.text.magnifyingglass"
         default:           return "wrench.and.screwdriver"
         }
     }
@@ -341,14 +346,20 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         } else {
             body = ""
         }
-        // Open WebUI >= 0.10 saves assistant replies ONLY as structured `output`
-        // items (flat content stays "") — rebuild the text from there, and take
-        // the reasoning items it keeps alongside the answer.
+        // Open WebUI >= 0.10 keeps the reply as structured `output` items, and a
+        // web-generated one can leave the flat `content` empty — so the text is
+        // rebuilt from there when there is nothing else.
+        //
+        // The reasoning is read unconditionally, which the text is not. It lives
+        // in its own `output` item (`type: "reasoning"`,
+        // backend utils/middleware.py:3534) while `content` carries only the
+        // answer, so gating the whole decode on an empty `content` threw the
+        // chain-of-thought away for every reply that had any text at all: the web
+        // UI showed "Pensado por 9 segundos" and the app showed no disclosure.
         var outputReasoning = ""
-        if body.isEmpty,
-           let items = try? c.decode([OWLossy<OWOutputItem>].self, forKey: .output) {
+        if let items = try? c.decode([OWLossy<OWOutputItem>].self, forKey: .output) {
             let list = items.compactMap(\.value)
-            body = OWOutputItem.flatten(list)
+            if body.isEmpty { body = OWOutputItem.flatten(list) }
             outputReasoning = OWOutputItem.reasoningText(list)
         }
         // Thinking models (and Open WebUI itself) persist chain-of-thought inline
@@ -393,18 +404,30 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
     /// Fold Open WebUI's native `sources` (built-in web search / RAG) into a single
     /// auditable card: the source URLs become tappable links, the `document` texts
     /// become the retrieved context.
+    ///
+    /// The kind is read off the sources rather than assumed. This used to hardcode
+    /// `web_search`, so context retrieved from an attached file, a knowledge base
+    /// or a skill was announced as "Busca na web" over a magnifying glass, with
+    /// the file's raw markdown as its "results" — a search that never happened,
+    /// naming a web page that does not exist.
     static func toolUse(fromNative sources: [OWNativeSource]) -> OWToolUse {
         var docs: [String] = []
         var srcs: [OWSource] = []
+        var names: [String] = []
         for n in sources {
             docs += (n.document ?? []).map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
             let name = n.source?.name ?? "", id = n.source?.id ?? ""
             let url = id.hasPrefix("http") ? id : (name.hasPrefix("http") ? name : "")
             if !url.isEmpty, !srcs.contains(where: { $0.url == url }) {
                 srcs.append(OWSource(title: (name.hasPrefix("http") || name.isEmpty) ? url : name, url: url))
+            } else if url.isEmpty, !name.isEmpty, !names.contains(name) {
+                names.append(name)
             }
         }
-        return OWToolUse(action: "web_search", query: "",
+        // A web result always carries an http URL; retrieved files never do.
+        let fromWeb = !srcs.isEmpty
+        return OWToolUse(action: fromWeb ? "web_search" : "files",
+                         query: fromWeb ? "" : names.joined(separator: ", "),
                          results: String(docs.joined(separator: "\n\n---\n\n").prefix(4000)), sources: srcs)
     }
 
