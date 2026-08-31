@@ -61,11 +61,14 @@ final class VoiceConversation: ObservableObject {
 
     private var seeded = false
 
-    init(client: OpenWebUIClient, completions: ChatCompletionsClient, models: [OWModel]) {
+    init(client: OpenWebUIClient, completions: ChatCompletionsClient,
+         models: [OWModel], defaultModel: String? = nil) {
         self.client = client
         self.completions = completions
         self.models = models
-        self.model = models.first?.id
+        // Same remembered pick the chat screen opens with — voice was its own
+        // `models.first`, so it reset on every session too.
+        self.model = OWModelChoice.resolve(remembered: defaultModel, available: models.map(\.id))
         voice.client = client   // enables the "server" STT engine
         voice.$partialText
             .receive(on: RunLoop.main)

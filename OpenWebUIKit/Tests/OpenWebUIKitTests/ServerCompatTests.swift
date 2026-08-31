@@ -229,3 +229,29 @@ final class AttachmentImageTests: XCTestCase {
         XCTAssertTrue(m.otherDocuments.contains { $0.name == "sem-id.png" })
     }
 }
+
+/// "Bei jedem neuen Chat neu auswählen nervt" — a new chat must not throw away
+/// the model the user picked.
+final class OWModelChoiceTests: XCTestCase {
+
+    func testARememberedPickWinsOverServerOrder() {
+        XCTAssertEqual(OWModelChoice.resolve(remembered: "llama3", available: ["gemma", "llama3", "qwen"]),
+                       "llama3")
+    }
+
+    func testFirstModelWhenNothingWasEverPicked() {
+        XCTAssertEqual(OWModelChoice.resolve(remembered: nil, available: ["gemma", "llama3"]), "gemma")
+    }
+
+    /// A model can be removed, lose its access control, or belong to a server the
+    /// user has since left. Resolving to nothing would disable the composer with
+    /// no explanation, so it falls back instead.
+    func testAModelThisServerNoLongerOffersFallsBack() {
+        XCTAssertEqual(OWModelChoice.resolve(remembered: "gone", available: ["gemma", "llama3"]), "gemma")
+    }
+
+    func testNoModelsAtAllResolvesToNothing() {
+        XCTAssertNil(OWModelChoice.resolve(remembered: "llama3", available: []))
+        XCTAssertNil(OWModelChoice.resolve(remembered: nil, available: []))
+    }
+}

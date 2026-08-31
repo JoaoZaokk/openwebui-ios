@@ -112,8 +112,31 @@ final class AppState: ObservableObject {
         }
     }
 
-    /// First available model id, used as the default for new chats.
-    var defaultModel: String? { models.first?.id }
+    private static func lastModelKey(_ host: String) -> String { "openwebui.lastModel.\(host)" }
+    private var lastModelKey: String {
+        Self.lastModelKey(serverConfig.baseURL.host?.lowercased() ?? "")
+    }
+
+    /// The model a new chat opens with.
+    ///
+    /// This was `models.first` — whatever order the server happened to return —
+    /// so every new chat dropped the model the user actually wanted and made them
+    /// pick it again. ("Bei jedem neuen Chat neu auswählen nervt", App Store
+    /// review, 1.7.) It now remembers the last model picked, keyed by host so
+    /// pointing at another server doesn't ask for a model that one has never
+    /// heard of, and only if this server still offers it — a model that was
+    /// removed or lost its access control falls back to the first available.
+    var defaultModel: String? {
+        OWModelChoice.resolve(remembered: UserDefaults.standard.string(forKey: lastModelKey),
+                              available: models.map(\.id))
+    }
+
+    /// Records an explicit pick from the model menu. Adopting an existing chat's
+    /// model is not a pick — opening one old conversation must not redefine what
+    /// every future chat starts with.
+    func rememberModel(_ id: String) {
+        UserDefaults.standard.set(id, forKey: lastModelKey)
+    }
 
     func updateServer(_ url: URL) {
         var cfg = serverConfig

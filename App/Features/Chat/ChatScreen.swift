@@ -102,7 +102,7 @@ struct ChatScreen: View {
     private var modelMenu: some View {
         Menu {
             ForEach(app.models) { m in
-                Button { vm.selectModel(m.id) } label: {
+                Button { vm.selectModel(m.id); app.rememberModel(m.id) } label: {
                     if vm.selectedModel == m.id {
                         Label(aliases.display(m), systemImage: "checkmark")
                     } else {
