@@ -9,6 +9,7 @@ final class WorkspaceStore: ObservableObject {
     @Published var tools: [OWNamedItem] = []
     @Published var functions: [OWNamedItem] = []
     @Published var loading = false
+    @Published var error: String?
 
     private let client: OpenWebUIClient
     init(client: OpenWebUIClient) { self.client = client }
@@ -16,11 +17,27 @@ final class WorkspaceStore: ObservableObject {
     func load() async {
         loading = true
         defer { loading = false }
-        models = (try? await client.models()) ?? models
-        knowledge = (try? await client.knowledgeBases()) ?? knowledge
-        prompts = (try? await client.prompts()) ?? prompts
-        tools = (try? await client.tools()) ?? tools
-        functions = (try? await client.functions()) ?? functions
+        error = nil
+        models = await keep(models) { try await self.client.models() }
+        knowledge = await keep(knowledge) { try await self.client.knowledgeBases() }
+        prompts = await keep(prompts) { try await self.client.prompts() }
+        tools = await keep(tools) { try await self.client.tools() }
+        functions = await keep(functions) { try await self.client.functions() }
+    }
+
+    /// Runs one section's fetch, keeping what is already on screen if it fails and
+    /// recording the first reason. Five bare `try?`s used to turn a dropped
+    /// connection into five sections all reading "Vazio (0)" — the screen claimed
+    /// the server had nothing rather than admitting it never asked successfully.
+    private func keep<T>(_ current: [T], _ fetch: () async throws -> [T]) async -> [T] {
+        do { return try await fetch() }
+        catch is CancellationError { return current }
+        catch {
+            if self.error == nil {
+                self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            }
+            return current
+        }
     }
 }
 
@@ -57,6 +74,7 @@ struct WorkspaceView: View {
                 .scrollContentBackground(.hidden)
                 if store.loading && store.models.isEmpty { ProgressView().tint(theme.accent) }
             }
+            .errorBanner(store.error) { store.error = nil }
             .navigationTitle("Workspace")
             .navigationBarTitleDisplayMode(.inline)
             .task { await store.load() }

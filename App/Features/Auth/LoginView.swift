@@ -76,6 +76,7 @@ struct LoginView: View {
             if email.isEmpty { email = app.savedEmail ?? "" }
             // First run (no server saved yet) → prompt for it right away.
             if !ServerConfig.isConfigured { showServerSheet = true }
+            else if app.serverFeatures == nil { Task { await app.loadServerFeatures() } }
         }
     }
 

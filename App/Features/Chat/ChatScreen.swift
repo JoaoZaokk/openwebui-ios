@@ -234,8 +234,7 @@ struct ChatScreen: View {
         let d = Date(timeIntervalSince1970: t), cal = Calendar.current
         if cal.isDateInToday(d) { return L("Hoje") }
         if cal.isDateInYesterday(d) { return L("Ontem") }
-        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .none
-        return f.string(from: d)
+        return OWDates.day(d)
     }
 
     private var welcome: some View {
@@ -258,7 +257,11 @@ struct ChatScreen: View {
             if vm.isStreaming { Divider().overlay(theme.border) }
             HStack(spacing: 8) {
                 toggleChip(system: "globe", label: "Buscar na web", on: $vm.webSearch)
-                toolsChip
+                // 0.11 only registers workspace tools when the server has plugins
+                // enabled — with them off the list is always empty and any tool id
+                // sent is dropped without a word. Don't offer a picker that cannot
+                // ever have contents. Unknown (config not read yet) means show it.
+                if app.serverFeatures?.pluginsAvailable ?? true { toolsChip }
                 Spacer()
             }
             .padding(.horizontal, 12)
@@ -319,26 +322,8 @@ struct ChatScreen: View {
         } message: { Text(comingSoon ?? "") }
     }
 
-    /// Dismissible error banner: icon + message + ✕, in the semantic error red
-    /// (not the brand accent, which doesn't read as "something went wrong").
     private func errorBanner(_ err: String) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
-            Image(systemName: "exclamationmark.triangle.fill").font(.ody(size: 12))
-            Text(err)
-                .font(.ody(size: 11, design: .monospaced))
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Button { vm.error = nil; voice.error = nil } label: {
-                Image(systemName: "xmark").font(.ody(size: 11, weight: .semibold))
-                    .frame(minWidth: 24, minHeight: 24).contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(Text("Dispensar erro"))
-        }
-        .foregroundStyle(theme.danger)
-        .padding(.horizontal, 12).padding(.vertical, 8)
-        .background(theme.danger.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.danger.opacity(0.35), lineWidth: 1))
-        .padding(.horizontal, 12)
+        ErrorBanner(message: err) { vm.error = nil; voice.error = nil }
     }
 
     private var inputPrompt: LocalizedStringKey { voice.isRecording ? "Ouvindo…" : "Mensagem…" }
@@ -372,7 +357,10 @@ struct ChatScreen: View {
     private var pendingStrip: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                ForEach(vm.pendingImageURLs, id: \.self) { url in
+                // By offset, not by value: two attachments of the same photo are
+                // byte-identical data: URLs, and identical ids made ForEach drop one
+                // of the two thumbnails while both stayed queued for sending.
+                ForEach(Array(vm.pendingImageURLs.enumerated()), id: \.offset) { _, url in
                     ZStack(alignment: .topTrailing) {
                         AttachmentThumb(url: url, size: 56)
                         Button { vm.removePendingImage(url) } label: {

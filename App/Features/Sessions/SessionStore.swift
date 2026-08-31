@@ -10,6 +10,8 @@ final class ChatStore: ObservableObject {
     @Published var error: String?
     /// Full-text search results (title + cached message bodies). Populated by `search`.
     @Published var searchResults: [OWChatSummary] = []
+    /// The query behind `searchResults`, so a mutation can refresh them.
+    private var query = ""
     /// True when the current list is being served from the offline cache.
     @Published private(set) var offline = false
 
@@ -43,6 +45,7 @@ final class ChatStore: ObservableObject {
             chats = sorted(merged)
             offline = false
             error = nil
+            await refreshSearch()
         } catch is CancellationError {
         } catch {
             // Server unreachable: fall back to the chats we've cached so past
@@ -57,6 +60,7 @@ final class ChatStore: ObservableObject {
     /// cached (previously-opened) conversations. Entirely on-device.
     func search(_ text: String) async {
         let q = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        query = q
         guard !q.isEmpty else { searchResults = []; return }
         var results = cache.search(q)
         // Include list chats whose TITLE matches but that we haven't opened/cached.
@@ -70,8 +74,25 @@ final class ChatStore: ObservableObject {
         do {
             try await client.deleteChat(chat.id)
             cache.deleteCached(id: chat.id)
-            chats.removeAll { $0.id == chat.id }
+            forget(chat.id)
         } catch { report(error) }
+    }
+
+    /// Drops a chat from every list the screen can be showing.
+    ///
+    /// `chats` and `searchResults` are separate arrays and the list renders
+    /// whichever is active, so removing from `chats` alone left the row on screen:
+    /// deleting or archiving a chat *while a search was open* looked like it did
+    /// nothing until the search was cleared.
+    private func forget(_ id: String) {
+        chats.removeAll { $0.id == id }
+        searchResults.removeAll { $0.id == id }
+    }
+
+    /// Re-runs the active search after the underlying list changed.
+    private func refreshSearch() async {
+        guard !query.isEmpty else { return }
+        await search(query)
     }
 
     func pin(_ chat: OWChatSummary) async {
@@ -79,7 +100,7 @@ final class ChatStore: ObservableObject {
     }
 
     func archive(_ chat: OWChatSummary) async {
-        do { try await client.archiveChat(chat.id); chats.removeAll { $0.id == chat.id } }
+        do { try await client.archiveChat(chat.id); forget(chat.id) }
         catch { report(error) }
     }
 

@@ -49,6 +49,7 @@ final class ChatViewModel: ObservableObject {
     private let completions: ChatCompletionsClient
     private let cache: ServerChatCache?
     private var streamTask: Task<Void, Never>?
+    private var persistTask: Task<Void, Never>?
     private var historyTask: Task<Void, Never>?
     private var historyLoaded = false
     /// Guards send() while a save is in flight (prevents duplicate createChat).
@@ -336,7 +337,7 @@ final class ChatViewModel: ObservableObject {
                 case .sources(let list):
                     if let i = index(of: assistantID) { messages[i].sources = list }
                 case .error(let msg):
-                    setContent(assistantID, friendlyError(msg))
+                    failTurn(assistantID, msg)
                 case .done:
                     break
                 }
@@ -346,17 +347,21 @@ final class ChatViewModel: ObservableObject {
             // would then be persisted over a real turn).
             if !sawText, let i = index(of: assistantID),
                messages[i].content.isEmpty, messages[i].reasoning.isEmpty {
-                messages[i].content = L("_(sem resposta)_")
+                if Task.isCancelled {
+                    // Stopped before the first token. A cancelled SSE stream ends
+                    // cleanly rather than throwing, so this landed here and stamped
+                    // the placeholder — which `schedulePersist()` then wrote to the
+                    // server as the assistant's answer, and every later load showed
+                    // "_(sem resposta)_" as a real turn. There is no reply to keep.
+                    discardEmptyTurn(assistantID)
+                } else {
+                    messages[i].content = L("_(sem resposta)_")
+                }
             }
         } catch is CancellationError {
             // user stopped — keep whatever streamed so far
         } catch {
-            let msg = friendlyError((error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
-            if let i = index(of: assistantID), messages[i].content.isEmpty {
-                messages[i].content = "⚠️ \(msg)"
-            } else {
-                self.error = msg
-            }
+            failTurn(assistantID, (error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
         }
         awaitingWebSearch = false
         isStreaming = false
@@ -365,7 +370,42 @@ final class ChatViewModel: ObservableObject {
         // Ask for notification permission only once the first reply has landed —
         // asking at send time throws the system alert over a streaming answer.
         askForNotificationsOnce()
-        await persist()
+        schedulePersist()
+    }
+
+    /// Saves outside `streamTask`.
+    ///
+    /// The save used to be the last statement of the stream body, which meant Stop
+    /// cancelled it too: `streamTask.cancel()` marks the task, `URLSession` then
+    /// refuses the very first request, and the turn the user had just watched
+    /// arrive never reached the server — with a raw `CancellationError` in the
+    /// error banner as the only sign. Stopping a reply means stop *generating*,
+    /// not discard. An unstructured `Task` does not inherit cancellation, and
+    /// chaining onto the previous one keeps two saves from racing on the same chat.
+    private func schedulePersist() {
+        let previous = persistTask
+        persistTask = Task { @MainActor [weak self] in
+            await previous?.value
+            await self?.persist()
+        }
+    }
+
+    /// One policy for a turn that failed, wherever the failure came from.
+    ///
+    /// A failure mid-stream arrives two ways — as a `data: {"error": …}` frame, or
+    /// as a thrown error — and the two disagreed. The thrown path kept whatever had
+    /// already streamed and put the reason in the banner; the frame path called
+    /// `setContent`, **replacing** the reply with the error text. So a model that
+    /// wrote three paragraphs and then hit a provider error lost all three, and
+    /// `schedulePersist()` right after wrote that loss to the server. Whatever
+    /// arrived is the user's: an error never overwrites it.
+    private func failTurn(_ assistantID: String, _ raw: String) {
+        let msg = friendlyError(raw)
+        if let i = index(of: assistantID), messages[i].content.isEmpty {
+            messages[i].content = "⚠️ \(msg)"
+        } else {
+            self.error = msg
+        }
     }
 
     /// Map raw server errors to clearer pt-BR messages.
@@ -586,7 +626,7 @@ final class ChatViewModel: ObservableObject {
         guard sibs.indices.contains(target) else { return }
         currentLeafId = leaf(from: sibs[target].id)
         rebuildActiveBranch()
-        Task { await self.persist() }   // remember the active branch server-side
+        schedulePersist()   // remember the active branch server-side
     }
 
     /// For the UI: this message's position among its siblings (1-based) and the
@@ -616,6 +656,17 @@ final class ChatViewModel: ObservableObject {
     /// rendered array is what the stream mutates, the tree is what gets saved.
     private func syncBranchIntoTree() {
         for m in messages { tree[m.id] = m }
+    }
+
+    /// Removes an assistant turn that never produced anything, and puts the leaf
+    /// back on its parent so the next message hangs off the question instead of a
+    /// blank node. The user's own message stays — they did send it.
+    private func discardEmptyTurn(_ id: String) {
+        let parent = tree[id]?.parentId
+        tree.removeValue(forKey: id)
+        messages.removeAll { $0.id == id }
+        if currentLeafId == id { currentLeafId = parent }
+        rebuildActiveBranch()
     }
 
     private func children(of id: String?) -> [OWMessage] {
