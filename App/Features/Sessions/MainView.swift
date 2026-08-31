@@ -69,7 +69,9 @@ struct ChatListView: View {
         NavigationStack(path: $path) {
             ZStack {
                 theme.bg.ignoresSafeArea()
-                content
+                content.errorBanner(store.error ?? app.modelsError) {
+                    store.error = nil; app.modelsError = nil
+                }
             }
             .navigationTitle("Open WebUI")
             .navigationBarTitleDisplayMode(.inline)
@@ -159,23 +161,6 @@ struct ChatListView: View {
                     }
                     .contextMenu { chatActions(chat) }
             }
-            if let err = store.error {
-                // Dismissible banner in the semantic error red, not the accent.
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Image(systemName: "exclamationmark.triangle.fill").font(.ody(size: 12))
-                    Text(err).font(.ody(.footnote, design: .monospaced))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                    Button { store.error = nil } label: {
-                        Image(systemName: "xmark").font(.ody(size: 11, weight: .semibold))
-                            .frame(minWidth: 24, minHeight: 24).contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(Text("Dispensar erro"))
-                }
-                .foregroundStyle(theme.danger)
-                .padding(.vertical, 6)
-                .listRowBackground(theme.bg)
-            }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -234,6 +219,14 @@ struct ChatListView: View {
     }
 
     private var emptyState: some View {
+        // Inside a ScrollView so `.refreshable` has a gesture here too. As a bare
+        // VStack this branch was a dead end: the load had already failed, the
+        // `.task` does not re-fire on tab switch, and pull-to-refresh needs
+        // something scrollable — the only way back was relaunching the app.
+        ScrollView { emptyStateBody.frame(maxWidth: .infinity).padding(.top, 80) }
+    }
+
+    private var emptyStateBody: some View {
         VStack(spacing: 14) {
             BrandMark(size: 56)
             Text("Nenhuma conversa ainda")
@@ -257,10 +250,9 @@ struct ArchivedChatsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var chats: [OWChatSummary] = []
     @State private var loading = true
+    @State private var error: String?
 
-    private static let dateFormatter: DateFormatter = {
-        let f = DateFormatter(); f.dateStyle = .medium; f.timeStyle = .short; return f
-    }()
+
 
     var body: some View {
         NavigationStack {
@@ -284,7 +276,7 @@ struct ArchivedChatsView: View {
                                     Text(c.title.isEmpty ? L("Sem título") : c.title)
                                         .font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg).lineLimit(1)
                                     if let t = c.updatedAt ?? c.createdAt {
-                                        Text(Self.dateFormatter.string(from: Date(timeIntervalSince1970: t)))
+                                        Text(OWDates.dayAndTime(Date(timeIntervalSince1970: t)))
                                             .font(.ody(.caption, design: .monospaced)).foregroundStyle(theme.secondaryText)
                                     }
                                 }
@@ -310,9 +302,12 @@ struct ArchivedChatsView: View {
                     Button("Concluir") { dismiss() }.foregroundStyle(theme.accent)
                 }
             }
+            .errorBanner(error) { error = nil }
             .task {
                 loading = true
-                chats = (try? await app.client.archivedChats()) ?? []
+                do { chats = try await app.client.archivedChats() }
+                catch is CancellationError {}
+                catch { self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription }
                 loading = false
             }
         }
@@ -320,11 +315,23 @@ struct ArchivedChatsView: View {
     }
 
     /// Restore (unarchive, via the toggle endpoint) or delete, then drop the row.
+    /// Removes the row optimistically, then puts it back if the server refused.
+    ///
+    /// It used to drop the row and fire a `try?` into a detached task: a failed
+    /// restore or delete left the screen claiming the chat was gone while the
+    /// server still had it, and reopening the sheet silently brought it back with
+    /// no idea why.
     private func remove(_ c: OWChatSummary, delete: Bool) {
-        chats.removeAll { $0.id == c.id }
+        guard let at = chats.firstIndex(where: { $0.id == c.id }) else { return }
+        chats.remove(at: at)
         Task {
-            if delete { try? await app.client.deleteChat(c.id) }
-            else { try? await app.client.archiveChat(c.id) }
+            do {
+                if delete { try await app.client.deleteChat(c.id) }
+                else { try await app.client.archiveChat(c.id) }
+            } catch {
+                chats.insert(c, at: min(at, chats.count))
+                self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            }
         }
     }
 }
@@ -368,15 +375,9 @@ struct ShareSheet: View {
 }
 #endif
 
-/// Shared pt-BR relative-time formatter.
+/// Relative-time text in the app's language. Was pinned to `pt_BR`, which showed
+/// "há 3 h" to all 44 localizations.
+@MainActor
 enum RelativeDate {
-    private static let fmt: RelativeDateTimeFormatter = {
-        let f = RelativeDateTimeFormatter()
-        f.locale = Locale(identifier: "pt_BR")
-        f.unitsStyle = .abbreviated
-        return f
-    }()
-    static func string(_ epochSeconds: Double) -> String {
-        fmt.localizedString(for: Date(timeIntervalSince1970: epochSeconds), relativeTo: Date())
-    }
+    static func string(_ epochSeconds: Double) -> String { OWDates.relative(epochSeconds) }
 }

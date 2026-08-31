@@ -156,13 +156,11 @@ struct MessageBubble: View {
         .frame(maxWidth: .infinity, alignment: .trailing)
     }
 
-    private static let timeFmt: DateFormatter = {
-        let f = DateFormatter(); f.timeStyle = .short; f.dateStyle = .none; return f
-    }()
+
     /// Subtle send time under each settled message (aligned with the bubble side).
     @ViewBuilder private var timeLabel: some View {
         if let t = message.timestamp {
-            Text(Self.timeFmt.string(from: Date(timeIntervalSince1970: t)))
+            Text(OWDates.time(Date(timeIntervalSince1970: t)))
                 .font(.ody(size: 10, design: .monospaced))
                 .foregroundStyle(theme.secondaryText.opacity(0.7))
                 .padding(.horizontal, 2)
