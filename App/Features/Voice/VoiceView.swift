@@ -28,7 +28,8 @@ struct VoiceView: View {
         self.seed = seed
         _convo = StateObject(wrappedValue: VoiceConversation(client: app.client,
                                                              completions: app.completions,
-                                                             models: app.models))
+                                                             models: app.models,
+                                                             defaultModel: app.defaultModel))
     }
 
     var body: some View {
@@ -205,7 +206,7 @@ struct VoiceView: View {
     private var modelPicker: some View {
         Menu {
             ForEach(convo.models) { m in
-                Button(ModelAliases.shared.display(m)) { convo.model = m.id }
+                Button(ModelAliases.shared.display(m)) { convo.model = m.id; app.rememberModel(m.id) }
             }
         } label: {
             HStack(spacing: 3) {

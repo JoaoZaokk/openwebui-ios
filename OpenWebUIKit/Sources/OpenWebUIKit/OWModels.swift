@@ -667,3 +667,22 @@ public struct OWServerConfig: Decodable, Sendable {
     /// `false` only when the admin turned plugins off — then `tool_ids` are dropped.
     public var pluginsAvailable: Bool { features?.enablePlugins ?? true }
 }
+
+/// Which model a new conversation opens with.
+///
+/// Shared by the chat screen and voice mode, and split out here because the rule
+/// is the whole fix for "Bei jedem neuen Chat neu auswählen nervt" — both places
+/// used to take `models.first`, whatever order the server happened to answer in,
+/// so every new chat and every voice session discarded the user's choice.
+public enum OWModelChoice {
+    /// The remembered pick when this server still offers it, else the first model.
+    ///
+    /// Falling back matters as much as remembering: a model can be removed, lose
+    /// its access control, or simply not exist on a server the user switched to,
+    /// and a remembered id that resolves to nothing would leave the composer
+    /// disabled with no explanation.
+    public static func resolve(remembered: String?, available: [String]) -> String? {
+        if let remembered, available.contains(remembered) { return remembered }
+        return available.first
+    }
+}
