@@ -106,6 +106,7 @@ final class SpeechManager: NSObject, ObservableObject {
     }
 
     func stop() {
+        speechGeneration &+= 1
         neuralTask?.cancel(); neuralTask = nil
         if synth.isSpeaking { synth.stopSpeaking(at: .immediate) }
         player?.stop(); player = nil
@@ -164,6 +165,23 @@ final class SpeechManager: NSObject, ObservableObject {
         }
     }
 
+    /// Which utterance the manager is currently serving.
+    ///
+    /// A cancelled task does not stop where it was cancelled — it resumes at its
+    /// next suspension point, by which time the *next* utterance has already
+    /// claimed `preparingID`, `neuralError` and `player`. Every one of those
+    /// writes used to be unconditional, so tapping 🔊 on a second message wiped
+    /// the spinner the second one had just set: it synthesized in silence with its
+    /// button reading idle. Comparing ids is not enough — stop-then-replay of the
+    /// *same* message hands the stale task a matching id. A counter bumped on
+    /// every start and every stop is what actually settles who owns the state.
+    private var speechGeneration = 0
+
+    /// True while this task is still the one whose output anyone wants.
+    private func isCurrent(_ generation: Int) -> Bool {
+        generation == speechGeneration && !Task.isCancelled
+    }
+
     private func speakNeural(_ clean: String, id: String) {
         let lang = LanguageManager.shared.current
         // No pack for this language: say so once and still speak, natively.
@@ -176,14 +194,23 @@ final class SpeechManager: NSObject, ObservableObject {
         }
         preparingID = id
         neuralError = nil
+        // Claim the audio session now, synchronously, exactly as speakNative does.
+        // It used to happen inside the task, after synthesis — but the voice loop
+        // arms barge-in on the line right after `toggle()` returns, so the mic tap
+        // was installed while the session was still `.playback` and the input node
+        // reported 0 Hz. Barge-in silently never armed for neural or server TTS,
+        // and worked for native only because native activates here.
+        activateTTSSession()
+        speechGeneration &+= 1
+        let generation = speechGeneration
         let voice = neuralVoice
         neuralTask = Task {
             do {
                 let m = try await ensurePocket(pack)
+                guard isCurrent(generation) else { return }
                 neuralReady = true
                 let wav = try await m.synthesize(text: clean, voice: voice)
-                if Task.isCancelled { preparingID = nil; return }
-                activateTTSSession()
+                guard isCurrent(generation) else { return }
                 let p = try AVAudioPlayer(data: wav)
                 p.delegate = self
                 player = p
@@ -191,8 +218,9 @@ final class SpeechManager: NSObject, ObservableObject {
                 speakingID = id
                 p.play()
             } catch is CancellationError {
-                preparingID = nil
+                if isCurrent(generation) { preparingID = nil }
             } catch {
+                guard isCurrent(generation) else { return }
                 neuralError = msg(error)
                 preparingID = nil
             }
@@ -205,12 +233,14 @@ final class SpeechManager: NSObject, ObservableObject {
         guard let client else { neuralError = L("Servidor de voz indisponível."); return }
         preparingID = id
         neuralError = nil
+        activateTTSSession()   // before the task — see speakNeural
+        speechGeneration &+= 1
+        let generation = speechGeneration
         let voice = voiceOverride ?? serverVoice, model = serverModel
         neuralTask = Task {
             do {
                 let data = try await client.speech(text: clean, voice: voice, model: model)
-                if Task.isCancelled { preparingID = nil; return }
-                activateTTSSession()
+                guard isCurrent(generation) else { return }
                 let p = try AVAudioPlayer(data: data)
                 p.delegate = self
                 player = p
@@ -218,8 +248,9 @@ final class SpeechManager: NSObject, ObservableObject {
                 speakingID = id
                 p.play()
             } catch is CancellationError {
-                preparingID = nil
+                if isCurrent(generation) { preparingID = nil }
             } catch {
+                guard isCurrent(generation) else { return }
                 neuralError = L("TTS do servidor falhou: %@", msg(error))
                 preparingID = nil
             }
