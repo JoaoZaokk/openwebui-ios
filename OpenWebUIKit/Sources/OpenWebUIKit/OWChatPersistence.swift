@@ -104,6 +104,47 @@ extension OWChatPayload {
 }
 
 extension OpenWebUIClient {
+    /// Ids of replies the server is still writing.
+    ///
+    /// Open WebUI 0.11 overlays the live state of any in-flight reply — one the
+    /// web UI or another device is generating right now — onto the chat it hands
+    /// back: partial `content`, `output: []`, `done: false`
+    /// (`overlay_response_streams`, backend routers/chats.py:62). This client
+    /// re-sends every node it did not create byte for byte, and the server's merge
+    /// is `{**existing, **incoming}` (backend models/chats.py:894) — so writing an
+    /// overlaid node back pins the truncated text into the database and leaves the
+    /// row `done = false` for good, which also makes `POST /{id}/fork` 409 forever.
+    /// Omitting the id keeps the server's own copy. Every node this client writes
+    /// carries `done: true`, so "not done" is exactly "someone else owns it".
+    static func inFlightIDs(_ nodes: [String: [String: Any]]) -> Set<String> {
+        Set(nodes.filter { ($0.value["done"] as? Bool) == false }.keys)
+    }
+
+    /// Writes the merged graph back into `chat`, minus the nodes someone else is
+    /// still streaming. When any node is withheld the flat `messages` projection is
+    /// dropped from the payload too: the server replaces that key wholesale
+    /// (`{**stored, **chat}`) and rebuilds it itself once the stream lands, whereas
+    /// only `history` gets the id-wise merge that makes withholding safe.
+    ///
+    /// `inFlight` must be empty unless `mergesHistoryServerSide` — on a server that
+    /// replaces the blob, omitting a node deletes it.
+    static func store(history: inout [String: Any], nodes: [String: [String: Any]],
+                      currentId: String?, chat: inout [String: Any],
+                      chain: [[String: Any]], inFlight: Set<String>) {
+        var outgoing = nodes
+        for id in inFlight { outgoing.removeValue(forKey: id) }
+        history["messages"] = outgoing
+        history["currentId"] = currentId ?? NSNull()
+        chat["history"] = history
+        if inFlight.isEmpty {
+            if !chain.isEmpty { chat["messages"] = Array(chain.reversed()) }
+        } else {
+            chat.removeValue(forKey: "messages")
+        }
+    }
+}
+
+extension OpenWebUIClient {
     /// Creates a new chat from the given messages. Returns the new chat id.
     public func createChat(title: String, model: String, messages: [OWMessage]) async throws -> String {
         let payload = OWChatPayload(title: title, model: model, messages: messages)
@@ -127,6 +168,7 @@ extension OpenWebUIClient {
     /// writes the result back. Server wins for known ids — we never re-encode
     /// pre-existing messages, so web data survives an app save untouched.
     public func syncChat(id: String, localMessages: [OWMessage], model: String) async throws {
+        await ensureServerInfo()
         let data = try await send(request("/api/v1/chats/\(encPath(id))"))
         guard let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               var chat = obj["chat"] as? [String: Any] else { throw OWError.decoding("chat") }
@@ -137,6 +179,8 @@ extension OpenWebUIClient {
         if nodes.isEmpty, let flat = chat["messages"] as? [[String: Any]] {
             for m in flat { if let mid = m["id"] as? String { nodes[mid] = m } }
         }
+        // Read this before adding ours: everything we add is already done.
+        let inFlight = mergesHistoryServerSide ? Self.inFlightIDs(nodes) : []
 
         let fresh = localMessages.filter { nodes[$0.id] == nil }
         guard !fresh.isEmpty else { return }
@@ -156,10 +200,6 @@ extension OpenWebUIClient {
             nodes[m.id] = node
             parent = m.id
         }
-        history["messages"] = nodes
-        history["currentId"] = parent ?? NSNull()
-        chat["history"] = history
-
         // Flat list = the active branch, exactly what the web UI itself stores.
         var chain: [[String: Any]] = []
         var walk = parent
@@ -169,7 +209,8 @@ extension OpenWebUIClient {
             walk = n["parentId"] as? String
             guardCount += 1
         }
-        if !chain.isEmpty { chat["messages"] = Array(chain.reversed()) }
+        Self.store(history: &history, nodes: nodes, currentId: parent,
+                   chat: &chat, chain: chain, inFlight: inFlight)
 
         if ((chat["models"] as? [String])?.isEmpty ?? true) { chat["models"] = [model] }
 
@@ -201,13 +242,16 @@ extension OpenWebUIClient {
     /// current doesn't cost a write.
     static func mergeTree(into chat: inout [String: Any],
                           tree: [OWMessage], currentId leaf: String?,
-                          model: String) -> Bool {
+                          model: String, withholdInFlight: Bool = false) -> Bool {
         var history = chat["history"] as? [String: Any] ?? [:]
         var nodes = history["messages"] as? [String: [String: Any]] ?? [:]
         // Legacy/empty graph: seed it from the flat list so linking still works.
         if nodes.isEmpty, let flat = chat["messages"] as? [[String: Any]] {
             for m in flat { if let mid = m["id"] as? String { nodes[mid] = m } }
         }
+
+        // Read this before adding ours: everything we add is already done.
+        let inFlight = withholdInFlight ? Self.inFlightIDs(nodes) : []
 
         let now = Int(Date().timeIntervalSince1970)
         var added = false
@@ -233,10 +277,6 @@ extension OpenWebUIClient {
         }
         for key in nodes.keys { nodes[key]?["childrenIds"] = childrenOf[key] ?? [] }
 
-        history["messages"] = nodes
-        history["currentId"] = newLeaf ?? NSNull()
-        chat["history"] = history
-
         // Flat list = the active branch, exactly what the web UI itself stores.
         var chain: [[String: Any]] = []
         var walk = newLeaf
@@ -246,7 +286,8 @@ extension OpenWebUIClient {
             walk = n["parentId"] as? String
             guardCount += 1
         }
-        if !chain.isEmpty { chat["messages"] = Array(chain.reversed()) }
+        store(history: &history, nodes: nodes, currentId: newLeaf,
+              chat: &chat, chain: chain, inFlight: inFlight)
         return true
     }
 
@@ -275,12 +316,14 @@ extension OpenWebUIClient {
     /// web-side data.
     public func syncChatTree(id: String, title: String, models: [String],
                              tree: [OWMessage], currentId: String?) async throws {
+        await ensureServerInfo()
         let data = try await send(request("/api/v1/chats/\(encPath(id))"))
         guard let obj = try JSONSerialization.jsonObject(with: data) as? [String: Any],
               var chat = obj["chat"] as? [String: Any] else { throw OWError.decoding("chat") }
 
         let model = models.first ?? (chat["models"] as? [String])?.first ?? ""
-        guard Self.mergeTree(into: &chat, tree: tree, currentId: currentId, model: model) else { return }
+        guard Self.mergeTree(into: &chat, tree: tree, currentId: currentId, model: model,
+                             withholdInFlight: mergesHistoryServerSide) else { return }
 
         if !title.isEmpty { chat["title"] = title }
         if !models.isEmpty { chat["models"] = models }

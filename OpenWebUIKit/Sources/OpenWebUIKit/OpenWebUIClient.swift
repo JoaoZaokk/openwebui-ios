@@ -2,8 +2,8 @@ import Foundation
 
 /// Talks to the Open WebUI REST API. Auth is a JWT bearer token: a successful
 /// `signIn` returns a long-lived token that we persist (Keychain) and replay on
-/// every request as `Authorization: Bearer …`. A `401/403` drops the token so
-/// the host app can route back to login.
+/// every request as `Authorization: Bearer …`. A `401` drops the token and posts
+/// `sessionEndedNotification` so the host app can route back to login.
 public final class OpenWebUIClient: @unchecked Sendable {
     public private(set) var config: OWConfig
     public let tokens: OWKeychainStore
@@ -41,7 +41,50 @@ public final class OpenWebUIClient: @unchecked Sendable {
         self.longSession = URLSession(configuration: longCfg)
     }
 
-    public func updateConfig(_ config: OWConfig) { self.config = config }
+    /// Posted when the server rejects the stored token (HTTP 401). The host app
+    /// listens so a session that dies mid-use routes back to login instead of
+    /// leaving every screen showing "Sessão expirada" over a dead token.
+    public static let sessionEndedNotification = Notification.Name("OWSessionEnded")
+
+    /// The server's own version string, once `/api/config` has been read. Two
+    /// write paths change shape around it, so it is not cosmetic — see
+    /// `mergesHistoryServerSide`.
+    public private(set) var serverVersion: String?
+    private var serverInfoFetched = false
+
+    public func updateConfig(_ config: OWConfig) {
+        // A token is a credential for the host that issued it. Pointing the client
+        // at a different origin while holding it means the very next request —
+        // including the unauthenticated-looking ones — replays the user's JWT to a
+        // machine that never saw it. Same host, different path, is the same server.
+        if Self.origin(config.baseURL) != Self.origin(self.config.baseURL) {
+            token = nil
+            tokens.clear()
+        }
+        self.config = config
+    }
+
+    /// True when `url` lives on the configured server. Anything the server hands
+    /// us as an image or file location is data, not instruction — it may be an
+    /// absolute URL to somewhere else entirely.
+    func isSameOrigin(_ url: URL) -> Bool {
+        Self.origin(url) == Self.origin(config.baseURL)
+    }
+
+    static func origin(_ url: URL) -> String {
+        let c = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        let scheme = (c?.scheme ?? "").lowercased()
+        let host = (c?.host ?? "").lowercased()
+        let port = c?.port.map(String.init) ?? (scheme == "http" ? "80" : "443")
+        return "\(scheme)://\(host):\(port)"
+    }
+
+    private func dropSession() {
+        token = nil
+        tokens.save(token: nil)
+        NotificationCenter.default.post(name: Self.sessionEndedNotification, object: nil)
+    }
+
     public var isAuthenticated: Bool { token != nil }
 
     // MARK: - Request helpers (internal so sibling clients can reuse them)
@@ -75,9 +118,14 @@ public final class OpenWebUIClient: @unchecked Sendable {
         do {
             let (data, resp) = try await (long ? longSession : session).data(for: req)
             guard let http = resp as? HTTPURLResponse else { return data }
-            if http.statusCode == 401 || http.statusCode == 403 {
-                token = nil
-                tokens.save(token: nil)
+            // 401 is "this token is dead"; 403 is "this account may not do that"
+            // — Open WebUI answers 403 for a non-admin hitting an admin route, a
+            // model outside the user's access control, or a feature permission it
+            // lacks. Folding the two together logged the user out over a mere
+            // permission denial and showed "Sessão expirada" for it. Only 401
+            // drops the session.
+            if http.statusCode == 401 {
+                dropSession()
                 throw OWError.notAuthenticated
             }
             guard (200..<300).contains(http.statusCode) else {
@@ -165,6 +213,48 @@ public final class OpenWebUIClient: @unchecked Sendable {
         tokens.clear()
     }
 
+    /// GET /api/config — public, no `Authorization`. Reports what this server
+    /// actually offers (login form, LDAP, OAuth providers, signup), which is how
+    /// the login screen decides what to draw instead of assuming email+password.
+    public func serverConfig() async throws -> OWServerConfig {
+        var req = URLRequest(url: config.url("/api/config"))
+        req.setValue("application/json", forHTTPHeaderField: "Accept")
+        let cfg = try decode(OWServerConfig.self, try await send(req))
+        serverVersion = cfg.version
+        serverInfoFetched = true
+        return cfg
+    }
+
+    /// Reads `/api/config` once per server, swallowing failure — callers use this
+    /// only to choose between two safe behaviours, never to gate the request.
+    func ensureServerInfo() async {
+        guard !serverInfoFetched else { return }
+        serverInfoFetched = true
+        _ = try? await serverConfig()
+    }
+
+    /// True when this server merges an incoming `history` by message id instead of
+    /// replacing the whole chat blob — `Chats.update_chat_by_id` gained
+    /// `merge_history` in 0.11.0 (backend models/chats.py:894).
+    ///
+    /// It decides whether omitting a message from a write is safe. On 0.11 omitting
+    /// **preserves** the server's copy, which is how this client refuses to
+    /// overwrite a reply someone else is still streaming. On 0.10 and earlier the
+    /// same omission **deletes** the message, so those servers must keep receiving
+    /// every node back. Unknown version is treated as old: never delete on a guess.
+    var mergesHistoryServerSide: Bool { Self.mergesHistory(version: serverVersion) }
+
+    /// Split out as a pure function so the rule can be tested without a server.
+    static func mergesHistory(version: String?) -> Bool {
+        guard let version else { return false }
+        let parts = version.split(separator: ".").prefix(2).map { part -> Int? in
+            let digits = part.prefix(while: \.isNumber)
+            return digits.isEmpty ? nil : Int(digits)
+        }
+        guard parts.count == 2, let major = parts[0], let minor = parts[1] else { return false }
+        return (major, minor) >= (0, 11)
+    }
+
     // MARK: - Models
 
     /// GET /api/models → `{ data: [...] }`.
@@ -178,9 +268,18 @@ public final class OpenWebUIClient: @unchecked Sendable {
     // MARK: - Chats
 
     /// GET /api/v1/chats/?page=N — the user's chat list (most-recent first).
-    /// NOTE: this list **excludes pinned chats**; fetch those via `pinnedChats()`.
+    ///
+    /// Two server defaults hide conversations from this list, and both have to be
+    /// answered or the chat is simply unreachable from the app. `include_pinned`
+    /// is false, which is why `pinnedChats()` exists and gets merged in.
+    /// `include_folders` is false too (`get_chat_title_id_list_by_user_id` filters
+    /// `folder_id=None`), so filing a chat into a folder in the web UI made it
+    /// vanish from the phone entirely — same failure as the pinned one, and this
+    /// client has no folder UI to put it back behind, so it asks for them flat.
+    ///
+    /// Still one page of 60. There is no "load more" yet.
     public func chats(page: Int = 1) async throws -> [OWChatSummary] {
-        let data = try await send(request("/api/v1/chats/?page=\(page)"))
+        let data = try await send(request("/api/v1/chats/?page=\(page)&include_folders=true"))
         return decodeList(OWChatSummary.self, data)
     }
 
@@ -192,11 +291,11 @@ public final class OpenWebUIClient: @unchecked Sendable {
 
     /// GET /api/v1/chats/{id} — full chat with messages.
     public func chat(_ id: String) async throws -> OWChat {
-        try decode(OWChat.self, try await send(request("/api/v1/chats/\(id)")))
+        try decode(OWChat.self, try await send(request("/api/v1/chats/\(encPath(id))")))
     }
 
     public func deleteChat(_ id: String) async throws {
-        _ = try await send(request("/api/v1/chats/\(id)", method: "DELETE"))
+        _ = try await send(request("/api/v1/chats/\(encPath(id))", method: "DELETE"))
     }
 
     // NOTE: persisting new turns (POST /api/v1/chats/new and POST

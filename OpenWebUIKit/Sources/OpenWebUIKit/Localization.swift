@@ -147,7 +147,16 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
         let c = code.lowercased()
         if c.hasPrefix("pt") { return .ptBR }
         if c.hasPrefix("zh") {
-            if c.contains("hant") || c.contains("-tw") || c.contains("-hk") || c.contains("-mo") { return .zhHant }
+            // Script first, region only as a fallback. Region was tested first, so
+            // "zh-Hans-HK" and "zh-Hans-MO" — Simplified Chinese as written in Hong
+            // Kong and Macau, both real system codes — matched "-hk"/"-mo" and were
+            // served Traditional. An explicit script always wins over the region it
+            // is spoken in. Matched by subtag, not substring: a tag is a list of
+            // subtags and "hant" is only a script when it stands alone as one.
+            let subtags = c.split(separator: "-").map(String.init)
+            if subtags.contains("hans") { return .zhHans }
+            if subtags.contains("hant") { return .zhHant }
+            if subtags.contains("tw") || subtags.contains("hk") || subtags.contains("mo") { return .zhHant }
             return .zhHans
         }
         if c.hasPrefix("de") {
@@ -265,4 +274,52 @@ public final class LanguageManager: ObservableObject {
 public func L(_ key: String, _ args: CVarArg...) -> String {
     let s = LanguageManager.snapshotBundle.localizedString(forKey: key, value: key, table: nil)
     return args.isEmpty ? s : String(format: s, arguments: args)
+}
+
+/// Date and time formatting that follows the language chosen **in the app**.
+///
+/// Two habits this exists to break. A `static let` formatter freezes whichever
+/// locale was current the first time a date was drawn, so switching language left
+/// every already-rendered date behind. And a formatter with no locale at all
+/// follows the *device*, which in this app is the wrong answer by construction:
+/// the whole point of the in-app language picker is that the two can differ.
+/// Cached by locale identifier, so switching languages costs one rebuild.
+@MainActor
+public enum OWDates {
+    private static var cache: [String: DateFormatter] = [:]
+    private static var relativeCache: [String: RelativeDateTimeFormatter] = [:]
+
+    private static func formatter(date: DateFormatter.Style, time: DateFormatter.Style) -> DateFormatter {
+        let locale = LanguageManager.shared.locale
+        let key = "\(locale.identifier)|\(date.rawValue)|\(time.rawValue)"
+        if let f = cache[key] { return f }
+        let f = DateFormatter()
+        f.locale = locale
+        f.dateStyle = date
+        f.timeStyle = time
+        cache[key] = f
+        return f
+    }
+
+    /// Time of day, no date — the per-message stamp.
+    public static func time(_ d: Date) -> String { formatter(date: .none, time: .short).string(from: d) }
+    /// Day only — the separator between days in a transcript.
+    public static func day(_ d: Date) -> String { formatter(date: .medium, time: .none).string(from: d) }
+    /// Day and time — the chat list on macOS.
+    public static func dayAndTime(_ d: Date) -> String { formatter(date: .medium, time: .short).string(from: d) }
+
+    /// "3 h ago", in the app's language.
+    public static func relative(_ epochSeconds: Double) -> String {
+        let locale = LanguageManager.shared.locale
+        let f: RelativeDateTimeFormatter
+        if let cached = relativeCache[locale.identifier] {
+            f = cached
+        } else {
+            f = RelativeDateTimeFormatter()
+            f.locale = locale
+            f.unitsStyle = .abbreviated
+            relativeCache[locale.identifier] = f
+        }
+        return f.localizedString(for: Date(timeIntervalSince1970: epochSeconds), relativeTo: Date())
+    }
 }

@@ -50,13 +50,16 @@ struct NotesView: View {
         NavigationStack {
             ZStack {
                 theme.bg.ignoresSafeArea()
-                if store.notes.isEmpty && store.loading {
-                    ProgressView().tint(theme.accent)
-                } else if store.notes.isEmpty {
-                    emptyState
-                } else {
-                    list
+                VStack(spacing: 0) {
+                    if store.notes.isEmpty && store.loading {
+                        ProgressView().tint(theme.accent)
+                    } else if store.notes.isEmpty {
+                        emptyState
+                    } else {
+                        list
+                    }
                 }
+                .errorBanner(store.error) { store.error = nil }
             }
             .navigationTitle("Notas")
             .navigationBarTitleDisplayMode(.inline)
@@ -87,10 +90,6 @@ struct NotesView: View {
                         }
                     }
             }
-            if let err = store.error {
-                Text(err).font(.ody(.footnote, design: .monospaced))
-                    .foregroundStyle(theme.danger).listRowBackground(theme.bg)
-            }
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -120,6 +119,14 @@ struct NotesView: View {
     }
 
     private var emptyState: some View {
+        // Inside a ScrollView so `.refreshable` has a gesture here too. As a bare
+        // VStack this branch was a dead end: the load had already failed, the
+        // `.task` does not re-fire on tab switch, and pull-to-refresh needs
+        // something scrollable — the only way back was relaunching the app.
+        ScrollView { emptyStateBody.frame(maxWidth: .infinity).padding(.top, 80) }
+    }
+
+    private var emptyStateBody: some View {
         VStack(spacing: 14) {
             Image(systemName: "note.text").font(.ody(size: 44)).foregroundStyle(theme.accent)
             Text("Nenhuma nota ainda")
@@ -211,7 +218,7 @@ struct NoteEditorView: View {
             ? String(markdown.prefix(40)) : title
         do {
             if let note {
-                try await client.updateNote(id: note.id, title: finalTitle, markdown: markdown)
+                try await client.updateNote(note, title: finalTitle, markdown: markdown)
             } else {
                 try await client.createNote(title: finalTitle, markdown: markdown)
             }

@@ -83,9 +83,12 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                     let (bytes, resp) = try await client.longSession.bytes(for: req)
 
                     if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
-                        if http.statusCode == 401 || http.statusCode == 403 {
-                            throw OWError.notAuthenticated
-                        }
+                        // Only 401 means the session is gone. A 403 here is the
+                        // server refusing this model or this feature to this
+                        // account — its own `detail` says which, and reporting it
+                        // as an expired session hid that and sent the user to a
+                        // login they did not need.
+                        if http.statusCode == 401 { throw OWError.notAuthenticated }
                         var body = ""
                         for try await line in bytes.lines { body += line; if body.count > 800 { break } }
                         throw OWError.http(http.statusCode, Self.extractError(body) ?? L("Falha ao iniciar o stream"))
