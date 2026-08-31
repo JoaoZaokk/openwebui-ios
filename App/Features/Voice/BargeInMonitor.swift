@@ -1,4 +1,5 @@
 import AVFoundation
+import os
 
 /// Listens to the mic **while the assistant is speaking** and fires `onSpeech`
 /// when the user starts talking — letting the voice loop cut the reply short
@@ -12,6 +13,22 @@ final class BargeInMonitor {
     private var engine = AVAudioEngine()
     private var running = false
     private var onSpeech: (() -> Void)?
+
+    private static let log = Logger(subsystem: "com.zao.openwebui", category: "barge-in")
+
+    /// Why the last `start()` did not arm, or nil if it did.
+    ///
+    /// Arming has a precondition nothing enforced: the input node only reports a
+    /// usable format once the audio session is in a recording-capable category, and
+    /// TTS activating a playback session before this runs leaves `inputFormat` at
+    /// 0 Hz. Both failure paths — the format guard and a refused `engine.start()` —
+    /// simply returned, so barge-in was dead while its setting still read "on" and
+    /// nothing anywhere said why. This is a diagnostic, not UI copy: the reason is
+    /// AVFoundation jargon and does not belong in the middle of a voice call.
+    private(set) var lastFailure: String?
+
+    /// Whether the monitor is actually listening right now.
+    var isArmed: Bool { running }
 
     /// RMS above `threshold` = sound; `hotNeeded` consecutive hot buffers = real
     /// speech (not a transient). `threshold` comes from the user's sensitivity
@@ -30,6 +47,7 @@ final class BargeInMonitor {
         #else
         guard !running else { return }
         self.onSpeech = onSpeech
+        lastFailure = nil
         hotCount = 0
         let s = UserDefaults.standard.object(forKey: "voice.bargein.sensitivity") as? Double ?? 0.5
         threshold = Self.thresholdForSensitivity(s)
@@ -37,13 +55,34 @@ final class BargeInMonitor {
         let input = engine.inputNode
         try? input.setVoiceProcessingEnabled(true)   // AEC against the speaker output
         let format = input.inputFormat(forBus: 0)
-        guard format.sampleRate > 0, format.channelCount > 0 else { return }
+        guard format.sampleRate > 0, format.channelCount > 0 else {
+            // Leaving voice processing on here would strand the input node in a
+            // half-configured state that `stop()` can never undo — it returns early
+            // on `guard running`, and running was never set.
+            try? input.setVoiceProcessingEnabled(false)
+            let session = AVAudioSession.sharedInstance()
+            lastFailure = "input format \(format.sampleRate) Hz / \(format.channelCount) ch "
+                + "under category \(session.category.rawValue)"
+            Self.log.error("barge-in not armed: \(self.lastFailure ?? "", privacy: .public)")
+            self.onSpeech = nil
+            return
+        }
         input.removeTap(onBus: 0)
         input.installTap(onBus: 0, bufferSize: 2048, format: format) { [weak self] buf, _ in
             self?.analyze(buf)
         }
         engine.prepare()
-        do { try engine.start(); running = true } catch { running = false }
+        do {
+            try engine.start()
+            running = true
+        } catch {
+            running = false
+            try? input.setVoiceProcessingEnabled(false)
+            input.removeTap(onBus: 0)
+            self.onSpeech = nil
+            lastFailure = error.localizedDescription
+            Self.log.error("barge-in engine refused to start: \(error.localizedDescription, privacy: .public)")
+        }
         #endif
     }
 

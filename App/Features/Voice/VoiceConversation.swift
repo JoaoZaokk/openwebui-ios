@@ -34,6 +34,7 @@ final class VoiceConversation: ObservableObject {
     private let voice = VoiceInputManager()
     private let tts = SpeechManager.shared
     private let bargeMonitor = BargeInMonitor()
+    private var persistTask: Task<Void, Never>?
 
     /// Server chat this voice session is being saved to (created on first reply).
     private var chatID: String?
@@ -137,6 +138,11 @@ final class VoiceConversation: ObservableObject {
 
     func stop() {
         active = false
+        // Save before tearing the turn down. Ending the session used to throw the
+        // whole conversation away: `persist()` ran inside `streamTask`, so
+        // cancelling it cancelled the save's very first request and nothing
+        // reached the server — with a raw CancellationError shown as the reason.
+        schedulePersist()
         streamTask?.cancel(); streamTask = nil
         silenceTimer?.invalidate(); silenceTimer = nil
         bargeMonitor.stop()
@@ -262,8 +268,10 @@ final class VoiceConversation: ObservableObject {
                     default: break
                     }
                 }
-                await self.persist()
+                self.schedulePersist()
                 self.speak()
+            } catch is CancellationError {
+                // The user ended the session or cut in — not a failure to report.
             } catch {
                 self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
                 self.afterSpeaking()
@@ -272,6 +280,17 @@ final class VoiceConversation: ObservableObject {
     }
 
     /// Saves the conversation to Open WebUI so it shows up in "Conversas"
+    /// Runs the save outside `streamTask`, so stopping the reply never cancels it.
+    /// Chained onto the previous save so two turns can't race on the same chat —
+    /// two concurrent first-turn saves would each create a chat.
+    private func schedulePersist() {
+        let previous = persistTask
+        persistTask = Task { @MainActor [weak self] in
+            await previous?.value
+            await self?.persist()
+        }
+    }
+
     /// (creates the chat on the first reply, then updates it each turn).
     private func persist() async {
         guard let model else { return }
