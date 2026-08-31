@@ -304,3 +304,81 @@ final class FileReferenceURLTests: XCTestCase {
         XCTAssertEqual(resolved("../../admin"), "https://server.example/api/v1/files/..%2F..%2Fadmin/content")
     }
 }
+
+/// The reasoning lives in its own `output` item while `content` carries only the
+/// answer. Reading `output` only when `content` was empty threw the
+/// chain-of-thought away for every reply that had any text at all.
+final class ReasoningDecodeTests: XCTestCase {
+
+    private func message(_ json: String) throws -> OWMessage {
+        try JSONDecoder().decode(OWMessage.self, from: Data(json.utf8))
+    }
+
+    func testReasoningSurvivesAlongsideANonEmptyContent() throws {
+        let m = try message("""
+        {"id":"a1","role":"assistant","content":"Para criar um vídeo UGC, siga estes passos.",
+         "output":[{"type":"reasoning","content":[{"type":"output_text","text":"O usuário quer saber como criar um vídeo UGC."}]},
+                   {"type":"message","content":[{"type":"output_text","text":"Para criar um vídeo UGC, siga estes passos."}]}]}
+        """)
+        XCTAssertEqual(m.reasoning, "O usuário quer saber como criar um vídeo UGC.")
+        XCTAssertEqual(m.content, "Para criar um vídeo UGC, siga estes passos.")
+    }
+
+    /// The older shape: a web-generated reply leaves `content` empty.
+    func testTextIsStillRebuiltFromOutputWhenContentIsEmpty() throws {
+        let m = try message("""
+        {"id":"a2","role":"assistant","content":"",
+         "output":[{"type":"reasoning","content":[{"type":"output_text","text":"pensando"}]},
+                   {"type":"message","content":[{"type":"output_text","text":"a resposta"}]}]}
+        """)
+        XCTAssertEqual(m.content, "a resposta")
+        XCTAssertEqual(m.reasoning, "pensando")
+    }
+
+    /// Reasoning must never leak into the bubble.
+    func testReasoningIsNotPartOfTheVisibleText() throws {
+        let m = try message("""
+        {"id":"a3","role":"assistant","content":"resposta",
+         "output":[{"type":"reasoning","content":[{"type":"output_text","text":"segredo"}]}]}
+        """)
+        XCTAssertFalse(m.content.contains("segredo"))
+    }
+}
+
+/// Context retrieved from a file was announced as a web search.
+final class NativeSourceCardTests: XCTestCase {
+
+    private func message(_ sources: String) throws -> OWMessage {
+        try JSONDecoder().decode(OWMessage.self, from: Data("""
+        {"id":"a1","role":"assistant","content":"ok","sources":\(sources)}
+        """.utf8))
+    }
+
+    func testRetrievedFilesAreNamedAfterTheFileNotAsAWebSearch() throws {
+        let m = try message("""
+        [{"source":{"name":"SKILL.md","id":"file-1"},"document":["--- name: flow-ai-video ---"]}]
+        """)
+        XCTAssertEqual(m.toolUses.count, 1)
+        XCTAssertEqual(m.toolUses[0].action, "files")
+        XCTAssertEqual(m.toolUses[0].title, "SKILL.md")
+        XCTAssertEqual(m.toolUses[0].icon, "doc.text.magnifyingglass")
+        XCTAssertTrue(m.toolUses[0].results.contains("flow-ai-video"))
+    }
+
+    func testAnHTTPSourceIsStillAWebSearch() throws {
+        let m = try message("""
+        [{"source":{"name":"Exemplo","id":"https://exemplo.com/a"},"document":["trecho"]}]
+        """)
+        XCTAssertEqual(m.toolUses[0].action, "web_search")
+        XCTAssertEqual(m.toolUses[0].icon, "magnifyingglass")
+        XCTAssertEqual(m.toolUses[0].sources.map(\.url), ["https://exemplo.com/a"])
+    }
+
+    func testSeveralFilesAreAllNamed() throws {
+        let m = try message("""
+        [{"source":{"name":"SKILL.md"},"document":["a"]},
+         {"source":{"name":"notas.pdf"},"document":["b"]}]
+        """)
+        XCTAssertEqual(m.toolUses[0].title, "SKILL.md, notas.pdf")
+    }
+}
