@@ -100,7 +100,9 @@ public final class OpenWebUIClient: @unchecked Sendable {
     /// Percent-encodes a server-supplied id for safe use as a single URL path
     /// segment (escapes `/ ? #`), so a malicious chat/note/file id can't smuggle
     /// path/query separators into an authenticated request.
-    func encPath(_ s: String) -> String {
+    func encPath(_ s: String) -> String { encPathSegment(s) }
+
+    func encPathSegment(_ s: String) -> String {
         var allowed = CharacterSet.urlPathAllowed
         allowed.remove(charactersIn: "/?#")
         return s.addingPercentEncoding(withAllowedCharacters: allowed) ?? ""

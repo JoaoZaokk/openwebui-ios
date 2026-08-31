@@ -255,3 +255,52 @@ final class OWModelChoiceTests: XCTestCase {
         XCTAssertNil(OWModelChoice.resolve(remembered: nil, available: []))
     }
 }
+
+/// Open WebUI has written image references three different ways, and a message
+/// keeps the shape it was saved with, so all of them stay in circulation.
+final class FileReferenceURLTests: XCTestCase {
+    private let client = OpenWebUIClient(
+        config: OWConfig(baseURL: URL(string: "https://server.example")!),
+        tokens: OWKeychainStore(service: "tests.filerefs"))
+
+    private func resolved(_ raw: String) -> String {
+        client.fileReferenceURL(raw).absoluteString
+    }
+
+    /// 0.11: `fileItem.url = uploadedFile.id`, and the URL is built at render
+    /// time. Resolved against the base, a bare id fetched the web app's own HTML
+    /// with a 200 — the broken thumbnail.
+    func testABareFileIdBecomesTheContentRoute() {
+        XCTAssertEqual(resolved("2f1c8e6a-0d33-4a1b-9d2e-5b8c7a441f90"),
+                       "https://server.example/api/v1/files/2f1c8e6a-0d33-4a1b-9d2e-5b8c7a441f90/content")
+    }
+
+    /// The older path returns the file's metadata JSON, not the file.
+    func testTheBareFilePathGainsContent() {
+        XCTAssertEqual(resolved("/api/v1/files/abc123"),
+                       "https://server.example/api/v1/files/abc123/content")
+        XCTAssertEqual(resolved("/api/v1/files/abc123/"),
+                       "https://server.example/api/v1/files/abc123/content")
+    }
+
+    func testAContentRouteIsLeftAlone() {
+        XCTAssertEqual(resolved("/api/v1/files/abc123/content"),
+                       "https://server.example/api/v1/files/abc123/content")
+        XCTAssertEqual(resolved("/api/v1/files/abc123/content/html"),
+                       "https://server.example/api/v1/files/abc123/content/html")
+    }
+
+    func testGeneratedImagePathsStillResolveAgainstTheServer() {
+        XCTAssertEqual(resolved("/cache/image/generations/9f2.png"),
+                       "https://server.example/cache/image/generations/9f2.png")
+    }
+
+    func testAnAbsoluteURLIsUsedAsGiven() {
+        XCTAssertEqual(resolved("https://cdn.example/pic.png"), "https://cdn.example/pic.png")
+    }
+
+    /// An id is a path segment, not a path.
+    func testAnIdCannotSmugglePathSeparators() {
+        XCTAssertEqual(resolved("../../admin"), "https://server.example/api/v1/files/..%2F..%2Fadmin/content")
+    }
+}
