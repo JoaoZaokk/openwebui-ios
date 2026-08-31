@@ -190,7 +190,21 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
+    /// Attaches a file the user picked — from the file browser or the share sheet.
+    ///
+    /// A picture picked this way used to be uploaded as a plain document: it drew a
+    /// grey "image.png" pill instead of the photo, and, worse, the model never saw
+    /// it — documents go to the server as RAG context, and only `imageURLs` become
+    /// `image_url` parts in the request. So the model answered questions about an
+    /// image it had never been shown. Route pictures down the same path as the
+    /// photo picker; fall back to uploading if the bytes don't decode as an image.
     func addDocument(data: Data, filename: String, mime: String) async {
+        let looksLikeImage = mime.lowercased().hasPrefix("image/")
+            || OWAttachment(type: "file", name: filename).isImage
+        if looksLikeImage, let url = AttachImage.dataURL(from: data) {
+            pendingImageURLs.append(url)
+            return
+        }
         await uploadAndAttach(data, filename: filename, mime: mime)
     }
 

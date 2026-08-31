@@ -290,8 +290,17 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
     public var reasoning: String
     /// Attached images as URLs (data: URLs for local attachments, server urls otherwise).
     public var imageURLs: [String]
-    /// Non-image attachments (documents → RAG).
+    /// Non-image attachments (documents → RAG). An entry here may still be a
+    /// picture the server holds by id rather than by URL — see `imageDocuments`.
     public var documents: [OWAttachment]
+
+    /// Pictures that arrived as uploaded files, so they have an id instead of a
+    /// URL. The bubble renders these as thumbnails through
+    /// `client.fileContentURL(id)` rather than as document pills.
+    public var imageDocuments: [OWAttachment] { documents.filter { $0.isImage && $0.id != nil } }
+
+    /// Everything in `documents` that is genuinely a document.
+    public var otherDocuments: [OWAttachment] { documents.filter { !($0.isImage && $0.id != nil) } }
     /// Web-search citations (from the server chat or the SSE sources frame).
     public var sources: [OWWebSource]
     /// Auditable tool runs behind this reply (built-in web search / RAG, or a
