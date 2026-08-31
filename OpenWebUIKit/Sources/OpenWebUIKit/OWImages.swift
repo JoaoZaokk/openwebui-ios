@@ -35,10 +35,19 @@ extension OpenWebUIClient {
     /// Fetches an image at a (possibly relative) server path WITH the Bearer header.
     /// Used for generated images and reloaded chat images (`/api/v1/files/{id}/content`),
     /// which `AsyncImage` can't load because it doesn't send auth.
+    ///
+    /// The header goes on **only** for the configured server. `path` arrives from
+    /// message content — a model's output, an imported chat, a shared conversation —
+    /// and `OWConfig.url` passes an absolute `http(s)://` through untouched, so
+    /// attaching the token unconditionally handed the user's JWT to whatever host
+    /// a message named. Off-origin images still load; they just load anonymously.
     public func imageData(path: String) async -> Data? {
         if path.hasPrefix("data:") { return nil }   // data URLs decode locally, not here
-        var req = URLRequest(url: config.url(path))
-        if let token { req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        let url = config.url(path)
+        var req = URLRequest(url: url)
+        if let token, isSameOrigin(url) {
+            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
         req.timeoutInterval = 60
         return try? await longSession.data(for: req).0
     }

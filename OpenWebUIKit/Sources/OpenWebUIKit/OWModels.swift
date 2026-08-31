@@ -610,3 +610,51 @@ public struct OWChat: Decodable, Sendable, Identifiable {
         }
     }
 }
+
+/// What `GET /api/config` says this server offers. Public, no auth — this is how
+/// the login screen learns whether to draw a password form, an LDAP form, SSO
+/// buttons, or some combination, instead of assuming email+password is the only
+/// way in (github.com/JoaoZaokk/openwebui-ios issue #13).
+public struct OWServerConfig: Decodable, Sendable {
+    public var name: String?
+    public var version: String?
+    public var oauth: OAuth?
+    public var features: Features?
+
+    public struct OAuth: Decodable, Sendable {
+        /// provider key (`google`, `microsoft`, `github`, `oidc`, `feishu`) → the
+        /// label the admin chose. Empty on a server with no SSO configured.
+        public var providers: [String: String]?
+        public var autoRedirect: Bool?
+        enum CodingKeys: String, CodingKey { case providers, autoRedirect = "auto_redirect" }
+    }
+
+    public struct Features: Decodable, Sendable {
+        public var auth: Bool?
+        public var enableLoginForm: Bool?
+        public var enableLdap: Bool?
+        public var enableSignup: Bool?
+        public var authTrustedHeader: Bool?
+        /// New in 0.11: with plugins off the server silently discards `tool_ids`.
+        public var enablePlugins: Bool?
+        enum CodingKeys: String, CodingKey {
+            case auth
+            case enableLoginForm = "enable_login_form"
+            case enableLdap = "enable_ldap"
+            case enableSignup = "enable_signup"
+            case authTrustedHeader = "auth_trusted_header"
+            case enablePlugins = "enable_plugins"
+        }
+    }
+
+    /// Providers in a stable order, so the login screen doesn't reshuffle its
+    /// buttons between launches.
+    public var oauthProviders: [(key: String, label: String)] {
+        (oauth?.providers ?? [:]).map { (key: $0.key, label: $0.value) }
+            .sorted { $0.key < $1.key }
+    }
+    public var passwordLoginAvailable: Bool { features?.enableLoginForm ?? true }
+    public var ldapAvailable: Bool { features?.enableLdap ?? false }
+    /// `false` only when the admin turned plugins off — then `tool_ids` are dropped.
+    public var pluginsAvailable: Bool { features?.enablePlugins ?? true }
+}
