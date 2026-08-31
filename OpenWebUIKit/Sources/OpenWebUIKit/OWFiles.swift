@@ -16,6 +16,8 @@ public struct OWAttachment: Codable, Identifiable, Hashable, Sendable {
     public var id: String?
     public var url: String?
     public var name: String?
+    /// MIME type when the server sent one (`content_type` on a file record).
+    public var contentType: String?
     // web_search entries
     public var collectionName: String?
     public var urls: [String]?
@@ -25,13 +27,34 @@ public struct OWAttachment: Codable, Identifiable, Hashable, Sendable {
     enum CodingKeys: String, CodingKey {
         case type, id, url, name, urls, queries, docs
         case collectionName = "collection_name"
+        case contentType = "content_type"
     }
 
-    public init(type: String, id: String? = nil, url: String? = nil, name: String? = nil) {
-        self.type = type; self.id = id; self.url = url; self.name = name
+    public init(type: String, id: String? = nil, url: String? = nil,
+                name: String? = nil, contentType: String? = nil) {
+        self.type = type; self.id = id; self.url = url
+        self.name = name; self.contentType = contentType
     }
 
-    public var isImage: Bool { type == "image" }
+    static let imageExtensions: Set<String> = [
+        "png", "jpg", "jpeg", "gif", "webp", "heic", "heif", "bmp", "tiff", "tif",
+    ]
+
+    /// Whether this attachment is a picture, however it was attached.
+    ///
+    /// `type == "image"` alone was too narrow: a photo added through the file
+    /// picker, the share sheet, or the web UI is uploaded as a *file*, so it kept
+    /// arriving as `type: "file"` and rendered as a grey document pill named
+    /// "image.png". The server itself uses the wider rule — type **or**
+    /// `content_type` starting with `image/` (utils/middleware.py:2433) — and the
+    /// extension covers the records that carry neither.
+    public var isImage: Bool {
+        if type == "image" { return true }
+        if let ct = contentType?.lowercased(), ct.hasPrefix("image/") { return true }
+        guard let name, let dot = name.lastIndex(of: ".") else { return false }
+        return Self.imageExtensions.contains(name[name.index(after: dot)...].lowercased())
+    }
+
     public var displayName: String { name ?? L("arquivo") }
 }
 

@@ -44,7 +44,8 @@ struct MessageBubble: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 if !message.imageURLs.isEmpty { imagesView }
-                if !message.documents.isEmpty { documentsView }
+                if !message.imageDocuments.isEmpty { imageDocumentsView }
+                if !message.otherDocuments.isEmpty { documentsView }
                 if !isUser && !message.reasoning.isEmpty {
                     ReasoningDisclosure(text: message.reasoning,
                                         streaming: isStreaming && message.content.isEmpty)
@@ -210,9 +211,29 @@ struct MessageBubble: View {
         .frame(maxWidth: 280, alignment: isUser ? .trailing : .leading)
     }
 
+    /// Pictures the server holds by file id. Same grid as `imagesView`, resolved
+    /// through the authenticated content URL — an uploaded photo used to show up
+    /// as a grey pill reading "image.png".
+    private var imageDocumentsView: some View {
+        let cols = [GridItem(.adaptive(minimum: 90, maximum: 140), spacing: 6)]
+        return LazyVGrid(columns: cols, alignment: isUser ? .trailing : .leading, spacing: 6) {
+            ForEach(message.imageDocuments) { doc in
+                if let client, let id = doc.id {
+                    let path = client.fileContentURL(id).absoluteString
+                    Button { viewer = ViewerImage(url: path) } label: {
+                        AttachmentThumb(url: path, size: 120, client: client)
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.border.opacity(0.4), lineWidth: 1))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .frame(maxWidth: 280, alignment: isUser ? .trailing : .leading)
+    }
+
     private var documentsView: some View {
         VStack(alignment: isUser ? .trailing : .leading, spacing: 4) {
-            ForEach(message.documents) { doc in
+            ForEach(message.otherDocuments) { doc in
                 HStack(spacing: 6) {
                     Image(systemName: "doc.fill").font(.ody(size: 12)).foregroundStyle(theme.accent)
                     Text(doc.displayName).font(.ody(size: 11, design: .monospaced))

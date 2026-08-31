@@ -165,3 +165,67 @@ final class AppLanguageMatchTests: XCTestCase {
         XCTAssertNil(AppLanguage.match("xx-YY"))
     }
 }
+
+/// A picture is a picture however it was attached. Open WebUI uploads one added
+/// through the file picker, the share sheet or the web UI as a *file*, so
+/// matching only `type == "image"` drew a grey "image.png" pill where the photo
+/// should have been.
+final class AttachmentImageTests: XCTestCase {
+
+    private func message(files: String) throws -> OWMessage {
+        try JSONDecoder().decode(OWMessage.self, from: Data("""
+        {"id":"m1","role":"user","content":"olha isso","files":\(files)}
+        """.utf8))
+    }
+
+    func testAnUploadedPhotoIsRecognisedByEveryMarkerTheServerUses() {
+        XCTAssertTrue(OWAttachment(type: "image", url: "data:image/png;base64,AA").isImage)
+        XCTAssertTrue(OWAttachment(type: "file", name: "image.png").isImage)
+        XCTAssertTrue(OWAttachment(type: "file", name: "FOTO.JPEG").isImage)
+        XCTAssertTrue(OWAttachment(type: "file", name: "scan.HEIC").isImage)
+        XCTAssertTrue(OWAttachment(type: "file", name: "sem-extensao", contentType: "image/webp").isImage)
+
+        XCTAssertFalse(OWAttachment(type: "file", name: "relatorio.pdf").isImage)
+        XCTAssertFalse(OWAttachment(type: "file", name: "notas.md").isImage)
+        XCTAssertFalse(OWAttachment(type: "file", name: "arquivo").isImage)
+        XCTAssertFalse(OWAttachment(type: "collection", name: "Base").isImage)
+        // "pngzinho" is not a png.
+        XCTAssertFalse(OWAttachment(type: "file", name: "trap.pngzinho").isImage)
+    }
+
+    /// Held by id: renders as a thumbnail through the authenticated content URL.
+    func testImageFileWithOnlyAnIdIsSeparatedFromRealDocuments() throws {
+        let m = try message(files: """
+        [{"type":"file","id":"f1","name":"image.png"},
+         {"type":"file","id":"f2","name":"relatorio.pdf"}]
+        """)
+        XCTAssertEqual(m.imageDocuments.map(\.id), ["f1"])
+        XCTAssertEqual(m.otherDocuments.map(\.id), ["f2"])
+        XCTAssertTrue(m.imageURLs.isEmpty, "no url on the record, so nothing to show directly")
+    }
+
+    /// Held by URL — the shape the web UI writes — goes straight to the image grid.
+    func testImageFileWithAURLBecomesAnInlineImage() throws {
+        let m = try message(files: """
+        [{"type":"file","id":"f3","name":"foto.jpg","url":"/api/v1/files/f3/content",
+          "content_type":"image/jpeg"}]
+        """)
+        XCTAssertEqual(m.imageURLs, ["/api/v1/files/f3/content"])
+        XCTAssertTrue(m.imageDocuments.isEmpty)
+        XCTAssertTrue(m.otherDocuments.isEmpty)
+    }
+
+    func testEveryDocumentStillReachesExactlyOneOfTheTwoLists() throws {
+        let m = try message(files: """
+        [{"type":"file","id":"a","name":"image.png"},
+         {"type":"file","id":"b","name":"doc.pdf"},
+         {"type":"collection","id":"c","name":"Base"},
+         {"type":"file","name":"sem-id.png"}]
+        """)
+        XCTAssertEqual(m.documents.count, 4)
+        XCTAssertEqual(m.imageDocuments.count + m.otherDocuments.count, m.documents.count)
+        // No id means no content URL to fetch — it stays a pill rather than a
+        // thumbnail that could never load.
+        XCTAssertTrue(m.otherDocuments.contains { $0.name == "sem-id.png" })
+    }
+}
