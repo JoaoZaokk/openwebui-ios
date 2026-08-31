@@ -197,8 +197,17 @@ struct MessageBubble: View {
         }
     }
 
+    /// Fixed columns, not `.adaptive`: an adaptive grid claims the full width and
+    /// drops a lone image into its first column, so a photo the user sent hung on
+    /// the left while their bubble sat on the right. Fixed columns make the grid
+    /// only as wide as its contents, and the bubble's own alignment then puts it
+    /// on the correct side.
+    private func thumbColumns(_ count: Int) -> [GridItem] {
+        Array(repeating: GridItem(.fixed(120), spacing: 6), count: max(1, min(count, 2)))
+    }
+
     private var imagesView: some View {
-        let cols = [GridItem(.adaptive(minimum: 90, maximum: 140), spacing: 6)]
+        let cols = thumbColumns(message.imageURLs.count)
         return LazyVGrid(columns: cols, alignment: isUser ? .trailing : .leading, spacing: 6) {
             ForEach(message.imageURLs, id: \.self) { url in
                 Button { viewer = ViewerImage(url: url) } label: {
@@ -208,14 +217,14 @@ struct MessageBubble: View {
                 .buttonStyle(.plain)
             }
         }
-        .frame(maxWidth: 280, alignment: isUser ? .trailing : .leading)
+        .frame(maxWidth: 246, alignment: isUser ? .trailing : .leading)
     }
 
     /// Pictures the server holds by file id. Same grid as `imagesView`, resolved
     /// through the authenticated content URL — an uploaded photo used to show up
     /// as a grey pill reading "image.png".
     private var imageDocumentsView: some View {
-        let cols = [GridItem(.adaptive(minimum: 90, maximum: 140), spacing: 6)]
+        let cols = thumbColumns(message.imageDocuments.count)
         return LazyVGrid(columns: cols, alignment: isUser ? .trailing : .leading, spacing: 6) {
             ForEach(message.imageDocuments) { doc in
                 if let client, let id = doc.id {
@@ -228,7 +237,7 @@ struct MessageBubble: View {
                 }
             }
         }
-        .frame(maxWidth: 280, alignment: isUser ? .trailing : .leading)
+        .frame(maxWidth: 246, alignment: isUser ? .trailing : .leading)
     }
 
     private var documentsView: some View {

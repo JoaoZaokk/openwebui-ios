@@ -48,17 +48,52 @@ struct AttachmentThumb: View {
     var client: OpenWebUIClient? = nil
     @Environment(\.theme) private var theme
     @State private var loaded: OWPlatformImage?
+    /// Why the picture isn't here. A deleted file, a revoked share or a dead
+    /// session used to render as a spinner that never stopped.
+    @State private var failure: String?
+    @State private var attempt = 0
 
     var body: some View {
         Group {
             if let img = AttachImage.decode(url) ?? loaded {
                 Image(platformImage: img).resizable().aspectRatio(contentMode: .fill)
+            } else if let failure {
+                Button { self.failure = nil; attempt += 1 } label: {
+                    ZStack {
+                        theme.panel
+                        VStack(spacing: 4) {
+                            Image(systemName: "photo.badge.exclamationmark")
+                                .font(.system(size: size > 80 ? 22 : 16))
+                            Text(failure)
+                                .font(.ody(size: 9, design: .monospaced))
+                                .multilineTextAlignment(.center).lineLimit(2)
+                                .padding(.horizontal, 4)
+                        }
+                        .foregroundStyle(theme.secondaryText)
+                    }
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(Text(verbatim: failure))
             } else {
                 ZStack { theme.panel; ProgressView().controlSize(.small) }
-                    .task(id: url) {
-                        if AttachImage.decode(url) == nil, let c = client,
-                           let d = await c.imageData(path: url), let i = OWPlatformImage(data: d) {
-                            loaded = i
+                    .task(id: "\(url)#\(attempt)") {
+                        guard AttachImage.decode(url) == nil, let c = client else { return }
+                        do {
+                            let d = try await c.fetchImage(path: url)
+                            if let i = OWPlatformImage(data: d) { loaded = i }
+                            else { failure = L("Erro %@", "?") }
+                        } catch is CancellationError {
+                            // View went away mid-fetch; not a failure to report.
+                        } catch let e as URLError where e.code == .cancelled {
+                            // Same thing wearing a different coat: URLSession
+                            // reports its own cancellation as URLError.cancelled,
+                            // which `catch is CancellationError` never matches. It
+                            // fires whenever the row scrolls out mid-fetch, so
+                            // latching it painted "cancelado" over a picture that
+                            // was fine.
+                        } catch {
+                            failure = (error as? LocalizedError)?.errorDescription
+                                ?? error.localizedDescription
                         }
                     }
             }
