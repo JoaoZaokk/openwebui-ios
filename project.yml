@@ -95,6 +95,23 @@ targets:
         UILaunchScreen:
           UIColorName: "LaunchBackground"
         ITSAppUsesNonExemptEncryption: false
+        # Google **iOS** OAuth client id, for the system sign-in sheet
+        # (ASWebAuthenticationSession), which reuses Safari's session so the user
+        # picks an account instead of typing their email again.
+        #
+        # Empty here on purpose: the feature stays off and sign-in falls back to
+        # the embedded web view, which needs no client of its own. Filling it in
+        # ALSO requires adding the reversed id to CFBundleURLTypes — the app has
+        # to own the scheme Google redirects to — and `ENABLE_OAUTH_TOKEN_EXCHANGE`
+        # on the server, since the sheet can only hand back a URL and the
+        # server's own flow ends in a cookie.
+        #
+        # A **web** client will not work: Google refuses a custom scheme for one,
+        # and its token endpoint requires a secret, which must never ship in an
+        # app. It must be a client of type iOS, bound to this bundle id.
+        # Not a secret — an iOS client has none — but a fork with a different
+        # bundle id needs to register its own.
+        OWGoogleOAuthClientID: ""
         NSLocalNetworkUsageDescription: "O app precisa acessar o servidor Open WebUI na sua rede local."
         NSMicrophoneUsageDescription: "Para ditar mensagens por voz."
         NSSpeechRecognitionUsageDescription: "Para transcrever sua voz em texto no dispositivo."

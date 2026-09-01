@@ -99,7 +99,14 @@ struct LoginView: View {
                         alternativeButton(L("Entrar com %@", p.label), icon: "person.badge.key") {
                             focus = nil
                             app.loginError = nil
-                            sso = p
+                            // The system sheet when this provider can use it —
+                            // it reuses Safari's session, so the account is
+                            // already there. The web view otherwise.
+                            if NativeSSO.isAvailable(provider: p.id) {
+                                Task { await app.loginWithNativeSSO(provider: p.id, anchor: nil) }
+                            } else {
+                                sso = p
+                            }
                         }
                     }
                     if ldapAvailable && !usingLDAP {
