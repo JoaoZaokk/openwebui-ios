@@ -243,3 +243,5 @@
 "Entrar com %@" = "%@ བརྒྱུད་ནས་ནང་འཛུལ།";
 "Entrar com LDAP" = "LDAP བརྒྱུད་ནས་ནང་འཛུལ།";
 "Não foi possível concluir o login." = "ནང་འཛུལ་ལེགས་གྲུབ་བྱུང་མ་སོང་།";
+"Continuar" = "མུ་མཐུད།";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "རྩིས་ཐོ་འདི་ད་དུང་ཞབས་ཞུ་བ་འདིར་ནང་འཛུལ་བྱས་མེད། ཐེངས་དང་པོ་བརྡ་འཚོལ་ཆས་བརྒྱུད་དགོས། དེ་རྗེས་ནང་འཛུལ་ཐད་ཀར་ཡིན།";

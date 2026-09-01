@@ -246,3 +246,5 @@
 "Entrar com %@" = "Bejelentkezés ezzel: %@";
 "Entrar com LDAP" = "Bejelentkezés LDAP-pal";
 "Não foi possível concluir o login." = "A bejelentkezést nem sikerült befejezni.";
+"Continuar" = "Folytatás";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Ez a fiók még nem jelentkezett be erre a kiszolgálóra. Először a böngészőn keresztül kell megtörténnie; utána a bejelentkezés közvetlen.";

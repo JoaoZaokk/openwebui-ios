@@ -243,3 +243,5 @@
 "Entrar com %@" = "เข้าสู่ระบบด้วย %@";
 "Entrar com LDAP" = "เข้าสู่ระบบด้วย LDAP";
 "Não foi possível concluir o login." = "ไม่สามารถเข้าสู่ระบบให้เสร็จสิ้นได้";
+"Continuar" = "ดำเนินการต่อ";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "บัญชีนี้ยังไม่เคยเข้าสู่ระบบเซิร์ฟเวอร์นี้ ครั้งแรกต้องผ่านเบราว์เซอร์ หลังจากนั้นการเข้าสู่ระบบจะตรงไป";

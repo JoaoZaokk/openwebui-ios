@@ -246,3 +246,5 @@
 "Entrar com %@" = "Iniciar sesión con %@";
 "Entrar com LDAP" = "Iniciar sesión con LDAP";
 "Não foi possível concluir o login." = "No se pudo completar el inicio de sesión.";
+"Continuar" = "Continuar";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Esta cuenta aún no ha iniciado sesión en este servidor. La primera vez tiene que ser por el navegador; después, el inicio de sesión es directo.";

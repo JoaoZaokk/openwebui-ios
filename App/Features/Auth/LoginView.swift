@@ -9,6 +9,9 @@ struct LoginView: View {
     @State private var password = ""
     @State private var showServerSheet = false
     @State private var sso: SSOProvider?
+    /// Set when the system sheet signed in fine but this server would not take
+    /// the result — the account has to be created through its own flow first.
+    @State private var needsBrowser: SSOProvider?
     /// LDAP takes a directory username, not an email, so the form has to say which
     /// credential it is asking for.
     @State private var usingLDAP = false
@@ -107,9 +110,11 @@ struct LoginView: View {
                                     // The web view is the fallback, not a dead
                                     // end: a server that will not take the
                                     // provider's token still signs people in
-                                    // through its own flow.
+                                    // through its own flow. But it is a second
+                                    // sign-in with nothing remembered, so say why
+                                    // rather than dropping the user into it.
                                     if await app.loginWithNativeSSO(provider: p.id, anchor: nil) == .serverRefused {
-                                        sso = p
+                                        needsBrowser = p
                                     }
                                 }
                             } else {
@@ -145,6 +150,15 @@ struct LoginView: View {
                 }
             }
             .environment(\.theme, theme)
+        }
+        .alert(L("Continuar"), isPresented: Binding(
+            get: { needsBrowser != nil },
+            set: { if !$0 { needsBrowser = nil } }
+        ), presenting: needsBrowser) { p in
+            Button("Cancelar", role: .cancel) { needsBrowser = nil }
+            Button(L("Continuar")) { let provider = p; needsBrowser = nil; sso = provider }
+        } message: { _ in
+            Text("Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto.")
         }
         .onAppear {
             if email.isEmpty { email = app.savedEmail ?? "" }

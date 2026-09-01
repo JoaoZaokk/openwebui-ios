@@ -243,3 +243,5 @@
 "Entrar com %@" = "Kirjaudu palvelulla %@";
 "Entrar com LDAP" = "Kirjaudu LDAP:lla";
 "Não foi possível concluir o login." = "Kirjautumista ei voitu viimeistellä.";
+"Continuar" = "Jatka";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Tämä tili ei ole vielä kirjautunut tälle palvelimelle. Ensimmäinen kerta on tehtävä selaimessa; sen jälkeen kirjautuminen on suora.";

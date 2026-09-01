@@ -246,3 +246,5 @@
 "Entrar com %@" = "Mit %@ anmelden";
 "Entrar com LDAP" = "Mit LDAP anmelden";
 "Não foi possível concluir o login." = "Die Anmeldung konnte nicht abgeschlossen werden.";
+"Continuar" = "Fortfahren";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Dieses Konto hat sich bei diesem Server noch nicht angemeldet. Das erste Mal muss über den Browser laufen; danach geht die Anmeldung direkt.";

@@ -246,3 +246,5 @@
 "Entrar com %@" = "Најава преку %@";
 "Entrar com LDAP" = "Најава преку LDAP";
 "Não foi possível concluir o login." = "Најавата не можеше да се заврши.";
+"Continuar" = "Продолжи";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Оваа сметка сè уште не се најавила на овој сервер. Првата најава мора да помине преку прелистувачот; потоа најавата е директна.";

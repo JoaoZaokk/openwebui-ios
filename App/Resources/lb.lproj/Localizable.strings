@@ -243,3 +243,5 @@
 "Entrar com %@" = "Mat %@ umellen";
 "Entrar com LDAP" = "Mat LDAP umellen";
 "Não foi possível concluir o login." = "D'Umeldung konnt net ofgeschloss ginn.";
+"Continuar" = "Weider";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Dëse Kont huet sech nach net op dësem Server ugemellt. Dat éischt Mol muss iwwer de Browser lafen; duerno geet d’Umeldung direkt.";
