@@ -314,6 +314,38 @@ public final class OpenWebUIClient: @unchecked Sendable {
         return user
     }
 
+    /// Trades an identity provider's access token for an Open WebUI session.
+    ///
+    /// `POST /api/v1/auths/oauth/{provider}/token/exchange` (auths.py:1588). The
+    /// server validates the token by calling the provider's own `userinfo`, then
+    /// answers with the JWT **in the body** — no cookie. That is what makes the
+    /// system sign-in sheet usable at all: everything it can hand back is a URL,
+    /// and the server's own flow ends in a cookie.
+    ///
+    /// Two refusals worth telling apart, because neither is the user's fault and
+    /// only one is fixable by them:
+    /// - 403 `Token exchange is disabled` — the admin has not set
+    ///   `ENABLE_OAUTH_TOKEN_EXCHANGE` (auths.py:1600).
+    /// - 403 `User not found. Please sign in via the web interface first.` — this
+    ///   endpoint never creates accounts (auths.py:1712), so the first sign-in for
+    ///   a person has to happen in a browser.
+    @discardableResult
+    public func exchangeOAuthToken(provider: String, providerToken: String) async throws -> OWUser {
+        struct Form: Encodable { var token: String }
+        var req = request("/api/v1/auths/oauth/\(encPathSegment(provider))/token/exchange",
+                          method: "POST")
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try JSONEncoder().encode(Form(token: providerToken))
+        let (data, resp) = try await session.data(for: req)
+        if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+            throw OWError.http(http.statusCode, Self.detail(from: data))
+        }
+        let s = try decode(OWSession.self, data)
+        token = s.token
+        tokens.save(token: s.token)
+        return OWUser(session: s)
+    }
+
     /// POST /api/v1/auths/ldap — same session response as `signin`, different
     /// credential store. Offered only when `/api/config` says the server has LDAP.
     @discardableResult

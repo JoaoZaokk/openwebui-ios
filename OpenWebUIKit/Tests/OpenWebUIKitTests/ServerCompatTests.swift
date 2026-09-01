@@ -716,3 +716,102 @@ final class SSOAvailabilityTests: XCTestCase {
         XCTAssertEqual(reachable([], "CN", otherWaysIn: false), [])
     }
 }
+
+/// The native sign-in path: PKCE against the provider, then trade its token for
+/// an Open WebUI session. Worth testing on its own — the parts that can be wrong
+/// silently are all here.
+final class NativeOAuthTests: XCTestCase {
+
+    /// The one vector RFC 7636 publishes, so the implementation is checked against
+    /// the spec rather than against itself.
+    func testTheChallengeMatchesTheSpecVector() {
+        XCTAssertEqual(
+            OWNativeOAuth.challenge(for: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"),
+            "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM")
+    }
+
+    func testAGeneratedVerifierIsUnreservedAndLongEnough() {
+        let allowed = CharacterSet(charactersIn:
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~")
+        for _ in 0..<20 {
+            let v = OWNativeOAuth.PKCE().verifier
+            XCTAssertTrue((43...128).contains(v.count), "length \(v.count)")
+            XCTAssertNil(v.rangeOfCharacter(from: allowed.inverted), v)
+        }
+        XCTAssertNotEqual(OWNativeOAuth.PKCE().verifier, OWNativeOAuth.PKCE().verifier)
+    }
+
+    /// Google demands the reversed client id as an iOS client's redirect. Derived,
+    /// so the URL scheme in the app and the one in the request cannot drift.
+    func testTheGoogleRedirectIsDerivedFromTheClientID() {
+        let id = "1013326705202-abc123.apps.googleusercontent.com"
+        XCTAssertEqual(OWNativeOAuth.googleRedirectScheme(clientID: id),
+                       "com.googleusercontent.apps.1013326705202-abc123")
+        XCTAssertEqual(OWNativeOAuth.googleRedirectURI(clientID: id),
+                       "com.googleusercontent.apps.1013326705202-abc123:/oauth2redirect")
+    }
+
+    /// A web client id has no reversed form — and a web client cannot be used from
+    /// an app anyway, since Google requires its secret at the token endpoint.
+    func testAnIdThatIsNotAGoogleClientHasNoScheme() {
+        XCTAssertNil(OWNativeOAuth.googleRedirectScheme(clientID: "not-a-google-client"))
+        XCTAssertNil(OWNativeOAuth.googleRedirectURI(clientID: ""))
+    }
+
+    func testTheAuthorizationURLCarriesEverythingTheProviderNeeds() throws {
+        let pkce = OWNativeOAuth.PKCE(verifier: "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")
+        let url = try XCTUnwrap(OWNativeOAuth.authorizationURL(
+            endpoint: URL(string: "https://accounts.google.com/o/oauth2/v2/auth")!,
+            clientID: "cid", redirectURI: "com.example:/oauth2redirect",
+            scope: "openid email profile", state: "st4te", pkce: pkce))
+        let q = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
+        func value(_ n: String) -> String? { q.first { $0.name == n }?.value }
+        XCTAssertEqual(value("client_id"), "cid")
+        XCTAssertEqual(value("response_type"), "code")
+        XCTAssertEqual(value("redirect_uri"), "com.example:/oauth2redirect")
+        XCTAssertEqual(value("code_challenge_method"), "S256")
+        XCTAssertEqual(value("code_challenge"), "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM")
+        XCTAssertEqual(value("state"), "st4te")
+        // The verifier is the secret half and must never leave the device.
+        XCTAssertFalse(url.absoluteString.contains(pkce.verifier))
+    }
+
+    // MARK: reading the callback
+
+    func testTheCodeIsReadBack() throws {
+        let url = URL(string: "com.example:/oauth2redirect?code=abc&state=st4te")!
+        XCTAssertEqual(try OWNativeOAuth.code(from: url, expectedState: "st4te"), "abc")
+    }
+
+    /// A reply carrying someone else's state is not an answer to our request.
+    func testAMismatchedStateIsRejectedBeforeTheCodeIsUsed() {
+        let url = URL(string: "com.example:/oauth2redirect?code=abc&state=outro")!
+        XCTAssertThrowsError(try OWNativeOAuth.code(from: url, expectedState: "st4te")) {
+            XCTAssertEqual($0 as? OWNativeOAuth.CallbackError, .stateMismatch)
+        }
+    }
+
+    func testTheProvidersRefusalIsCarriedBack() {
+        let url = URL(string:
+            "com.example:/oauth2redirect?error=access_denied&error_description=Nao%20autorizado&state=st4te")!
+        XCTAssertThrowsError(try OWNativeOAuth.code(from: url, expectedState: "st4te")) {
+            XCTAssertEqual($0 as? OWNativeOAuth.CallbackError, .provider("Nao autorizado"))
+        }
+    }
+
+    /// An error reply is reported as the provider's refusal, not as a state
+    /// mismatch — the user needs to read the real reason.
+    func testAnErrorWinsOverAMissingState() {
+        let url = URL(string: "com.example:/oauth2redirect?error=access_denied")!
+        XCTAssertThrowsError(try OWNativeOAuth.code(from: url, expectedState: "st4te")) {
+            XCTAssertEqual($0 as? OWNativeOAuth.CallbackError, .provider("access_denied"))
+        }
+    }
+
+    func testAReplyWithNoCodeIsAFailure() {
+        let url = URL(string: "com.example:/oauth2redirect?state=st4te")!
+        XCTAssertThrowsError(try OWNativeOAuth.code(from: url, expectedState: "st4te")) {
+            XCTAssertEqual($0 as? OWNativeOAuth.CallbackError, .noCode)
+        }
+    }
+}

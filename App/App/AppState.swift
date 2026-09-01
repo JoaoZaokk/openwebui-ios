@@ -1,3 +1,4 @@
+import AuthenticationServices
 import SwiftUI
 import OpenWebUIKit
 
@@ -126,6 +127,32 @@ final class AppState: ObservableObject {
             phase = .main
         } catch {
             loginError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    /// Signs in through the system sheet, then trades the provider's token for a
+    /// session. Falls back to nothing: the caller decides whether to offer the
+    /// web-view path instead, because only it knows whether this was even tried.
+    func loginWithNativeSSO(provider: String, anchor: ASPresentationAnchor?) async -> Bool {
+        loginError = nil; loggingIn = true
+        defer { loggingIn = false }
+        do {
+            let providerToken = try await NativeSSO.signIn(provider: provider, anchor: anchor)
+            user = try await client.exchangeOAuthToken(provider: provider, providerToken: providerToken)
+            if let email = user?.email, !email.isEmpty {
+                keychain.saveCredentials(email: email, password: nil)
+            }
+            await loadModels()
+            phase = .main
+            await flushPendingChats()
+            return true
+        } catch is CancellationError {
+            return false
+        } catch let e as ASWebAuthenticationSessionError where e.code == .canceledLogin {
+            return false   // the user closed the sheet; not a failure to report
+        } catch {
+            loginError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            return false
         }
     }
 
