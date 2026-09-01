@@ -252,3 +252,5 @@
 "Entrar com %@" = "Sign in with %@";
 "Entrar com LDAP" = "Sign in with LDAP";
 "Não foi possível concluir o login." = "Couldn't complete the sign-in.";
+"Continuar" = "Continue";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "This account hasn't signed in to this server yet. The first time has to go through the browser; after that, signing in is direct.";

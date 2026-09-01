@@ -243,3 +243,5 @@
 "Entrar com %@" = "Pieteikties ar %@";
 "Entrar com LDAP" = "Pieteikties ar LDAP";
 "Não foi possível concluir o login." = "Neizdevās pabeigt pieteikšanos.";
+"Continuar" = "Turpināt";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Šis konts vēl nav pieteicies šajā serverī. Pirmajai reizei jānotiek pārlūkā; pēc tam pieteikšanās ir tieša.";

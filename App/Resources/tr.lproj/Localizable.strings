@@ -246,3 +246,5 @@
 "Entrar com %@" = "%@ ile giriş yap";
 "Entrar com LDAP" = "LDAP ile giriş yap";
 "Não foi possível concluir o login." = "Giriş tamamlanamadı.";
+"Continuar" = "Devam";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Bu hesap bu sunucuya henüz giriş yapmadı. İlk giriş tarayıcıdan yapılmalı; sonrasında giriş doğrudan olur.";

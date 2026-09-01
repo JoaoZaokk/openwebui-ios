@@ -246,3 +246,5 @@
 "Entrar com %@" = "使用 %@ 登录";
 "Entrar com LDAP" = "使用 LDAP 登录";
 "Não foi possível concluir o login." = "无法完成登录。";
+"Continuar" = "继续";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "此账号尚未登录过该服务器。首次需要通过浏览器完成；之后即可直接登录。";

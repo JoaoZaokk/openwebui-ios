@@ -246,3 +246,5 @@
 "Entrar com %@" = "د %@ له لارې ننوتل";
 "Entrar com LDAP" = "د LDAP له لارې ننوتل";
 "Não foi possível concluir o login." = "ننوتل بشپړ نه شو.";
+"Continuar" = "دوام ورکړئ";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "دا حساب لا تر اوسه دې سرور ته نه دی ننوتی. لومړی ځل باید د براوزر له لارې وي؛ وروسته ننوتل مستقیم دي.";

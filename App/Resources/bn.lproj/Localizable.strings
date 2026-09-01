@@ -246,3 +246,5 @@
 "Entrar com %@" = "%@ দিয়ে সাইন ইন করুন";
 "Entrar com LDAP" = "LDAP দিয়ে সাইন ইন করুন";
 "Não foi possível concluir o login." = "সাইন ইন সম্পূর্ণ করা যায়নি।";
+"Continuar" = "চালিয়ে যান";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "এই অ্যাকাউন্টটি এখনও এই সার্ভারে সাইন ইন করেনি। প্রথমবার ব্রাউজারের মাধ্যমে করতে হবে; এরপর সাইন ইন সরাসরি হবে।";

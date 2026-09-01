@@ -246,3 +246,5 @@
 "Entrar com %@" = "Přihlásit se přes %@";
 "Entrar com LDAP" = "Přihlásit se přes LDAP";
 "Não foi possível concluir o login." = "Přihlášení se nepodařilo dokončit.";
+"Continuar" = "Pokračovat";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Tento účet se na tento server ještě nepřihlásil. Poprvé to musí proběhnout přes prohlížeč; potom už je přihlášení přímé.";

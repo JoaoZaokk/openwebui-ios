@@ -246,3 +246,5 @@
 "Entrar com %@" = "Accedi con %@";
 "Entrar com LDAP" = "Accedi con LDAP";
 "Não foi possível concluir o login." = "Non è stato possibile completare l'accesso.";
+"Continuar" = "Continua";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Questo account non ha ancora effettuato l’accesso a questo server. La prima volta deve passare dal browser; dopo, l’accesso è diretto.";

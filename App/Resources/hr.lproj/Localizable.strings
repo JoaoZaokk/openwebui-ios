@@ -246,3 +246,5 @@
 "Entrar com %@" = "Prijava putem %@";
 "Entrar com LDAP" = "Prijava putem LDAP-a";
 "Não foi possível concluir o login." = "Prijavu nije bilo moguće dovršiti.";
+"Continuar" = "Nastavi";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Ovaj se račun još nije prijavio na ovaj poslužitelj. Prvi put mora ići preko preglednika; nakon toga prijava je izravna.";

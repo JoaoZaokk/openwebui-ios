@@ -246,3 +246,5 @@
 "Entrar com %@" = "Đăng nhập bằng %@";
 "Entrar com LDAP" = "Đăng nhập bằng LDAP";
 "Não foi possível concluir o login." = "Không thể hoàn tất đăng nhập.";
+"Continuar" = "Tiếp tục";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Tài khoản này chưa đăng nhập vào máy chủ này. Lần đầu phải qua trình duyệt; sau đó việc đăng nhập là trực tiếp.";

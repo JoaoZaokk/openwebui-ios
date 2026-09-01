@@ -243,3 +243,5 @@
 "Entrar com %@" = "Logga in med %@";
 "Entrar com LDAP" = "Logga in med LDAP";
 "Não foi possível concluir o login." = "Det gick inte att slutföra inloggningen.";
+"Continuar" = "Fortsätt";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Det här kontot har inte loggat in på den här servern än. Första gången måste ske via webbläsaren; därefter sker inloggningen direkt.";

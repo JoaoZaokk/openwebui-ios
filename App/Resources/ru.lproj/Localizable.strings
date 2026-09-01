@@ -246,3 +246,5 @@
 "Entrar com %@" = "Войти через %@";
 "Entrar com LDAP" = "Войти через LDAP";
 "Não foi possível concluir o login." = "Не удалось завершить вход.";
+"Continuar" = "Продолжить";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "Этот аккаунт ещё не входил на этот сервер. Первый вход должен пройти через браузер; после этого вход выполняется напрямую.";

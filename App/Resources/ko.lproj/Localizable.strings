@@ -246,3 +246,5 @@
 "Entrar com %@" = "%@(으)로 로그인";
 "Entrar com LDAP" = "LDAP으로 로그인";
 "Não foi possível concluir o login." = "로그인을 완료하지 못했습니다.";
+"Continuar" = "계속";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "이 계정은 아직 이 서버에 로그인한 적이 없습니다. 처음에는 브라우저를 거쳐야 하며, 이후에는 바로 로그인됩니다.";

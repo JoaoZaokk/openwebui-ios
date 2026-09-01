@@ -243,3 +243,5 @@
 "Entrar com %@" = "התחברות באמצעות %@";
 "Entrar com LDAP" = "התחברות באמצעות LDAP";
 "Não foi possível concluir o login." = "לא ניתן היה להשלים את ההתחברות.";
+"Continuar" = "המשך";
+"Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto." = "החשבון הזה עדיין לא התחבר לשרת הזה. בפעם הראשונה יש לעבור דרך הדפדפן; לאחר מכן ההתחברות ישירה.";
