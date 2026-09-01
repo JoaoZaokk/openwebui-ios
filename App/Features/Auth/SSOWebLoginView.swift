@@ -27,6 +27,10 @@ struct SSOWebLoginView: View {
     /// Recognises the end of the flow. Supplied by the client, which knows the
     /// server's host.
     let isCompletion: (URL) -> Bool
+    /// True when this sheet was reached because the server refused the token the
+    /// system sheet obtained — so the user is about to sign in a second time and
+    /// deserves to know why before it happens.
+    var explainFirst: Bool = false
     /// Called with the session token, or with a message when the flow failed.
     let finished: (Result<String, SSOError>) -> Void
 
@@ -35,6 +39,9 @@ struct SSOWebLoginView: View {
 
     /// True once the provider's page has actually started rendering.
     @State private var loaded = false
+    /// Whether the web view has been allowed to start. False only while the
+    /// explanation is on screen.
+    @State private var started = false
     /// The flow reports once. The watchdog and the web view can both decide it
     /// failed, and the second one to arrive must not reopen a closed sheet.
     @State private var reported = false
@@ -53,12 +60,16 @@ struct SSOWebLoginView: View {
         NavigationStack {
             ZStack {
                 theme.bg.ignoresSafeArea()
-                SSOWebView(start: start, isCompletion: isCompletion,
-                           onCommit: { loaded = true }) { result in
-                    report(result)
+                if started {
+                    SSOWebView(start: start, isCompletion: isCompletion,
+                               onCommit: { loaded = true }) { result in
+                        report(result)
+                    }
+                    .opacity(loaded ? 1 : 0)
+                    if !loaded { waiting }
+                } else {
+                    explanation
                 }
-                .opacity(loaded ? 1 : 0)
-                if !loaded { waiting }
             }
             .ignoresSafeArea(edges: .bottom)
             .navigationTitle(L("Entrar com %@", label))
@@ -72,11 +83,50 @@ struct SSOWebLoginView: View {
             }
         }
         .task {
+            // The explanation is not a page load, so the watchdog only starts
+            // once the web view has actually been asked to load something.
+            started = !explainFirst
+            guard started else { return }
             // Cancelled automatically when the sheet goes away, so a completed
             // sign-in never trips it.
             try? await Task.sleep(for: Self.pageTimeout)
             if !loaded { report(.failure(.noToken)) }
         }
+    }
+
+    /// Why a second sign-in is about to be asked for.
+    ///
+    /// On the sheet rather than in an alert: this screen already carries two
+    /// sheet presentations, and stacking a third presentation modifier on the
+    /// same view is how SwiftUI ends up showing none of them. Saying it here also
+    /// puts the sentence where the thing it describes is about to happen.
+    private var explanation: some View {
+        VStack(spacing: 18) {
+            Image(systemName: "person.badge.plus")
+                .font(.system(size: 34))
+                .foregroundStyle(theme.accent)
+            Text("Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto.")
+                .font(.ody(.subheadline, design: .monospaced))
+                .foregroundStyle(theme.fg)
+                .multilineTextAlignment(.center)
+            Button {
+                started = true
+                Task {
+                    try? await Task.sleep(for: Self.pageTimeout)
+                    if !loaded { report(.failure(.noToken)) }
+                }
+            } label: {
+                Text("Continuar")
+                    .font(.ody(.headline, design: .monospaced))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .background(theme.accent, in: RoundedRectangle(cornerRadius: 12))
+                    .foregroundStyle(theme.onAccent)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(28)
+        .frame(maxWidth: 420)
     }
 
     /// The themed placeholder that used to be a white rectangle.
