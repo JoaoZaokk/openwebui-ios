@@ -653,3 +653,51 @@ final class ServerConfigDiscoveryTests: XCTestCase {
         XCTAssertTrue(c.oauthProviders.isEmpty)
     }
 }
+
+/// A provider a whole country cannot reach opens onto a page that never loads.
+/// The filter for that has to be narrow, or it takes working buttons away from
+/// people who have no firewall in front of them.
+final class SSOAvailabilityTests: XCTestCase {
+
+    private func reachable(_ p: [String], _ country: String?, otherWaysIn: Bool = true) -> [String] {
+        OWSSOAvailability.reachable(p, country: country, otherWaysIn: otherWaysIn)
+    }
+
+    func testGoogleIsDroppedInMainlandChina() {
+        XCTAssertEqual(reachable(["google", "github", "oidc"], "CN"), ["github", "oidc"])
+        XCTAssertEqual(reachable(["Google"], "cn", otherWaysIn: true), [])
+    }
+
+    /// Everything else that speaks Chinese has no firewall: Taiwan, Hong Kong,
+    /// Macau, Singapore, Malaysia — and a Chinese speaker anywhere else.
+    func testOnlyChinaFilters() {
+        for country in ["TW", "HK", "MO", "SG", "MY", "US", "BR", "PT"] {
+            XCTAssertEqual(reachable(["google", "github"], country), ["google", "github"], country)
+        }
+    }
+
+    /// Guessing while the storefront is still unknown would hide a working button.
+    func testAnUnknownCountryFiltersNothing() {
+        XCTAssertEqual(reachable(["google"], nil), ["google"])
+    }
+
+    /// `feishu` is the provider built for that market; `oidc` is the user's own.
+    func testTheProvidersThatDoWorkThereAreKept() {
+        XCTAssertEqual(reachable(["feishu", "oidc", "microsoft", "github"], "CN"),
+                       ["feishu", "oidc", "microsoft", "github"])
+    }
+
+    /// Never leave someone with no way in. A server offering only Google is being
+    /// reached over a VPN already, and the same VPN carries the sign-in.
+    func testTheLastWayInIsNeverTakenAway() {
+        XCTAssertEqual(reachable(["google"], "CN", otherWaysIn: false), ["google"])
+        // But with a password form on screen, it goes.
+        XCTAssertEqual(reachable(["google"], "CN", otherWaysIn: true), [])
+        // And with another provider left, it goes either way.
+        XCTAssertEqual(reachable(["google", "oidc"], "CN", otherWaysIn: false), ["oidc"])
+    }
+
+    func testNoProvidersIsNotAProblem() {
+        XCTAssertEqual(reachable([], "CN", otherWaysIn: false), [])
+    }
+}

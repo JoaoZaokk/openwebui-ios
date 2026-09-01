@@ -30,11 +30,31 @@ struct SSOWebLoginView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.theme) private var theme
 
+    /// True once the provider's page has actually started rendering.
+    @State private var loaded = false
+    /// The flow reports once. The watchdog and the web view can both decide it
+    /// failed, and the second one to arrive must not reopen a closed sheet.
+    @State private var reported = false
+
+    /// How long to wait for the provider's page before calling it unreachable.
+    ///
+    /// A refused connection reports itself in milliseconds and needs no timeout.
+    /// This is for the other shape of failure — a network that accepts the
+    /// connection and then says nothing, which is what a national firewall looks
+    /// like from inside the app: no error, no page, a white rectangle for a
+    /// minute. That is the case this whole screen used to handle by showing
+    /// nothing at all.
+    private static let pageTimeout: Duration = .seconds(20)
+
     var body: some View {
         NavigationStack {
-            SSOWebView(start: start) { result in
-                finished(result)
-                dismiss()
+            ZStack {
+                theme.bg.ignoresSafeArea()
+                SSOWebView(start: start, onCommit: { loaded = true }) { result in
+                    report(result)
+                }
+                .opacity(loaded ? 1 : 0)
+                if !loaded { waiting }
             }
             .ignoresSafeArea(edges: .bottom)
             .navigationTitle(L("Entrar com %@", label))
@@ -47,6 +67,29 @@ struct SSOWebLoginView: View {
                 }
             }
         }
+        .task {
+            // Cancelled automatically when the sheet goes away, so a completed
+            // sign-in never trips it.
+            try? await Task.sleep(for: Self.pageTimeout)
+            if !loaded { report(.failure(.noToken)) }
+        }
+    }
+
+    /// The themed placeholder that used to be a white rectangle.
+    private var waiting: some View {
+        VStack(spacing: 14) {
+            ProgressView().tint(theme.accent)
+            Text(verbatim: label)
+                .font(.ody(.footnote, design: .monospaced))
+                .foregroundStyle(theme.secondaryText)
+        }
+    }
+
+    private func report(_ result: Result<String, SSOError>) {
+        guard !reported else { return }
+        reported = true
+        finished(result)
+        dismiss()
     }
 }
 
@@ -70,9 +113,10 @@ enum SSOError: Error, LocalizedError {
 /// cookie the server just set.
 private struct SSOWebView {
     let start: URL
+    let onCommit: () -> Void
     let done: (Result<String, SSOError>) -> Void
 
-    func makeCoordinator() -> Coordinator { Coordinator(done: done) }
+    func makeCoordinator() -> Coordinator { Coordinator(onCommit: onCommit, done: done) }
 
     func makeWebView(context: Context) -> WKWebView {
         let cfg = WKWebViewConfiguration()
@@ -84,12 +128,23 @@ private struct SSOWebView {
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate {
+        private let onCommit: () -> Void
         private let done: (Result<String, SSOError>) -> Void
         /// The flow ends once. Without this, a redirect chain through `/auth` could
         /// report twice and dismiss a sheet that is already gone.
         private var settled = false
 
-        init(done: @escaping (Result<String, SSOError>) -> Void) { self.done = done }
+        init(onCommit: @escaping () -> Void,
+             done: @escaping (Result<String, SSOError>) -> Void) {
+            self.onCommit = onCommit
+            self.done = done
+        }
+
+        /// The provider's page is rendering: stop showing the placeholder, and
+        /// stand the watchdog down.
+        func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
+            onCommit()
+        }
 
         func webView(_ webView: WKWebView,
                      decidePolicyFor navigationAction: WKNavigationAction,

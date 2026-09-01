@@ -23,7 +23,11 @@ struct LoginView: View {
     }
 
     private var providers: [SSOProvider] {
-        app.serverFeatures?.oauthProviders.map { SSOProvider(id: $0.key, label: $0.label) } ?? []
+        let all = app.serverFeatures?.oauthProviders.map { SSOProvider(id: $0.key, label: $0.label) } ?? []
+        // A provider the whole country cannot reach would open onto a page that
+        // never loads. Dropped only where that is true, and never down to nothing.
+        return AppStorefront.reachableProviders(all, key: \.id,
+                                                otherWaysIn: passwordAvailable || ldapAvailable)
     }
     /// Hidden until the server says it has LDAP, like the SSO buttons.
     private var ldapAvailable: Bool { app.serverFeatures?.ldapAvailable ?? false }
