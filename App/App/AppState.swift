@@ -128,8 +128,43 @@ final class AppState: ObservableObject {
         }
     }
 
+    /// Finishes an SSO sign-in with the session the browser flow handed back.
+    func adoptSSO(token: String) async {
+        loginError = nil; loggingIn = true
+        defer { loggingIn = false }
+        do {
+            user = try await client.adopt(token: token)
+            if let email = user?.email, !email.isEmpty {
+                keychain.saveCredentials(email: email, password: nil)
+            }
+            await loadModels()
+            phase = .main
+            await flushPendingChats()
+        } catch {
+            loginError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    func loginWithLDAP(user name: String, password: String) async {
+        loginError = nil; loggingIn = true
+        defer { loggingIn = false }
+        do {
+            user = try await client.signInLDAP(user: name, password: password)
+            keychain.saveCredentials(email: name, password: nil)
+            await loadModels()
+            phase = .main
+            await flushPendingChats()
+        } catch {
+            loginError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
     func logout() async {
         await client.signOut()
+        // The identity provider's own cookies live in the web view, not in
+        // URLSession — leaving them means the next "sign in with…" walks back into
+        // the same account without asking.
+        await SSOWebSession.clear()
         user = nil
         models = []
         phase = .login

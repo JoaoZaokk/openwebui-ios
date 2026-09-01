@@ -240,3 +240,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "พื้นที่ไม่พอ: ต้องมีว่าง %@";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "ดูเหมือนไม่ใช่โมเดล Whisper แบบ ggml ตรวจสอบว่าลิงก์ชี้ไปที่ไฟล์ ไม่ใช่หน้าเว็บ";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ บทสนทนาถูกบันทึกไว้ในเครื่องแล้ว และจะส่งในภายหลัง";
+"Entrar com %@" = "เข้าสู่ระบบด้วย %@";
+"Entrar com LDAP" = "เข้าสู่ระบบด้วย LDAP";
+"Não foi possível concluir o login." = "ไม่สามารถเข้าสู่ระบบให้เสร็จสิ้นได้";

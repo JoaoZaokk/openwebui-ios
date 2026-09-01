@@ -243,3 +243,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "Espaço insuficiente: são necessários %@ livres.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ A conversa está salva no aparelho e será enviada depois.";
+"Entrar com %@" = "Entrar com %@";
+"Entrar com LDAP" = "Entrar com LDAP";
+"Não foi possível concluir o login." = "Não foi possível concluir o login.";

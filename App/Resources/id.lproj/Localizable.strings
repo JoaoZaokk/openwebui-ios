@@ -243,3 +243,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "Ruang tidak cukup: butuh %@ kosong.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Ini tidak tampak seperti model Whisper ggml. Periksa apakah tautan mengarah ke berkas, bukan ke halaman.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ Percakapan tersimpan di perangkat dan akan dikirim nanti.";
+"Entrar com %@" = "Masuk dengan %@";
+"Entrar com LDAP" = "Masuk dengan LDAP";
+"Não foi possível concluir o login." = "Tidak dapat menyelesaikan proses masuk.";
