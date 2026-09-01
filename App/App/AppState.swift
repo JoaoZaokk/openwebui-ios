@@ -68,6 +68,7 @@ final class AppState: ObservableObject {
     /// blob, and it is what the login screen needs to know which ways in exist.
     /// Leaving it unread meant every session guessed.
     func bootstrap() async {
+        await AppStorefront.refresh()
         await loadServerFeatures()
         guard client.isAuthenticated else { phase = .login; return }
         do {
