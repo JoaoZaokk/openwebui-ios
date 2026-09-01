@@ -262,12 +262,26 @@ public final class OpenWebUIClient: @unchecked Sendable {
     /// Whether a URL the browser flow landed on is where Open WebUI finishes.
     ///
     /// The callback ends with a redirect to `{WEBUI_URL or base}/auth` carrying
-    /// the session in a cookie (oauth.py:2155). Matched on the path alone, on
-    /// purpose: an admin can point `WEBUI_URL` at a different origin than the API,
-    /// and the flow still ends there.
-    public static func isOAuthCompletion(_ url: URL) -> Bool {
+    /// the session in a cookie (oauth.py:2155).
+    ///
+    /// The path has to be `/auth` exactly, unless the host is the server's own.
+    /// A bare `hasSuffix("/auth")` — added so a server mounted under a sub-path
+    /// would still be recognised — matched
+    /// `accounts.google.com/o/oauth2/v2/auth`, which is Google's authorization
+    /// endpoint and the *first* place the flow goes. Signing in with Google
+    /// cancelled itself on the way out and reported no session, every time.
+    public func isOAuthCompletion(_ url: URL) -> Bool {
+        Self.isOAuthCompletion(url, serverHost: config.baseURL.host)
+    }
+
+    static func isOAuthCompletion(_ url: URL, serverHost: String?) -> Bool {
         let path = url.path.hasSuffix("/") ? String(url.path.dropLast()) : url.path
-        return path == "/auth" || path.hasSuffix("/auth")
+        if path == "/auth" { return true }
+        // A sub-path install only counts on the server's own host — never on an
+        // identity provider's.
+        guard let serverHost, let host = url.host,
+              host.caseInsensitiveCompare(serverHost) == .orderedSame else { return false }
+        return path.hasSuffix("/auth")
     }
 
     /// The failure the server redirected with, if it did (`/auth?error=…`).

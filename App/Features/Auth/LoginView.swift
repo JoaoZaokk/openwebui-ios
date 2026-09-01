@@ -122,7 +122,8 @@ struct LoginView: View {
         .sheet(isPresented: $showServerSheet) { ServerSheet().environmentObject(app) }
         .sheet(item: $sso) { p in
             SSOWebLoginView(provider: p.id, label: p.label,
-                            start: app.client.oauthLoginURL(provider: p.id)) { result in
+                            start: app.client.oauthLoginURL(provider: p.id),
+                            isCompletion: { app.client.isOAuthCompletion($0) }) { result in
                 switch result {
                 case .success(let token): Task { await app.adoptSSO(token: token) }
                 case .failure(let e):     app.loginError = e.errorDescription

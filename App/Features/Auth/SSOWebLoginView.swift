@@ -24,6 +24,9 @@ struct SSOWebLoginView: View {
     let provider: String
     let label: String
     let start: URL
+    /// Recognises the end of the flow. Supplied by the client, which knows the
+    /// server's host.
+    let isCompletion: (URL) -> Bool
     /// Called with the session token, or with a message when the flow failed.
     let finished: (Result<String, SSOError>) -> Void
 
@@ -50,7 +53,8 @@ struct SSOWebLoginView: View {
         NavigationStack {
             ZStack {
                 theme.bg.ignoresSafeArea()
-                SSOWebView(start: start, onCommit: { loaded = true }) { result in
+                SSOWebView(start: start, isCompletion: isCompletion,
+                           onCommit: { loaded = true }) { result in
                     report(result)
                 }
                 .opacity(loaded ? 1 : 0)
@@ -113,10 +117,15 @@ enum SSOError: Error, LocalizedError {
 /// cookie the server just set.
 private struct SSOWebView {
     let start: URL
+    /// Deciding where the flow ends needs the server's host, so an identity
+    /// provider's own `/auth` path is never mistaken for it.
+    let isCompletion: (URL) -> Bool
     let onCommit: () -> Void
     let done: (Result<String, SSOError>) -> Void
 
-    func makeCoordinator() -> Coordinator { Coordinator(onCommit: onCommit, done: done) }
+    func makeCoordinator() -> Coordinator {
+        Coordinator(isCompletion: isCompletion, onCommit: onCommit, done: done)
+    }
 
     func makeWebView(context: Context) -> WKWebView {
         let cfg = WKWebViewConfiguration()
@@ -128,14 +137,17 @@ private struct SSOWebView {
     }
 
     final class Coordinator: NSObject, WKNavigationDelegate {
+        private let isCompletion: (URL) -> Bool
         private let onCommit: () -> Void
         private let done: (Result<String, SSOError>) -> Void
         /// The flow ends once. Without this, a redirect chain through `/auth` could
         /// report twice and dismiss a sheet that is already gone.
         private var settled = false
 
-        init(onCommit: @escaping () -> Void,
+        init(isCompletion: @escaping (URL) -> Bool,
+             onCommit: @escaping () -> Void,
              done: @escaping (Result<String, SSOError>) -> Void) {
+            self.isCompletion = isCompletion
             self.onCommit = onCommit
             self.done = done
         }
@@ -150,7 +162,7 @@ private struct SSOWebView {
                      decidePolicyFor navigationAction: WKNavigationAction,
                      decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
             guard !settled, let url = navigationAction.request.url,
-                  OpenWebUIClient.isOAuthCompletion(url) else {
+                  isCompletion(url) else {
                 decisionHandler(.allow)
                 return
             }
