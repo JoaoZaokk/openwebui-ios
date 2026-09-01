@@ -156,11 +156,65 @@ final class OWMultipart {
     private var buffer = Data()
 
     func appendFile(name: String, filename: String, mime: String, fileData: Data) {
+        // The name is normalized before it is written, because whatever goes out
+        // here is what the server keeps: it stores the filename verbatim in
+        // `meta.name` (backend routers/files.py:357,404,409) and hands it back
+        // percent-encoded on download, so a name that leaves wrong stays wrong
+        // everywhere, forever.
+        //
+        // NFC first — the iOS document picker hands over decomposed names, and the
+        // server does not normalize.
+        var base = filename.precomposedStringWithCanonicalMapping
+        if let slash = base.lastIndex(of: "/") { base = String(base[base.index(after: slash)...]) }
+        if base.isEmpty { base = "arquivo" }
+
+        // One `filename=`, in raw UTF-8. Not `filename*=UTF-8''…`: RFC 7578 §4.2
+        // forbids the extended syntax in multipart/form-data and the server's
+        // parser genuinely drops any key containing `*`, so sending it alone makes
+        // the part stop being a file and the upload 422s.
+        let disposition = "form-data; name=\"\(Self.headerQuoted(name))\"; "
+            + "filename=\"\(Self.headerQuoted(base))\""
         write("--\(boundary)\r\n")
-        write("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(filename)\"\r\n")
-        write("Content-Type: \(mime)\r\n\r\n")
+        write("Content-Disposition: \(disposition)\r\n")
+        write("Content-Type: \(Self.headerToken(mime))\r\n\r\n")
         buffer.append(fileData)
         write("\r\n")
+    }
+
+    /// Escapes a value for the header's quoted-string, in the one convention the
+    /// server's parser actually reverses.
+    ///
+    /// It undoes exactly two sequences — `\\` then `\"` — and nothing else, so the
+    /// backslash has to be escaped first for the round-trip to survive. Accents,
+    /// spaces and emoji need no escaping at all and never did: raw UTF-8 between
+    /// the quotes is the native form, which is why a real name like
+    /// `SKILL - cópia.md` was always arriving intact.
+    ///
+    /// What was actually broken is quieter. An unescaped `"` ends the value early:
+    /// a file named `x"; filename="OUTRO.md` uploads under the *other* name, and
+    /// `a";b.txt` arrives as `a`. And there is no escape for a control character —
+    /// the parser reads a header value up to the first CR — so a CRLF in a name
+    /// kills the whole request with a parse error, and a lone LF silently becomes
+    /// part of the filename. Those get replaced, not escaped.
+    private static func headerQuoted(_ s: String) -> String {
+        var out = String.UnicodeScalarView()
+        out.reserveCapacity(s.unicodeScalars.count + 8)
+        for u in s.unicodeScalars {
+            if u == "\\" || u == "\"" {
+                out.append("\\")
+                out.append(u)
+            } else if u.value < 0x20 || u.value == 0x7F {
+                out.append("_")
+            } else {
+                out.append(u)
+            }
+        }
+        return String(out)
+    }
+
+    /// A header value that is not a quoted-string can only be stripped, not escaped.
+    private static func headerToken(_ s: String) -> String {
+        String(String.UnicodeScalarView(s.unicodeScalars.filter { $0.value >= 0x20 && $0.value != 0x7F }))
     }
 
     var finalized: Data {

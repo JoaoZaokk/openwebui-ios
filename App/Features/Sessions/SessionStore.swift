@@ -14,6 +14,17 @@ final class ChatStore: ObservableObject {
     private var query = ""
     /// True when the current list is being served from the offline cache.
     @Published private(set) var offline = false
+    /// Whether another page is worth asking for. The server pages this list 60 at
+    /// a time with the size hardcoded, so a busy account simply lost everything
+    /// past the sixtieth conversation — the list stopped and nothing said why.
+    @Published private(set) var canLoadMore = false
+    @Published private(set) var loadingMore = false
+
+    private var page = 1
+    /// Bumped by every `load()`. A page still in flight when the user pulls to
+    /// refresh would otherwise land on the freshly emptied list and append itself
+    /// back into it.
+    private var generation = 0
 
     private let client: OpenWebUIClient
     let cache: ServerChatCache
@@ -32,17 +43,24 @@ final class ChatStore: ObservableObject {
 
     func load() async {
         loading = true
-        defer { loading = false }
+        generation += 1
+        let mine = generation
+        page = 1
+        defer { if mine == generation { loading = false } }
         do {
             // The main list excludes pinned chats, so fetch those separately and
             // merge. Pinned fetch is best-effort: a failure must not wipe the list.
-            let regular = try await client.chats()
+            let regular = try await client.chats(page: page)
             let pinned: [OWChatSummary] = (try? await client.pinnedChats())?
                 .map { var c = $0; c.pinned = true; return c } ?? []
+            guard mine == generation else { return }
             let pinnedIDs = Set(pinned.map(\.id))
             let merged = pinned + regular.filter { !pinnedIDs.contains($0.id) }
             cache.cacheSummaries(merged)   // keep the offline list fresh
             chats = sorted(merged)
+            // Judge the page by the paged list alone: `merged` carries the pinned
+            // chats, which do not page, and would make a short page look full.
+            canLoadMore = regular.count >= Self.pageSize
             offline = false
             error = nil
             await refreshSearch()
@@ -52,6 +70,42 @@ final class ChatStore: ObservableObject {
             // conversations stay readable offline.
             let cached = cache.cachedSummaries()
             if !cached.isEmpty { chats = sorted(cached); offline = true }
+            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    /// The server's page size for `GET /api/v1/chats/`, hardcoded there — there is
+    /// no parameter to ask for more (backend routers/chats.py:262).
+    private static let pageSize = 60
+
+    /// Appends the next page. Reachable only from the list's own end-of-list row,
+    /// and safe to call again from it: the guards make a repeat a no-op.
+    ///
+    /// A failure here must never take the offline path `load()` takes. That path
+    /// *replaces* the list with the cache, so one failed fifth page would erase the
+    /// four already on screen; here the list stays and only the error is reported.
+    func loadMore() async {
+        guard canLoadMore, !loading, !loadingMore else { return }
+        loadingMore = true
+        let mine = generation
+        defer { if mine == generation { loadingMore = false } }
+        let next = page + 1
+        do {
+            let fresh = try await client.chats(page: next)
+            guard mine == generation else { return }
+            page = next
+            if fresh.count < Self.pageSize { canLoadMore = false }
+            // Offsets drift: a chat that receives a message while you scroll moves
+            // to page 1 and pushes everything down a slot, so the next page repeats
+            // a row. De-duplicate by id rather than trusting the window.
+            let known = Set(chats.map(\.id))
+            let added = fresh.filter { !known.contains($0.id) }
+            guard !added.isEmpty else { return }
+            cache.cacheSummaries(added)
+            chats = sorted(chats + added)
+            await refreshSearch()
+        } catch is CancellationError {
+        } catch {
             self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
         }
     }
@@ -108,10 +162,23 @@ final class ChatStore: ObservableObject {
         do { _ = try await client.cloneChat(chat.id); await load() } catch { report(error) }
     }
 
+    /// Renaming patches the row in place instead of reloading. `load()` resets to
+    /// the first page, so reloading after a rename threw away every page the user
+    /// had scrolled to fetch.
     func rename(_ chat: OWChatSummary, to title: String) async {
         let t = title.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !t.isEmpty else { return }
-        do { try await client.renameChat(chat.id, to: t); await load() } catch { report(error) }
+        do {
+            try await client.renameChat(chat.id, to: t)
+            patchTitle(chat.id, t)
+        } catch { report(error) }
+    }
+
+    /// Updates a row in every list the screen can be showing, the way `forget(_:)`
+    /// already does for removals.
+    private func patchTitle(_ id: String, _ title: String) {
+        if let i = chats.firstIndex(where: { $0.id == id }) { chats[i].title = title }
+        if let i = searchResults.firstIndex(where: { $0.id == id }) { searchResults[i].title = title }
     }
 
     /// Returns the public share URL for the iOS share sheet.

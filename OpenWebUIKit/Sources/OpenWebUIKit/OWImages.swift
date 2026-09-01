@@ -21,7 +21,7 @@ struct OWGeneratedImage: Decodable { var url: String }
 extension OpenWebUIClient {
     /// GET /api/v1/images/models — available image models (ComfyUI etc.).
     public func imageModels() async throws -> [OWNamedItem] {
-        decodeList(OWNamedItem.self, try await send(request("/api/v1/images/models")))
+        try decodeList(OWNamedItem.self, try await send(request("/api/v1/images/models")))
     }
 
     /// POST /api/v1/images/generations → server image paths (need auth to fetch).
@@ -29,7 +29,7 @@ extension OpenWebUIClient {
         var req = try jsonRequest("/api/v1/images/generations", method: "POST", body: body)
         req.timeoutInterval = 600   // generation can be slow
         let data = try await send(req, long: true)
-        return decodeList(OWGeneratedImage.self, data).map(\.url)
+        return try decodeList(OWGeneratedImage.self, data).map(\.url)
     }
 
     /// Fetches an image at a (possibly relative) server path WITH the Bearer header.

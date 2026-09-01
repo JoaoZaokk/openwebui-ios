@@ -69,10 +69,14 @@ struct ChatListView: View {
         NavigationStack(path: $path) {
             ZStack {
                 theme.bg.ignoresSafeArea()
-                content.errorBanner(store.error ?? app.modelsError) {
-                    store.error = nil; app.modelsError = nil
+                VStack(spacing: 0) {
+                    if app.pendingChatCount > 0 { resendRow }
+                    content.errorBanner(store.error ?? app.modelsError) {
+                        store.error = nil; app.modelsError = nil
+                    }
                 }
             }
+            .task { app.refreshPendingCount() }
             .navigationTitle("Open WebUI")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -130,6 +134,31 @@ struct ChatListView: View {
         }
     }
 
+    /// A conversation the server never took is kept on device — but keeping it
+    /// silently is only half an answer. This says something is waiting and hands
+    /// the user the button, instead of making them trust a retry they cannot see.
+    private var resendRow: some View {
+        Button {
+            Task { await app.flushPendingChats() }
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.up.circle").font(.ody(size: 13))
+                Text("Conversas não enviadas. Toque para reenviar.")
+                    .font(.ody(size: 12, design: .monospaced))
+                    .multilineTextAlignment(.leading)
+                Spacer(minLength: 4)
+                if app.resendingPending { ProgressView().controlSize(.small) }
+            }
+            .foregroundStyle(theme.accent)
+            .padding(.horizontal, 14).padding(.vertical, 9)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(theme.panel)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(app.resendingPending)
+    }
+
     @ViewBuilder private var content: some View {
         if store.chats.isEmpty && store.loading {
             ProgressView().tint(theme.accent)
@@ -160,6 +189,17 @@ struct ChatListView: View {
                         }.tint(.orange)
                     }
                     .contextMenu { chatActions(chat) }
+            }
+            // A row of its own, not `onAppear` on the last chat: List recycles its
+            // rows, so that callback also fires on the way back up. This one exists
+            // only while there is another page, so it is both the trigger and the
+            // spinner, and it disappears on its own at the end of the list. Hidden
+            // during a search, which renders a different array entirely.
+            if !searching && store.canLoadMore {
+                HStack { Spacer(); ProgressView().tint(theme.accent); Spacer() }
+                    .listRowBackground(theme.bg)
+                    .listRowSeparator(.hidden)
+                    .onAppear { Task { await store.loadMore() } }
             }
         }
         .listStyle(.plain)

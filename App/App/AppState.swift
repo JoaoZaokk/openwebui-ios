@@ -80,12 +80,22 @@ final class AppState: ObservableObject {
         }
     }
 
+    /// How many conversations are still waiting to reach the server. Drives the
+    /// "resend" row — holding them silently is only half an answer; the user has to
+    /// be able to see that something is waiting and push it themselves.
+    @Published var pendingChatCount = 0
+    @Published var resendingPending = false
+
+    func refreshPendingCount() { pendingChatCount = cache.pendingChats().count }
+
     /// Pushes conversations the app is still holding because a save failed.
     ///
-    /// Runs once the session is known good. Stops at the first failure rather than
-    /// grinding through the queue: they all failed for the same reason a moment
-    /// ago, and the next launch will try again.
+    /// Runs once the session is known good, and again whenever the user taps the
+    /// resend row. Stops at the first failure rather than grinding through the
+    /// queue: they all failed for the same reason a moment ago.
     func flushPendingChats() async {
+        resendingPending = true
+        defer { resendingPending = false; refreshPendingCount() }
         for chat in cache.pendingChats() {
             guard let model = chat.models.first ?? defaultModel else { continue }
             let nodes = chat.messages
