@@ -239,3 +239,4 @@
 "Não consegui acessar esse link: %@" = "Тэр холбоос руу хандаж чадсангүй: %@";
 "Espaço insuficiente: são necessários %@ livres." = "Зай хүрэлцэхгүй: %@ сул зай шаардлагатай.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Энэ Whisper ggml загвар шиг харагдахгүй байна. Холбоос хуудас руу биш файл руу заасан эсэхийг шалгана уу.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ Яриа төхөөрөмж дээр хадгалагдсан бөгөөд дараа илгээгдэнэ.";

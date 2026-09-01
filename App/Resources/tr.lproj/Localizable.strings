@@ -242,3 +242,4 @@
 "Não consegui acessar esse link: %@" = "Bu bağlantıya erişemedim: %@";
 "Espaço insuficiente: são necessários %@ livres." = "Yetersiz alan: %@ boş alan gerekiyor.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Bu bir Whisper ggml modeline benzemiyor. Bağlantının sayfaya değil dosyaya işaret ettiğini kontrol edin.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ Sohbet cihaza kaydedildi ve daha sonra gönderilecek.";

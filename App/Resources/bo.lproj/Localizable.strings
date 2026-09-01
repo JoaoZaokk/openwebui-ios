@@ -239,3 +239,4 @@
 "Não consegui acessar esse link: %@" = "སྦྲེལ་ཐག་དེར་འབྱོར་མ་ཐུབ། %@";
 "Espaço insuficiente: são necessários %@ livres." = "བར་སྟོང་མི་འདང་། %@ སྟོང་པ་དགོས།";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "འདི་ Whisper ggml དཔེ་དབྱིབས་ལྟ་བུ་མི་འདུག སྦྲེལ་ཐག་དེ་ཤོག་ངོས་མིན་པར་ཡིག་ཆ་ལ་སྟོན་མིན་ཞིབ་བཤེར་གནང་།";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ གླེང་མོལ་ཐབས་ཆས་ནང་ཉར་ཚགས་བྱས་ཟིན། རྗེས་སུ་སྐུར་སྲིད།";

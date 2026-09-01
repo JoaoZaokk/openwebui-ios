@@ -242,3 +242,4 @@
 "Não consegui acessar esse link: %@" = "ওই লিঙ্কে পৌঁছানো যায়নি: %@";
 "Espaço insuficiente: são necessários %@ livres." = "জায়গা যথেষ্ট নয়: %@ খালি দরকার।";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "এটি Whisper ggml মডেল বলে মনে হচ্ছে না। লিঙ্কটি পাতা নয়, ফাইলের দিকে নির্দেশ করছে কিনা দেখুন।";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ কথোপকথনটি ডিভাইসে সংরক্ষিত আছে এবং পরে পাঠানো হবে।";

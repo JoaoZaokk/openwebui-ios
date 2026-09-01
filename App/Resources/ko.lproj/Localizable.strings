@@ -242,3 +242,4 @@
 "Não consegui acessar esse link: %@" = "그 링크에 접근하지 못했습니다: %@";
 "Espaço insuficiente: são necessários %@ livres." = "공간이 부족합니다. %@ 의 여유 공간이 필요합니다.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Whisper ggml 모델이 아닌 것 같습니다. 링크가 페이지가 아니라 파일을 가리키는지 확인하세요.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ 대화가 기기에 저장되었으며 나중에 전송됩니다.";

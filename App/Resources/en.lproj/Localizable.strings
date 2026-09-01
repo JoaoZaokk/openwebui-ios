@@ -248,3 +248,4 @@
 "Não consegui acessar esse link: %@" = "Couldn't reach that link: %@";
 "Espaço insuficiente: são necessários %@ livres." = "Not enough space: %@ free required.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "That doesn't look like a Whisper ggml model. Check that the link points to the file, not the page.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ The conversation is saved on this device and will be sent later.";

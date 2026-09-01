@@ -266,6 +266,15 @@ struct OWStatusEntry: Codable {
     var sources: [OWSource]?
     var description: String?
     var done: Bool?
+    /// `queries_generated` carries the searches the server decided to run.
+    var queries: [String]?
+    /// `sources_retrieved` carries only how many documents came back.
+    var count: Int?
+
+    /// Something a user could audit — as opposed to a progress ping.
+    var hasPayload: Bool {
+        !(results ?? "").isEmpty || !(sources ?? []).isEmpty || !(query ?? "").isEmpty
+    }
 }
 
 /// One entry of Open WebUI's NATIVE `sources` array (built-in web search / RAG,
@@ -387,16 +396,48 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         parentId = try? c.decodeIfPresent(String.self, forKey: .parentId)
 
         // Auditable tool runs live in statusHistory — the rich entries carry `action`.
+        //
+        // Most of what the server puts there is progress, not result. Open WebUI
+        // emits `queries_generated`, `sources_retrieved` and bare `web_search`
+        // pings while it works (utils/middleware.py:1504, :2033, :2098); the web UI
+        // shows them for a second and moves on. Turning each into a card left the
+        // reply topped by permanent rows reading `queries_generated` and
+        // `sources_retrieved` — internal event names, in English, with nothing
+        // inside them to open.
+        //
+        // So: a ping with nothing to audit is dropped, and the one genuinely useful
+        // thing it carried — the searches the server actually ran — is folded into
+        // the card that does have something to show.
         let status: [OWStatusEntry] = (try? c.decode([OWStatusEntry].self, forKey: .statusHistory)) ?? []
-        var tools = status.compactMap { e -> OWToolUse? in
-            guard let action = e.action else { return nil }
-            return OWToolUse(action: action, query: e.query ?? "",
-                             results: e.results ?? "", sources: e.sources ?? [])
+        var searches: [String] = []
+        var tools: [OWToolUse] = []
+        for e in status {
+            guard let action = e.action else { continue }
+            if action == "queries_generated" || action == "web_search_queries_generated" {
+                for q in e.queries ?? [] where !q.isEmpty && !searches.contains(q) { searches.append(q) }
+                continue
+            }
+            // Redundant with the source list the card already counts.
+            if action == "sources_retrieved" { continue }
+            guard e.hasPayload else { continue }
+            tools.append(OWToolUse(action: action, query: e.query ?? "",
+                                   results: e.results ?? "", sources: e.sources ?? []))
         }
         // Stock Open WebUI (native web search / RAG, no pipe) exposes the same audit
         // data in `sources`; synthesize a card from it when no rich entry was present.
         if tools.isEmpty, let native = try? c.decode([OWNativeSource].self, forKey: .sources), !native.isEmpty {
             tools = [OWMessage.toolUse(fromNative: native)]
+        }
+        // Name the search after what was searched for. Without this the queries
+        // were the only thing worth keeping out of those pings, and they were the
+        // thing being thrown away.
+        if !searches.isEmpty {
+            let joined = searches.joined(separator: ", ")
+            if let i = tools.firstIndex(where: { $0.action == "web_search" && $0.query.isEmpty }) {
+                tools[i].query = joined
+            } else if tools.isEmpty {
+                tools = [OWToolUse(action: "web_search", query: joined, results: "", sources: [])]
+            }
         }
         toolUses = tools
     }
