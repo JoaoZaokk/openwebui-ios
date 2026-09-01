@@ -103,7 +103,15 @@ struct LoginView: View {
                             // it reuses Safari's session, so the account is
                             // already there. The web view otherwise.
                             if NativeSSO.isAvailable(provider: p.id) {
-                                Task { await app.loginWithNativeSSO(provider: p.id, anchor: nil) }
+                                Task {
+                                    // The web view is the fallback, not a dead
+                                    // end: a server that will not take the
+                                    // provider's token still signs people in
+                                    // through its own flow.
+                                    if await app.loginWithNativeSSO(provider: p.id, anchor: nil) == .serverRefused {
+                                        sso = p
+                                    }
+                                }
                             } else {
                                 sso = p
                             }
