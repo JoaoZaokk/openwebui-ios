@@ -72,7 +72,7 @@ struct OWNoteForm: Encodable {
 
 extension OpenWebUIClient {
     public func notes() async throws -> [OWNote] {
-        decodeList(OWNote.self, try await send(request("/api/v1/notes/")))
+        try decodeList(OWNote.self, try await send(request("/api/v1/notes/")))
     }
 
     public func note(_ id: String) async throws -> OWNote {

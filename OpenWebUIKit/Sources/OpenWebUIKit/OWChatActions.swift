@@ -18,7 +18,7 @@ extension OpenWebUIClient {
     /// GET /api/v1/chats/archived — the user's archived chats (id / title / dates),
     /// so an "Archived" screen can restore or delete them.
     public func archivedChats() async throws -> [OWChatSummary] {
-        decodeList(OWChatSummary.self, try await send(request("/api/v1/chats/archived")))
+        try decodeList(OWChatSummary.self, try await send(request("/api/v1/chats/archived")))
     }
 
     /// POST /api/v1/chats/{id}/clone — duplicates the chat; returns the new id.

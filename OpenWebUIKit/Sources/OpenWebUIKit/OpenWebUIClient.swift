@@ -149,20 +149,63 @@ public final class OpenWebUIClient: @unchecked Sendable {
         catch { throw OWError.decoding(String(describing: error)) }
     }
 
-    /// Decodes either a bare `[T]` array or a single-key wrapper whose value is
-    /// the array (e.g. `{ "data": [...] }`).
-    func decodeList<T: Decodable>(_ type: T.Type, _ data: Data) -> [T] {
-        if let arr = try? JSONDecoder().decode([T].self, from: data) { return arr }
-        if let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-            for v in obj.values {
-                if let inner = v as? [Any],
-                   let d = try? JSONSerialization.data(withJSONObject: inner),
-                   let arr = try? JSONDecoder().decode([T].self, from: d) {
-                    return arr
-                }
-            }
+    /// Decodes a list endpoint: a bare `[T]`, or the array under `key` when the
+    /// endpoint wraps it (`{ "data": [...] }`, `{ "items": [...] }`).
+    ///
+    /// It throws now, and that is the point. Every failure used to become an empty
+    /// list with no error, so a login portal's HTML answered with 200, a truncated
+    /// body or a shape change all rendered as "you have nothing" — the same screen
+    /// a genuinely empty account gets, with nothing to tell them apart. Eleven
+    /// endpoints shared that.
+    ///
+    /// What still returns `[]`, deliberately: an empty body, a literal `null`
+    /// (0.11 answers 200 `null` from the image routes on real paths), `[]`, and
+    /// `{}`. Those are answers, not failures.
+    ///
+    /// The old wrapper fallback — scan `obj.values` for anything array-shaped — is
+    /// gone. `Dictionary.values` has no defined order, and an empty array under any
+    /// key decodes as `[T]` for every `T`, so `{"items": […], "errors": []}` could
+    /// return the wrong one, differently between runs. The key is named per
+    /// endpoint instead, with the bare array still accepted for older servers.
+    func decodeList<T: Decodable>(_ type: T.Type, _ data: Data, key: String? = nil) throws -> [T] {
+        let trimmed = String(data: data, encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines)
+        if data.isEmpty || trimmed?.isEmpty == true { return [] }
+
+        let root: Any
+        do { root = try JSONSerialization.jsonObject(with: data, options: [.fragmentsAllowed]) }
+        catch { throw OWError.decoding(Self.notJSON(data)) }
+
+        if root is NSNull { return [] }
+        if let arr = root as? [Any] { return try Self.decodeElements(type, arr) }
+        guard let obj = root as? [String: Any] else {
+            throw OWError.decoding("unexpected root")
         }
-        return []
+        if obj.isEmpty { return [] }
+        guard let key else { throw OWError.decoding("expected a list, got an object") }
+        guard let inner = obj[key] as? [Any] else { throw OWError.decoding("missing `\(key)`") }
+        return try Self.decodeElements(type, inner)
+    }
+
+    /// Per-element, so one exotic row doesn't erase the collection — but all of
+    /// them failing means the body is something else entirely, not a stray row.
+    private static func decodeElements<T: Decodable>(_ type: T.Type, _ raw: [Any]) throws -> [T] {
+        guard !raw.isEmpty else { return [] }
+        guard let d = try? JSONSerialization.data(withJSONObject: raw),
+              let lossy = try? JSONDecoder().decode([OWLossy<T>].self, from: d) else {
+            throw OWError.decoding("undecodable list")
+        }
+        let out = lossy.compactMap(\.value)
+        if out.isEmpty { throw OWError.decoding("0 of \(raw.count) items decoded") }
+        return out
+    }
+
+    /// A short, quotable head of a body that isn't JSON — an auth portal's HTML
+    /// answered with 200 is the case worth naming.
+    private static func notJSON(_ data: Data) -> String {
+        let head = String(data: data.prefix(120), encoding: .utf8)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "\n", with: " ") ?? "\(data.count) bytes"
+        return head.isEmpty ? "\(data.count) bytes" : head
     }
 
     static func detail(from data: Data) -> String? {
@@ -261,10 +304,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
 
     /// GET /api/models → `{ data: [...] }`.
     public func models() async throws -> [OWModel] {
-        struct Wrap: Decodable { var data: [OWModel] }
-        let data = try await send(request("/api/models"))
-        if let w = try? JSONDecoder().decode(Wrap.self, from: data) { return w.data }
-        return decodeList(OWModel.self, data)
+        try decodeList(OWModel.self, try await send(request("/api/models")), key: "data")
     }
 
     // MARK: - Chats
@@ -282,13 +322,13 @@ public final class OpenWebUIClient: @unchecked Sendable {
     /// Still one page of 60. There is no "load more" yet.
     public func chats(page: Int = 1) async throws -> [OWChatSummary] {
         let data = try await send(request("/api/v1/chats/?page=\(page)&include_folders=true"))
-        return decodeList(OWChatSummary.self, data)
+        return try decodeList(OWChatSummary.self, data)
     }
 
     /// GET /api/v1/chats/pinned — the user's pinned chats (kept out of the main list).
     public func pinnedChats() async throws -> [OWChatSummary] {
         let data = try await send(request("/api/v1/chats/pinned"))
-        return decodeList(OWChatSummary.self, data)
+        return try decodeList(OWChatSummary.self, data)
     }
 
     /// GET /api/v1/chats/{id} — full chat with messages.

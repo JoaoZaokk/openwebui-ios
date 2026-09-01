@@ -441,3 +441,128 @@ final class StatusHistoryCardTests: XCTestCase {
         XCTAssertTrue(try message("[]").toolUses.isEmpty)
     }
 }
+
+/// Every list failure used to become an empty list with no error, so a login
+/// portal answered with 200 looked exactly like an account with nothing in it.
+final class DecodeListTests: XCTestCase {
+    private let client = OpenWebUIClient(config: .default,
+                                         tokens: OWKeychainStore(service: "tests.decodelist"))
+    private struct Row: Decodable, Equatable { var id: String }
+
+    private func decode(_ body: String, key: String? = nil) throws -> [Row] {
+        try client.decodeList(Row.self, Data(body.utf8), key: key)
+    }
+
+    // MARK: answers, not failures
+
+    func testTheEmptyAnswersStayEmpty() throws {
+        XCTAssertEqual(try decode(""), [])
+        XCTAssertEqual(try decode("   \n "), [])
+        XCTAssertEqual(try decode("[]"), [])
+        XCTAssertEqual(try decode("{}", key: "data"), [])
+        // 0.11 answers 200 `null` from the image routes on real paths.
+        XCTAssertEqual(try decode("null"), [])
+    }
+
+    func testABareArrayDecodes() throws {
+        XCTAssertEqual(try decode(#"[{"id":"a"},{"id":"b"}]"#), [Row(id: "a"), Row(id: "b")])
+    }
+
+    func testTheNamedWrapperDecodes() throws {
+        XCTAssertEqual(try decode(#"{"data":[{"id":"a"}],"total":1}"#, key: "data"), [Row(id: "a")])
+        XCTAssertEqual(try decode(#"{"items":[{"id":"z"}]}"#, key: "items"), [Row(id: "z")])
+    }
+
+    /// Older servers answered these same endpoints with a bare array.
+    func testAWrappedEndpointStillAcceptsABareArray() throws {
+        XCTAssertEqual(try decode(#"[{"id":"a"}]"#, key: "items"), [Row(id: "a")])
+    }
+
+    // MARK: failures that used to be silent
+
+    /// The whole point: an auth portal's HTML, served with 200.
+    func testHTMLIsAFailureNotAnEmptyList() {
+        XCTAssertThrowsError(try decode("<!doctype html><html><body>Sign in</body></html>"))
+    }
+
+    func testAnObjectWhereAListWasPromisedIsAFailure() {
+        XCTAssertThrowsError(try decode(#"{"detail":"nope"}"#))
+    }
+
+    func testTheNamedKeyMissingIsAFailure() {
+        XCTAssertThrowsError(try decode(#"{"results":[{"id":"a"}]}"#, key: "data"))
+    }
+
+    func testAListOfSomethingElseEntirelyIsAFailure() {
+        XCTAssertThrowsError(try decode(#"["a","b"]"#))
+    }
+
+    /// One exotic row must not erase the collection — that policy stays.
+    func testOneUndecodableRowIsDroppedNotFatal() throws {
+        XCTAssertEqual(try decode(#"[{"id":"a"},"lixo",{"id":"b"}]"#), [Row(id: "a"), Row(id: "b")])
+    }
+
+    /// The old wrapper fallback scanned `obj.values` in undefined order, and an
+    /// empty array under any key decodes as `[T]` for every `T`.
+    func testAnEmptyArrayUnderAnotherKeyIsNotTheAnswer() {
+        XCTAssertThrowsError(try decode(#"{"errors":[],"items":[{"id":"a"}]}"#, key: "data"))
+    }
+}
+
+/// A filename is written once and kept forever: the server stores it verbatim
+/// and hands it back on every download.
+final class MultipartFilenameTests: XCTestCase {
+
+    private func disposition(_ filename: String) -> String {
+        let form = OWMultipart()
+        form.appendFile(name: "file", filename: filename, mime: "text/markdown", fileData: Data("x".utf8))
+        let body = String(data: form.finalized, encoding: .utf8) ?? ""
+        return body.split(separator: "\r\n").first { $0.hasPrefix("Content-Disposition:") }.map(String.init) ?? ""
+    }
+
+    /// A real name from the owner's server. Accents and spaces were never the
+    /// problem — raw UTF-8 between the quotes is the native form.
+    func testAccentsAndSpacesGoThroughUntouched() {
+        XCTAssertTrue(disposition("SKILL - cópia.md").hasSuffix(#"filename="SKILL - cópia.md""#))
+    }
+
+    /// The real break: an unescaped quote ends the value early, and a crafted name
+    /// could rename the upload to something else entirely.
+    func testAQuoteIsEscapedRatherThanEndingTheValue() {
+        XCTAssertTrue(disposition(#"nota"aspas".txt"#).hasSuffix(#"filename="nota\"aspas\".txt""#))
+        XCTAssertTrue(disposition(#"x"; filename="OUTRO.md"#)
+            .hasSuffix(#"filename="x\"; filename=\"OUTRO.md""#))
+    }
+
+    /// Backslash first, mirroring the order the server's parser unescapes in.
+    func testABackslashIsDoubled() {
+        XCTAssertTrue(disposition(#"tras\"#).hasSuffix(#"filename="tras\\""#))
+    }
+
+    /// There is no escape for a control character: a CRLF would end the header and
+    /// kill the whole request, a lone LF would silently join the filename.
+    func testControlCharactersAreReplaced() {
+        let d = disposition("quebra\r\nlinha.txt")
+        XCTAssertTrue(d.hasSuffix(#"filename="quebra__linha.txt""#))
+        XCTAssertFalse(d.contains("\r"))
+        XCTAssertFalse(d.contains("\n"))
+    }
+
+    func testAPathIsReducedToItsLastComponent() {
+        XCTAssertTrue(disposition("caminho/para/foto.png").hasSuffix(#"filename="foto.png""#))
+    }
+
+    func testAnEmptyNameGetsAFallback() {
+        XCTAssertTrue(disposition("").hasSuffix(#"filename="arquivo""#))
+    }
+
+    func testEmojiSurvive() {
+        XCTAssertTrue(disposition("🚀💥.png").hasSuffix(#"filename="🚀💥.png""#))
+    }
+
+    /// `filename*=UTF-8''…` is forbidden here and the server's parser drops any
+    /// key containing `*`; alone it would stop the part being a file at all.
+    func testNoExtendedFilenameParameter() {
+        XCTAssertFalse(disposition("SKILL - cópia.md").contains("filename*"))
+    }
+}

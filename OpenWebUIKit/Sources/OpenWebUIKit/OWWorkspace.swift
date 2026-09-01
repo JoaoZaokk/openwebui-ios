@@ -33,18 +33,18 @@ public struct OWNamedItem: Decodable, Identifiable, Hashable, Sendable {
 extension OpenWebUIClient {
     /// GET /api/v1/knowledge/ → `{ items: [...] }`.
     public func knowledgeBases() async throws -> [OWNamedItem] {
-        decodeList(OWNamedItem.self, try await send(request("/api/v1/knowledge/")))
+        try decodeList(OWNamedItem.self, try await send(request("/api/v1/knowledge/")), key: "items")
     }
     /// GET /api/v1/prompts/ → `[...]`.
     public func prompts() async throws -> [OWNamedItem] {
-        decodeList(OWNamedItem.self, try await send(request("/api/v1/prompts/")))
+        try decodeList(OWNamedItem.self, try await send(request("/api/v1/prompts/")))
     }
     /// GET /api/v1/tools/ → `[...]`.
     public func tools() async throws -> [OWNamedItem] {
-        decodeList(OWNamedItem.self, try await send(request("/api/v1/tools/")))
+        try decodeList(OWNamedItem.self, try await send(request("/api/v1/tools/")))
     }
     /// GET /api/v1/functions/ → `[...]`.
     public func functions() async throws -> [OWNamedItem] {
-        decodeList(OWNamedItem.self, try await send(request("/api/v1/functions/")))
+        try decodeList(OWNamedItem.self, try await send(request("/api/v1/functions/")))
     }
 }
