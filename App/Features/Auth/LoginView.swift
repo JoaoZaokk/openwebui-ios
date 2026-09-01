@@ -10,8 +10,9 @@ struct LoginView: View {
     @State private var showServerSheet = false
     @State private var sso: SSOProvider?
     /// Set when the system sheet signed in fine but this server would not take
-    /// the result — the account has to be created through its own flow first.
-    @State private var needsBrowser: SSOProvider?
+    /// the result — the account has to be created through its own flow first, so
+    /// the web view opens with an explanation instead of straight into Google.
+    @State private var explainBrowserStep = false
     /// LDAP takes a directory username, not an email, so the form has to say which
     /// credential it is asking for.
     @State private var usingLDAP = false
@@ -105,6 +106,7 @@ struct LoginView: View {
                             // The system sheet when this provider can use it —
                             // it reuses Safari's session, so the account is
                             // already there. The web view otherwise.
+                            explainBrowserStep = false
                             if NativeSSO.isAvailable(provider: p.id) {
                                 Task {
                                     // The web view is the fallback, not a dead
@@ -114,7 +116,8 @@ struct LoginView: View {
                                     // sign-in with nothing remembered, so say why
                                     // rather than dropping the user into it.
                                     if await app.loginWithNativeSSO(provider: p.id, anchor: nil) == .serverRefused {
-                                        needsBrowser = p
+                                        explainBrowserStep = true
+                                        sso = p
                                     }
                                 }
                             } else {
@@ -143,22 +146,14 @@ struct LoginView: View {
         .sheet(item: $sso) { p in
             SSOWebLoginView(provider: p.id, label: p.label,
                             start: app.client.oauthLoginURL(provider: p.id),
-                            isCompletion: { app.client.isOAuthCompletion($0) }) { result in
+                            isCompletion: { app.client.isOAuthCompletion($0) },
+                            explainFirst: explainBrowserStep) { result in
                 switch result {
                 case .success(let token): Task { await app.adoptSSO(token: token) }
                 case .failure(let e):     app.loginError = e.errorDescription
                 }
             }
             .environment(\.theme, theme)
-        }
-        .alert(L("Continuar"), isPresented: Binding(
-            get: { needsBrowser != nil },
-            set: { if !$0 { needsBrowser = nil } }
-        ), presenting: needsBrowser) { p in
-            Button("Cancelar", role: .cancel) { needsBrowser = nil }
-            Button(L("Continuar")) { let provider = p; needsBrowser = nil; sso = provider }
-        } message: { _ in
-            Text("Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto.")
         }
         .onAppear {
             if email.isEmpty { email = app.savedEmail ?? "" }
