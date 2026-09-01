@@ -239,3 +239,4 @@
 "Não consegui acessar esse link: %@" = "Linkkiin ei saatu yhteyttä: %@";
 "Espaço insuficiente: são necessários %@ livres." = "Tila ei riitä: tarvitaan %@ vapaana.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Tämä ei näytä Whisperin ggml-mallilta. Tarkista, että linkki osoittaa tiedostoon eikä sivuun.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ Keskustelu on tallennettu laitteeseen ja lähetetään myöhemmin.";

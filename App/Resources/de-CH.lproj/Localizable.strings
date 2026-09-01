@@ -242,3 +242,4 @@
 "Não consegui acessar esse link: %@" = "Dieser Link war nicht erreichbar: %@";
 "Espaço insuficiente: são necessários %@ livres." = "Zu wenig Speicher: %@ frei erforderlich.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Das sieht nicht nach einem Whisper-ggml-Modell aus. Prüfe, ob der Link auf die Datei zeigt und nicht auf die Seite.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ Das Gespräch ist auf dem Gerät gespeichert und wird später gesendet.";

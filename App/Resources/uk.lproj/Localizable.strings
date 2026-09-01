@@ -242,3 +242,4 @@
 "Não consegui acessar esse link: %@" = "Не вдалося відкрити це посилання: %@";
 "Espaço insuficiente: são necessários %@ livres." = "Недостатньо місця: потрібно %@ вільних.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Це не схоже на модель Whisper ggml. Перевірте, чи посилання веде на файл, а не на сторінку.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ Розмову збережено на пристрої, її буде надіслано пізніше.";

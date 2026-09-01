@@ -184,7 +184,7 @@ final class CachedServerChat {
 @MainActor
 final class ServerChatCache {
     private let container: ModelContainer
-    private var ctx: ModelContext { container.mainContext }
+    fileprivate var ctx: ModelContext { container.mainContext }
 
     init() {
         // Fall back to an in-memory store if the on-disk one can't open, so a
@@ -223,7 +223,9 @@ final class ServerChatCache {
     /// genuinely readable offline, newest first.
     func cachedSummaries() -> [OWChatSummary] {
         let d = FetchDescriptor<CachedServerChat>(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)])
-        return ((try? ctx.fetch(d)) ?? []).filter(\.hasHistory).map {
+        return ((try? ctx.fetch(d)) ?? [])
+            .filter { $0.hasHistory && !PendingChat.isPending($0.id) }
+            .map {
             OWChatSummary(id: $0.id, title: $0.title, updatedAt: $0.updatedAt,
                           createdAt: $0.createdAt, pinned: $0.pinned, archived: $0.archived)
         }
@@ -264,6 +266,7 @@ final class ServerChatCache {
         let d = FetchDescriptor<CachedServerChat>(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)])
         var out: [OWChatSummary] = []
         for c in (try? ctx.fetch(d)) ?? [] {
+            guard !PendingChat.isPending(c.id) else { continue }
             guard c.hasHistory || c.title.lowercased().contains(q) else { continue }
             if let snip = Self.match(title: c.title, bodies: c.messages.map(\.content), query: q) {
                 out.append(OWChatSummary(id: c.id, title: c.title, updatedAt: c.updatedAt,
@@ -286,5 +289,57 @@ final class ServerChatCache {
             }
         }
         return title.lowercased().contains(query) ? title : nil
+    }
+}
+
+
+/// A conversation the app holds because the server did not take it.
+///
+/// The turn had already streamed and the user had already read it, but the save
+/// that follows can fail on its own — a dropped connection, a server restart —
+/// and the app used to answer that by putting the reason in a banner and keeping
+/// the words nowhere. Leave the screen and the conversation was gone, having
+/// visibly happened.
+///
+/// So a failed save is written to the same on-device store the offline cache
+/// uses, and retried on the next launch. The id says which write to retry with,
+/// because the two are not interchangeable: a chat the server has never seen must
+/// be created, and one it already knows must go through the merge-safe sync that
+/// protects everything the app did not write.
+enum PendingChat {
+    private static let newPrefix = "local:new:"
+    private static let syncPrefix = "local:sync:"
+
+    static func isPending(_ id: String) -> Bool {
+        id.hasPrefix(newPrefix) || id.hasPrefix(syncPrefix)
+    }
+
+    /// The local id for a chat the server has never seen. Stable per view model,
+    /// so retrying a save overwrites the draft instead of stacking copies.
+    static func idForNew(_ localID: String) -> String { newPrefix + localID }
+    /// The local id for a chat that exists on the server but is missing this turn.
+    static func idForSync(_ serverID: String) -> String { syncPrefix + serverID }
+
+    /// The server id to sync into, or nil when the chat has to be created.
+    static func serverID(of localID: String) -> String? {
+        localID.hasPrefix(syncPrefix) ? String(localID.dropFirst(syncPrefix.count)) : nil
+    }
+}
+
+extension ServerChatCache {
+    /// Keeps a conversation the server refused. Overwrites any earlier attempt for
+    /// the same chat — this is a draft, not a log.
+    func keepPending(id: String, title: String, models: [String], messages: [OWMessage]) {
+        guard !messages.isEmpty else { return }
+        cacheChat(OWChat(id: id, title: title, models: models, messages: messages))
+    }
+
+    /// Every conversation still waiting to reach the server, oldest first so they
+    /// are retried in the order they happened.
+    func pendingChats() -> [OWChat] {
+        let d = FetchDescriptor<CachedServerChat>(sortBy: [SortDescriptor(\.updatedAt, order: .forward)])
+        return ((try? ctx.fetch(d)) ?? [])
+            .filter { PendingChat.isPending($0.id) && $0.hasHistory }
+            .map { OWChat(id: $0.id, title: $0.title, models: $0.models, messages: $0.messages) }
     }
 }

@@ -242,3 +242,4 @@
 "Não consegui acessar esse link: %@" = "Tidak dapat mengakses pautan itu: %@";
 "Espaço insuficiente: são necessários %@ livres." = "Ruang tidak mencukupi: perlukan %@ kosong.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Ini tidak kelihatan seperti model Whisper ggml. Periksa sama ada pautan menghala ke fail, bukan ke halaman.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ Perbualan disimpan pada peranti dan akan dihantar kemudian.";

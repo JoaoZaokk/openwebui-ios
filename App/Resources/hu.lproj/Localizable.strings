@@ -242,3 +242,4 @@
 "Não consegui acessar esse link: %@" = "Nem sikerült elérni ezt a hivatkozást: %@";
 "Espaço insuficiente: são necessários %@ livres." = "Nincs elég hely: %@ szabad hely szükséges.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Ez nem tűnik Whisper ggml modellnek. Ellenőrizd, hogy a hivatkozás a fájlra mutat-e, nem az oldalra.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ A beszélgetés mentve van az eszközön, és később elküldjük.";

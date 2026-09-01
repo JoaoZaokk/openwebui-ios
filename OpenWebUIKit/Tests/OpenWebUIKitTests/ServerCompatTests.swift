@@ -382,3 +382,62 @@ final class NativeSourceCardTests: XCTestCase {
         XCTAssertEqual(m.toolUses[0].title, "SKILL.md, notas.pdf")
     }
 }
+
+/// Open WebUI emits progress while it works — `queries_generated`,
+/// `sources_retrieved`, bare `web_search` pings. The web UI shows them for a
+/// second; carding each one left the reply topped by permanent rows named after
+/// internal events, with nothing inside them to open.
+final class StatusHistoryCardTests: XCTestCase {
+
+    private func message(_ status: String, sources: String = "[]") throws -> OWMessage {
+        try JSONDecoder().decode(OWMessage.self, from: Data("""
+        {"id":"a1","role":"assistant","content":"ok","statusHistory":\(status),"sources":\(sources)}
+        """.utf8))
+    }
+
+    func testProgressPingsDoNotBecomeCards() throws {
+        let m = try message("""
+        [{"action":"queries_generated","queries":["vídeo UGC"],"done":false},
+         {"action":"sources_retrieved","count":5,"done":true},
+         {"action":"web_search","description":"Searching the web","done":false}]
+        """)
+        XCTAssertFalse(m.toolUses.contains { $0.action == "sources_retrieved" })
+        XCTAssertFalse(m.toolUses.contains { $0.title == "queries_generated" })
+    }
+
+    /// The queries were the one useful thing in those pings — and the thing being
+    /// discarded. They name the search now.
+    func testTheGeneratedQueriesNameTheSearch() throws {
+        let m = try message("""
+        [{"action":"queries_generated","queries":["vídeo UGC","luz de estúdio"],"done":false},
+         {"action":"sources_retrieved","count":2,"done":true}]
+        """)
+        XCTAssertEqual(m.toolUses.count, 1)
+        XCTAssertEqual(m.toolUses[0].action, "web_search")
+        XCTAssertEqual(m.toolUses[0].title, "vídeo UGC, luz de estúdio")
+    }
+
+    func testAnEntryCarryingRealResultsIsStillACard() throws {
+        let m = try message("""
+        [{"action":"weather","query":"São Paulo","results":"28°C"}]
+        """)
+        XCTAssertEqual(m.toolUses.count, 1)
+        XCTAssertEqual(m.toolUses[0].title, "São Paulo")
+        XCTAssertEqual(m.toolUses[0].results, "28°C")
+    }
+
+    func testQueriesAreFoldedIntoTheCardBuiltFromNativeSources() throws {
+        let m = try message("""
+        [{"action":"queries_generated","queries":["chevette 1985"],"done":false}]
+        """, sources: """
+        [{"source":{"name":"Wiki","id":"https://ex.com/a"},"document":["texto"]}]
+        """)
+        XCTAssertEqual(m.toolUses.count, 1)
+        XCTAssertEqual(m.toolUses[0].title, "chevette 1985")
+        XCTAssertEqual(m.toolUses[0].sources.count, 1)
+    }
+
+    func testNoStatusAndNoSourcesMeansNoCards() throws {
+        XCTAssertTrue(try message("[]").toolUses.isEmpty)
+    }
+}

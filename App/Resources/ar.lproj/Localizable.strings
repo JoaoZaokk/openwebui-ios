@@ -242,3 +242,4 @@
 "Não consegui acessar esse link: %@" = "تعذّر الوصول إلى هذا الرابط: %@";
 "Espaço insuficiente: são necessários %@ livres." = "المساحة غير كافية: يلزم %@ متاحة.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "لا يبدو هذا نموذج Whisper بصيغة ggml. تحقق من أن الرابط يشير إلى الملف لا إلى الصفحة.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ المحادثة محفوظة على الجهاز وسيتم إرسالها لاحقًا.";

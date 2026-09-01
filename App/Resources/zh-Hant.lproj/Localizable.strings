@@ -242,3 +242,4 @@
 "Não consegui acessar esse link: %@" = "無法存取該連結：%@";
 "Espaço insuficiente: são necessários %@ livres." = "空間不足：需要 %@ 可用空間。";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "這看起來不是 Whisper 的 ggml 模型。請檢查連結是否指向檔案而非頁面。";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ 對話已儲存在本機，稍後會傳送。";

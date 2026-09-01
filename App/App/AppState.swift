@@ -74,8 +74,34 @@ final class AppState: ObservableObject {
             user = try await client.me()
             await loadModels()
             phase = .main
+            await flushPendingChats()
         } catch {
             phase = .login
+        }
+    }
+
+    /// Pushes conversations the app is still holding because a save failed.
+    ///
+    /// Runs once the session is known good. Stops at the first failure rather than
+    /// grinding through the queue: they all failed for the same reason a moment
+    /// ago, and the next launch will try again.
+    func flushPendingChats() async {
+        for chat in cache.pendingChats() {
+            guard let model = chat.models.first ?? defaultModel else { continue }
+            let nodes = chat.messages
+            let leaf = OWChat.activeBranch(nodes, currentId: nil).last?.id
+            do {
+                if let serverID = PendingChat.serverID(of: chat.id) {
+                    try await client.syncChatTree(id: serverID, title: chat.title,
+                                                  models: [model], tree: nodes, currentId: leaf)
+                } else {
+                    _ = try await client.createChatTree(title: chat.title, models: [model],
+                                                        tree: nodes, currentId: leaf)
+                }
+                cache.deleteCached(id: chat.id)
+            } catch {
+                return
+            }
         }
     }
 

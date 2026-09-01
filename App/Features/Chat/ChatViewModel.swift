@@ -63,6 +63,8 @@ final class ChatViewModel: ObservableObject {
     // Edit / regenerate / retry add SIBLING nodes and move the leaf — nothing is
     // ever deleted, so branches (including ones made in the web UI) survive.
     private var tree: [String: OWMessage] = [:]
+    /// Identity for an unsent copy of a chat the server has never seen.
+    private let localDraftID = UUID().uuidString
     private var currentLeafId: String?
 
     init(client: OpenWebUIClient, completions: ChatCompletionsClient,
@@ -432,6 +434,13 @@ final class ChatViewModel: ObservableObject {
     }
 
     /// Saves the conversation to the server (creates on the first turn, appends after).
+    /// Where an unsent copy of this conversation lives until the server takes it.
+    /// Stable for the life of the view model, so retrying overwrites the draft
+    /// rather than stacking copies of it.
+    private var pendingID: String {
+        chatID.map(PendingChat.idForSync) ?? PendingChat.idForNew(localDraftID)
+    }
+
     private func persist() async {
         guard !temporary else { return }   // ephemeral — never saved
         guard !messages.isEmpty, let model = selectedModel else { return }
@@ -447,9 +456,11 @@ final class ChatViewModel: ObservableObject {
                 // (no destructive fallback).
                 try await client.syncChatTree(id: id, title: title, models: [model],
                                               tree: Array(tree.values), currentId: currentLeafId)
+                cache?.deleteCached(id: PendingChat.idForSync(id))
             } else {
                 let id = try await client.createChatTree(title: title, models: [model],
                                                          tree: Array(tree.values), currentId: currentLeafId)
+                cache?.deleteCached(id: PendingChat.idForNew(localDraftID))
                 chatID = id
                 self.title = title
                 onChanged?()
@@ -458,9 +469,14 @@ final class ChatViewModel: ObservableObject {
             }
             onChanged?()
         } catch {
-            // Chat stays on screen, but tell the user the turn didn't reach the
-            // server instead of losing it silently.
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            // The turn already streamed and the user already read it. Losing it
+            // because the save failed — a dropped connection, a restarted server —
+            // would erase something that visibly happened, so hold it on device and
+            // push it on the next launch.
+            cache?.keepPending(id: pendingID, title: title, models: [model],
+                              messages: Array(tree.values))
+            let reason = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = L("%@ A conversa está salva no aparelho e será enviada depois.", reason)
         }
     }
 

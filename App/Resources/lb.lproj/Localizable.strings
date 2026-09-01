@@ -239,3 +239,4 @@
 "Não consegui acessar esse link: %@" = "Dëse Link war net erreechbar: %@";
 "Espaço insuficiente: são necessários %@ livres." = "Net genuch Späicher: %@ fräi néideg.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Dat gesäit net wéi e Whisper-ggml-Modell aus. Kuck no, ob de Link op d'Datei weist an net op d'Säit.";
+"%@ A conversa está salva no aparelho e será enviada depois." = "%@ De Gespréich ass um Apparat gespäichert a gëtt méi spéit geschéckt.";
