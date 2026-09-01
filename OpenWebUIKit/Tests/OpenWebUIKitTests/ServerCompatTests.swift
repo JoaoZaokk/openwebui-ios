@@ -566,3 +566,90 @@ final class MultipartFilenameTests: XCTestCase {
         XCTAssertFalse(disposition("SKILL - cópia.md").contains("filename*"))
     }
 }
+
+/// SSO (issue #13). Open WebUI runs OAuth server-side and never puts the token in
+/// a URL — it lands in a cookie on the redirect to `/auth`. These are the two
+/// judgements the browser flow makes about where it is.
+final class OAuthFlowTests: XCTestCase {
+    private let client = OpenWebUIClient(
+        config: OWConfig(baseURL: URL(string: "https://server.example")!),
+        tokens: OWKeychainStore(service: "tests.oauth"))
+
+    func testTheFlowStartsAtTheServersOwnLoginRoute() {
+        XCTAssertEqual(client.oauthLoginURL(provider: "oidc").absoluteString,
+                       "https://server.example/oauth/oidc/login")
+    }
+
+    /// A provider key comes from the server's `/api/config`; it still gets encoded
+    /// as one path segment rather than trusted into the URL.
+    func testAProviderKeyCannotEscapeItsSegment() {
+        XCTAssertEqual(client.oauthLoginURL(provider: "../admin").absoluteString,
+                       "https://server.example/oauth/..%2Fadmin/login")
+    }
+
+    func testTheEndOfTheFlowIsRecognised() {
+        XCTAssertTrue(OpenWebUIClient.isOAuthCompletion(URL(string: "https://server.example/auth")!))
+        XCTAssertTrue(OpenWebUIClient.isOAuthCompletion(URL(string: "https://server.example/auth/")!))
+        // An admin can point WEBUI_URL at a different origin; the path still ends it.
+        XCTAssertTrue(OpenWebUIClient.isOAuthCompletion(URL(string: "https://outro.example/auth")!))
+        XCTAssertTrue(OpenWebUIClient.isOAuthCompletion(URL(string: "https://server.example/auth?error=x")!))
+    }
+
+    func testTheIdentityProvidersOwnPagesAreNotTheEnd() {
+        XCTAssertFalse(OpenWebUIClient.isOAuthCompletion(URL(string: "https://idp.example/authorize")!))
+        XCTAssertFalse(OpenWebUIClient.isOAuthCompletion(URL(string: "https://server.example/oauth/oidc/login")!))
+        XCTAssertFalse(OpenWebUIClient.isOAuthCompletion(
+            URL(string: "https://server.example/oauth/oidc/login/callback")!))
+    }
+
+    func testAFailedFlowCarriesItsReason() {
+        let url = URL(string: "https://server.example/auth?error=Account%20not%20found")!
+        XCTAssertEqual(OpenWebUIClient.oauthError(in: url), "Account not found")
+        XCTAssertNil(OpenWebUIClient.oauthError(in: URL(string: "https://server.example/auth")!))
+        XCTAssertNil(OpenWebUIClient.oauthError(in: URL(string: "https://server.example/auth?error=")!))
+    }
+}
+
+/// The login screen draws itself from `/api/config`, so a server with nothing
+/// configured shows exactly what it shows today.
+final class ServerConfigDiscoveryTests: XCTestCase {
+
+    private func config(_ json: String) throws -> OWServerConfig {
+        try JSONDecoder().decode(OWServerConfig.self, from: Data(json.utf8))
+    }
+
+    /// The owner's server, right now.
+    func testNoProvidersConfiguredMeansNoButtons() throws {
+        let c = try config(#"""
+        {"name":"Open WebUI","version":"0.11.1",
+         "oauth":{"providers":{},"auto_redirect":false},
+         "features":{"auth":true,"enable_ldap":false,"enable_login_form":true}}
+        """#)
+        XCTAssertTrue(c.oauthProviders.isEmpty)
+        XCTAssertFalse(c.ldapAvailable)
+        XCTAssertTrue(c.passwordLoginAvailable)
+        XCTAssertEqual(c.version, "0.11.1")
+    }
+
+    func testProvidersAreListedInAStableOrder() throws {
+        let c = try config(#"{"oauth":{"providers":{"oidc":"Authentik","github":"GitHub"}}}"#)
+        XCTAssertEqual(c.oauthProviders.map(\.key), ["github", "oidc"])
+        XCTAssertEqual(c.oauthProviders.map(\.label), ["GitHub", "Authentik"])
+    }
+
+    /// A server can turn the password form off and leave only SSO.
+    func testPasswordLoginCanBeOff() throws {
+        let c = try config(#"{"features":{"enable_login_form":false,"enable_ldap":true}}"#)
+        XCTAssertFalse(c.passwordLoginAvailable)
+        XCTAssertTrue(c.ldapAvailable)
+    }
+
+    /// An older server answers without these keys; nothing may disappear for it.
+    func testAnOlderServerKeepsTheDefaults() throws {
+        let c = try config(#"{"name":"Open WebUI","version":"0.10.2"}"#)
+        XCTAssertTrue(c.passwordLoginAvailable)
+        XCTAssertFalse(c.ldapAvailable)
+        XCTAssertTrue(c.pluginsAvailable)
+        XCTAssertTrue(c.oauthProviders.isEmpty)
+    }
+}

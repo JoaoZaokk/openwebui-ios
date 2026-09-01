@@ -243,3 +243,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "جگہ ناکافی ہے: %@ خالی درکار ہے۔";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "یہ Whisper کا ggml ماڈل نہیں لگتا۔ دیکھیں کہ لنک صفحے کے بجائے فائل کی طرف اشارہ کرتا ہے۔";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ گفتگو آلے میں محفوظ ہے اور بعد میں بھیجی جائے گی۔";
+"Entrar com %@" = "%@ سے سائن اِن کریں";
+"Entrar com LDAP" = "LDAP سے سائن اِن کریں";
+"Não foi possível concluir o login." = "سائن اِن مکمل نہیں ہو سکا۔";

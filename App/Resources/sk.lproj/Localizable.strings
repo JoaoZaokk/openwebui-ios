@@ -243,3 +243,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "Nedostatok miesta: je potrebných %@ voľných.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Nevyzerá to ako model Whisper ggml. Skontroluj, či odkaz vedie na súbor, nie na stránku.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ Konverzácia je uložená v zariadení a odošle sa neskôr.";
+"Entrar com %@" = "Prihlásiť sa cez %@";
+"Entrar com LDAP" = "Prihlásiť sa cez LDAP";
+"Não foi possível concluir o login." = "Prihlásenie sa nepodarilo dokončiť.";

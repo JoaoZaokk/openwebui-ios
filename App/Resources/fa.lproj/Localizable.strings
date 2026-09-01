@@ -243,3 +243,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "فضا کافی نیست: %@ فضای خالی لازم است.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "این به مدل ggml ویسپر شبیه نیست. بررسی کنید پیوند به فایل اشاره کند، نه به صفحه.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ گفت‌وگو روی دستگاه ذخیره شده و بعداً ارسال می‌شود.";
+"Entrar com %@" = "ورود با %@";
+"Entrar com LDAP" = "ورود با LDAP";
+"Não foi possível concluir o login." = "ورود کامل نشد.";

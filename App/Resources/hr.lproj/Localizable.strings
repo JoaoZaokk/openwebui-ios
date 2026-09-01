@@ -243,3 +243,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "Nedovoljno prostora: potrebno je %@ slobodnih.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Ovo ne izgleda kao Whisper ggml model. Provjerite vodi li poveznica na datoteku, a ne na stranicu.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ Razgovor je spremljen na uređaju i bit će poslan kasnije.";
+"Entrar com %@" = "Prijava putem %@";
+"Entrar com LDAP" = "Prijava putem LDAP-a";
+"Não foi possível concluir o login." = "Prijavu nije bilo moguće dovršiti.";

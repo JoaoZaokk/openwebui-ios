@@ -240,3 +240,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "بوشلۇق يېتىشمەيدۇ: %@ بوش بوشلۇق كېرەك.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "بۇ Whisper نىڭ ggml مودېلىغا ئوخشىمايدۇ. ئۇلانمىنىڭ بەتكە ئەمەس ھۆججەتكە قارىتىلغانلىقىنى تەكشۈرۈڭ.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ سۆھبەت ئۈسكۈنىدە ساقلاندى، كېيىن ئەۋەتىلىدۇ.";
+"Entrar com %@" = "%@ ئارقىلىق كىرىش";
+"Entrar com LDAP" = "LDAP ئارقىلىق كىرىش";
+"Não foi possível concluir o login." = "كىرىشنى تاماملىغىلى بولمىدى.";

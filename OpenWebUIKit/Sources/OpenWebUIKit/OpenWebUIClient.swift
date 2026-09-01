@@ -252,6 +252,72 @@ public final class OpenWebUIClient: @unchecked Sendable {
         try decode(OWUser.self, try await send(request("/api/v1/auths/")))
     }
 
+    /// Where the browser flow starts. The server redirects to the identity
+    /// provider from here and handles the code exchange itself
+    /// (backend main.py:2794).
+    public func oauthLoginURL(provider: String) -> URL {
+        config.url("/oauth/\(encPathSegment(provider))/login")
+    }
+
+    /// Whether a URL the browser flow landed on is where Open WebUI finishes.
+    ///
+    /// The callback ends with a redirect to `{WEBUI_URL or base}/auth` carrying
+    /// the session in a cookie (oauth.py:2155). Matched on the path alone, on
+    /// purpose: an admin can point `WEBUI_URL` at a different origin than the API,
+    /// and the flow still ends there.
+    public static func isOAuthCompletion(_ url: URL) -> Bool {
+        let path = url.path.hasSuffix("/") ? String(url.path.dropLast()) : url.path
+        return path == "/auth" || path.hasSuffix("/auth")
+    }
+
+    /// The failure the server redirected with, if it did (`/auth?error=…`).
+    public static func oauthError(in url: URL) -> String? {
+        URLComponents(url: url, resolvingAgainstBaseURL: false)?
+            .queryItems?.first { $0.name == "error" }?.value
+            .flatMap { $0.isEmpty ? nil : $0 }
+    }
+
+    /// Takes on a token obtained outside the password flow — the cookie the SSO
+    /// callback set, or an API key the user pasted — and only keeps it if the
+    /// server agrees it is a session.
+    ///
+    /// Deliberately built by hand instead of going through `send`: a rejected
+    /// candidate would otherwise trip the 401 path and throw away the perfectly
+    /// good session the user already had.
+    @discardableResult
+    public func adopt(token candidate: String) async throws -> OWUser {
+        var req = URLRequest(url: config.url("/api/v1/auths/"))
+        req.setValue("application/json", forHTTPHeaderField: "Accept")
+        req.setValue("Bearer \(candidate)", forHTTPHeaderField: "Authorization")
+        let (data, resp) = try await session.data(for: req)
+        guard let http = resp as? HTTPURLResponse else { throw OWError.transport("no response") }
+        guard (200..<300).contains(http.statusCode) else {
+            throw OWError.http(http.statusCode, Self.detail(from: data))
+        }
+        let user = try decode(OWUser.self, data)
+        token = candidate
+        tokens.save(token: candidate)
+        return user
+    }
+
+    /// POST /api/v1/auths/ldap — same session response as `signin`, different
+    /// credential store. Offered only when `/api/config` says the server has LDAP.
+    @discardableResult
+    public func signInLDAP(user: String, password: String) async throws -> OWUser {
+        struct Form: Encodable { var user: String; var password: String }
+        var req = request("/api/v1/auths/ldap", method: "POST")
+        req.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        req.httpBody = try JSONEncoder().encode(Form(user: user, password: password))
+        let (data, resp) = try await session.data(for: req)
+        if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+            throw OWError.http(http.statusCode, Self.detail(from: data))
+        }
+        let s = try decode(OWSession.self, data)
+        token = s.token
+        tokens.save(token: s.token)
+        return OWUser(session: s)
+    }
+
     public func signOut() async {
         _ = try? await send(request("/api/v1/auths/signout"))
         token = nil

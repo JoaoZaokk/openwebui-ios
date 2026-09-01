@@ -8,9 +8,27 @@ struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var showServerSheet = false
+    @State private var sso: SSOProvider?
+    /// LDAP takes a directory username, not an email, so the form has to say which
+    /// credential it is asking for.
+    @State private var usingLDAP = false
     @FocusState private var focus: Field?
 
     enum Field { case email, pass }
+
+    /// One SSO button, identified for `.sheet(item:)`.
+    struct SSOProvider: Identifiable {
+        let id: String
+        let label: String
+    }
+
+    private var providers: [SSOProvider] {
+        app.serverFeatures?.oauthProviders.map { SSOProvider(id: $0.key, label: $0.label) } ?? []
+    }
+    /// Hidden until the server says it has LDAP, like the SSO buttons.
+    private var ldapAvailable: Bool { app.serverFeatures?.ldapAvailable ?? false }
+    /// A server can turn the password form off entirely and leave only SSO.
+    private var passwordAvailable: Bool { app.serverFeatures?.passwordLoginAvailable ?? true }
 
     var body: some View {
         ZStack {
@@ -30,20 +48,22 @@ struct LoginView: View {
                         .onTapGesture { showServerSheet = true }
                 }
 
-                VStack(spacing: 14) {
-                    field(title: "Email", text: $email, field: .email)
-                        .textContentType(.emailAddress)
-                        .keyboardType(.emailAddress)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                        .submitLabel(.next)
-                        .onSubmit { focus = .pass }
+                if passwordAvailable || usingLDAP {
+                    VStack(spacing: 14) {
+                        field(title: usingLDAP ? "Usuário" : "Email", text: $email, field: .email)
+                            .textContentType(usingLDAP ? .username : .emailAddress)
+                            .keyboardType(usingLDAP ? .default : .emailAddress)
+                            .textInputAutocapitalization(.never)
+                            .autocorrectionDisabled()
+                            .submitLabel(.next)
+                            .onSubmit { focus = .pass }
 
-                    secureField(title: "Senha", text: $password, field: .pass)
-                        .submitLabel(.go)
-                        .onSubmit(submit)
+                        secureField(title: "Senha", text: $password, field: .pass)
+                            .submitLabel(.go)
+                            .onSubmit(submit)
+                    }
+                    .padding(.horizontal, 4)
                 }
-                .padding(.horizontal, 4)
 
                 if let err = app.loginError {
                     Text(err)
@@ -53,18 +73,42 @@ struct LoginView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
 
-                Button(action: submit) {
-                    HStack {
-                        if app.loggingIn { ProgressView().tint(theme.onAccent) }
-                        Text("Entrar").font(.ody(.headline, design: .monospaced))
+                if passwordAvailable || usingLDAP {
+                    Button(action: submit) {
+                        HStack {
+                            if app.loggingIn { ProgressView().tint(theme.onAccent) }
+                            Text("Entrar").font(.ody(.headline, design: .monospaced))
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 14)
+                        .background(theme.accent, in: RoundedRectangle(cornerRadius: 12))
+                        .foregroundStyle(theme.onAccent)
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 14)
-                    .background(theme.accent, in: RoundedRectangle(cornerRadius: 12))
-                    .foregroundStyle(theme.onAccent)
+                    .disabled(!canSubmit)
+                    .opacity(canSubmit ? 1 : 0.6)
                 }
-                .disabled(app.loggingIn || email.isEmpty || password.isEmpty || !ServerConfig.isConfigured)
-                .opacity(app.loggingIn || email.isEmpty || password.isEmpty || !ServerConfig.isConfigured ? 0.6 : 1)
+
+                // Whatever else this server accepts. Drawn from `/api/config`, so a
+                // server with no SSO configured shows nothing and nothing changes.
+                VStack(spacing: 10) {
+                    ForEach(providers) { p in
+                        alternativeButton(L("Entrar com %@", p.label), icon: "person.badge.key") {
+                            focus = nil
+                            app.loginError = nil
+                            sso = p
+                        }
+                    }
+                    if ldapAvailable && !usingLDAP {
+                        alternativeButton(L("Entrar com LDAP"), icon: "building.2") {
+                            focus = nil
+                            app.loginError = nil
+                            usingLDAP = true
+                            email = ""; password = ""
+                        }
+                    }
+                }
+                .disabled(app.loggingIn || !ServerConfig.isConfigured)
+                .opacity(app.loggingIn || !ServerConfig.isConfigured ? 0.6 : 1)
 
                 Spacer()
             }
@@ -72,6 +116,16 @@ struct LoginView: View {
             .padding(24)
         }
         .sheet(isPresented: $showServerSheet) { ServerSheet().environmentObject(app) }
+        .sheet(item: $sso) { p in
+            SSOWebLoginView(provider: p.id, label: p.label,
+                            start: app.client.oauthLoginURL(provider: p.id)) { result in
+                switch result {
+                case .success(let token): Task { await app.adoptSSO(token: token) }
+                case .failure(let e):     app.loginError = e.errorDescription
+                }
+            }
+            .environment(\.theme, theme)
+        }
         .onAppear {
             if email.isEmpty { email = app.savedEmail ?? "" }
             // First run (no server saved yet) → prompt for it right away.
@@ -87,9 +141,34 @@ struct LoginView: View {
         return label + "  ›"
     }
 
+    private var canSubmit: Bool {
+        !app.loggingIn && !email.isEmpty && !password.isEmpty && ServerConfig.isConfigured
+    }
+
     private func submit() {
         focus = nil
-        Task { await app.login(email: email.trimmingCharacters(in: .whitespaces), password: password) }
+        let name = email.trimmingCharacters(in: .whitespaces)
+        Task {
+            if usingLDAP { await app.loginWithLDAP(user: name, password: password) }
+            else { await app.login(email: name, password: password) }
+        }
+    }
+
+    /// A sign-in route other than this server's password form.
+    @ViewBuilder
+    private func alternativeButton(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Image(systemName: icon).font(.ody(size: 13))
+                Text(verbatim: title).font(.ody(.subheadline, design: .monospaced))
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 13)
+            .background(theme.panel, in: RoundedRectangle(cornerRadius: 12))
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(theme.border, lineWidth: 1))
+            .foregroundStyle(theme.fg)
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder

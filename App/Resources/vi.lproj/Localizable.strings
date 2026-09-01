@@ -243,3 +243,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "Không đủ dung lượng: cần %@ trống.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Đây không giống mô hình Whisper ggml. Kiểm tra xem liên kết có trỏ tới tệp chứ không phải trang.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ Cuộc trò chuyện đã được lưu trên thiết bị và sẽ được gửi sau.";
+"Entrar com %@" = "Đăng nhập bằng %@";
+"Entrar com LDAP" = "Đăng nhập bằng LDAP";
+"Não foi possível concluir o login." = "Không thể hoàn tất đăng nhập.";

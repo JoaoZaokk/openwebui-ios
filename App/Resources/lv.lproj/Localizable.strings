@@ -240,3 +240,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "Nepietiek vietas: nepieciešami %@ brīvi.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Tas neizskatās pēc Whisper ggml modeļa. Pārbaudiet, vai saite ved uz failu, nevis uz lapu.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ Saruna ir saglabāta ierīcē un tiks nosūtīta vēlāk.";
+"Entrar com %@" = "Pieteikties ar %@";
+"Entrar com LDAP" = "Pieteikties ar LDAP";
+"Não foi possível concluir o login." = "Neizdevās pabeigt pieteikšanos.";

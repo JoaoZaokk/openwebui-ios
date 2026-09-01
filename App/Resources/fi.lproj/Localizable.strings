@@ -240,3 +240,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "Tila ei riitä: tarvitaan %@ vapaana.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Tämä ei näytä Whisperin ggml-mallilta. Tarkista, että linkki osoittaa tiedostoon eikä sivuun.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ Keskustelu on tallennettu laitteeseen ja lähetetään myöhemmin.";
+"Entrar com %@" = "Kirjaudu palvelulla %@";
+"Entrar com LDAP" = "Kirjaudu LDAP:lla";
+"Não foi possível concluir o login." = "Kirjautumista ei voitu viimeistellä.";

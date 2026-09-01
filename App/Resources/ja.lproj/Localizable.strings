@@ -243,3 +243,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "空き容量が足りません。%@ の空きが必要です。";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "Whisper の ggml モデルではないようです。リンクがページではなくファイルを指しているか確認してください。";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ 会話はこの端末に保存されており、後で送信されます。";
+"Entrar com %@" = "%@ でサインイン";
+"Entrar com LDAP" = "LDAP でサインイン";
+"Não foi possível concluir o login." = "サインインを完了できませんでした。";

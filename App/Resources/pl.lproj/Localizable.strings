@@ -243,3 +243,6 @@
 "Espaço insuficiente: são necessários %@ livres." = "Za mało miejsca: potrzeba %@ wolnych.";
 "Não parece um modelo Whisper ggml. Confira se o link aponta para o arquivo, não para a página." = "To nie wygląda na model Whisper ggml. Sprawdź, czy link prowadzi do pliku, a nie do strony.";
 "%@ A conversa está salva no aparelho e será enviada depois." = "%@ Rozmowa jest zapisana na urządzeniu i zostanie wysłana później.";
+"Entrar com %@" = "Zaloguj się przez %@";
+"Entrar com LDAP" = "Zaloguj się przez LDAP";
+"Não foi possível concluir o login." = "Nie udało się dokończyć logowania.";
