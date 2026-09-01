@@ -60,8 +60,10 @@ targets:
         # which carries issue #12's fixes (voice language, server tools,
         # model nicknames) plus user-supplied Whisper models.
         # 1.6 (13) is live on the App Store since 2026-08-11.
-        MARKETING_VERSION: "1.7"
-        CURRENT_PROJECT_VERSION: "14"
+        # 1.7 (14) went live and is what the store serves today; the German
+        # review that asked for a remembered model came in against it.
+        MARKETING_VERSION: "1.8"
+        CURRENT_PROJECT_VERSION: "15"
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
