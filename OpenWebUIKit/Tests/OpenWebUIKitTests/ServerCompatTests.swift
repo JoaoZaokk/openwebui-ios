@@ -587,19 +587,34 @@ final class OAuthFlowTests: XCTestCase {
                        "https://server.example/oauth/..%2Fadmin/login")
     }
 
+    private func isEnd(_ s: String) -> Bool { client.isOAuthCompletion(URL(string: s)!) }
+
     func testTheEndOfTheFlowIsRecognised() {
-        XCTAssertTrue(OpenWebUIClient.isOAuthCompletion(URL(string: "https://server.example/auth")!))
-        XCTAssertTrue(OpenWebUIClient.isOAuthCompletion(URL(string: "https://server.example/auth/")!))
+        XCTAssertTrue(isEnd("https://server.example/auth"))
+        XCTAssertTrue(isEnd("https://server.example/auth/"))
         // An admin can point WEBUI_URL at a different origin; the path still ends it.
-        XCTAssertTrue(OpenWebUIClient.isOAuthCompletion(URL(string: "https://outro.example/auth")!))
-        XCTAssertTrue(OpenWebUIClient.isOAuthCompletion(URL(string: "https://server.example/auth?error=x")!))
+        XCTAssertTrue(isEnd("https://outro.example/auth"))
+        XCTAssertTrue(isEnd("https://server.example/auth?error=x"))
+        // A server mounted under a sub-path — but only on the server's own host.
+        XCTAssertTrue(isEnd("https://server.example/openwebui/auth"))
+    }
+
+    /// The bug this test exists for: Google's authorization endpoint is
+    /// `/o/oauth2/v2/auth`, which ends in `/auth`. Treating that as the end of the
+    /// flow cancelled the navigation on the way *out*, looked for a session cookie
+    /// on Google's domain, found none, and reported failure — so signing in with
+    /// Google could never work.
+    func testAnIdentityProvidersOwnAuthPathIsNotTheEnd() {
+        XCTAssertFalse(isEnd("https://accounts.google.com/o/oauth2/v2/auth?client_id=x&state=y"))
+        XCTAssertFalse(isEnd("https://login.microsoftonline.com/common/oauth2/v2.0/auth"))
+        XCTAssertFalse(isEnd("https://keycloak.example/realms/main/protocol/openid-connect/auth"))
+        XCTAssertFalse(isEnd("https://idp.example/openwebui/auth"))
     }
 
     func testTheIdentityProvidersOwnPagesAreNotTheEnd() {
-        XCTAssertFalse(OpenWebUIClient.isOAuthCompletion(URL(string: "https://idp.example/authorize")!))
-        XCTAssertFalse(OpenWebUIClient.isOAuthCompletion(URL(string: "https://server.example/oauth/oidc/login")!))
-        XCTAssertFalse(OpenWebUIClient.isOAuthCompletion(
-            URL(string: "https://server.example/oauth/oidc/login/callback")!))
+        XCTAssertFalse(isEnd("https://idp.example/authorize"))
+        XCTAssertFalse(isEnd("https://server.example/oauth/oidc/login"))
+        XCTAssertFalse(isEnd("https://server.example/oauth/oidc/login/callback"))
     }
 
     func testAFailedFlowCarriesItsReason() {
