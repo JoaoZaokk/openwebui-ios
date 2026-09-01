@@ -36,12 +36,18 @@ enum NativeSSO {
     private static let tokenEndpoint = URL(string: "https://oauth2.googleapis.com/token")!
     private static let scope = "openid email profile"
 
-    /// The iOS OAuth client, or nil when none is configured. Not a secret — an
-    /// iOS client has none, and Google binds it to the bundle id — but a fork
-    /// with its own bundle id needs its own.
+    /// The iOS OAuth client for *this* build, or nil when none is registered.
+    ///
+    /// Looked up by bundle id: the dev build and the App Store build are
+    /// different applications to Google, and an iOS client is bound to exactly
+    /// one bundle id. A build with no entry falls back to the web-view path
+    /// rather than sending a client id Google would reject.
     static var googleClientID: String? {
-        (Bundle.main.object(forInfoDictionaryKey: "OWGoogleOAuthClientID") as? String)
-            .flatMap { $0.isEmpty || $0.hasPrefix("$(") ? nil : $0 }
+        guard let bundleID = Bundle.main.bundleIdentifier,
+              let map = Bundle.main.object(forInfoDictionaryKey: "OWGoogleOAuthClientIDs") as? [String: String],
+              let id = map[bundleID], !id.isEmpty
+        else { return nil }
+        return id
     }
 
     /// Whether the system sheet can be offered for this provider.

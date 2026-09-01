@@ -94,6 +94,25 @@
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
 	<string>$(MARKETING_VERSION)</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.googleusercontent.apps.1013326705202-7u9lh6i0tcv6t29vg2bqdhrtrh082ihu</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1013326705202-7u9lh6i0tcv6t29vg2bqdhrtrh082ihu</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.googleusercontent.apps.1013326705202-lq54hfeo3pl30b6dnqoca4d2dha0hcsd</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1013326705202-lq54hfeo3pl30b6dnqoca4d2dha0hcsd</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
@@ -115,8 +134,13 @@
 	<string>Para anexar imagens às conversas.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
 	<string>Para transcrever sua voz em texto no dispositivo.</string>
-	<key>OWGoogleOAuthClientID</key>
-	<string></string>
+	<key>OWGoogleOAuthClientIDs</key>
+	<dict>
+		<key>com.example.openwebui</key>
+		<string>1013326705202-lq54hfeo3pl30b6dnqoca4d2dha0hcsd.apps.googleusercontent.com</string>
+		<key>com.zao.openwebui</key>
+		<string>1013326705202-7u9lh6i0tcv6t29vg2bqdhrtrh082ihu.apps.googleusercontent.com</string>
+	</dict>
 	<key>UILaunchScreen</key>
 	<dict>
 		<key>UIColorName</key>

@@ -130,10 +130,24 @@ final class AppState: ObservableObject {
         }
     }
 
+    /// What happened when the system sheet was tried.
+    enum NativeSSOOutcome {
+        case signedIn
+        /// The user closed the sheet. Not a failure, and nothing to say.
+        case cancelled
+        /// The provider is happy but this server will not take its token — the
+        /// exchange is switched off, or the account has never signed in through a
+        /// browser and so does not exist yet. Both are recoverable by the web-view
+        /// path, which the server does support and which can create the account.
+        case serverRefused
+        /// Something else, already reported in `loginError`.
+        case failed
+    }
+
     /// Signs in through the system sheet, then trades the provider's token for a
-    /// session. Falls back to nothing: the caller decides whether to offer the
-    /// web-view path instead, because only it knows whether this was even tried.
-    func loginWithNativeSSO(provider: String, anchor: ASPresentationAnchor?) async -> Bool {
+    /// session. The caller decides what to do with the outcome, because only it
+    /// can offer the other path.
+    func loginWithNativeSSO(provider: String, anchor: ASPresentationAnchor?) async -> NativeSSOOutcome {
         loginError = nil; loggingIn = true
         defer { loggingIn = false }
         do {
@@ -145,14 +159,20 @@ final class AppState: ObservableObject {
             await loadModels()
             phase = .main
             await flushPendingChats()
-            return true
+            return .signedIn
         } catch is CancellationError {
-            return false
+            return .cancelled
         } catch let e as ASWebAuthenticationSessionError where e.code == .canceledLogin {
-            return false   // the user closed the sheet; not a failure to report
+            return .cancelled
+        } catch OWError.http(403, _) {
+            // Every 403 the exchange can answer means "not through this door":
+            // disabled by the admin, an untrusted client, or an account that has
+            // to be created in a browser first. Sending the user back to the
+            // sheet's error would strand them; the web view gets them in.
+            return .serverRefused
         } catch {
             loginError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
-            return false
+            return .failed
         }
     }
 
