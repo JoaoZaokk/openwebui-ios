@@ -31,12 +31,17 @@ final class VoiceInputManager: ObservableObject {
     private static let targetFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32,
                                                     sampleRate: targetRate, channels: 1, interleaved: false)!
 
-    // Shared with the audio thread, guarded by `lock`.
+    // The one piece of state the audio thread really shares, guarded by `lock`.
+    // The other four used to carry the same annotation and none of them earned
+    // it: `hwRate` and `sawFinal` are read and written on the main actor only,
+    // and `request`/`captureToModel` are now copied into the tap's closure
+    // before it exists (see `installTap`) instead of being reached through
+    // `self` from the render thread.
     nonisolated(unsafe) private var rawSamples: [Float] = []
-    nonisolated(unsafe) private var hwRate: Double = 48_000
-    nonisolated(unsafe) private var captureToModel = false
-    nonisolated(unsafe) private var request: SFSpeechAudioBufferRecognitionRequest?
-    nonisolated(unsafe) private var sawFinal = false
+    private var hwRate: Double = 48_000
+    private var captureToModel = false
+    private var request: SFSpeechAudioBufferRecognitionRequest?
+    private var sawFinal = false
     private let lock = NSLock()
     private var task: SFSpeechRecognitionTask?
 
@@ -122,12 +127,22 @@ final class VoiceInputManager: ObservableObject {
             }
         }
 
+        // Both are final before the tap exists — `captureToModel` a few lines up,
+        // `request` in the native branch above — so the render thread reads
+        // immutable copies instead of main-actor properties. It used to read
+        // `self.request` on every buffer while `stop()`/`cancel()` set it to nil
+        // from the main actor: an unsynchronized read of a reference, i.e. a use
+        // of a released object away from the guard. Taking `lock` inside the tap
+        // would fix the race and buy a worse one — unbounded blocking on the
+        // real-time audio thread, which drops buffers.
+        let req = request
+        let toModel = captureToModel
         input.installTap(onBus: 0, bufferSize: 8192, format: inputFormat) { [weak self] buffer, _ in
             guard let self else { return }
             let lvl = Self.rms(buffer)
             Task { @MainActor in self.level = lvl }
-            if self.captureToModel { self.captureRaw(buffer) }
-            else { self.request?.append(buffer) }
+            if toModel { self.captureRaw(buffer) }
+            else { req?.append(buffer) }
         }
 
         do {
