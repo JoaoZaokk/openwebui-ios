@@ -283,10 +283,17 @@ final class VoiceInputManager: ObservableObject {
     }
 
     /// Apple's recognizer for the app's UI language, degrading region →
-    /// language → whatever the device offers. Built per recording (not stored)
-    /// so switching the app language takes effect on the very next tap; a fixed
-    /// pt-BR instance is what made the mic transcribe every language as
-    /// Portuguese.
+    /// language → nil. Built per recording (not stored) so switching the app
+    /// language takes effect on the very next tap; a fixed pt-BR instance is
+    /// what made the mic transcribe every language as Portuguese.
+    ///
+    /// Returns nil rather than `SFSpeechRecognizer()` when nothing matches.
+    /// That last resort was the device-locale recognizer, so the ten shipped
+    /// languages Apple has no model for (sl, mk, sr, be, bn, ps, lv, lb, ug,
+    /// bo) silently transcribed into whatever the *phone* was set to — and it
+    /// made the caller's "unavailable for %@" guard dead code, because this
+    /// never returned nil. Being told dictation isn't available beats getting
+    /// a paragraph of the wrong language.
     private static func recognizer(for lang: AppLanguage) -> SFSpeechRecognizer? {
         let tag = lang.speechLocale
         if let r = SFSpeechRecognizer(locale: Locale(identifier: tag)), r.isAvailable { return r }
@@ -297,7 +304,7 @@ final class VoiceInputManager: ObservableObject {
                                                  .lowercased().hasPrefix(base.lowercased() + "-") }),
            let r = SFSpeechRecognizer(locale: match), r.isAvailable { return r }
 
-        return SFSpeechRecognizer()   // device default
+        return nil
     }
 
     /// Maps the app's UI language to a Whisper language for the universal
