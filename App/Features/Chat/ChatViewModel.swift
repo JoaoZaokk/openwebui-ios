@@ -728,13 +728,19 @@ final class ChatViewModel: ObservableObject {
     }
 
     /// Removes an assistant turn that never produced anything, and puts the leaf
-    /// back on its parent so the next message hangs off the question instead of a
-    /// blank node. The user's own message stays — they did send it.
+    /// back under its parent so the next message hangs off the question instead
+    /// of a blank node. The user's own message stays — they did send it.
     private func discardEmptyTurn(_ id: String) {
         let parent = tree[id]?.parentId
         tree.removeValue(forKey: id)
         messages.removeAll { $0.id == id }
-        if currentLeafId == id { currentLeafId = parent }
+        // The newest surviving descendant, not the bare parent. `rebuildActiveBranch`
+        // only walks upward, so leaving the leaf on a node that still has children —
+        // the reply a cancelled regenerate was replacing — hid that reply with no
+        // branch control to bring it back, and the save then made the hidden leaf
+        // the server's `currentId` as well. A plain send has no other child, so
+        // it still lands on the question.
+        if currentLeafId == id { currentLeafId = parent.map { leaf(from: $0) } }
         rebuildActiveBranch()
     }
 
