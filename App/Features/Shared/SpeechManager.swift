@@ -38,16 +38,26 @@ final class SpeechManager: NSObject, ObservableObject {
     /// barge-in monitor can listen while the assistant speaks.
     var duplexSession = false
 
+    /// Configures the session for playback. Failures used to be four `try?`s, so
+    /// a session the OS refused to configure produced silent no-audio and nothing
+    /// else — while `VoiceInputManager` raises a localized error for the very same
+    /// failure on the recording side. It is reported now: `neuralError` is the
+    /// channel the voice UI already renders.
     private func activateTTSSession() {
         #if os(iOS)
         let s = AVAudioSession.sharedInstance()
-        if duplexSession {
-            try? s.setCategory(.playAndRecord, mode: .voiceChat, options: [.duckOthers, .allowBluetoothA2DP])
-            try? s.setActive(true)
-            applyProximityRoute()
-        } else {
-            try? s.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
-            try? s.setActive(true)
+        do {
+            if duplexSession {
+                try s.setCategory(.playAndRecord, mode: .voiceChat,
+                                  options: [.duckOthers, .allowBluetoothA2DP])
+                try s.setActive(true)
+                applyProximityRoute()
+            } else {
+                try s.setCategory(.playback, mode: .spokenAudio, options: [.duckOthers])
+                try s.setActive(true)
+            }
+        } catch {
+            neuralError = L("Áudio indisponível: %@", OWFailure.msg(error))
         }
         #endif
     }
@@ -160,7 +170,10 @@ final class SpeechManager: NSObject, ObservableObject {
         neuralError = nil
         neuralTask = Task {
             do { _ = try await ensurePocket(pack); neuralReady = true }
-            catch { neuralError = OWFailure.msg(error) }
+            // Any `toggle` calls `stop()`, which cancels this task — so the user
+            // starting to speak mid-download painted FluidAudio's raw "cancelled"
+            // as a download failure. Their own cancellation is not an error.
+            catch { if !Task.isCancelled { neuralError = OWFailure.msg(error) } }
             if preparingID == "__prepare__" { preparingID = nil }
         }
     }

@@ -75,9 +75,6 @@ struct VoiceSettingsView: View {
                             Label("Testar voz", systemImage: "speaker.wave.2")
                         }
                     }
-                    if let e = speech.neuralError {
-                        Text(e).font(.footnote).foregroundStyle(theme.danger)
-                    }
                 }
                 if ttsEngine == "neural" {
                     // The 26 voice names are identical in every pack, so the
@@ -98,9 +95,13 @@ struct VoiceSettingsView: View {
                     }
                     .disabled(speech.isPreparing("__prepare__") || speech.neuralReady
                               || !speech.neuralAvailableForCurrentLanguage)
-                    if let e = speech.neuralError {
-                        Text(e).font(.footnote).foregroundStyle(theme.danger)
-                    }
+                }
+                // Shown for every engine, not just neural and server: an audio
+                // session the OS refuses is reported through the same channel,
+                // and the native voice — the default — used to be the one case
+                // where that message had nowhere to appear.
+                if let e = speech.neuralError {
+                    Text(e).font(.footnote).foregroundStyle(theme.danger)
                 }
             } header: { Text("Texto → Voz") } footer: {
                 Text("Neural = PocketTTS (CoreML/Neural Engine), bem mais natural que a voz nativa. Existe em português, inglês, espanhol, francês, alemão e italiano — segue o idioma do app e baixa ~550 MB por idioma na primeira vez. Roda só no iPhone físico (não no simulador).")
