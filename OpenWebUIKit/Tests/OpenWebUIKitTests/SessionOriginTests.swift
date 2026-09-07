@@ -12,6 +12,9 @@ import XCTest
 final class SessionOriginTests: XCTestCase {
 
     private let store = OWKeychainStore(service: "tests.rotate")
+    /// `HTTPCookieStorage.shared` is process-wide, so whatever is seeded here is
+    /// put back on the way out.
+    private var seededCookies: [HTTPCookie] = []
 
     override func setUp() {
         super.setUp()
@@ -22,7 +25,29 @@ final class SessionOriginTests: XCTestCase {
     override func tearDown() {
         StubTransport.reset()
         store.clear()
+        for c in seededCookies { HTTPCookieStorage.shared.deleteCookie(c) }
+        seededCookies = []
         super.tearDown()
+    }
+
+    /// A live session cookie for `host`, the way Open WebUI sets one alongside
+    /// the bearer token.
+    private func seedCookie(for host: String) {
+        guard let c = HTTPCookie(properties: [
+            .name: "token", .value: "cookie-de-\(host)", .domain: host, .path: "/",
+            .expires: Date().addingTimeInterval(3600),
+        ]) else { return XCTFail("could not build a cookie for \(host)") }
+        HTTPCookieStorage.shared.setCookie(c)
+        seededCookies.append(c)
+    }
+
+    /// A cookie for `example.com` is stored with the domain `.example.com`, so
+    /// both spellings count as the same host.
+    private func hasCookie(for host: String) -> Bool {
+        (HTTPCookieStorage.shared.cookies ?? []).contains {
+            let d = $0.domain.lowercased()
+            return d == host || d == "." + host
+        }
     }
 
     private func client(at base: String) -> OpenWebUIClient {
@@ -81,6 +106,8 @@ final class SessionOriginTests: XCTestCase {
     func testSwitchingServersForgetsTheCredentialForTheOldOne() {
         store.save(token: "token-do-servidor-a")
         store.saveCredentials(email: "joao@example.com", password: "hunter2")
+        seedCookie(for: "a.example")
+        seedCookie(for: "b.example")
         let c = client(at: "https://a.example")
         XCTAssertTrue(c.isAuthenticated, "the fixture never had a session to lose")
 
@@ -90,6 +117,10 @@ final class SessionOriginTests: XCTestCase {
         XCTAssertNil(store.loadToken())
         XCTAssertNil(store.loadEmail(), "'keep me signed in' is for the server it was typed at")
         XCTAssertNil(store.loadPassword())
+        // The jar is cleared before the new URL is adopted, so it is the OLD
+        // host that is emptied. Doing it after would have cleared the wrong one.
+        XCTAssertFalse(hasCookie(for: "a.example"))
+        XCTAssertTrue(hasCookie(for: "b.example"), "the new server's own cookies are not ours to drop")
     }
 
     /// The same server behind a different path is not a different server —
@@ -160,5 +191,47 @@ final class SessionOriginTests: XCTestCase {
         XCTAssertNil(store.loadToken())
         XCTAssertNil(store.loadEmail())
         XCTAssertNil(store.loadPassword())
+    }
+
+    /// The Keychain is not the only place a session lives. Open WebUI sets a
+    /// `token` cookie alongside the bearer token, both of this client's sessions
+    /// share the process-wide jar, and nothing here ever emptied it — so
+    /// offline, where `try?` swallows the signout entirely, the user was signed
+    /// out of the app and straight back in by the cookie on the next request.
+    func testSigningOutRemovesThisServersCookiesAndNobodyElses() async {
+        seedCookie(for: "a.example")
+        seedCookie(for: "b.example")
+        store.save(token: "token-vivo")
+        StubTransport.route("/api/v1/auths/signout", .json(#"{"detail":"boom"}"#, status: 500))
+        let c = client(at: "https://a.example")
+
+        await c.signOut()
+
+        XCTAssertFalse(hasCookie(for: "a.example"), "a refused signout still has to empty the device")
+        XCTAssertTrue(hasCookie(for: "b.example"), "another host's cookies are not this server's to drop")
+    }
+
+    /// What the previous server said about itself is not an answer about this
+    /// one. `ensureServerInfo` sets its flag *before* its await, so a version
+    /// left behind at a switch is never asked for again: if server B's
+    /// `/api/config` then fails, the merge gate goes on answering for server A —
+    /// and on a 0.10 server that answer omits a node from a write, which deletes
+    /// the message.
+    func testSwitchingServersForgetsWhatTheOldOneSaidAboutItself() async throws {
+        StubTransport.route("/api/config", .json(#"{"version":"0.11.1"}"#))
+        let c = client(at: "https://a.example")
+        _ = try await c.serverConfig()
+        XCTAssertTrue(c.mergesHistoryServerSide, "the fixture never learned a version to forget")
+
+        c.updateConfig(OWConfig(baseURL: URL(string: "https://b.example")!))
+
+        XCTAssertNil(c.serverVersion)
+        XCTAssertFalse(c.mergesHistoryServerSide,
+                       "an unknown version must be treated as old — never delete on a guess")
+
+        // And it is asked again, rather than being stuck on the safe answer.
+        await c.ensureServerInfo()
+        XCTAssertEqual(c.serverVersion, "0.11.1")
+        XCTAssertTrue(c.mergesHistoryServerSide)
     }
 }

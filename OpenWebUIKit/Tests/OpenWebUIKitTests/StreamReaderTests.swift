@@ -199,27 +199,28 @@ final class StreamReaderTests: XCTestCase {
         XCTAssertEqual(detail, "model not allowed")
     }
 
-    /// The 401 the stream reports, and — for now — everything it does *not* do.
+    /// A 401 here ends the session exactly as it does on every other route.
     ///
-    /// `stream` holds `longSession` directly instead of going through `send`, so
-    /// the session-dropping hop never runs: the token survives in memory and in
-    /// the Keychain, and nothing tells the app to route back to login. The user
-    /// gets "Sessão expirada" on a screen that keeps retrying with a dead token.
-    /// Phase 13 fixes that and rewrites the three assertions below.
-    func testA401OnTheStreamIsReportedButDoesNotYetEndTheSession() async {
+    /// It did not, until the hop was called by hand: `stream` holds
+    /// `longSession` directly and never passes through `send`, so the one
+    /// request a user makes most often was the single route that reported a dead
+    /// session and then kept it — the token stayed in memory and in the
+    /// Keychain, `isAuthenticated` stayed true, and nothing told the app to
+    /// route back to login.
+    func testA401OnTheStreamEndsTheSessionLikeEveryOtherRoute() async {
         StubTransport.route(Self.completions,
                             .json(#"{"detail":"Not authenticated"}"#, status: 401))
         let client = signedInClient()
         let ended = XCTNSNotificationExpectation(name: OpenWebUIClient.sessionEndedNotification)
-        ended.isInverted = true
 
         let err = await owError { try await self.collect(client) }
         guard case .notAuthenticated? = err else {
             return XCTFail("expected .notAuthenticated, got \(String(describing: err))")
         }
 
-        XCTAssertEqual(client.token, "token-vivo", "the dead token is still being replayed")
-        XCTAssertEqual(store.loadToken(), "token-vivo", "and it comes back on the next launch")
-        await fulfillment(of: [ended], timeout: 0.3)
+        XCTAssertNil(client.token)
+        XCTAssertFalse(client.isAuthenticated)
+        XCTAssertNil(store.loadToken(), "a token the server rejected must not survive a relaunch")
+        await fulfillment(of: [ended], timeout: 1)
     }
 }

@@ -88,7 +88,19 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                         // account — its own `detail` says which, and reporting it
                         // as an expired session hid that and sent the user to a
                         // login they did not need.
-                        if http.statusCode == 401 { throw OWError.notAuthenticated }
+                        //
+                        // `dropSession()` has to be called by hand: this path
+                        // holds `longSession` directly instead of going through
+                        // `send`, so nothing else runs the 401 hop. Without it
+                        // the token the server just rejected stayed in memory and
+                        // in the Keychain, `isAuthenticated` stayed true, and no
+                        // notification went out — every screen kept retrying with
+                        // a dead token while showing "Sessão expirada", and a
+                        // relaunch brought it back.
+                        if http.statusCode == 401 {
+                            client.dropSession()
+                            throw OWError.notAuthenticated
+                        }
                         var body = ""
                         for try await line in bytes.lines { body += line; if body.count > 800 { break } }
                         throw OWError.http(http.statusCode, Self.extractError(body) ?? L("Falha ao iniciar o stream"))
