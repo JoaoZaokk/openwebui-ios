@@ -11,7 +11,8 @@ final class ChatStore: ObservableObject {
     /// Full-text search results (title + cached message bodies). Populated by `search`.
     @Published var searchResults: [OWChatSummary] = []
     /// The query behind `searchResults`, so a mutation can refresh them.
-    private var query = ""
+    /// What `searchResults` answers. Lets the list tell "no match" from "not yet".
+    @Published private(set) var query = ""
     /// True when the current list is being served from the offline cache.
     @Published private(set) var offline = false
     /// Whether another page is worth asking for. The server pages this list 60 at
@@ -19,6 +20,9 @@ final class ChatStore: ObservableObject {
     /// past the sixtieth conversation — the list stopped and nothing said why.
     @Published private(set) var canLoadMore = false
     @Published private(set) var loadingMore = false
+    /// True once a load has actually answered. "Empty" is only a fact after that;
+    /// before it, an empty list means the question was never answered.
+    @Published private(set) var loaded = false
 
     private var page = 1
     /// Bumped by every `load()`. A page still in flight when the user pulls to
@@ -63,6 +67,7 @@ final class ChatStore: ObservableObject {
             canLoadMore = regular.count >= Self.pageSize
             offline = false
             error = nil
+            loaded = true
             await refreshSearch()
         } catch is CancellationError {
         } catch {

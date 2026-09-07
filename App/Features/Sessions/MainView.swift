@@ -160,12 +160,19 @@ struct ChatListView: View {
     }
 
     @ViewBuilder private var content: some View {
-        if store.chats.isEmpty && store.loading {
+        // A non-empty list always renders — it may be the offline cache standing
+        // in for a failed load, and that is the whole point of the cache.
+        if !store.chats.isEmpty {
+            list
+        } else if store.loading {
             ProgressView().tint(theme.accent)
-        } else if store.chats.isEmpty {
+        } else if store.loaded {
             emptyState
         } else {
-            list
+            // The load failed and nothing is cached. The banner above says why;
+            // this is only something to pull down on. Not the empty state: that
+            // one says the account has no conversations, which is not known.
+            ScrollView { BrandMark(size: 56).frame(maxWidth: .infinity).padding(.top, 80) }
         }
     }
 
@@ -206,6 +213,18 @@ struct ChatListView: View {
         .scrollContentBackground(.hidden)
         .searchable(text: $search, prompt: "Buscar conversas")
         .onChange(of: search) { _, new in runSearch(new) }
+        // An overlay on the List rather than another branch of `content`:
+        // swapping the List out would unmount `.searchable` and cancel the query.
+        // The sentence names the scope, because the search is local (titles plus
+        // conversations already opened on this device), so no match is normal.
+        .overlay {
+            if searching && filtered.isEmpty,
+               store.query == search.trimmingCharacters(in: .whitespacesAndNewlines) {
+                Text("Nenhum resultado — a busca cobre conversas já abertas neste aparelho.")
+                    .font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
+                    .multilineTextAlignment(.center).padding(.horizontal, 32)
+            }
+        }
     }
 
     private func row(_ chat: OWChatSummary) -> some View {
@@ -290,6 +309,7 @@ struct ArchivedChatsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var chats: [OWChatSummary] = []
     @State private var loading = true
+    @State private var loaded = false
     @State private var error: String?
 
 
@@ -300,7 +320,7 @@ struct ArchivedChatsView: View {
                 theme.bg.ignoresSafeArea()
                 if loading {
                     ProgressView().tint(theme.accent)
-                } else if chats.isEmpty {
+                } else if chats.isEmpty && loaded {
                     VStack(spacing: 10) {
                         Image(systemName: "archivebox").font(.system(size: 40)).foregroundStyle(theme.secondaryText)
                         Text("Nenhuma conversa arquivada.")
@@ -345,7 +365,7 @@ struct ArchivedChatsView: View {
             .errorBanner(error) { error = nil }
             .task {
                 loading = true
-                do { chats = try await app.client.archivedChats() }
+                do { chats = try await app.client.archivedChats(); loaded = true }
                 catch is CancellationError {}
                 catch { self.error = OWFailure.msg(error) }
                 loading = false

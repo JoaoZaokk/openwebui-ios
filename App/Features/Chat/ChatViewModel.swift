@@ -34,6 +34,9 @@ final class ChatViewModel: ObservableObject {
     /// opens, so a chat that never uses tools costs no request.
     @Published private(set) var availableTools: [OWNamedItem] = []
     @Published private(set) var loadingTools = false
+    /// Why the tool list is empty, when it is empty for a reason. Its own slot:
+    /// `error` is the chat's banner, which the picker sheet covers.
+    @Published var toolsError: String?
 
     let models: [OWModel]
 
@@ -261,12 +264,18 @@ final class ChatViewModel: ObservableObject {
         loadingTools = true
         Task {
             defer { loadingTools = false }
-            guard let list = try? await client.tools() else { return }
-            availableTools = list
-            // Drop selections for tools this account lost access to, so we never
-            // send a tool_id the server will reject.
-            let ids = Set(list.map(\.id))
-            selectedToolIDs.formIntersection(ids)
+            do {
+                let list = try await client.tools()
+                toolsError = nil
+                availableTools = list
+                // Drop selections for tools this account lost access to, so we never
+                // send a tool_id the server will reject.
+                let ids = Set(list.map(\.id))
+                selectedToolIDs.formIntersection(ids)
+            } catch is CancellationError {
+            } catch {
+                toolsError = OWFailure.msg(error)
+            }
         }
     }
 
