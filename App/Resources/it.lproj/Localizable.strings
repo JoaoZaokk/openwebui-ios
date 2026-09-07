@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "Download voce neurale…";
 "Baixar" = "Scarica";
 "Baixar voz neural (~550 MB)" = "Scarica voce neurale (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "Barge-in non disponibile: la sessione audio è in modalità registrazione.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "Barge-in non disponibile: impossibile attivare la cancellazione dell'eco.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "Barge-in non disponibile: impossibile caricare il rilevatore di voce.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "Barge-in non disponibile: impossibile aprire il microfono.";
 "Base de Conhecimento" = "Base di conoscenza";
 "Brasas" = "Braci";
 "CONTA" = "ACCOUNT";

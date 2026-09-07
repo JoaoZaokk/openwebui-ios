@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "Neurális hang letöltése…";
 "Baixar" = "Letöltés";
 "Baixar voz neural (~550 MB)" = "Neurális hang letöltése (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "A barge-in nem érhető el: a hangmunkamenet felvételi módban van.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "A barge-in nem érhető el: a visszhangszűrést nem sikerült bekapcsolni.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "A barge-in nem érhető el: a beszédfelismerőt nem sikerült betölteni.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "A barge-in nem érhető el: a mikrofont nem sikerült megnyitni.";
 "Base de Conhecimento" = "Tudásbázis";
 "Brasas" = "Parázs";
 "CONTA" = "FIÓK";

@@ -16,6 +16,10 @@
 "Baixando voz neural…" = "Neural སྐད་ཕབ་ལེན་བཞིན་པ…";
 "Baixar" = "ཕབ་ལེན།";
 "Baixar voz neural (~550 MB)" = "Neural སྐད་ཕབ་ལེན། (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "barge-in བེད་སྤྱོད་བྱེད་མི་ཐུབ། སྒྲ་ཡི་ལས་རིམ་ནི་སྒྲ་འཇུག་སྤྱོད་སྟངས་སུ་ཡོད།";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "barge-in བེད་སྤྱོད་བྱེད་མི་ཐུབ། བརྡ་བརྙན་ལྡོག་སེལ་སྒུལ་སློང་བྱེད་མ་ཐུབ།";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "barge-in བེད་སྤྱོད་བྱེད་མི་ཐུབ། སྐད་ཤུགས་ངོས་འཛིན་ཆས་ལེན་མ་ཐུབ།";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "barge-in བེད་སྤྱོད་བྱེད་མི་ཐུབ། མའི་ཁེ་སྒོ་འབྱེད་མ་ཐུབ།";
 "Base de Conhecimento" = "ཤེས་བྱའི་གཞི་རྟེན།";
 "Brasas" = "མེ་མདག";
 "CONTA" = "རྩིས་ཐོ།";

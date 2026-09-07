@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "신경 음성 다운로드 중…";
 "Baixar" = "다운로드";
 "Baixar voz neural (~550 MB)" = "신경 음성 다운로드(약 550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "barge-in을 사용할 수 없음: 오디오 세션이 녹음 모드입니다.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "barge-in을 사용할 수 없음: 에코 제거를 켤 수 없습니다.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "barge-in을 사용할 수 없음: 음성 감지기를 불러오지 못했습니다.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "barge-in을 사용할 수 없음: 마이크를 열지 못했습니다.";
 "Base de Conhecimento" = "지식 베이스";
 "Brasas" = "잉걸불";
 "CONTA" = "계정";

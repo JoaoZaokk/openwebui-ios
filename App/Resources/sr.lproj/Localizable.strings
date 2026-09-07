@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "Преузимање неуронског гласа…";
 "Baixar" = "Преузми";
 "Baixar voz neural (~550 MB)" = "Преузми неуронски глас (~550 МБ)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "Barge-in није доступан: аудио сесија је у режиму снимања.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "Barge-in није доступан: поништавање еха није могло да се укључи.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "Barge-in није доступан: детектор говора није могао да се учита.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "Barge-in није доступан: микрофон није могао да се отвори.";
 "Base de Conhecimento" = "База знања";
 "Brasas" = "Жар";
 "CONTA" = "НАЛОГ";

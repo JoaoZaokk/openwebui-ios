@@ -16,6 +16,10 @@
 "Baixando voz neural…" = "מוריד קול נוירוני…";
 "Baixar" = "הורד";
 "Baixar voz neural (~550 MB)" = "הורד קול נוירוני (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "barge-in לא זמין: הפעלת האודיו נמצאת במצב הקלטה.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "barge-in לא זמין: לא ניתן היה להפעיל ביטול הד.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "barge-in לא זמין: לא ניתן היה לטעון את מזהה הדיבור.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "barge-in לא זמין: לא ניתן היה לפתוח את המיקרופון.";
 "Base de Conhecimento" = "בסיס ידע";
 "Brasas" = "גחלים";
 "CONTA" = "חשבון";

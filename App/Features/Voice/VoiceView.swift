@@ -67,6 +67,10 @@ struct VoiceView: View {
         .tint(theme.accent)
         .onChange(of: convo.phase) { _, p in pulse = Self.pulses(p) }
         .onAppear {
+            // A few MB of CoreML that barge-in cannot arm without. Loaded when
+            // the screen opens so the first reply doesn't wait for it — and so
+            // the first sentence of the first turn can already be interrupted.
+            Task { await BargeInMonitor.prepare() }
             if speech.useServer { Task { await speech.loadServerVoices() } }
             if let seed { convo.seedOnce(chatID: seed.chatID, messages: seed.messages, model: seed.model) }
             else if !convo.active { convo.reset() }   // Voz tab → always a new conversation

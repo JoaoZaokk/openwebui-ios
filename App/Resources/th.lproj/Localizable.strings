@@ -16,6 +16,10 @@
 "Baixando voz neural…" = "กำลังดาวน์โหลดเสียง Neural…";
 "Baixar" = "ดาวน์โหลด";
 "Baixar voz neural (~550 MB)" = "ดาวน์โหลดเสียง Neural (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "ใช้ barge-in ไม่ได้: เซสชันเสียงอยู่ในโหมดบันทึกเสียง";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "ใช้ barge-in ไม่ได้: เปิดการตัดเสียงสะท้อนไม่สำเร็จ";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "ใช้ barge-in ไม่ได้: โหลดตัวตรวจจับเสียงไม่สำเร็จ";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "ใช้ barge-in ไม่ได้: เปิดไมโครโฟนไม่สำเร็จ";
 "Base de Conhecimento" = "ฐานความรู้";
 "Brasas" = "ถ่านไฟ";
 "CONTA" = "บัญชี";

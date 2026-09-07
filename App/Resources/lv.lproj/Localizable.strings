@@ -16,6 +16,10 @@
 "Baixando voz neural…" = "Lejupielādē neironu balsi…";
 "Baixar" = "Lejupielādēt";
 "Baixar voz neural (~550 MB)" = "Lejupielādēt neironu balsi (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "Barge-in nav pieejams: audio sesija ir ierakstīšanas režīmā.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "Barge-in nav pieejams: atbalss slāpēšanu neizdevās ieslēgt.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "Barge-in nav pieejams: neizdevās ielādēt runas detektoru.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "Barge-in nav pieejams: neizdevās atvērt mikrofonu.";
 "Base de Conhecimento" = "Zināšanu bāze";
 "Brasas" = "Kvēle";
 "CONTA" = "KONTS";

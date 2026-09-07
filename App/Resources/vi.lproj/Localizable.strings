@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "Đang tải giọng nói neural…";
 "Baixar" = "Tải xuống";
 "Baixar voz neural (~550 MB)" = "Tải giọng nói neural (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "Không dùng được barge-in: phiên âm thanh đang ở chế độ ghi âm.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "Không dùng được barge-in: không thể bật khử tiếng vọng.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "Không dùng được barge-in: không tải được bộ phát hiện giọng nói.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "Không dùng được barge-in: không mở được micro.";
 "Base de Conhecimento" = "Cơ sở Kiến thức";
 "Brasas" = "Than hồng";
 "CONTA" = "TÀI KHOẢN";
