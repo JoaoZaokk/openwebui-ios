@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "Mengunduh suara neural…";
 "Baixar" = "Unduh";
 "Baixar voz neural (~550 MB)" = "Unduh suara neural (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "Barge-in tidak tersedia: sesi audio sedang dalam mode perekaman.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "Barge-in tidak tersedia: peredaman gema tidak dapat diaktifkan.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "Barge-in tidak tersedia: pendeteksi suara tidak dapat dimuat.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "Barge-in tidak tersedia: mikrofon tidak dapat dibuka.";
 "Base de Conhecimento" = "Basis Pengetahuan";
 "Brasas" = "Bara";
 "CONTA" = "AKUN";

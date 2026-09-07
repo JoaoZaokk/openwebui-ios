@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "ニューラル音声をダウンロード中…";
 "Baixar" = "ダウンロード";
 "Baixar voz neural (~550 MB)" = "ニューラル音声をダウンロード（約550 MB）";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "バージインを利用できません：オーディオセッションが録音モードです。";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "バージインを利用できません：エコーキャンセルを有効にできませんでした。";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "バージインを利用できません：音声検出モデルを読み込めませんでした。";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "バージインを利用できません：マイクを開けませんでした。";
 "Base de Conhecimento" = "ナレッジベース";
 "Brasas" = "残り火";
 "CONTA" = "アカウント";

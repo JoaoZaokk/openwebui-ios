@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "正在下載神經語音…";
 "Baixar" = "下載";
 "Baixar voz neural (~550 MB)" = "下載神經語音（約 550 MB）";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "無法使用 barge-in：音訊工作階段處於錄音模式。";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "無法使用 barge-in：回音消除未能啟用。";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "無法使用 barge-in：語音偵測模型載入失敗。";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "無法使用 barge-in：無法開啟麥克風。";
 "Base de Conhecimento" = "知識庫";
 "Brasas" = "餘燼";
 "CONTA" = "帳戶";

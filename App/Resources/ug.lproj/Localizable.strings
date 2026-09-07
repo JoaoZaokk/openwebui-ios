@@ -16,6 +16,10 @@
 "Baixando voz neural…" = "نېرۋا ئاۋازى چۈشۈرۈلۈۋاتىدۇ…";
 "Baixar" = "چۈشۈرۈش";
 "Baixar voz neural (~550 MB)" = "نېرۋا ئاۋازىنى چۈشۈرۈش (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "barge-in ئىشلەتكىلى بولمايدۇ: ئۈن سۆزلىشىشى خاتىرىلەش ھالىتىدە.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "barge-in ئىشلەتكىلى بولمايدۇ: ئەكس سادانى تازىلاشنى قوزغىتىش مەغلۇپ بولدى.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "barge-in ئىشلەتكىلى بولمايدۇ: ئاۋاز بايقىغۇچنى يۈكلىگىلى بولمىدى.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "barge-in ئىشلەتكىلى بولمايدۇ: مىكروفوننى ئاچقىلى بولمىدى.";
 "Base de Conhecimento" = "بىلىم ئامبىرى";
 "Brasas" = "چوغلار";
 "CONTA" = "ھېسابات";

@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "Neurale stem downloaden…";
 "Baixar" = "Downloaden";
 "Baixar voz neural (~550 MB)" = "Neurale stem downloaden (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "Barge-in niet beschikbaar: de audiosessie staat in de opnamemodus.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "Barge-in niet beschikbaar: echo-onderdrukking kon niet worden ingeschakeld.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "Barge-in niet beschikbaar: de spraakdetector kon niet worden geladen.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "Barge-in niet beschikbaar: de microfoon kon niet worden geopend.";
 "Base de Conhecimento" = "Kennisbank";
 "Brasas" = "Sintels";
 "CONTA" = "ACCOUNT";

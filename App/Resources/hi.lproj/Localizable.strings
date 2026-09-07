@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "न्यूरल आवाज़ डाउनलोड हो रही है…";
 "Baixar" = "डाउनलोड";
 "Baixar voz neural (~550 MB)" = "न्यूरल आवाज़ डाउनलोड करें (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "barge-in उपलब्ध नहीं: ऑडियो सत्र रिकॉर्डिंग मोड में है।";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "barge-in उपलब्ध नहीं: इको कैंसलेशन चालू नहीं हो सका।";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "barge-in उपलब्ध नहीं: आवाज़ पहचानने वाला मॉडल लोड नहीं हो सका।";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "barge-in उपलब्ध नहीं: माइक्रोफ़ोन नहीं खुल सका।";
 "Base de Conhecimento" = "नॉलेज बेस";
 "Brasas" = "अंगारे";
 "CONTA" = "खाता";

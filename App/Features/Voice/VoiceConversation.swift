@@ -444,8 +444,23 @@ final class VoiceConversation: ObservableObject {
         // queue arms it *before* the first sentence is handed over, so the
         // session has to be configured here.
         tts.prepareDuplexSession()
-        let bargeOn = UserDefaults.standard.object(forKey: "voice.bargein.enabled") as? Bool ?? true
-        if bargeOn { bargeMonitor.start { [weak self] in self?.bargeIn() } }
+        armBargeIn()
+    }
+
+    private func armBargeIn() {
+        let on = UserDefaults.standard.object(forKey: "voice.bargein.enabled") as? Bool ?? true
+        guard on else { return }
+        // Without working echo cancellation the monitor hears the assistant's own
+        // voice through the speaker and cuts it off mid-sentence, every time. No
+        // barge-in is far better than that, so a failed AEC simply doesn't arm.
+        // The reason is now reported — it used to be written to a `lastFailure`
+        // nothing read, so barge-in could be dead with its setting still on and
+        // no way to find out. A model that is merely still loading says nothing,
+        // because the next sentence will arm normally.
+        if let why = bargeMonitor.start(onSpeech: { [weak self] in self?.bargeIn() }),
+           let message = why.message {
+            error = message
+        }
     }
 
     /// User started talking over the reply → drop whatever it was doing and

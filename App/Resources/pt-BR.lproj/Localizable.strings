@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "Baixando voz neural…";
 "Baixar" = "Baixar";
 "Baixar voz neural (~550 MB)" = "Baixar voz neural (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "Barge-in indisponível: a sessão de áudio está em modo de gravação.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "Barge-in indisponível: cancelamento de eco não pôde ser ativado.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "Barge-in indisponível: o detector de voz não pôde ser carregado.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "Barge-in indisponível: o microfone não pôde ser aberto.";
 "Base de Conhecimento" = "Base de Conhecimento";
 "Brasas" = "Brasas";
 "CONTA" = "CONTA";

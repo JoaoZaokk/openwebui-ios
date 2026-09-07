@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "নিউরাল ভয়েস ডাউনলোড হচ্ছে…";
 "Baixar" = "ডাউনলোড";
 "Baixar voz neural (~550 MB)" = "নিউরাল ভয়েস ডাউনলোড করুন (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "barge-in পাওয়া যাচ্ছে না: অডিও সেশন রেকর্ডিং মোডে রয়েছে।";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "barge-in পাওয়া যাচ্ছে না: ইকো ক্যানসেলেশন চালু করা যায়নি।";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "barge-in পাওয়া যাচ্ছে না: কণ্ঠ শনাক্তকারী লোড করা যায়নি।";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "barge-in পাওয়া যাচ্ছে না: মাইক্রোফোন খোলা যায়নি।";
 "Base de Conhecimento" = "নলেজ বেস";
 "Brasas" = "অঙ্গার";
 "CONTA" = "অ্যাকাউন্ট";

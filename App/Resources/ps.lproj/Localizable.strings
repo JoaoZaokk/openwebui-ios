@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "د عصبي غږ ډاونلوډ کیږي…";
 "Baixar" = "ډاونلوډ";
 "Baixar voz neural (~550 MB)" = "عصبي غږ ډاونلوډ کول (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "barge-in شتون نلري: د غږ ناسته د ثبتولو په حالت کې ده.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "barge-in شتون نلري: د اکو لغوه کول فعال نه شول.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "barge-in شتون نلري: د غږ کشف کوونکی نه شو پورته کېدای.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "barge-in شتون نلري: مایکروفون نه شو پرانیستل کېدای.";
 "Base de Conhecimento" = "د پوهې بنسټ";
 "Brasas" = "سکروټې";
 "CONTA" = "حساب";

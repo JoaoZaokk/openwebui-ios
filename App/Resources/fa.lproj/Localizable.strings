@@ -17,6 +17,10 @@
 "Baixando voz neural…" = "در حال دانلود صدای عصبی…";
 "Baixar" = "دانلود";
 "Baixar voz neural (~550 MB)" = "دانلود صدای عصبی (~550 MB)";
+"Barge-in indisponível: a sessão de áudio está em modo de gravação." = "barge-in در دسترس نیست: جلسه صدا در حالت ضبط است.";
+"Barge-in indisponível: cancelamento de eco não pôde ser ativado." = "barge-in در دسترس نیست: حذف اکو فعال نشد.";
+"Barge-in indisponível: o detector de voz não pôde ser carregado." = "barge-in در دسترس نیست: آشکارساز صدا بارگذاری نشد.";
+"Barge-in indisponível: o microfone não pôde ser aberto." = "barge-in در دسترس نیست: میکروفون باز نشد.";
 "Base de Conhecimento" = "پایگاه دانش";
 "Brasas" = "اخگر";
 "CONTA" = "حساب";
