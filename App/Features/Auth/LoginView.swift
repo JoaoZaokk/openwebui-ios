@@ -96,6 +96,13 @@ struct LoginView: View {
                     .opacity(canSubmit ? 1 : 0.6)
                 }
 
+                if app.loggingIn && !(passwordAvailable || usingLDAP) {
+                    // The only spinner on this screen lived inside the password
+                    // button, which a server that offers only SSO never draws — so
+                    // the token exchange ran with nothing on screen moving.
+                    ProgressView().tint(theme.accent)
+                }
+
                 // Whatever else this server accepts. Drawn from `/api/config`, so a
                 // server with no SSO configured shows nothing and nothing changes.
                 VStack(spacing: 10) {

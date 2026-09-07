@@ -109,6 +109,19 @@ enum NativeSSO {
         }
     }
 
+    /// Google's token endpoint is the one request on the login screen that does
+    /// not go through the client, so it gets the client's policy by hand: 30 s
+    /// and no waiting for connectivity. `URLSession.shared` allows 60 s of
+    /// silence per request and seven days for the transfer, which is how a hung
+    /// exchange left the screen spinning with every button disabled.
+    private static let tokenSession: URLSession = {
+        let cfg = URLSessionConfiguration.ephemeral
+        cfg.timeoutIntervalForRequest = 30
+        cfg.timeoutIntervalForResource = 30
+        cfg.waitsForConnectivity = false
+        return URLSession(configuration: cfg)
+    }()
+
     /// Trades the authorization code for the provider's access token. No client
     /// secret: an iOS client has none, and PKCE is what stands in for it.
     private static func accessToken(code: String, verifier: String,
@@ -126,7 +139,8 @@ enum NativeSSO {
         ]
         req.httpBody = form.percentEncodedQuery.map { Data($0.utf8) }
 
-        let (data, resp) = try await URLSession.shared.data(for: req)
+        req.timeoutInterval = 30
+        let (data, resp) = try await tokenSession.data(for: req)
         struct Token: Decodable {
             var access_token: String?
             var error: String?
