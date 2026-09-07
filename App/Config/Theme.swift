@@ -61,17 +61,13 @@ struct Theme: Equatable, Identifiable {
         self.onAccent = Theme.luma(red) < 0.6 ? .white : Color(hex: "1a1a1a")
     }
 
-    /// Set on the copy `translucent(true)` returns. It exists to be part of
-    /// equality: `==` compared ids alone, and the translucent copy keeps the id of
-    /// the theme it came from, so the opaque and see-through variants compared
-    /// equal. SwiftUI reads `\.theme` out of the environment and skips a subtree
-    /// whose value did not change — which is why flipping "transparência" repainted
-    /// nothing until something unrelated forced a rebuild.
-    private(set) var isTranslucent = false
-
-    static func == (l: Theme, r: Theme) -> Bool {
-        l.id == r.id && l.isTranslucent == r.isTranslucent
-    }
+    // Equality is the synthesized memberwise one, on purpose. It used to compare
+    // ids alone, and the copy `translucent(true)` returns keeps the id of the
+    // theme it came from — so the opaque and see-through variants compared equal,
+    // SwiftUI skipped the subtree whose `\.theme` "did not change", and flipping
+    // "transparência" repainted nothing until something unrelated forced a
+    // rebuild. A flag was then bolted on to tell the two apart; memberwise
+    // equality already sees the surfaces differ and needs no flag.
 
     /// Returns a copy whose surfaces are semi-transparent, so a frosted/vibrancy
     /// backdrop shows through (used by the "transparência" setting).
@@ -83,7 +79,6 @@ struct Theme: Equatable, Identifiable {
         t.panel = panel.opacity(a)
         t.userBubble = userBubble.opacity(a)
         t.aiBubble = aiBubble.opacity(a)
-        t.isTranslucent = true
         return t
     }
 
