@@ -168,13 +168,15 @@ struct NotePickerSheet: View {
     @State private var notes: [OWNote] = []
     @State private var loading = true
     @State private var error: String?
+    /// Separate from `error`: the banner can be dismissed, the fact cannot.
+    @State private var failed = false
 
     var body: some View {
         NavigationStack {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 if loading { ProgressView().tint(theme.accent) }
-                else if notes.isEmpty && error == nil {
+                else if notes.isEmpty && !failed {
                     Text("Nenhuma nota.").font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                 } else {
                     List(notes) { n in
@@ -200,9 +202,9 @@ struct NotePickerSheet: View {
         // Not `try?`: a failed fetch used to render the same "Nenhuma…" line an
         // empty account gets, which tells the user their notes do not exist.
         .task {
-            do { notes = try await client.notes() }
+            do { notes = try await client.notes(); failed = false }
             catch is CancellationError {}
-            catch let e { error = OWFailure.msg(e) }
+            catch let e { error = OWFailure.msg(e); failed = true }
             loading = false
         }
     }
@@ -217,13 +219,15 @@ struct ChatPickerSheet: View {
     @State private var chats: [OWChatSummary] = []
     @State private var loading = true
     @State private var error: String?
+    /// Separate from `error`: the banner can be dismissed, the fact cannot.
+    @State private var failed = false
 
     var body: some View {
         NavigationStack {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 if loading { ProgressView().tint(theme.accent) }
-                else if chats.isEmpty && error == nil {
+                else if chats.isEmpty && !failed {
                     Text("Nenhuma conversa.").font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                 } else {
                     List(chats) { c in
@@ -249,9 +253,9 @@ struct ChatPickerSheet: View {
         // Not `try?`: a failed fetch used to render the same "Nenhuma…" line an
         // empty account gets, which tells the user their chats do not exist.
         .task {
-            do { chats = try await client.chats() }
+            do { chats = try await client.chats(); failed = false }
             catch is CancellationError {}
-            catch let e { error = OWFailure.msg(e) }
+            catch let e { error = OWFailure.msg(e); failed = true }
             loading = false
         }
     }
@@ -266,13 +270,15 @@ struct KBPickerSheet: View {
     @State private var items: [OWNamedItem] = []
     @State private var loading = true
     @State private var error: String?
+    /// Separate from `error`: the banner can be dismissed, the fact cannot.
+    @State private var failed = false
 
     var body: some View {
         NavigationStack {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 if loading { ProgressView().tint(theme.accent) }
-                else if items.isEmpty && error == nil {
+                else if items.isEmpty && !failed {
                     Text("Nenhuma base de conhecimento.")
                         .font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                 } else {
@@ -297,9 +303,9 @@ struct KBPickerSheet: View {
         // Not `try?`: a failed fetch used to render the same "Nenhuma…" line an
         // empty account gets, which tells the user their knowledge bases do not exist.
         .task {
-            do { items = try await client.knowledgeBases() }
+            do { items = try await client.knowledgeBases(); failed = false }
             catch is CancellationError {}
-            catch let e { error = OWFailure.msg(e) }
+            catch let e { error = OWFailure.msg(e); failed = true }
             loading = false
         }
     }
@@ -318,7 +324,7 @@ struct ToolPickerSheet: View {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 if vm.loadingTools { ProgressView().tint(theme.accent) }
-                else if vm.availableTools.isEmpty && vm.toolsError == nil {
+                else if vm.availableTools.isEmpty && !vm.toolsFailed {
                     Text("Nenhuma ferramenta neste servidor.")
                         .font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                         .multilineTextAlignment(.center).padding(.horizontal, 32)

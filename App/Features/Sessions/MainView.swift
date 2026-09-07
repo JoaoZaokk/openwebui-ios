@@ -57,7 +57,7 @@ struct ChatListView: View {
     /// Debounce the full-text search so it doesn't run on every keystroke.
     private func runSearch(_ text: String) {
         searchTask?.cancel()
-        guard searching else { store.searchResults = []; return }
+        guard searching else { store.clearSearch(); return }
         searchTask = Task {
             try? await Task.sleep(nanoseconds: 250_000_000)
             guard !Task.isCancelled else { return }

@@ -37,6 +37,10 @@ final class ChatViewModel: ObservableObject {
     /// Why the tool list is empty, when it is empty for a reason. Its own slot:
     /// `error` is the chat's banner, which the picker sheet covers.
     @Published var toolsError: String?
+    /// Whether the last tool fetch failed. Separate from `toolsError`, which the
+    /// banner's X clears — dismissing the sentence must not restore the empty
+    /// state's "no tools on this server", a claim that was never established.
+    @Published private(set) var toolsFailed = false
 
     let models: [OWModel]
 
@@ -275,11 +279,14 @@ final class ChatViewModel: ObservableObject {
     func loadTools() {
         guard availableTools.isEmpty, !loadingTools else { return }
         loadingTools = true
+        // A retry starts clean: the previous attempt's sentence over this
+        // attempt's spinner said the retry had already failed.
+        toolsError = nil
         Task {
             defer { loadingTools = false }
             do {
                 let list = try await client.tools()
-                toolsError = nil
+                toolsFailed = false
                 availableTools = list
                 // Drop selections for tools this account lost access to, so we never
                 // send a tool_id the server will reject.
@@ -288,6 +295,7 @@ final class ChatViewModel: ObservableObject {
             } catch is CancellationError {
             } catch {
                 toolsError = OWFailure.msg(error)
+                toolsFailed = true
             }
         }
     }
