@@ -58,6 +58,13 @@ final class VoiceConversation: ObservableObject {
     }
     private var streamTask: Task<Void, Never>?
     private var speakingTurnID = ""
+    /// False until this reply has queued its first chunk — see
+    /// `SpokenText.openingCut`.
+    private var openedThisTurn = false
+    /// Reply text received but not yet handed to TTS. Complete sentences are cut
+    /// off the front as they arrive, so speaking starts on the first one instead
+    /// of after the whole generation.
+    private var pendingSpeech = ""
 
     /// How long the transcription must stay unchanged before we treat the turn as
     /// finished (native engine only — Whisper has no live partials, so there the
@@ -153,6 +160,7 @@ final class VoiceConversation: ObservableObject {
         disableProximity()
         phase = .idle
         liveText = ""
+        pendingSpeech = ""
     }
 
     // MARK: - Proximity (raise-to-ear → earpiece, else loudspeaker)
@@ -261,6 +269,8 @@ final class VoiceConversation: ObservableObject {
         guard let model else { error = L("Nenhum modelo disponível."); phase = .idle; return }
         phase = .thinking
         reply = ""
+        pendingSpeech = ""
+        openedThisTurn = false
         var msgs = [OWChatMessageInput(role: "system", text: Self.systemPrompt)]
         for t in turns { msgs.append(OWChatMessageInput(role: t.role, text: t.text)) }
         let replyTurn = Turn(role: "assistant", text: "")
@@ -268,26 +278,52 @@ final class VoiceConversation: ObservableObject {
         speakingTurnID = replyTurn.id
         streamTask = Task { [weak self] in
             guard let self else { return }
+            // Timed because the voice loop's wait is not obviously the TTS: with
+            // sentence-by-sentence speech the model's own latency to the first
+            // sentence is what is left, and there is no way to tell a slow model
+            // from a slow synthesis without both marks.
+            let t0 = Date()
+            var firstDelta = true
             do {
                 for try await u in self.completions.stream(model: model, messages: msgs) {
                     if Task.isCancelled { return }
                     switch u {
                     case .textDelta(let d):
+                        if firstDelta {
+                            firstDelta = false
+                            VoiceLog.log("llm.1ºdelta", String(format: "%.0f ms", Date().timeIntervalSince(t0) * 1000))
+                        }
                         self.reply += d
                         if let i = self.turns.lastIndex(where: { $0.id == replyTurn.id }) {
                             self.turns[i].text = self.reply
                         }
+                        self.pendingSpeech += d
+                        self.emitSentences()
                     case .error(let m): self.error = m
                     default: break
                     }
                 }
+                // Cancelling the consumer of an `AsyncThrowingStream` ends the
+                // loop *normally* — the producer turns the cancellation into
+                // `continuation.finish()` (see ChatViewModel, which documents
+                // this), so `for try await` returns instead of throwing and the
+                // `if Task.isCancelled` inside the loop never runs again because
+                // no further element arrives. Without this check a barge-in
+                // still flushed the half-written sentence and spoke it over the
+                // user who had just interrupted.
+                if Task.isCancelled { return }
+                self.emitSentences(flush: true)
                 self.schedulePersist()
-                self.speak()
+                self.finalizeReply(replyTurn.id)
             } catch is CancellationError {
                 // The user ended the session or cut in — not a failure to report.
             } catch {
                 self.error = OWFailure.msg(error)
-                self.afterSpeaking()
+                // Same finalization as a clean end. Calling afterSpeaking()
+                // directly here jumped straight back to listening while queued
+                // sentences were still playing, so the assistant talked into the
+                // open microphone of the next turn.
+                self.finalizeReply(replyTurn.id)
             }
         }
     }
@@ -335,9 +371,57 @@ final class VoiceConversation: ObservableObject {
 
     // MARK: - Speak (TTS)
 
-    private func speak() {
-        let t = reply.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard active, !t.isEmpty else { afterSpeaking(); return }
+    /// Cuts every complete sentence off `pendingSpeech` and queues it. With
+    /// `flush`, whatever is left goes too — the model's last sentence often has
+    /// no trailing space to detect.
+    ///
+    /// The first chunk of a reply is cut by a looser rule
+    /// (`SpokenText.openingCut`), for the reason spelled out there.
+    private func emitSentences(flush: Bool = false) {
+        guard active else { return }
+        while let cut = openedThisTurn ? SpokenText.sentenceCut(in: pendingSpeech)
+                                       : SpokenText.openingCut(in: pendingSpeech) {
+            let sentence = String(pendingSpeech.prefix(cut))
+            pendingSpeech.removeFirst(cut)
+            queueSpeech(sentence)
+        }
+        if flush {
+            let rest = pendingSpeech
+            pendingSpeech = ""
+            queueSpeech(rest)
+        }
+    }
+
+    private func queueSpeech(_ sentence: String) {
+        let t = sentence.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Only a turn that is still thinking (the first sentence) or already
+        // speaking may queue audio. Once the turn has been finalized — barge-in,
+        // TTS failure, stream error — a late sentence from the still-live stream
+        // would otherwise re-enter .speaking on top of a live recording,
+        // swapping the audio-session category out from under the recorder.
+        guard active, !t.isEmpty, phase == .thinking || phase == .speaking else { return }
+        // Ask before committing: `enqueue` silently drops a sentence that is
+        // pure markdown, and entering .speaking for one would leave the turn with
+        // an empty queue that `closeQueue` could never finish.
+        guard SpokenText.isSpeakable(t) else { return }
+        VoiceLog.log("tts.frase", "\(openedThisTurn ? "" : "ABERTURA ")\(t.count) chars: \"\(t.prefix(50))\"")
+        openedThisTurn = true
+        beginSpeaking(turn: speakingTurnID)
+        tts.enqueue(t, id: speakingTurnID)
+    }
+
+    /// Hands the reply over: if audio is playing, let the queue drain and end the
+    /// turn from the finish callback; otherwise end it now. Used by both the
+    /// clean end of the stream and the error path, so a mid-reply failure cannot
+    /// jump back to listening while sentences are still being spoken.
+    private func finalizeReply(_ id: String) {
+        if phase == .speaking { tts.closeQueue(id: id) }
+        else { afterSpeaking() }   // nothing was ever spoken — empty or failed reply
+    }
+
+    /// Enters the speaking phase on the first sentence of a reply.
+    private func beginSpeaking(turn: String) {
+        guard phase != .speaking else { return }
         phase = .speaking
         tts.voiceOverride = ttsVoice.isEmpty ? nil : ttsVoice
         tts.onSpeechFinished = { [weak self] in self?.afterSpeaking() }
@@ -353,18 +437,32 @@ final class VoiceConversation: ObservableObject {
             if let message { self.error = message }
             self.afterSpeaking()
         }
-        tts.toggle(t, id: speakingTurnID)
-        // Listen for the user cutting in (barge-in) while the reply plays — but
-        // only if there is still a reply playing: `toggle` can report failure
-        // synchronously, and the turn is then already over.
+        // The recorder leaves the session in .record/.measurement — a mode that
+        // disables system signal processing, i.e. the echo cancellation barge-in
+        // depends on. Every engine used to claim the session on its way in, and
+        // barge-in was armed on the line right after `toggle()` returned; the
+        // queue arms it *before* the first sentence is handed over, so the
+        // session has to be configured here.
+        tts.prepareDuplexSession()
         let bargeOn = UserDefaults.standard.object(forKey: "voice.bargein.enabled") as? Bool ?? true
-        if bargeOn, phase == .speaking { bargeMonitor.start { [weak self] in self?.bargeIn() } }
+        if bargeOn { bargeMonitor.start { [weak self] in self?.bargeIn() } }
     }
 
-    /// User started talking over the reply → stop speaking and listen.
+    /// User started talking over the reply → drop whatever it was doing and
+    /// listen.
     private func bargeIn() {
         guard phase == .speaking else { return }
+        VoiceLog.log("barge.corta", "reply=\(reply.count) chars — cancelando stream e fala")
         bargeMonitor.stop()
+        // The reply is usually still streaming now that speech starts mid-stream:
+        // stopping only the audio left the model writing into `reply`, which
+        // listen() had just cleared — so the bubble lost its beginning and the
+        // queue kept being fed sentences to speak after the interruption.
+        streamTask?.cancel(); streamTask = nil
+        // Cancelling alone isn't enough: the stream's tail still runs (see
+        // ask()). Dropping the buffered fragment here means that even if
+        // something else flushes it, there is nothing left to speak.
+        pendingSpeech = ""
         tts.onSpeechFinished = nil   // transition ourselves (AVAudioPlayer.stop fires no callback)
         tts.onSpeechFailed = nil
         tts.stop()
