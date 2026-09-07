@@ -14,7 +14,12 @@ import OpenWebUIKit
 /// `OpenWebUIKit`.
 @MainActor
 final class VoiceConversation: ObservableObject {
-    enum Phase: Equatable { case idle, listening, thinking, speaking }
+    /// `.finishing` is the handoff between one turn and the next: the reply is
+    /// over and the microphone is not open yet. It exists because several things
+    /// can announce the end of a turn at the same instant (the TTS finish
+    /// callback, a barge-in, a TTS failure, `ask()`'s own tail) and two of them
+    /// arriving used to queue two `listen()` calls.
+    enum Phase: Equatable { case idle, listening, thinking, speaking, finishing }
 
     @Published private(set) var phase: Phase = .idle
     @Published private(set) var active = false
@@ -82,15 +87,6 @@ final class VoiceConversation: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] e in if let e { self?.error = e } }
             .store(in: &cancellables)
-        // Recover the loop if neural TTS fails to produce audio.
-        tts.$neuralError
-            .receive(on: RunLoop.main)
-            .sink { [weak self] e in
-                guard let self, let e, self.phase == .speaking else { return }
-                self.error = e
-                self.afterSpeaking()
-            }
-            .store(in: &cancellables)
     }
 
     // MARK: - Session control
@@ -150,6 +146,7 @@ final class VoiceConversation: ObservableObject {
         silenceTimer?.invalidate(); silenceTimer = nil
         bargeMonitor.stop()
         tts.onSpeechFinished = nil
+        tts.onSpeechFailed = nil
         tts.duplexSession = false
         tts.stop()
         voice.cancel()
@@ -187,18 +184,31 @@ final class VoiceConversation: ObservableObject {
         switch phase {
         case .listening: endTurn()
         case .speaking:  bargeIn()
-        case .thinking, .idle: break
+        case .thinking, .idle, .finishing: break
         }
     }
 
     // MARK: - Listen (STT)
 
     private func listen() async {
-        guard active else { return }
+        // Every exit from here has to leave `.finishing` behind, this one
+        // included: nothing else moves out of that phase, so staying in it would
+        // park the loop exactly the way the missing guard in afterSpeaking() did.
+        // Arriving inactive means stop() ran during the handoff, and `.idle` is
+        // the phase it already left.
+        guard active else { phase = .idle; return }
         reply = ""; liveText = ""; lastPartial = ""
         heardSpeech = false
-        guard await voice.start() else { active = false; phase = .idle; return }
-        phase = .listening
+        // Release a recorder left running by an interrupted turn — a no-op on the
+        // normal path, since cancel() returns at once when nothing is recording.
+        // Without it a single stuck engine made every later start() return false,
+        // so neither the orb nor "Iniciar conversa" could revive the screen.
+        voice.cancel()
+        // Failing here ends the session properly instead of only flipping the
+        // flags: `active = false; phase = .idle` left the duplex session, the
+        // proximity sensor and the barge-in monitor exactly as they were.
+        guard await voice.start() else { stop(); return }
+        phase = .listening           // the turn handoff is complete
         lastChange = Date(); lastLoud = Date()
         silenceTimer?.invalidate()
         silenceTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
@@ -331,10 +341,24 @@ final class VoiceConversation: ObservableObject {
         phase = .speaking
         tts.voiceOverride = ttsVoice.isEmpty ? nil : ttsVoice
         tts.onSpeechFinished = { [weak self] in self?.afterSpeaking() }
+        // Recovers the loop when TTS produces no audio: without it the
+        // conversation sits in .speaking forever, waiting for a finish callback
+        // that cannot come. This used to watch `SpeechManager.neuralError`, which
+        // has a second writer that is not a failure — the "no PocketTTS pack for
+        // this language" branch sets it and then speaks anyway, natively. Reading
+        // that as "TTS died" reopened the mic over the assistant's own voice, in
+        // every one of the 36 languages without a pack.
+        tts.onSpeechFailed = { [weak self] message in
+            guard let self else { return }
+            if let message { self.error = message }
+            self.afterSpeaking()
+        }
         tts.toggle(t, id: speakingTurnID)
-        // Listen for the user cutting in (barge-in) while the reply plays.
+        // Listen for the user cutting in (barge-in) while the reply plays — but
+        // only if there is still a reply playing: `toggle` can report failure
+        // synchronously, and the turn is then already over.
         let bargeOn = UserDefaults.standard.object(forKey: "voice.bargein.enabled") as? Bool ?? true
-        if bargeOn { bargeMonitor.start { [weak self] in self?.bargeIn() } }
+        if bargeOn, phase == .speaking { bargeMonitor.start { [weak self] in self?.bargeIn() } }
     }
 
     /// User started talking over the reply → stop speaking and listen.
@@ -342,13 +366,34 @@ final class VoiceConversation: ObservableObject {
         guard phase == .speaking else { return }
         bargeMonitor.stop()
         tts.onSpeechFinished = nil   // transition ourselves (AVAudioPlayer.stop fires no callback)
+        tts.onSpeechFailed = nil
         tts.stop()
         afterSpeaking()
     }
 
+    /// Ends the current turn and opens the next one — exactly once.
+    ///
+    /// It neither read nor wrote `phase` before, and `listen()` only reached
+    /// `.listening` after `await voice.start()`. Inside that window `bargeIn()`
+    /// and the TTS error path still saw `.speaking` and could announce the end of
+    /// the same turn a second time; the second `listen()` found the recorder
+    /// already running, `voice.start()` returned false, and the session was torn
+    /// down with the microphone still live. `.finishing`, set here before
+    /// anything can await, is what stops the second call.
+    ///
+    /// `.thinking` ends a turn here too, and that is not interchangeable with
+    /// "only `.speaking`": a reply with nothing speakable in it, or a stream that
+    /// failed before the first token, is finalized straight from `.thinking`, and
+    /// a speaking-only guard would park the loop in "Pensando…" forever.
     private func afterSpeaking() {
+        switch phase {
+        case .thinking, .speaking: break
+        case .idle, .listening, .finishing: return
+        }
+        phase = .finishing
         bargeMonitor.stop()
         tts.onSpeechFinished = nil
+        tts.onSpeechFailed = nil
         guard active else { phase = .idle; return }
         Task { await listen() }
     }

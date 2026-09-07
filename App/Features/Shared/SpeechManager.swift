@@ -28,6 +28,26 @@ final class SpeechManager: NSObject, ObservableObject {
     /// The hands-free voice loop uses it to advance to the next turn.
     var onSpeechFinished: (() -> Void)?
 
+    /// Fired when this manager could not produce audio for what it was handed —
+    /// the counterpart of `onSpeechFinished`, since a turn that never plays gets
+    /// no finish callback and would otherwise hang the loop forever.
+    ///
+    /// The loop used to learn about that by watching the `@Published neuralError`
+    /// string, which is not a failure channel: `speakNeural`'s "no PocketTTS pack
+    /// for this language" branch writes it and then speaks anyway, natively. The
+    /// loop read that as "TTS died" and reopened the microphone on top of the
+    /// assistant's own voice — in any of the 36 UI languages with no pack, i.e.
+    /// most of them. Only the paths that genuinely produce no audio call this.
+    ///
+    /// The message is nil when there is nothing to say about it: a reply that
+    /// strips down to no speakable text never plays either, but it is not an
+    /// error to put on screen.
+    ///
+    /// Unlike `onSpeechFinished` this is not one-shot — nothing consumes it, so
+    /// it stays installed for the whole turn. Like the finish hook it belongs to
+    /// whoever set it; this class never clears either one.
+    var onSpeechFailed: ((String?) -> Void)?
+
     /// Injected at launch — lets the "server" TTS engine reach Open WebUI.
     var client: OpenWebUIClient?
     /// Voices advertised by the server's TTS engine (loaded on demand).
@@ -57,7 +77,7 @@ final class SpeechManager: NSObject, ObservableObject {
                 try s.setActive(true)
             }
         } catch {
-            neuralError = L("Áudio indisponível: %@", OWFailure.msg(error))
+            fail(L("Áudio indisponível: %@", OWFailure.msg(error)))
         }
         #endif
     }
@@ -103,7 +123,10 @@ final class SpeechManager: NSObject, ObservableObject {
         if speakingID == id || preparingID == id { stop(); return }
         stop()
         let clean = Self.strip(text)
-        guard !clean.isEmpty else { return }
+        // Nothing speakable left (a reply that was only a think block, or bare
+        // markdown punctuation). No audio will play and no delegate will fire,
+        // so whoever is waiting on this turn has to be told now.
+        guard !clean.isEmpty else { onSpeechFailed?(nil); return }
         if useServer { speakServer(clean, id: id) }
         else if useNeural { speakNeural(clean, id: id) }
         else { speakNative(clean, id: id) }
@@ -234,7 +257,7 @@ final class SpeechManager: NSObject, ObservableObject {
                 if isCurrent(generation) { preparingID = nil }
             } catch {
                 guard isCurrent(generation) else { return }
-                neuralError = OWFailure.msg(error)
+                fail(OWFailure.msg(error))
                 preparingID = nil
             }
         }
@@ -243,7 +266,7 @@ final class SpeechManager: NSObject, ObservableObject {
     // MARK: - Server (Open WebUI /audio/speech)
 
     private func speakServer(_ clean: String, id: String) {
-        guard let client else { neuralError = L("Servidor de voz indisponível."); return }
+        guard let client else { fail(L("Servidor de voz indisponível.")); return }
         preparingID = id
         neuralError = nil
         activateTTSSession()   // before the task — see speakNeural
@@ -264,7 +287,7 @@ final class SpeechManager: NSObject, ObservableObject {
                 if isCurrent(generation) { preparingID = nil }
             } catch {
                 guard isCurrent(generation) else { return }
-                neuralError = L("TTS do servidor falhou: %@", OWFailure.msg(error))
+                fail(L("TTS do servidor falhou: %@", OWFailure.msg(error)))
                 preparingID = nil
             }
         }
@@ -294,6 +317,15 @@ final class SpeechManager: NSObject, ObservableObject {
         pocket = m
         pocketLanguage = pack
         return m
+    }
+
+    /// A real failure to produce audio: shown on the Settings screen and handed
+    /// to the voice loop. The loop must never read `neuralError` itself — that
+    /// string has a second writer (the missing-pack notice) which goes on to
+    /// speak.
+    private func fail(_ text: String) {
+        neuralError = text
+        onSpeechFailed?(text)
     }
 
     // MARK: - Helpers
