@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Hanya menukar nama yang dipaparkan pada peranti ini — model yang dihantar ke pelayan kekal sama. Biarkan kosong untuk kembali kepada nama asal.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Suara dan pengecaman terbina dalam mengikut bahasa apl (Tetapan › Bahasa).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Pengecaman pertuturan tidak tersedia untuk %@ pada peranti ini.";
+"Processar só no aparelho" = "Proses pada peranti sahaja";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Memproses pada peranti sahaja tidak menghantar audio ke Apple, tetapi model luar talian lebih kerap tersalah perkataan. Biarkan tutup jika transkripsi lemah.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (tidak tersedia)";

@@ -223,6 +223,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Ännert nëmmen den Numm, deen op dësem Apparat ugewise gëtt — de Modell, deen un de Server geschéckt gëtt, bleift deeselwechten. Eidel loosse fir den originalen Numm zréckzesetzen.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Déi agebaute Stëmm an déi agebauten Erkennung follegen der App-Sprooch (Astellungen › Sprooch).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Spracherkennung ass fir %@ op dësem Apparat net verfügbar.";
+"Processar só no aparelho" = "Nëmmen um Apparat veraarbechten";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Nëmmen um Apparat ze veraarbechten schéckt keen Audio un Apple, mee d'Offline-Modell mécht méi Feeler. Loosst et aus, wann d'Transkriptioun schlecht ass.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (net verfügbar)";

@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "یوازې هغه نوم بدلوي چې پر دې وسیله ښکاري — هغه ماډل چې سرور ته لیږل کیږي همغه پاتې کیږي. اصلي نوم ته د بیرته راستنیدو لپاره یې تش پرېږدئ.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "جوړ شوی غږ او جوړ شوې پېژندنه د اپلیکېشن ژبې تعقیبوي (تنظیمات › ژبه).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "پر دې وسیله د %@ لپاره د وینا پېژندنه شتون نلري.";
+"Processar só no aparelho" = "یوازې په وسیله کې پروسس کول";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "یوازې په وسیله کې پروسس کول غږ Apple ته نه لېږي، خو آفلاین ماډل ډېرې کلمې تېروځي. که لیکنه ښه نه وي، مړ یې پرېږده.";
 
 "Neural (%@)" = "عصبي (%@)";
 "Neural (indisponível)" = "عصبي (شتون نلري)";

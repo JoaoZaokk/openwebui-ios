@@ -223,6 +223,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "เปลี่ยนเฉพาะชื่อที่แสดงบนเครื่องนี้ — โมเดลที่ส่งไปยังเซิร์ฟเวอร์ยังคงเดิม เว้นว่างไว้เพื่อกลับไปใช้ชื่อเดิม";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "เสียงในตัวและการรู้จำเสียงในตัวจะใช้ภาษาของแอป (การตั้งค่า › ภาษา)";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "เครื่องนี้ไม่รองรับการรู้จำเสียงสำหรับ %@";
+"Processar só no aparelho" = "ประมวลผลบนเครื่องเท่านั้น";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "การประมวลผลบนเครื่องเท่านั้นจะไม่ส่งเสียงไปยัง Apple แต่โมเดลออฟไลน์ถอดคำผิดมากกว่า ปิดไว้หากถอดเสียงได้ไม่ดี";
 
 "Neural (%@)" = "นิวรัล (%@)";
 "Neural (indisponível)" = "นิวรัล (ไม่พร้อมใช้งาน)";
