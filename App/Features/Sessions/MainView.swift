@@ -347,7 +347,7 @@ struct ArchivedChatsView: View {
                 loading = true
                 do { chats = try await app.client.archivedChats() }
                 catch is CancellationError {}
-                catch { self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription }
+                catch { self.error = OWFailure.msg(error) }
                 loading = false
             }
         }
@@ -370,7 +370,7 @@ struct ArchivedChatsView: View {
                 else { try await app.client.archiveChat(c.id) }
             } catch {
                 chats.insert(c, at: min(at, chats.count))
-                self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                self.error = OWFailure.msg(error)
             }
         }
     }

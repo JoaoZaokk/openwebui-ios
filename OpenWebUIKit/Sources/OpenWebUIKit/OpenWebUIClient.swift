@@ -137,7 +137,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
         } catch let e as OWError {
             throw e
         } catch {
-            if error is CancellationError || (error as? URLError)?.code == .cancelled {
+            if error.isCancellation {
                 throw CancellationError()
             }
             throw OWError.transport(error.localizedDescription)

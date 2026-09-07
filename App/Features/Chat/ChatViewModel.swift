@@ -125,7 +125,7 @@ final class ChatViewModel: ObservableObject {
                     self.offline = true
                     self.historyLoaded = true
                 } else {
-                    self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                    self.error = OWFailure.msg(error)
                 }
             }
         }
@@ -188,7 +188,7 @@ final class ChatViewModel: ObservableObject {
             let f = try await client.uploadFile(data: data, filename: filename, mime: mime)
             pendingDocuments.append(OWAttachment(type: "file", id: f.id, name: displayName ?? f.filename))
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 
@@ -226,7 +226,7 @@ final class ChatViewModel: ObservableObject {
                                                 filename: "conversa.txt", mime: "text/plain")
             pendingDocuments.append(OWAttachment(type: "file", id: f.id, name: summary.title))
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 
@@ -240,7 +240,7 @@ final class ChatViewModel: ObservableObject {
             guard !content.isEmpty else { self.error = L("Não foi possível ler a página."); return }
             await uploadAndAttach(Data(content.utf8), filename: "pagina.txt", mime: "text/plain", displayName: name)
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 
@@ -377,7 +377,7 @@ final class ChatViewModel: ObservableObject {
         } catch is CancellationError {
             // user stopped — keep whatever streamed so far
         } catch {
-            failTurn(assistantID, (error as? LocalizedError)?.errorDescription ?? error.localizedDescription)
+            failTurn(assistantID, OWFailure.msg(error))
         }
         awaitingWebSearch = false
         isStreaming = false
@@ -475,7 +475,7 @@ final class ChatViewModel: ObservableObject {
             // push it on the next launch.
             cache?.keepPending(id: pendingID, title: title, models: [model],
                               messages: Array(tree.values))
-            let reason = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            let reason = OWFailure.msg(error)
             self.error = L("%@ A conversa está salva no aparelho e será enviada depois.", reason)
         }
     }

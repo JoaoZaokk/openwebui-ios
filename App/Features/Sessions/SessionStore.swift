@@ -70,7 +70,7 @@ final class ChatStore: ObservableObject {
             // conversations stay readable offline.
             let cached = cache.cachedSummaries()
             if !cached.isEmpty { chats = sorted(cached); offline = true }
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 
@@ -106,7 +106,7 @@ final class ChatStore: ObservableObject {
             await refreshSearch()
         } catch is CancellationError {
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 
@@ -203,7 +203,7 @@ final class ChatStore: ObservableObject {
     }
 
     private func report(_ error: Error) {
-        self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+        self.error = OWFailure.msg(error)
     }
 }
 

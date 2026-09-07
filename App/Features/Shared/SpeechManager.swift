@@ -160,7 +160,7 @@ final class SpeechManager: NSObject, ObservableObject {
         neuralError = nil
         neuralTask = Task {
             do { _ = try await ensurePocket(pack); neuralReady = true }
-            catch { neuralError = msg(error) }
+            catch { neuralError = OWFailure.msg(error) }
             if preparingID == "__prepare__" { preparingID = nil }
         }
     }
@@ -221,7 +221,7 @@ final class SpeechManager: NSObject, ObservableObject {
                 if isCurrent(generation) { preparingID = nil }
             } catch {
                 guard isCurrent(generation) else { return }
-                neuralError = msg(error)
+                neuralError = OWFailure.msg(error)
                 preparingID = nil
             }
         }
@@ -251,7 +251,7 @@ final class SpeechManager: NSObject, ObservableObject {
                 if isCurrent(generation) { preparingID = nil }
             } catch {
                 guard isCurrent(generation) else { return }
-                neuralError = L("TTS do servidor falhou: %@", msg(error))
+                neuralError = L("TTS do servidor falhou: %@", OWFailure.msg(error))
                 preparingID = nil
             }
         }
@@ -282,8 +282,6 @@ final class SpeechManager: NSObject, ObservableObject {
         pocketLanguage = pack
         return m
     }
-
-    private func msg(_ e: Error) -> String { (e as? LocalizedError)?.errorDescription ?? e.localizedDescription }
 
     // MARK: - Helpers
 

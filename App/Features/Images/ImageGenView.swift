@@ -78,7 +78,7 @@ final class ImageGenStore: ObservableObject {
                 }
             }
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 
@@ -108,7 +108,7 @@ final class ImageGenStore: ObservableObject {
             }
             if imgs.isEmpty { error = L("Imagem gerada, mas não foi possível carregá-la.") }
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 }

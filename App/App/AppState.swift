@@ -126,7 +126,7 @@ final class AppState: ObservableObject {
             await loadModels()
             phase = .main
         } catch {
-            loginError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            loginError = OWFailure.msg(error)
         }
     }
 
@@ -171,7 +171,7 @@ final class AppState: ObservableObject {
             // sheet's error would strand them; the web view gets them in.
             return .serverRefused
         } catch {
-            loginError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            loginError = OWFailure.msg(error)
             return .failed
         }
     }
@@ -189,7 +189,7 @@ final class AppState: ObservableObject {
             phase = .main
             await flushPendingChats()
         } catch {
-            loginError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            loginError = OWFailure.msg(error)
         }
     }
 
@@ -203,7 +203,7 @@ final class AppState: ObservableObject {
             phase = .main
             await flushPendingChats()
         } catch {
-            loginError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            loginError = OWFailure.msg(error)
         }
     }
 
@@ -227,7 +227,7 @@ final class AppState: ObservableObject {
             modelsError = nil
         } catch is CancellationError {
         } catch {
-            modelsError = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            modelsError = OWFailure.msg(error)
         }
     }
 

@@ -276,7 +276,7 @@ final class VoiceConversation: ObservableObject {
             } catch is CancellationError {
                 // The user ended the session or cut in — not a failure to report.
             } catch {
-                self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                self.error = OWFailure.msg(error)
                 self.afterSpeaking()
             }
         }
@@ -319,7 +319,7 @@ final class VoiceConversation: ObservableObject {
                 if !ttsVoice.isEmpty { UserDefaults.standard.set(ttsVoice, forKey: Self.voiceKey(id)) }
             }
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 
