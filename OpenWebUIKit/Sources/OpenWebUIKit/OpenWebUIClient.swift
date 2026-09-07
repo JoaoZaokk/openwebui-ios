@@ -12,33 +12,47 @@ public final class OpenWebUIClient: @unchecked Sendable {
     /// Session for long transfers (SSE streams, generation, uploads) — no 30s resource cap.
     public let longSession: URLSession
 
-    public init(config: OWConfig = .default, tokens: OWKeychainStore = OWKeychainStore()) {
+    /// - Parameter protocolClasses: the transport. `nil` — the default, and the
+    ///   only thing the app itself ever passes — is Foundation's own chain. A test
+    ///   passes a `URLProtocol` subclass and the whole request stack becomes
+    ///   reachable without a server: both sessions, the 401 hop, the 2xx guard,
+    ///   `detail(from:)`, `decodeList`, and the SSE byte stream. The seam sits
+    ///   *under* the concrete type, not in front of it: no protocol is declared,
+    ///   and the single production construction site is untouched.
+    public init(config: OWConfig = .default, tokens: OWKeychainStore = OWKeychainStore(),
+                protocolClasses: [AnyClass]? = nil) {
         self.config = config
         self.tokens = tokens
         self.token = tokens.loadToken()
-        let cfg = URLSessionConfiguration.default
-        cfg.httpCookieStorage = .shared           // OWUI also sets a cookie; harmless to keep
-        cfg.httpCookieAcceptPolicy = .always
-        cfg.httpShouldSetCookies = true
-        cfg.requestCachePolicy = .reloadIgnoringLocalCacheData
+        let cfg = Self.sessionConfiguration(protocolClasses: protocolClasses)
         cfg.timeoutIntervalForRequest = 30
         cfg.timeoutIntervalForResource = 30   // cap the whole request — never hang forever
-        cfg.waitsForConnectivity = false      // fail fast with an error instead of waiting endlessly
         self.session = URLSession(configuration: cfg)
         // Long transfers (SSE chat streams, image generation, uploads, TTS/STT).
         // `timeoutIntervalForResource` caps the WHOLE transfer regardless of the
         // per-request `timeoutInterval` — on the 30s session a chat reply
         // streaming past 30s wall-clock was killed mid-stream and a slow image
         // generation could never finish. (Same fix as Odysseus 9fe0712.)
-        let longCfg = URLSessionConfiguration.default
-        longCfg.httpCookieStorage = .shared
-        longCfg.httpCookieAcceptPolicy = .always
-        longCfg.httpShouldSetCookies = true
-        longCfg.requestCachePolicy = .reloadIgnoringLocalCacheData
+        let longCfg = Self.sessionConfiguration(protocolClasses: protocolClasses)
         longCfg.timeoutIntervalForRequest = 300    // idle gap between bytes
         longCfg.timeoutIntervalForResource = 7200  // total wall-clock
-        longCfg.waitsForConnectivity = false
         self.longSession = URLSession(configuration: longCfg)
+    }
+
+    /// What both sessions share; they differ only in their timeouts. One
+    /// function so the transport cannot be handed to one session and forgotten
+    /// on the other. `URLProtocol.registerClass` is deliberately not the
+    /// mechanism: it does not reach a session built from
+    /// `URLSessionConfiguration.default`, which both of these are.
+    private static func sessionConfiguration(protocolClasses: [AnyClass]?) -> URLSessionConfiguration {
+        let cfg = URLSessionConfiguration.default
+        cfg.httpCookieStorage = .shared           // OWUI also sets a cookie; harmless to keep
+        cfg.httpCookieAcceptPolicy = .always
+        cfg.httpShouldSetCookies = true
+        cfg.requestCachePolicy = .reloadIgnoringLocalCacheData
+        cfg.waitsForConnectivity = false      // fail fast with an error instead of waiting endlessly
+        if let protocolClasses { cfg.protocolClasses = protocolClasses }
+        return cfg
     }
 
     /// Posted when the server rejects the stored token (HTTP 401). The host app

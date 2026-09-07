@@ -243,7 +243,8 @@ final class OWChatDecodeTests: XCTestCase {
     /// the request looks fine and silently calls nothing.
     func testToolIDsForceLegacyFunctionCalling() throws {
         let client = ChatCompletionsClient(
-            client: OpenWebUIClient(config: OWConfig(baseURL: URL(string: "https://x.test")!)))
+            client: OpenWebUIClient(config: OWConfig(baseURL: URL(string: "https://x.test")!),
+                                    tokens: OWKeychainStore(service: "tests.chatdecode")))
         let msgs = [OWChatMessageInput(role: "user", text: "oi")]
 
         let withTools = try client.buildRequest(model: "m", messages: msgs, files: [],
