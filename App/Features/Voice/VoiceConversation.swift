@@ -216,6 +216,16 @@ final class VoiceConversation: ObservableObject {
         // flags: `active = false; phase = .idle` left the duplex session, the
         // proximity sensor and the barge-in monitor exactly as they were.
         guard await voice.start() else { stop(); return }
+        // `start()` is the one suspension point in this loop, and it is a long
+        // one: the first turn waits on the microphone/speech permission sheet.
+        // Tapping "Encerrar" inside that window ran a stop() whose `voice.cancel()`
+        // did nothing — `isRecording` was still false — and then start() resumed,
+        // opened the mic and returned true. This used to walk straight on to
+        // `.listening`: recording, with `active == false`, the status reading
+        // "Ouvindo…" beside a button offering "Iniciar conversa", and the silence
+        // check advancing the turn 1.6 s later. Cancelling here is what actually
+        // turns the microphone off, since by now it really is recording.
+        guard active else { voice.cancel(); phase = .idle; return }
         phase = .listening           // the turn handoff is complete
         lastChange = Date(); lastLoud = Date()
         silenceTimer?.invalidate()
@@ -406,7 +416,10 @@ final class VoiceConversation: ObservableObject {
         guard SpokenText.isSpeakable(t) else { return }
         VoiceLog.log("tts.frase", "\(openedThisTurn ? "" : "ABERTURA ")\(t.count) chars: \"\(t.prefix(50))\"")
         openedThisTurn = true
-        beginSpeaking(turn: speakingTurnID)
+        // Nothing is handed to TTS until the audio session is actually ours: a
+        // refusal ends the turn inside beginSpeaking, and enqueueing after that
+        // would speak into the microphone the next turn has just opened.
+        guard beginSpeaking(turn: speakingTurnID) else { return }
         tts.enqueue(t, id: speakingTurnID)
     }
 
@@ -419,9 +432,28 @@ final class VoiceConversation: ObservableObject {
         else { afterSpeaking() }   // nothing was ever spoken — empty or failed reply
     }
 
-    /// Enters the speaking phase on the first sentence of a reply.
-    private func beginSpeaking(turn: String) {
-        guard phase != .speaking else { return }
+    /// Enters the speaking phase on the first sentence of a reply. False means
+    /// the OS refused the audio session and the turn is already over — the
+    /// caller must not queue anything.
+    private func beginSpeaking(turn: String) -> Bool {
+        guard phase != .speaking else { return true }
+        // The recorder leaves the session in .record/.measurement — a mode that
+        // disables system signal processing, i.e. the echo cancellation barge-in
+        // depends on. Every engine used to claim the session on its way in, and
+        // barge-in was armed on the line right after `toggle()` returned; the
+        // queue arms it *before* the first sentence is handed over, so the
+        // session has to be configured here.
+        //
+        // Claimed before the phase moves, so a refusal never shows a "Falando…"
+        // that nothing will ever speak.
+        guard tts.prepareDuplexSession() else {
+            // No audio can play, so there is no finish callback coming: end the
+            // turn here — exactly once, from `.thinking`, which afterSpeaking()
+            // accepts — instead of arming barge-in over silence.
+            if let why = tts.sessionFailure { error = why }
+            afterSpeaking()
+            return false
+        }
         phase = .speaking
         tts.voiceOverride = ttsVoice.isEmpty ? nil : ttsVoice
         tts.onSpeechFinished = { [weak self] in self?.afterSpeaking() }
@@ -437,14 +469,8 @@ final class VoiceConversation: ObservableObject {
             if let message { self.error = message }
             self.afterSpeaking()
         }
-        // The recorder leaves the session in .record/.measurement — a mode that
-        // disables system signal processing, i.e. the echo cancellation barge-in
-        // depends on. Every engine used to claim the session on its way in, and
-        // barge-in was armed on the line right after `toggle()` returned; the
-        // queue arms it *before* the first sentence is handed over, so the
-        // session has to be configured here.
-        tts.prepareDuplexSession()
         armBargeIn()
+        return true
     }
 
     private func armBargeIn() {
