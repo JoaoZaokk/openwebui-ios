@@ -59,7 +59,7 @@ struct ChatScreen: View {
                                 .font(.ody(size: 11)).foregroundStyle(theme.accent)
                         }
                         Text(vm.title)
-                            .font(.ody(.headline, design: .monospaced))
+                            .font(.ody(.headline))
                             .foregroundStyle(theme.fg).lineLimit(1)
                     }
                     modelMenu
@@ -112,7 +112,7 @@ struct ChatScreen: View {
             }
         } label: {
             HStack(spacing: 3) {
-                Text(vm.selectedModelName).font(.ody(size: 10, design: .monospaced))
+                Text(vm.selectedModelName).font(.ody(size: 10))
                 Image(systemName: "chevron.down").font(.system(size: 8))
             }
             .foregroundStyle(theme.secondaryText)
@@ -223,7 +223,7 @@ struct ChatScreen: View {
             Date(timeIntervalSince1970: cur!), inSameDayAs: Date(timeIntervalSince1970: prev!)))
         if let cur, newDay {
             Text(Self.dayLabel(cur))
-                .font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                .font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
                 .padding(.horizontal, 12).padding(.vertical, 4)
                 .background(theme.panel, in: Capsule())
                 .frame(maxWidth: .infinity).padding(.vertical, 2)
@@ -241,10 +241,10 @@ struct ChatScreen: View {
         VStack(spacing: 14) {
             BrandMark(size: 56)
             Text("Como posso ajudar?")
-                .font(.ody(.title2, design: .monospaced).weight(.semibold))
+                .font(.ody(.title2).weight(.semibold))
                 .foregroundStyle(theme.fg)
             Text(app.serverConfig.baseURL.host ?? "Open WebUI")
-                .font(.ody(.footnote, design: .monospaced))
+                .font(.ody(.footnote))
                 .foregroundStyle(theme.secondaryText)
         }
         .frame(maxWidth: .infinity)
@@ -271,7 +271,7 @@ struct ChatScreen: View {
                 attachButton
                 micButton
                 TextField(inputPrompt, text: inputBinding, axis: .vertical)
-                    .font(.ody(.body, design: .monospaced))
+                    .font(.ody(.body))
                     .foregroundStyle(theme.fg)
                     .focused($inputFocused)
                     .lineLimit(1...6)
@@ -374,7 +374,7 @@ struct ChatScreen: View {
                 ForEach(vm.pendingDocuments) { doc in
                     HStack(spacing: 6) {
                         Image(systemName: "doc.fill").font(.ody(size: 12)).foregroundStyle(theme.accent)
-                        Text(doc.displayName).font(.ody(size: 11, design: .monospaced))
+                        Text(doc.displayName).font(.ody(size: 11))
                             .foregroundStyle(theme.fg).lineLimit(1)
                         Button { vm.removePendingDocument(doc) } label: {
                             Image(systemName: "xmark.circle.fill").foregroundStyle(theme.secondaryText)
@@ -481,8 +481,8 @@ struct ChatScreen: View {
         } label: {
             HStack(spacing: 5) {
                 Image(systemName: "wrench.and.screwdriver").font(.ody(size: 11))
-                Text("Ferramentas").font(.ody(size: 12, design: .monospaced))
-                if on { Text(verbatim: "\(count)").font(.ody(size: 11, design: .monospaced)) }
+                Text("Ferramentas").font(.ody(size: 12))
+                if on { Text(verbatim: "\(count)").font(.ody(size: 11)) }
             }
             .padding(.horizontal, 10).padding(.vertical, 6)
             .foregroundStyle(on ? theme.onAccent : theme.secondaryText)
@@ -497,7 +497,7 @@ struct ChatScreen: View {
         Button { on.wrappedValue.toggle() } label: {
             HStack(spacing: 5) {
                 Image(systemName: system).font(.ody(size: 11))
-                Text(LocalizedStringKey(label)).font(.ody(size: 12, design: .monospaced))
+                Text(LocalizedStringKey(label)).font(.ody(size: 12))
             }
             .padding(.horizontal, 10).padding(.vertical, 6)
             .foregroundStyle(on.wrappedValue ? theme.onAccent : theme.secondaryText)

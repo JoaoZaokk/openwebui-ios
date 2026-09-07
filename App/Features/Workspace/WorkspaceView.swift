@@ -88,14 +88,14 @@ struct WorkspaceView: View {
         Section {
             if rows.isEmpty {
                 Text("Vazio")
-                    .font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                    .font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
                     .listRowBackground(theme.panel.opacity(0.35))
             } else {
                 ForEach(rows) { r in
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(r.name).font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                        Text(r.name).font(.ody(.subheadline)).foregroundStyle(theme.fg)
                         if let s = r.sub, !s.isEmpty {
-                            Text(s).font(.ody(size: 10, design: .monospaced))
+                            Text(s).font(.ody(size: 10))
                                 .foregroundStyle(theme.secondaryText).lineLimit(2)
                         }
                     }
@@ -104,7 +104,7 @@ struct WorkspaceView: View {
             }
         } header: {
             Label("\(title) (\(rows.count))", systemImage: icon)
-                .font(.ody(.caption, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                .font(.ody(.caption)).foregroundStyle(theme.secondaryText)
         }
     }
 }

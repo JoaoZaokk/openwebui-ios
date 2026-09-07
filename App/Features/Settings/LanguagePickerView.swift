@@ -49,10 +49,10 @@ struct LanguagePickerView: View {
             HStack(spacing: 12) {
                 Text(verbatim: leading).font(.system(size: 22))
                 VStack(alignment: .leading, spacing: 1) {
-                    title.font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg)
+                    title.font(.ody(.body)).foregroundStyle(theme.fg)
                     if let subtitle {
                         Text(verbatim: subtitle)
-                            .font(.ody(.caption2, design: .monospaced))
+                            .font(.ody(.caption2))
                             .foregroundStyle(theme.secondaryText)
                     }
                 }
@@ -67,7 +67,7 @@ struct LanguagePickerView: View {
 
     private func header(_ title: String) -> some View {
         Text(LocalizedStringKey(title))
-            .font(.ody(size: 11, design: .monospaced))
+            .font(.ody(size: 11))
             .foregroundStyle(theme.secondaryText)
     }
 }

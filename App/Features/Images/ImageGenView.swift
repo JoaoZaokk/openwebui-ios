@@ -157,7 +157,7 @@ struct ImageGenView: View {
                         controls
                         generateButton
                         if let err = store.error {
-                            Text(err).font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.danger)
+                            Text(err).font(.ody(size: 11)).foregroundStyle(theme.danger)
                         }
                         results
                     }
@@ -185,7 +185,7 @@ struct ImageGenView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     if editing {
                         Button("Concluído") { hideKeyboard() }
-                            .font(.ody(.subheadline, design: .monospaced))
+                            .font(.ody(.subheadline))
                             .foregroundStyle(theme.accent)
                     }
                 }
@@ -217,7 +217,7 @@ struct ImageGenView: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
                 Label("Assistente de prompt (IA)", systemImage: "wand.and.stars")
-                    .font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                    .font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
                 Spacer()
                 if !store.llmModels.isEmpty {
                     Menu {
@@ -225,14 +225,14 @@ struct ImageGenView: View {
                     } label: {
                         HStack(spacing: 3) {
                             Text(store.llmModels.first { $0.id == store.helperModel }?.shortName ?? "Modelo")
-                                .font(.ody(size: 10, design: .monospaced)).lineLimit(1)
+                                .font(.ody(size: 10)).lineLimit(1)
                             Image(systemName: "chevron.up.chevron.down").font(.system(size: 8))
                         }.foregroundStyle(theme.accent).frame(maxWidth: 130, alignment: .trailing)
                     }
                 }
             }
             TextField("Descreva sua ideia em palavras simples…", text: $store.helperIdea, axis: .vertical)
-                .font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                .font(.ody(.subheadline)).foregroundStyle(theme.fg)
                 .focused($ideaFocused)
                 .lineLimit(1...4)
                 .padding(10)
@@ -246,7 +246,7 @@ struct ImageGenView: View {
                 HStack(spacing: 6) {
                     if store.helping { ProgressView().controlSize(.small).tint(theme.accent) }
                     Text(LocalizedStringKey(store.helping ? "Pensando…" : "Melhorar com IA"))
-                        .font(.ody(.subheadline, design: .monospaced))
+                        .font(.ody(.subheadline))
                     Image(systemName: "sparkles").font(.system(size: 12))
                 }
                 .frame(maxWidth: .infinity).padding(.vertical, 10)
@@ -258,7 +258,7 @@ struct ImageGenView: View {
             if !store.helperResult.isEmpty {
                 HStack(alignment: .top, spacing: 8) {
                     Text(store.helperResult)
-                        .font(.ody(size: 12, design: .monospaced)).foregroundStyle(theme.fg)
+                        .font(.ody(size: 12)).foregroundStyle(theme.fg)
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     Button { store.usePrompt() } label: {
@@ -279,9 +279,9 @@ struct ImageGenView: View {
 
     private var promptField: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("PROMPT").font(.ody(size: 10, design: .monospaced)).foregroundStyle(theme.secondaryText)
+            Text("PROMPT").font(.ody(size: 10)).foregroundStyle(theme.secondaryText)
             TextField("Descreva a imagem…", text: $store.prompt, axis: .vertical)
-                .font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg)
+                .font(.ody(.body)).foregroundStyle(theme.fg)
                 .focused($promptFocused).lineLimit(2...6)
                 .padding(12)
                 .background(theme.panel, in: RoundedRectangle(cornerRadius: 12))
@@ -292,7 +292,7 @@ struct ImageGenView: View {
     private var controls: some View {
         VStack(spacing: 10) {
             HStack {
-                Text("Tamanho").font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                Text("Tamanho").font(.ody(.subheadline)).foregroundStyle(theme.fg)
                 Spacer()
                 Menu {
                     ForEach(store.sizes, id: \.self) { s in
@@ -300,23 +300,23 @@ struct ImageGenView: View {
                     }
                 } label: {
                     HStack(spacing: 4) {
-                        Text(store.size).font(.ody(.subheadline, design: .monospaced))
+                        Text(store.size).font(.ody(.subheadline))
                         Image(systemName: "chevron.up.chevron.down").font(.system(size: 10))
                     }.foregroundStyle(theme.accent)
                 }
             }
             Divider().overlay(theme.border)
             HStack {
-                Text("Passos").font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                Text("Passos").font(.ody(.subheadline)).foregroundStyle(theme.fg)
                 Spacer()
                 Stepper("\(store.steps)", value: $store.steps, in: 1...60)
-                    .font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                    .font(.ody(.subheadline)).foregroundStyle(theme.fg)
                     .fixedSize()
             }
             if !store.models.isEmpty {
                 Divider().overlay(theme.border)
                 HStack {
-                    Text("Modelo").font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                    Text("Modelo").font(.ody(.subheadline)).foregroundStyle(theme.fg)
                     Spacer()
                     Menu {
                         Button("Padrão do servidor") { store.selectedModel = nil }
@@ -324,7 +324,7 @@ struct ImageGenView: View {
                     } label: {
                         HStack(spacing: 4) {
                             Text(store.selectedModel.flatMap { id in store.models.first { $0.id == id }?.name } ?? L("Padrão"))
-                                .font(.ody(size: 12, design: .monospaced)).lineLimit(1)
+                                .font(.ody(size: 12)).lineLimit(1)
                             Image(systemName: "chevron.up.chevron.down").font(.system(size: 10))
                         }.foregroundStyle(theme.accent).frame(maxWidth: 160, alignment: .trailing)
                     }
@@ -344,7 +344,7 @@ struct ImageGenView: View {
             HStack {
                 if store.generating { ProgressView().tint(theme.onAccent) }
                 Text(LocalizedStringKey(store.generating ? "Gerando…" : "Gerar imagem"))
-                    .font(.ody(.headline, design: .monospaced))
+                    .font(.ody(.headline))
                 Image(systemName: "sparkles")
             }
             .frame(maxWidth: .infinity).padding(.vertical, 14)
@@ -371,7 +371,7 @@ struct ImageGenView: View {
                     owSaveImage(img)
                 } label: {
                     Label("Salvar na galeria", systemImage: "square.and.arrow.down")
-                        .font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.accent)
+                        .font(.ody(.subheadline)).foregroundStyle(theme.accent)
                 }
             }
             .padding(.top, 4)
@@ -393,17 +393,17 @@ struct GenHistorySheet: View {
                 theme.bg.ignoresSafeArea()
                 if store.history.isEmpty {
                     Text("Nenhuma imagem gerada ainda.")
-                        .font(.ody(.subheadline, design: .monospaced))
+                        .font(.ody(.subheadline))
                         .foregroundStyle(theme.secondaryText)
                 } else {
                     List {
                         ForEach(store.history) { rec in
                             VStack(alignment: .leading, spacing: 8) {
                                 Text(rec.prompt)
-                                    .font(.ody(size: 12, design: .monospaced))
+                                    .font(.ody(size: 12))
                                     .foregroundStyle(theme.fg).lineLimit(2)
                                 Text(rec.date.formatted(date: .abbreviated, time: .shortened))
-                                    .font(.ody(size: 10, design: .monospaced))
+                                    .font(.ody(size: 10))
                                     .foregroundStyle(theme.secondaryText)
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 8) {
@@ -430,7 +430,7 @@ struct GenHistorySheet: View {
                 ToolbarItem(placement: .cancellationAction) {
                     if !store.history.isEmpty {
                         Button("Limpar histórico") { store.history.removeAll() }
-                            .font(.ody(size: 12, design: .monospaced))
+                            .font(.ody(size: 12))
                     }
                 }
                 ToolbarItem(placement: .confirmationAction) { Button("OK") { dismiss() } }

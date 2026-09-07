@@ -106,7 +106,7 @@ struct SSOWebLoginView: View {
                 .font(.system(size: 34))
                 .foregroundStyle(theme.accent)
             Text("Esta conta ainda não entrou neste servidor. A primeira entrada precisa ser pelo navegador; depois disso o login é direto.")
-                .font(.ody(.subheadline, design: .monospaced))
+                .font(.ody(.subheadline))
                 .foregroundStyle(theme.fg)
                 .multilineTextAlignment(.center)
             Button {
@@ -117,7 +117,7 @@ struct SSOWebLoginView: View {
                 }
             } label: {
                 Text("Continuar")
-                    .font(.ody(.headline, design: .monospaced))
+                    .font(.ody(.headline))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 13)
                     .background(theme.accent, in: RoundedRectangle(cornerRadius: 12))
@@ -134,7 +134,7 @@ struct SSOWebLoginView: View {
         VStack(spacing: 14) {
             ProgressView().tint(theme.accent)
             Text(verbatim: label)
-                .font(.ody(.footnote, design: .monospaced))
+                .font(.ody(.footnote))
                 .foregroundStyle(theme.secondaryText)
         }
     }

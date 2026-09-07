@@ -85,7 +85,7 @@ struct VoiceView: View {
                 HStack(spacing: 3) {
                     Image(systemName: "person.wave.2").font(.system(size: 9))
                     Text(speech.serverVoices.first { $0.id == convo.ttsVoice }?.name ?? "Voz")
-                        .font(.ody(size: 11, design: .monospaced)).lineLimit(1)
+                        .font(.ody(size: 11)).lineLimit(1)
                 }.foregroundStyle(theme.accent)
             }
         }
@@ -118,7 +118,7 @@ struct VoiceView: View {
         return HStack {
             if isUser { Spacer(minLength: 40) }
             Text(turn.text.isEmpty ? "…" : turn.text)
-                .font(.ody(.subheadline, design: .monospaced))
+                .font(.ody(.subheadline))
                 .foregroundStyle(isUser ? theme.fg : theme.fg)
                 .padding(.horizontal, 12).padding(.vertical, 8)
                 .background(isUser ? theme.userBubble : theme.aiBubble,
@@ -169,7 +169,7 @@ struct VoiceView: View {
 
     private var statusLine: some View {
         Text(statusText)
-            .font(.ody(.subheadline, design: .monospaced))
+            .font(.ody(.subheadline))
             .foregroundStyle(theme.secondaryText)
             .padding(.top, 14)
             .multilineTextAlignment(.center)
@@ -192,7 +192,7 @@ struct VoiceView: View {
             HStack(spacing: 8) {
                 Image(systemName: convo.active ? "stop.fill" : "mic.fill")
                 Text(LocalizedStringKey(convo.active ? "Encerrar" : "Iniciar conversa"))
-                    .font(.ody(.headline, design: .monospaced))
+                    .font(.ody(.headline))
             }
             .frame(maxWidth: .infinity).padding(.vertical, 15)
             .background(convo.active ? theme.panel : theme.accent,
@@ -212,7 +212,7 @@ struct VoiceView: View {
             HStack(spacing: 3) {
                 Text(verbatim: convo.models.first { $0.id == convo.model }
                         .map { ModelAliases.shared.display($0) } ?? L("Modelo"))
-                    .font(.ody(size: 11, design: .monospaced)).lineLimit(1)
+                    .font(.ody(size: 11)).lineLimit(1)
                 Image(systemName: "chevron.up.chevron.down").font(.system(size: 8))
             }
             .foregroundStyle(theme.accent).frame(maxWidth: 140, alignment: .trailing)

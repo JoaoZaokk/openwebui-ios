@@ -144,7 +144,7 @@ struct ChatListView: View {
             HStack(spacing: 8) {
                 Image(systemName: "arrow.up.circle").font(.ody(size: 13))
                 Text("Conversas não enviadas. Toque para reenviar.")
-                    .font(.ody(size: 12, design: .monospaced))
+                    .font(.ody(size: 12))
                     .multilineTextAlignment(.leading)
                 Spacer(minLength: 4)
                 if app.resendingPending { ProgressView().controlSize(.small) }
@@ -212,15 +212,15 @@ struct ChatListView: View {
         HStack(spacing: 10) {
             if chat.pinned { Image(systemName: "pin.fill").font(.caption2).foregroundStyle(theme.accent) }
             VStack(alignment: .leading, spacing: 2) {
-                Text(chat.title).font(.ody(.subheadline, design: .monospaced))
+                Text(chat.title).font(.ody(.subheadline))
                     .foregroundStyle(theme.fg).lineLimit(1)
                 // Full-text match excerpt (only present in search results).
                 if let snip = chat.snippet, !snip.isEmpty {
-                    Text(snip).font(.ody(size: 10, design: .monospaced))
+                    Text(snip).font(.ody(size: 10))
                         .foregroundStyle(theme.secondaryText).lineLimit(2)
                 } else if let ts = chat.updatedAt {
                     Text(RelativeDate.string(ts))
-                        .font(.ody(size: 10, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                        .font(.ody(size: 10)).foregroundStyle(theme.secondaryText)
                 }
             }
             Spacer()
@@ -270,10 +270,10 @@ struct ChatListView: View {
         VStack(spacing: 14) {
             BrandMark(size: 56)
             Text("Nenhuma conversa ainda")
-                .font(.ody(.headline, design: .monospaced)).foregroundStyle(theme.fg)
+                .font(.ody(.headline)).foregroundStyle(theme.fg)
             Button { path.append(.new(temporary: false)) } label: {
                 Label("Nova conversa", systemImage: "square.and.pencil")
-                    .font(.ody(.subheadline, design: .monospaced))
+                    .font(.ody(.subheadline))
                     .padding(.horizontal, 16).padding(.vertical, 10)
                     .background(theme.accent, in: Capsule()).foregroundStyle(theme.onAccent)
             }
@@ -304,7 +304,7 @@ struct ArchivedChatsView: View {
                     VStack(spacing: 10) {
                         Image(systemName: "archivebox").font(.system(size: 40)).foregroundStyle(theme.secondaryText)
                         Text("Nenhuma conversa arquivada.")
-                            .font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                            .font(.ody(.subheadline)).foregroundStyle(theme.secondaryText)
                     }
                 } else {
                     List {
@@ -314,10 +314,10 @@ struct ArchivedChatsView: View {
                             } label: {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(c.title.isEmpty ? L("Sem título") : c.title)
-                                        .font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg).lineLimit(1)
+                                        .font(.ody(.body)).foregroundStyle(theme.fg).lineLimit(1)
                                     if let t = c.updatedAt ?? c.createdAt {
                                         Text(OWDates.dayAndTime(Date(timeIntervalSince1970: t)))
-                                            .font(.ody(.caption, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                                            .font(.ody(.caption)).foregroundStyle(theme.secondaryText)
                                     }
                                 }
                             }
