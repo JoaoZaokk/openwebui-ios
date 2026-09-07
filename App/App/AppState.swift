@@ -28,6 +28,11 @@ final class AppState: ObservableObject {
     @Published var modelsError: String?
 
     private var sessionEnded: (any NSObjectProtocol)?
+    /// The last account the cache was scoped to, so an offline launch — token
+    /// present, server unreachable — can still open that account's cache. A
+    /// server switch drops the token, so a token that is still there belongs to
+    /// the owner recorded here.
+    private static let cacheOwnerKey = "openwebui.cacheOwner"
 
     init() {
         let cfg = ServerConfig.load()
@@ -51,11 +56,20 @@ final class AppState: ObservableObject {
         guard phase == .main else { return }
         user = nil
         models = []
+        cache.forgetOwner()
         // The login screen has a slot for the reason and used to get nothing —
         // the app just appeared there, as if it had crashed. The key already
         // exists in all 44 catalogues.
         loginError = OWFailure.msg(OWError.notAuthenticated)
         phase = .login
+    }
+
+    /// Scopes the on-device cache to the account that just became known.
+    private func adoptCacheOwner() {
+        guard let user else { return }
+        let key = OpenWebUIClient.cacheOwner(origin: serverConfig.baseURL, userID: user.id)
+        cache.adopt(owner: key)
+        UserDefaults.standard.set(key, forKey: Self.cacheOwnerKey)
     }
 
     /// Asks the server what it offers before drawing the login screen.
@@ -78,6 +92,7 @@ final class AppState: ObservableObject {
         guard client.isAuthenticated else { phase = .login; return }
         do {
             user = try await client.me()
+            adoptCacheOwner()
             await loadModels()
             phase = .main
             await flushPendingChats()
@@ -96,6 +111,9 @@ final class AppState: ObservableObject {
             // failed load, and the next authenticated request that meets a real
             // 401 still routes back to login.
             user = nil
+            if let last = UserDefaults.standard.string(forKey: Self.cacheOwnerKey) {
+                cache.adopt(owner: last)
+            }
             await loadModels()
             phase = .main
         }
@@ -123,8 +141,15 @@ final class AppState: ObservableObject {
             let leaf = OWChat.activeBranch(nodes, currentId: nil).last?.id
             do {
                 if let serverID = PendingChat.serverID(of: chat.id) {
-                    try await client.syncChatTree(id: serverID, title: chat.title,
-                                                  models: [model], tree: nodes, currentId: leaf)
+                    do {
+                        try await client.syncChatTree(id: serverID, title: chat.title,
+                                                      models: [model], tree: nodes, currentId: leaf)
+                    } catch OWError.http(404, _) {
+                        // Deleted on the server while the turn waited. The words
+                        // are still the user's: create the conversation afresh.
+                        _ = try await client.createChatTree(title: chat.title, models: [model],
+                                                            tree: nodes, currentId: leaf)
+                    }
                 } else {
                     _ = try await client.createChatTree(title: chat.title, models: [model],
                                                         tree: nodes, currentId: leaf)
@@ -141,6 +166,7 @@ final class AppState: ObservableObject {
         defer { loggingIn = false }
         do {
             user = try await client.signIn(email: email, password: password)
+            adoptCacheOwner()
             keychain.saveCredentials(email: email, password: nil)   // remember email only
             await loadModels()
             phase = .main
@@ -172,6 +198,7 @@ final class AppState: ObservableObject {
         do {
             let providerToken = try await NativeSSO.signIn(provider: provider, anchor: anchor)
             user = try await client.exchangeOAuthToken(provider: provider, providerToken: providerToken)
+            adoptCacheOwner()
             if let email = user?.email, !email.isEmpty {
                 keychain.saveCredentials(email: email, password: nil)
             }
@@ -201,6 +228,7 @@ final class AppState: ObservableObject {
         defer { loggingIn = false }
         do {
             user = try await client.adopt(token: token)
+            adoptCacheOwner()
             if let email = user?.email, !email.isEmpty {
                 keychain.saveCredentials(email: email, password: nil)
             }
@@ -217,6 +245,7 @@ final class AppState: ObservableObject {
         defer { loggingIn = false }
         do {
             user = try await client.signInLDAP(user: name, password: password)
+            adoptCacheOwner()
             keychain.saveCredentials(email: name, password: nil)
             await loadModels()
             phase = .main
@@ -234,6 +263,7 @@ final class AppState: ObservableObject {
         await SSOWebSession.clear()
         user = nil
         models = []
+        cache.forgetOwner()
         loginError = nil
         phase = .login
     }
@@ -286,7 +316,7 @@ final class AppState: ObservableObject {
         // it happened, because the session on screen no longer has one.
         client.updateConfig(cfg.owConfig)
         serverFeatures = nil
-        if !client.isAuthenticated { endSession() }
+        if !client.isAuthenticated { cache.forgetOwner(); endSession() }
         Task { await loadServerFeatures() }
     }
 
