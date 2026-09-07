@@ -217,7 +217,7 @@ struct VoiceSettingsView: View {
                 try await downloads.addCustomModel(from: text)
                 customURL = ""
             } catch {
-                downloads.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                downloads.error = OWFailure.msg(error)
             }
             addingModel = false
         }

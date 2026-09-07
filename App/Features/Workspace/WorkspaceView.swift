@@ -34,7 +34,7 @@ final class WorkspaceStore: ObservableObject {
         catch is CancellationError { return current }
         catch {
             if self.error == nil {
-                self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+                self.error = OWFailure.msg(error)
             }
             return current
         }

@@ -18,7 +18,7 @@ final class NotesStore: ObservableObject {
             error = nil
         } catch is CancellationError {
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 
@@ -27,7 +27,7 @@ final class NotesStore: ObservableObject {
             try await client.deleteNote(note.id)
             notes.removeAll { $0.id == note.id }
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 }
@@ -224,7 +224,7 @@ struct NoteEditorView: View {
             }
             dismiss()
         } catch {
-            self.error = (error as? LocalizedError)?.errorDescription ?? error.localizedDescription
+            self.error = OWFailure.msg(error)
         }
     }
 }
