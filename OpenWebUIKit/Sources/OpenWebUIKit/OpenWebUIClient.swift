@@ -74,8 +74,43 @@ public final class OpenWebUIClient: @unchecked Sendable {
         if Self.origin(config.baseURL) != Self.origin(self.config.baseURL) {
             token = nil
             tokens.clear()
+            // Before the new URL is adopted, so this clears the OLD host's jar:
+            // the Keychain is not the only place a session lives.
+            clearCookies()
+        }
+        // What the *previous* server said about itself is not an answer about this
+        // one. `ensureServerInfo` sets its flag before its await, so a version left
+        // behind here would never be asked for again — and the merge gate would go
+        // on answering for the old server. On a 0.10 server that answer omits a
+        // node from a write, and omitting a node there deletes the message.
+        if config.baseURL != self.config.baseURL {
+            serverVersion = nil
+            serverInfoFetched = false
         }
         self.config = config
+    }
+
+    /// Forgets the cookies the configured server set.
+    ///
+    /// Open WebUI issues a `token` cookie alongside the bearer token, both
+    /// sessions here share `HTTPCookieStorage.shared`, and nothing in this
+    /// client ever emptied it. `signOut` sends its request with `try?` — a user
+    /// on a plane still means it — so offline the Keychain was cleared while a
+    /// live cookie for the server's host stayed on disk, ready to sign them
+    /// straight back in. Switching servers left it behind for the same reason.
+    ///
+    /// A cookie set for `example.com` is stored with the domain `.example.com`,
+    /// so the match is on the bare domain: the host itself, or any host under
+    /// it. `notexample.com` is a different host, not a suffix of one.
+    func clearCookies() {
+        guard let host = config.baseURL.host?.lowercased(), !host.isEmpty else { return }
+        let jar = HTTPCookieStorage.shared
+        for cookie in jar.cookies ?? [] {
+            let domain = cookie.domain.lowercased()
+            let bare = domain.hasPrefix(".") ? String(domain.dropFirst()) : domain
+            guard !bare.isEmpty else { continue }
+            if host == bare || host.hasSuffix("." + bare) { jar.deleteCookie(cookie) }
+        }
     }
 
     /// True when `url` lives on the configured server. Anything the server hands
@@ -93,7 +128,11 @@ public final class OpenWebUIClient: @unchecked Sendable {
         return "\(scheme)://\(host):\(port)"
     }
 
-    private func dropSession() {
+    /// Internal, not private: `ChatCompletionsClient.stream` holds `longSession`
+    /// directly and never passes through `send`, so it has to run this hop
+    /// itself. Deliberately NOT called from the image loader — a 401 on one
+    /// picture must not log anyone out.
+    func dropSession() {
         token = nil
         tokens.save(token: nil)
         NotificationCenter.default.post(name: Self.sessionEndedNotification, object: nil)
@@ -394,6 +433,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
         _ = try? await send(request("/api/v1/auths/signout"))
         token = nil
         tokens.clear()
+        clearCookies()
     }
 
     /// GET /api/config — public, no `Authorization`. Reports what this server
