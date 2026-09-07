@@ -538,48 +538,49 @@ final class ChatViewModel: ObservableObject {
         return title
     }
 
-    /// After the first exchange, ask the model for a concise title (the server
-    /// otherwise keeps the truncated first message). Best-effort: any failure
-    /// leaves the stub title in place. Runs once, right after the chat is created.
+    /// After the first exchange, ask the SERVER to name the conversation (it
+    /// otherwise keeps the truncated first message as the title).
+    ///
+    /// The app does not write the title and does not invent one: the admin's task
+    /// model, title template and "title generation" switch decide everything, the
+    /// same way they do on the web. A disabled switch, an answer with no title
+    /// object in it, or any error leaves the stub title in place — there is no
+    /// local fallback. Runs once, right after the chat is created.
     private func autoTitle(id: String, model: String) async {
-        guard let user = messages.first(where: { $0.role == .user })?.content, !user.isEmpty,
-              let reply = messages.first(where: { $0.role == .assistant && !$0.content.isEmpty })?.content
+        // The reply is what must exist: the server's template names the topic from
+        // the last two messages, and the user turn may be nothing but a photo or a
+        // document. A reply that only thought out loud still said something —
+        // `closeTurn` treats it as a real turn, so it can be titled too.
+        guard let ai = messages.lastIndex(where: { $0.role == .assistant && !Self.replyText($0).isEmpty })
         else { return }
-        guard let generated = await generateTitle(model: model, user: user, reply: reply) else { return }
-        self.title = generated
-        // renameChat patches the title on the raw server JSON. updateChat would
-        // rewrite the whole chat through our lossy model and drop whatever the
-        // server keeps that we don't model (`output` text, sources, branches).
-        try? await client.renameChat(id, to: generated)
-        onChanged?()
+        var turn: [OWChatMessageInput] = []
+        if let ui = messages[..<ai].lastIndex(where: { $0.role == .user }) {
+            turn.append(OWChatMessageInput(role: "user", text: messages[ui].content))
+        }
+        turn.append(OWChatMessageInput(role: "assistant", text: Self.replyText(messages[ai])))
+        do {
+            guard let generated = try await client.generateTitle(model: model, messages: turn,
+                                                                 chatID: id),
+                  let clean = Self.cleanTitle(generated) else { return }
+            self.title = clean
+            // renameChat patches the title on the raw server JSON. updateChat would
+            // rewrite the whole chat through our lossy model and drop whatever the
+            // server keeps that we don't model (`output` text, sources, branches).
+            try? await client.renameChat(id, to: clean)
+            onChanged?()
+        } catch is CancellationError {
+            return   // the turn was abandoned; nothing to name
+        } catch {
+            return   // best effort: the stub title stays
+        }
     }
 
-    /// One-shot, non-persisted completion that returns a short chat title in the
-    /// conversation's own language. Reuses the streaming endpoint and concatenates.
-    private func generateTitle(model: String, user: String, reply: String) async -> String? {
-        let prompt = """
-        Generate a concise 3-6 word title for the following conversation. \
-        Use the same language as the conversation. Reply with ONLY the title — \
-        no quotes, no punctuation at the end, no preamble.
-
-        User: \(user.prefix(600))
-        Assistant: \(reply.prefix(600))
-        """
-        var out = ""
-        do {
-            for try await update in completions.stream(
-                model: model,
-                messages: [OWChatMessageInput(role: "user", text: prompt)],
-                files: [], options: OWStreamOptions()) {
-                switch update {
-                case .textDelta(let d): out += d
-                case .done: break
-                case .error: return nil
-                case .reasoningDelta, .sources: break
-                }
-            }
-        } catch { return nil }
-        return Self.cleanTitle(out)
+    /// What an assistant turn can be named from: the visible reply, or the
+    /// reasoning when the model only thought out loud.
+    private static func replyText(_ m: OWMessage) -> String {
+        m.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            ? m.reasoning.trimmingCharacters(in: .whitespacesAndNewlines)
+            : m.content
     }
 
     /// Trims a model's title reply down to a single clean line.

@@ -80,4 +80,81 @@ extension OpenWebUIClient {
     public func exportChat(_ id: String) async throws -> Data {
         try await send(request("/api/v1/chats/\(encPath(id))"))
     }
+
+    // MARK: - The server names the conversation
+
+    /// POST /api/v1/tasks/title/completions — asks the server to name a chat.
+    ///
+    /// This is the web client's own call, and the point is that nothing here
+    /// decides the words: the server picks the task model, fills the admin's
+    /// title template, and answers 200 `{"detail": "Title generation is
+    /// disabled"}` when the admin switched the feature off. `model` is the
+    /// chat's model — the server only falls back to it when no task model is set.
+    ///
+    /// The default template reads `{{MESSAGES:END:2}}`, so only the LAST TWO of
+    /// `messages` are sent, as plain `{role, content}` text: image parts are
+    /// dropped, and an image-only user turn goes as an empty string — the reply
+    /// that answered it carries the topic.
+    ///
+    /// Returns nil when the server declined to name the chat (disabled, or an
+    /// answer with no `{…}` title object in it). There is no local fallback: nil
+    /// means keep whatever title the chat already has.
+    public func generateTitle(model: String, messages: [OWChatMessageInput],
+                              chatID: String?) async throws -> String? {
+        let turn = messages.suffix(2).map { OWTitleTaskBody.Message(role: $0.role, content: $0.text) }
+        let body = OWTitleTaskBody(model: model, messages: Array(turn), chat_id: chatID)
+        let req = try jsonRequest("/api/v1/tasks/title/completions", method: "POST", body: body)
+        return Self.title(fromTaskResponse: try await send(req))
+    }
+
+    /// The web client's parser (`src/lib/apis/index.ts`, `generateTitle`), pure so
+    /// it can be tested without a server.
+    ///
+    /// The default template asks the task model for a raw JSON object
+    /// `{ "title": "…" }`, and models wrap it in prose, in a ```json fence, in
+    /// single quotes, or behind a `<think>` block. So: normalize the quote
+    /// characters, take the span from the first `{` to the last `}`, parse that,
+    /// and read `title`. Anything else — the "disabled" body, plain prose, a
+    /// different object, an empty title — is nil. Deliberately no plain-text
+    /// fallback: a model that ignored the template must not have its prose
+    /// installed as the chat's name.
+    public static func title(fromTaskResponse data: Data) -> String? {
+        struct Response: Decodable {
+            struct Choice: Decodable {
+                struct Message: Decodable { var content: String? }
+                var message: Message?
+            }
+            var choices: [Choice]?
+        }
+        guard let raw = (try? JSONDecoder().decode(Response.self, from: data))?
+            .choices?.first?.message?.content else { return nil }
+
+        var content = raw
+        for quote in ["'", "\u{2018}", "\u{2019}", "`"] {
+            content = content.replacingOccurrences(of: quote, with: "\"")
+        }
+        guard let open = content.firstIndex(of: "{"),
+              let close = content.lastIndex(of: "}"), open < close else { return nil }
+        let object = String(content[open...close])
+        guard let parsed = try? JSONSerialization.jsonObject(with: Data(object.utf8)),
+              let title = (parsed as? [String: Any])?["title"] as? String,
+              !title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return nil }
+        return title
+    }
+}
+
+/// The body of a title task. `chat_id` is optional server-side, and the
+/// synthesized encoder omits it when nil — which is what a chat that is not
+/// saved yet needs.
+struct OWTitleTaskBody: Encodable {
+    var model: String
+    var messages: [Message]
+    var chat_id: String?
+
+    /// Plain text only: the task endpoint feeds these into a string template, so
+    /// an OpenAI-style parts array would reach the task model as gibberish.
+    struct Message: Encodable {
+        var role: String
+        var content: String
+    }
 }
