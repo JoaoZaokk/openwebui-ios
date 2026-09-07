@@ -231,6 +231,10 @@ final class CachedServerChat {
     var archived: Bool
     private var modelsData: Data
     private var messagesData: Data
+    /// The account and server this row belongs to (`OpenWebUIClient.cacheOwner`).
+    /// Optional only because rows written before the column existed have none;
+    /// `ServerChatCache.adopt(owner:)` stamps those with the first owner it meets.
+    var owner: String?
 
     var models: [String] {
         get { (try? JSONDecoder().decode([String].self, from: modelsData)) ?? [] }
@@ -243,9 +247,9 @@ final class CachedServerChat {
     var hasHistory: Bool { !messagesData.isEmpty && !messages.isEmpty }
 
     init(id: String, title: String, createdAt: Double, updatedAt: Double,
-         pinned: Bool, archived: Bool, models: [String], messages: [OWMessage]) {
+         pinned: Bool, archived: Bool, models: [String], messages: [OWMessage], owner: String?) {
         self.id = id; self.title = title; self.createdAt = createdAt; self.updatedAt = updatedAt
-        self.pinned = pinned; self.archived = archived
+        self.pinned = pinned; self.archived = archived; self.owner = owner
         self.modelsData = (try? JSONEncoder().encode(models)) ?? Data()
         self.messagesData = (try? JSONEncoder().encode(messages)) ?? Data()
     }
@@ -257,6 +261,29 @@ final class CachedServerChat {
 final class ServerChatCache {
     private let container: ModelContainer
     fileprivate var ctx: ModelContext { container.mainContext }
+
+    /// Every read and write is scoped to this account on this server. nil
+    /// between sessions, when nothing is readable and nothing is written.
+    ///
+    /// Without it the store was one table for everyone: signing in as another
+    /// account and typing a letter listed the previous account's titles and
+    /// message excerpts, and a conversation held back for a failed save was
+    /// pushed on the next launch to whichever server the app was pointed at.
+    private(set) var owner: String?
+
+    func adopt(owner key: String) {
+        owner = key
+        // Rows from before the column existed carry no owner. The app holds one
+        // token at a time, so the first identity seen after the upgrade is the
+        // account that was signed in when they were written; stamp them once.
+        let d = FetchDescriptor<CachedServerChat>(predicate: #Predicate { $0.owner == nil })
+        let legacy = (try? ctx.fetch(d)) ?? []
+        guard !legacy.isEmpty else { return }
+        for e in legacy { e.owner = key }
+        try? ctx.save()
+    }
+
+    func forgetOwner() { owner = nil }
 
     init() {
         // Fall back to an in-memory store if the on-disk one can't open, so a
@@ -270,12 +297,21 @@ final class ServerChatCache {
     }
 
     private func cached(id: String) -> CachedServerChat? {
-        let d = FetchDescriptor<CachedServerChat>(predicate: #Predicate { $0.id == id })
+        guard let key = owner else { return nil }
+        let d = FetchDescriptor<CachedServerChat>(predicate: #Predicate { $0.id == id && $0.owner == key })
         return try? ctx.fetch(d).first ?? nil
+    }
+
+    /// This owner's rows, in the given order; nobody's when there is no owner.
+    private func mine(sortBy: [SortDescriptor<CachedServerChat>]) -> [CachedServerChat] {
+        guard let key = owner else { return [] }
+        let d = FetchDescriptor<CachedServerChat>(predicate: #Predicate { $0.owner == key }, sortBy: sortBy)
+        return (try? ctx.fetch(d)) ?? []
     }
 
     /// Refresh cached list metadata from a server fetch (keeps any cached history).
     func cacheSummaries(_ list: [OWChatSummary]) {
+        guard let key = owner else { return }
         for s in list {
             if let e = cached(id: s.id) {
                 e.title = s.title
@@ -285,7 +321,7 @@ final class ServerChatCache {
             } else {
                 ctx.insert(CachedServerChat(id: s.id, title: s.title,
                     createdAt: s.createdAt ?? 0, updatedAt: s.updatedAt ?? 0,
-                    pinned: s.pinned, archived: s.archived, models: [], messages: []))
+                    pinned: s.pinned, archived: s.archived, models: [], messages: [], owner: key))
             }
         }
         try? ctx.save()
@@ -294,8 +330,7 @@ final class ServerChatCache {
     /// Cached chats that actually have history (i.e. were opened) — the set that's
     /// genuinely readable offline, newest first.
     func cachedSummaries() -> [OWChatSummary] {
-        let d = FetchDescriptor<CachedServerChat>(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)])
-        return ((try? ctx.fetch(d)) ?? [])
+        return mine(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)])
             .filter { $0.hasHistory && !PendingChat.isPending($0.id) }
             .map {
             OWChatSummary(id: $0.id, title: $0.title, updatedAt: $0.updatedAt,
@@ -305,7 +340,7 @@ final class ServerChatCache {
 
     /// Store a chat's messages for offline reading.
     func cacheChat(_ chat: OWChat) {
-        guard !chat.id.isEmpty, !chat.messages.isEmpty else { return }
+        guard let key = owner, !chat.id.isEmpty, !chat.messages.isEmpty else { return }
         if let e = cached(id: chat.id) {
             if !chat.title.isEmpty { e.title = chat.title }
             e.models = chat.models
@@ -314,7 +349,7 @@ final class ServerChatCache {
             let now = Date().timeIntervalSince1970
             ctx.insert(CachedServerChat(id: chat.id, title: chat.title,
                 createdAt: now, updatedAt: now, pinned: false, archived: false,
-                models: chat.models, messages: chat.messages))
+                models: chat.models, messages: chat.messages, owner: key))
         }
         try? ctx.save()
     }
@@ -335,9 +370,8 @@ final class ServerChatCache {
     func search(_ text: String) -> [OWChatSummary] {
         let q = text.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !q.isEmpty else { return [] }
-        let d = FetchDescriptor<CachedServerChat>(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)])
         var out: [OWChatSummary] = []
-        for c in (try? ctx.fetch(d)) ?? [] {
+        for c in mine(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)]) {
             guard !PendingChat.isPending(c.id) else { continue }
             guard c.hasHistory || c.title.lowercased().contains(q) else { continue }
             if let snip = Self.match(title: c.title, bodies: c.messages.map(\.content), query: q) {
@@ -409,8 +443,7 @@ extension ServerChatCache {
     /// Every conversation still waiting to reach the server, oldest first so they
     /// are retried in the order they happened.
     func pendingChats() -> [OWChat] {
-        let d = FetchDescriptor<CachedServerChat>(sortBy: [SortDescriptor(\.updatedAt, order: .forward)])
-        return ((try? ctx.fetch(d)) ?? [])
+        return mine(sortBy: [SortDescriptor(\.updatedAt, order: .forward)])
             .filter { PendingChat.isPending($0.id) && $0.hasHistory }
             .map { OWChat(id: $0.id, title: $0.title, models: $0.models, messages: $0.messages) }
     }
