@@ -111,7 +111,7 @@ struct ChatListView: View {
                 }
             }
             .task { await store.load() }
-            .refreshable { await store.load() }
+            .refreshable { await store.load(); await app.refreshModelsIfNeeded() }
         }
         .tint(theme.accent)
         .sheet(isPresented: $showSettings) {
