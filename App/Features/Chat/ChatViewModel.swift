@@ -219,9 +219,22 @@ final class ChatViewModel: ObservableObject {
     }
 
     /// Attach a note's markdown as a document (RAG).
+    ///
+    /// The note is read again by id first. The picker lists notes through
+    /// `GET /api/v1/notes/`, which cuts every body at 1000 characters
+    /// (`_truncate_note_data`, backend routers/notes.py:42), so attaching the
+    /// listed object handed the model the opening of a long note and nothing
+    /// else — silently, since the attachment pill looks the same either way.
     func attachNote(_ note: OWNote) async {
-        let md = "# \(note.title)\n\n\(note.markdown)"
-        await uploadAndAttach(Data(md.utf8), filename: "nota.md", mime: "text/markdown", displayName: note.title)
+        uploading = true; defer { uploading = false }
+        do {
+            let whole = try await client.note(note.id)
+            let md = "# \(whole.title)\n\n\(whole.markdown)"
+            await uploadAndAttach(Data(md.utf8), filename: "nota.md", mime: "text/markdown",
+                                  displayName: whole.title)
+        } catch {
+            self.error = OWFailure.msg(error)
+        }
     }
 
     /// Attach another chat's transcript as a document (RAG).
