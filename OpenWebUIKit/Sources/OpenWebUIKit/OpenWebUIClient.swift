@@ -141,6 +141,14 @@ public final class OpenWebUIClient: @unchecked Sendable {
             // permission denial and showed "Sessão expirada" for it. Only 401
             // drops the session.
             if http.statusCode == 401 {
+                // Open WebUI also answers 401 for a chat that does not exist or is
+                // not the caller's (routers/chats.py `get_chat_by_id` raises 401
+                // with ERROR_MESSAGES.NOT_FOUND) — the same number it uses for a
+                // dead token. Opening a conversation deleted on the web therefore
+                // logged the user out. Only the token case ends the session; the
+                // other is a 404 wearing the wrong number, and is reported as one.
+                let detail = Self.detail(from: data)
+                if detail == Self.serverNotFoundSentence { throw OWError.http(404, detail) }
                 dropSession()
                 throw OWError.notAuthenticated
             }
@@ -221,6 +229,10 @@ public final class OpenWebUIClient: @unchecked Sendable {
             .replacingOccurrences(of: "\n", with: " ") ?? "\(data.count) bytes"
         return head.isEmpty ? "\(data.count) bytes" : head
     }
+
+    /// `ERROR_MESSAGES.NOT_FOUND` in the server's constants.py — verbatim, because
+    /// it is the only thing that tells this 401 from a real one.
+    static let serverNotFoundSentence = "We could not find what you're looking for :/"
 
     static func detail(from data: Data) -> String? {
         guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
