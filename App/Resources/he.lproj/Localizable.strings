@@ -17,7 +17,6 @@
 "Baixar" = "הורד";
 "Baixar voz neural (~550 MB)" = "הורד קול נוירוני (~550 MB)";
 "Base de Conhecimento" = "בסיס ידע";
-"Bilíngue" = "דו-לשוני";
 "Brasas" = "גחלים";
 "CONTA" = "חשבון";
 "Cancelar" = "ביטול";
@@ -143,7 +142,7 @@
 "Voz neural pronta" = "הקול הנוירוני מוכן";
 "Voz padrão" = "קול ברירת מחדל";
 "Voz → Texto" = "קול ← טקסט";
-"Workspace" = "Workspace";
+"Workspace" = "סביבת עבודה";
 "_(sem resposta)_" = "_(אין תשובה)_";
 "nenhum" = "אין";
 "Áudio indisponível: %@" = "אודיו אינו זמין: %@";

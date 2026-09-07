@@ -17,7 +17,6 @@
 "Baixar" = "چۈشۈرۈش";
 "Baixar voz neural (~550 MB)" = "نېرۋا ئاۋازىنى چۈشۈرۈش (~550 MB)";
 "Base de Conhecimento" = "بىلىم ئامبىرى";
-"Bilíngue" = "قوش تىللىق";
 "Brasas" = "چوغلار";
 "CONTA" = "ھېسابات";
 "Cancelar" = "بىكار قىلىش";
@@ -143,7 +142,7 @@
 "Voz neural pronta" = "نېرۋا ئاۋازى تەييار";
 "Voz padrão" = "كۆڭۈلدىكى ئاۋاز";
 "Voz → Texto" = "ئاۋاز → تېكىست";
-"Workspace" = "Workspace";
+"Workspace" = "خىزمەت رايونى";
 "_(sem resposta)_" = "_(جاۋاب يوق)_";
 "nenhum" = "يوق";
 "Áudio indisponível: %@" = "ئاۋاز ئىشلەتكىلى بولمايدۇ: %@";

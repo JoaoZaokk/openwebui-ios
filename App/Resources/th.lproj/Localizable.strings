@@ -17,7 +17,6 @@
 "Baixar" = "ดาวน์โหลด";
 "Baixar voz neural (~550 MB)" = "ดาวน์โหลดเสียง Neural (~550 MB)";
 "Base de Conhecimento" = "ฐานความรู้";
-"Bilíngue" = "สองภาษา";
 "Brasas" = "ถ่านไฟ";
 "CONTA" = "บัญชี";
 "Cancelar" = "ยกเลิก";
@@ -143,7 +142,7 @@
 "Voz neural pronta" = "เสียง Neural พร้อมใช้งาน";
 "Voz padrão" = "เสียงเริ่มต้น";
 "Voz → Texto" = "เสียง → ข้อความ";
-"Workspace" = "Workspace";
+"Workspace" = "พื้นที่ทำงาน";
 "_(sem resposta)_" = "_(ไม่มีคำตอบ)_";
 "nenhum" = "ไม่มี";
 "Áudio indisponível: %@" = "เสียงไม่พร้อมใช้งาน: %@";

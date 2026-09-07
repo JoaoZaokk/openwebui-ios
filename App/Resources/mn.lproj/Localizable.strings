@@ -17,7 +17,6 @@
 "Baixar" = "Татах";
 "Baixar voz neural (~550 MB)" = "Нейрон дуу хоолой татах (~550 MB)";
 "Base de Conhecimento" = "Мэдлэгийн сан";
-"Bilíngue" = "Хоёр хэл";
 "Brasas" = "Цог";
 "CONTA" = "БҮРТГЭЛ";
 "Cancelar" = "Цуцлах";
@@ -143,7 +142,7 @@
 "Voz neural pronta" = "Нейрон дуу хоолой бэлэн";
 "Voz padrão" = "Анхдагч дуу хоолой";
 "Voz → Texto" = "Дуу хоолой → Текст";
-"Workspace" = "Workspace";
+"Workspace" = "Ажлын талбар";
 "_(sem resposta)_" = "_(хариу алга)_";
 "nenhum" = "байхгүй";
 "Áudio indisponível: %@" = "Аудио боломжгүй: %@";
