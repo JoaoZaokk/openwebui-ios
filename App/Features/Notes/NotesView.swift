@@ -6,6 +6,8 @@ final class NotesStore: ObservableObject {
     @Published var notes: [OWNote] = []
     @Published var loading = false
     @Published var error: String?
+    /// True once a load has answered; "no notes" is only a fact after that.
+    @Published private(set) var loaded = false
 
     private let client: OpenWebUIClient
     init(client: OpenWebUIClient) { self.client = client }
@@ -16,6 +18,7 @@ final class NotesStore: ObservableObject {
         do {
             notes = try await client.notes().sorted { ($0.updatedAt ?? 0) > ($1.updatedAt ?? 0) }
             error = nil
+            loaded = true
         } catch is CancellationError {
         } catch {
             self.error = OWFailure.msg(error)
@@ -51,12 +54,17 @@ struct NotesView: View {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 VStack(spacing: 0) {
-                    if store.notes.isEmpty && store.loading {
+                    if !store.notes.isEmpty {
+                        list
+                    } else if store.loading {
                         ProgressView().tint(theme.accent)
-                    } else if store.notes.isEmpty {
+                    } else if store.loaded {
                         emptyState
                     } else {
-                        list
+                        // Failed, nothing to show: the banner says why. Not the
+                        // empty state — that one invites a "Nova nota" over notes
+                        // that may well exist.
+                        ScrollView { Color.clear.frame(height: 1) }
                     }
                 }
                 .errorBanner(store.error) { store.error = nil }

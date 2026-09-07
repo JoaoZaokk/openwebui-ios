@@ -167,13 +167,14 @@ struct NotePickerSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var notes: [OWNote] = []
     @State private var loading = true
+    @State private var error: String?
 
     var body: some View {
         NavigationStack {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 if loading { ProgressView().tint(theme.accent) }
-                else if notes.isEmpty {
+                else if notes.isEmpty && error == nil {
                     Text("Nenhuma nota.").font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                 } else {
                     List(notes) { n in
@@ -191,11 +192,19 @@ struct NotePickerSheet: View {
                     .listStyle(.plain).scrollContentBackground(.hidden)
                 }
             }
+            .errorBanner(error) { error = nil }
             .navigationTitle("Anexar Nota").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } } }
         }
         .tint(theme.accent)
-        .task { notes = (try? await client.notes()) ?? []; loading = false }
+        // Not `try?`: a failed fetch used to render the same "Nenhuma…" line an
+        // empty account gets, which tells the user their notes do not exist.
+        .task {
+            do { notes = try await client.notes() }
+            catch is CancellationError {}
+            catch let e { error = OWFailure.msg(e) }
+            loading = false
+        }
     }
 }
 
@@ -207,13 +216,14 @@ struct ChatPickerSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var chats: [OWChatSummary] = []
     @State private var loading = true
+    @State private var error: String?
 
     var body: some View {
         NavigationStack {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 if loading { ProgressView().tint(theme.accent) }
-                else if chats.isEmpty {
+                else if chats.isEmpty && error == nil {
                     Text("Nenhuma conversa.").font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                 } else {
                     List(chats) { c in
@@ -231,11 +241,19 @@ struct ChatPickerSheet: View {
                     .listStyle(.plain).scrollContentBackground(.hidden)
                 }
             }
+            .errorBanner(error) { error = nil }
             .navigationTitle("Chats de Referência").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } } }
         }
         .tint(theme.accent)
-        .task { chats = (try? await client.chats()) ?? []; loading = false }
+        // Not `try?`: a failed fetch used to render the same "Nenhuma…" line an
+        // empty account gets, which tells the user their chats do not exist.
+        .task {
+            do { chats = try await client.chats() }
+            catch is CancellationError {}
+            catch let e { error = OWFailure.msg(e) }
+            loading = false
+        }
     }
 }
 
@@ -247,13 +265,14 @@ struct KBPickerSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var items: [OWNamedItem] = []
     @State private var loading = true
+    @State private var error: String?
 
     var body: some View {
         NavigationStack {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 if loading { ProgressView().tint(theme.accent) }
-                else if items.isEmpty {
+                else if items.isEmpty && error == nil {
                     Text("Nenhuma base de conhecimento.")
                         .font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                 } else {
@@ -270,11 +289,19 @@ struct KBPickerSheet: View {
                     .listStyle(.plain).scrollContentBackground(.hidden)
                 }
             }
+            .errorBanner(error) { error = nil }
             .navigationTitle("Base de Conhecimento").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } } }
         }
         .tint(theme.accent)
-        .task { items = (try? await client.knowledgeBases()) ?? []; loading = false }
+        // Not `try?`: a failed fetch used to render the same "Nenhuma…" line an
+        // empty account gets, which tells the user their knowledge bases do not exist.
+        .task {
+            do { items = try await client.knowledgeBases() }
+            catch is CancellationError {}
+            catch let e { error = OWFailure.msg(e) }
+            loading = false
+        }
     }
 }
 
@@ -291,7 +318,7 @@ struct ToolPickerSheet: View {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 if vm.loadingTools { ProgressView().tint(theme.accent) }
-                else if vm.availableTools.isEmpty {
+                else if vm.availableTools.isEmpty && vm.toolsError == nil {
                     Text("Nenhuma ferramenta neste servidor.")
                         .font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                         .multilineTextAlignment(.center).padding(.horizontal, 32)
@@ -311,6 +338,7 @@ struct ToolPickerSheet: View {
                     .listStyle(.plain).scrollContentBackground(.hidden)
                 }
             }
+            .errorBanner(vm.toolsError) { vm.toolsError = nil }
             .navigationTitle("Ferramentas").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Pronto") { dismiss() } } }
         }

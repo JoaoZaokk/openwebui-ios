@@ -51,7 +51,12 @@ final class ImageGenStore: ObservableObject {
     }
 
     func loadModels() async {
-        models = (try? await client.imageModels()) ?? []
+        do {
+            models = try await client.imageModels()
+        } catch is CancellationError {
+        } catch {
+            self.error = OWFailure.msg(error)
+        }
     }
 
     /// Ask the selected LLM (one-off, no saved chat) to turn the idea into a
@@ -156,14 +161,15 @@ struct ImageGenView: View {
                         promptField
                         controls
                         generateButton
-                        if let err = store.error {
-                            Text(err).font(.ody(size: 11)).foregroundStyle(theme.danger)
-                        }
                         results
                     }
                     .padding(16)
                 }
                 .scrollDismissesKeyboard(.interactively)
+                // Above the content, not inside it: inline, the reason scrolled
+                // away with the results and a failed model load left an empty
+                // picker with nothing to explain it.
+                .errorBanner(store.error) { store.error = nil }
             }
             .navigationTitle("Imagem")
             .navigationBarTitleDisplayMode(.inline)
