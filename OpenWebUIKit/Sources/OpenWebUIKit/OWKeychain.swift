@@ -29,9 +29,17 @@ public final class OWKeychainStore: OWTokenStore, @unchecked Sendable {
         Self.set(password, key: "saved.password", service: service)
     }
 
+    // MARK: Cache scope
+    /// The `origin|userID` the on-device cache is scoped to, kept next to the
+    /// token because it has the token's lifetime: it survives a reinstall the
+    /// way UserDefaults does not, and goes when the token goes.
+    public func loadCacheOwner() -> String? { Self.get("cache.owner", service: service) }
+    public func save(cacheOwner: String?) { Self.set(cacheOwner, key: "cache.owner", service: service) }
+
     public func clear() {
         save(token: nil)
         saveCredentials(email: nil, password: nil)
+        save(cacheOwner: nil)
     }
 
     // MARK: Keychain primitives

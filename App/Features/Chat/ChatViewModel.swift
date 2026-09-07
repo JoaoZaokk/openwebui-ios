@@ -520,10 +520,13 @@ final class ChatViewModel: ObservableObject {
             // because the save failed — a dropped connection, a restarted server —
             // would erase something that visibly happened, so hold it on device and
             // push it on the next launch.
-            cache?.keepPending(id: pendingID, title: title, models: [model],
-                              messages: Array(tree.values))
+            let kept = cache?.keepPending(id: pendingID, title: title, models: [model],
+                                          messages: Array(tree.values)) ?? false
             let reason = OWFailure.msg(error)
-            self.error = L("%@ A conversa está salva no aparelho e será enviada depois.", reason)
+            // Only promise what happened: with no cache scope (a temporary session
+            // shape, or a launch that could not name the account) nothing was kept,
+            // and the reason alone is the honest banner.
+            self.error = kept ? L("%@ A conversa está salva no aparelho e será enviada depois.", reason) : reason
         }
     }
 
