@@ -17,7 +17,6 @@
 "Baixar" = "ཕབ་ལེན།";
 "Baixar voz neural (~550 MB)" = "Neural སྐད་ཕབ་ལེན། (~550 MB)";
 "Base de Conhecimento" = "ཤེས་བྱའི་གཞི་རྟེན།";
-"Bilíngue" = "སྐད་གཉིས།";
 "Brasas" = "མེ་མདག";
 "CONTA" = "རྩིས་ཐོ།";
 "Cancelar" = "འདོར་བ།";
@@ -143,7 +142,7 @@
 "Voz neural pronta" = "Neural སྐད་གྲ་སྒྲིག་ཟིན།";
 "Voz padrão" = "སྔོན་སྒྲིག་སྐད།";
 "Voz → Texto" = "སྐད → ཡི་གེ";
-"Workspace" = "Workspace";
+"Workspace" = "ལས་ཀའི་ས་ཁོངས།";
 "_(sem resposta)_" = "_(ལན་མེད)_";
 "nenhum" = "མེད།";
 "Áudio indisponível: %@" = "སྒྲ་སྤྱོད་མི་ཐུབ། %@";

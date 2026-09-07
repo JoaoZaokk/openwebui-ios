@@ -17,7 +17,6 @@
 "Baixar" = "Lejupielādēt";
 "Baixar voz neural (~550 MB)" = "Lejupielādēt neironu balsi (~550 MB)";
 "Base de Conhecimento" = "Zināšanu bāze";
-"Bilíngue" = "Divvalodu";
 "Brasas" = "Kvēle";
 "CONTA" = "KONTS";
 "Cancelar" = "Atcelt";
@@ -143,7 +142,7 @@
 "Voz neural pronta" = "Neironu balss gatava";
 "Voz padrão" = "Noklusējuma balss";
 "Voz → Texto" = "Balss → Teksts";
-"Workspace" = "Workspace";
+"Workspace" = "Darbvieta";
 "_(sem resposta)_" = "_(nav atbildes)_";
 "nenhum" = "neviens";
 "Áudio indisponível: %@" = "Audio nav pieejams: %@";

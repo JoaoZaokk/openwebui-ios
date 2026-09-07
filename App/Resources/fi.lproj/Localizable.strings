@@ -17,7 +17,6 @@
 "Baixar" = "Lataa";
 "Baixar voz neural (~550 MB)" = "Lataa neuraaliääni (~550 MB)";
 "Base de Conhecimento" = "Tietämyskanta";
-"Bilíngue" = "Kaksikielinen";
 "Brasas" = "Hiillos";
 "CONTA" = "TILI";
 "Cancelar" = "Peruuta";
@@ -143,7 +142,7 @@
 "Voz neural pronta" = "Neuraaliääni valmis";
 "Voz padrão" = "Oletusääni";
 "Voz → Texto" = "Puhe → Teksti";
-"Workspace" = "Workspace";
+"Workspace" = "Työtila";
 "_(sem resposta)_" = "_(ei vastausta)_";
 "nenhum" = "ei mitään";
 "Áudio indisponível: %@" = "Ääni ei ole käytettävissä: %@";

@@ -18,7 +18,6 @@
 "Baixar" = "Tải xuống";
 "Baixar voz neural (~550 MB)" = "Tải giọng nói neural (~550 MB)";
 "Base de Conhecimento" = "Cơ sở Kiến thức";
-"Bilíngue" = "Song ngữ";
 "Brasas" = "Than hồng";
 "CONTA" = "TÀI KHOẢN";
 "Cancelar" = "Hủy";
@@ -144,7 +143,7 @@
 "Voz neural pronta" = "Giọng nói neural sẵn sàng";
 "Voz padrão" = "Giọng nói mặc định";
 "Voz → Texto" = "Giọng nói → Văn bản";
-"Workspace" = "Workspace";
+"Workspace" = "Không gian làm việc";
 "_(sem resposta)_" = "_(không có phản hồi)_";
 "nenhum" = "không có";
 "Áudio indisponível: %@" = "Âm thanh không khả dụng: %@";
