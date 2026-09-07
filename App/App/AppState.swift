@@ -52,7 +52,11 @@ final class AppState: ObservableObject {
 
     deinit { sessionEnded.map(NotificationCenter.default.removeObserver) }
 
-    private func endSession() {
+    /// - Parameter reason: what the login screen says about why it appeared.
+    ///   The default is the expired-session sentence, which is what the 401
+    ///   notification means; a deliberate server switch passes nil — nothing
+    ///   expired there, the user left.
+    private func endSession(reason: String? = OWFailure.msg(OWError.notAuthenticated)) {
         guard phase == .main else { return }
         user = nil
         models = []
@@ -60,8 +64,17 @@ final class AppState: ObservableObject {
         // The login screen has a slot for the reason and used to get nothing —
         // the app just appeared there, as if it had crashed. The key already
         // exists in all 44 catalogues.
-        loginError = OWFailure.msg(OWError.notAuthenticated)
+        loginError = reason
         phase = .login
+    }
+
+    /// The model list is what the composer needs; after an offline launch it is
+    /// empty and nothing re-asked for it, so the send button stayed dead after
+    /// the network came back. Pull-to-refresh and returning to the foreground
+    /// both call this; it is a no-op once the list is there.
+    func refreshModelsIfNeeded() async {
+        guard phase == .main, models.isEmpty else { return }
+        await loadModels()
     }
 
     /// Scopes the on-device cache to the account that just became known.
@@ -74,7 +87,12 @@ final class AppState: ObservableObject {
 
     /// Asks the server what it offers before drawing the login screen.
     func loadServerFeatures() async {
-        serverFeatures = try? await client.serverConfig()
+        // Only if the app still points where this was asked. A slow answer from
+        // the previous server landing after the switch would otherwise describe
+        // that server's login methods on this one's login screen.
+        let asked = serverConfig.baseURL
+        let cfg = try? await client.serverConfig()
+        if serverConfig.baseURL == asked { serverFeatures = cfg }
     }
 
     /// Pre-fill the login field with the last email used.
@@ -316,7 +334,8 @@ final class AppState: ObservableObject {
         // it happened, because the session on screen no longer has one.
         client.updateConfig(cfg.owConfig)
         serverFeatures = nil
-        if !client.isAuthenticated { cache.forgetOwner(); endSession() }
+        if !client.isAuthenticated { endSession(reason: nil) }
+        loginError = nil
         Task { await loadServerFeatures() }
     }
 

@@ -52,6 +52,7 @@ struct OpenWebUIApp: App {
 struct RootView: View {
     @EnvironmentObject private var app: AppState
     @EnvironmentObject private var themes: ThemeStore
+    @Environment(\.scenePhase) private var scenePhase
     @Environment(\.theme) private var theme
 
     var body: some View {
@@ -71,6 +72,9 @@ struct RootView: View {
             if themes.background != .none {
                 AnimatedBackground(pattern: themes.background, tint: theme.accent)
             }
+        }
+        .onChange(of: scenePhase) { _, p in
+            if p == .active { Task { await app.refreshModelsIfNeeded() } }
         }
         .task {
             // Reconcile the home-screen icon with the active (saved/default) theme.
