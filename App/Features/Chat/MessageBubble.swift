@@ -209,7 +209,9 @@ struct MessageBubble: View {
     private var imagesView: some View {
         let cols = thumbColumns(message.imageURLs.count)
         return LazyVGrid(columns: cols, alignment: isUser ? .trailing : .leading, spacing: 6) {
-            ForEach(message.imageURLs, id: \.self) { url in
+            // By offset, not by value: the same photo sent twice is two
+            // byte-identical `data:` URLs, and identical ids made ForEach draw one.
+            ForEach(Array(message.imageURLs.enumerated()), id: \.offset) { _, url in
                 Button { viewer = ViewerImage(url: url) } label: {
                     AttachmentThumb(url: url, size: 120, client: client)
                         .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.border.opacity(0.4), lineWidth: 1))
