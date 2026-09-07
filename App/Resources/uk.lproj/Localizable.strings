@@ -228,6 +228,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Розпізнавання мовлення недоступне для %@ на цьому пристрої.";
 "Processar só no aparelho" = "Обробляти лише на пристрої";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Обробка лише на пристрої не надсилає аудіо до Apple, але офлайн-модель помиляється в більшій кількості слів. Залиште вимкненим, якщо транскрипція погана.";
+"Idioma da fala" = "Мова мовлення";
+"Seguir o app (%@)" = "Як у застосунку (%@)";
+"Detectar automaticamente" = "Визначати автоматично";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "Вбудований голос слідує мові застосунку. Розпізнавання ж використовує мову, вибрану вище; автовизначення частіше помиляється на короткому чи шумному аудіо, а вбудоване розпізнавання iOS мову взагалі не визначає — там завжди діє мова застосунку.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (недоступно)";

@@ -228,6 +228,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Pengecaman pertuturan tidak tersedia untuk %@ pada peranti ini.";
 "Processar só no aparelho" = "Proses pada peranti sahaja";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Memproses pada peranti sahaja tidak menghantar audio ke Apple, tetapi model luar talian lebih kerap tersalah perkataan. Biarkan tutup jika transkripsi lemah.";
+"Idioma da fala" = "Bahasa pertuturan";
+"Seguir o app (%@)" = "Ikut aplikasi (%@)";
+"Detectar automaticamente" = "Kesan secara automatik";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "Suara terbina mengikut bahasa aplikasi. Pengecaman pula menggunakan bahasa yang dipilih di atas; pengesanan automatik lebih kerap tersilap pada audio pendek atau bising, dan pengecaman terbina iOS langsung tidak mengesan bahasa — di situ bahasa aplikasi sentiasa digunakan.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (tidak tersedia)";

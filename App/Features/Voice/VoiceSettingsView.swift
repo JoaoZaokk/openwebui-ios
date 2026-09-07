@@ -17,6 +17,7 @@ struct VoiceSettingsView: View {
     @AppStorage("voice.stt.engine") private var sttEngine = "native"
     @AppStorage("voice.stt.model") private var sttModelID = ""
     @AppStorage("voice.stt.onDeviceOnly") private var sttOnDeviceOnly = false
+    @AppStorage(SpeechLanguage.key) private var sttLanguage = SpeechLanguage.followApp
     @AppStorage("voice.tts.engine") private var ttsEngine = "native"
     @AppStorage("voice.tts.pocketVoice") private var pocketVoice = "alba"
     @AppStorage("voice.tts.serverVoice") private var serverVoice = ""
@@ -43,10 +44,15 @@ struct VoiceSettingsView: View {
                 if sttEngine == "native" {
                     Toggle("Processar só no aparelho", isOn: $sttOnDeviceOnly)
                 }
+                speechLanguagePicker
             } header: { Text("Voz → Texto") } footer: {
                 VStack(alignment: .leading, spacing: 6) {
                     Text("Nativo = transcrição ao vivo enquanto você fala (tipo Claude/Gemini). \"Modelo\" = Whisper offline no aparelho. \"Servidor\" = o Whisper do seu Open WebUI (envia o áudio e transcreve no fim).")
-                    Text("A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma).")
+                    if sttLanguage == SpeechLanguage.followApp {
+                        Text("A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma).")
+                    } else {
+                        Text("A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app.")
+                    }
                     if sttEngine == "native" {
                         Text("Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim.")
                     }
@@ -185,6 +191,26 @@ struct VoiceSettingsView: View {
         .alert("Erro no download", isPresented: Binding(get: { downloads.error != nil }, set: { if !$0 { downloads.error = nil } })) {
             Button("OK") { downloads.error = nil }
         } message: { Text(downloads.error ?? "") }
+    }
+
+    /// The language the mic listens in — deliberately not the app's language,
+    /// which is the only thing the three engines followed before.
+    ///
+    /// Offered under every engine, the native one included, where "detect"
+    /// degrades to the app language: dropping the row when the engine changes
+    /// would leave an already-chosen "detect" selecting nothing, and the
+    /// section's footer says so instead.
+    private var speechLanguagePicker: some View {
+        Picker("Idioma da fala", selection: $sttLanguage) {
+            Text(verbatim: L("Seguir o app (%@)", uiLanguage.current.endonym))
+                .tag(SpeechLanguage.followApp)
+            Text("Detectar automaticamente").tag(SpeechLanguage.auto)
+            // Endonyms, so someone hunting for their own language can find it
+            // without first reading the one that is selected.
+            ForEach(AppLanguage.allCases) { l in
+                Text(verbatim: l.endonym).tag(l.rawValue)
+            }
+        }
     }
 
     private func modelName(_ id: String) -> String? {

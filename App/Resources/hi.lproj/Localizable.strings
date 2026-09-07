@@ -228,6 +228,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "इस डिवाइस पर %@ के लिए वाक् पहचान उपलब्ध नहीं है।";
 "Processar só no aparelho" = "केवल डिवाइस पर प्रोसेस करें";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "केवल डिवाइस पर प्रोसेस करने से ऑडियो Apple को नहीं भेजा जाता, लेकिन ऑफ़लाइन मॉडल ज़्यादा शब्द ग़लत पहचानता है। ट्रांसक्रिप्शन ख़राब हो तो इसे बंद रखें।";
+"Idioma da fala" = "बोली की भाषा";
+"Seguir o app (%@)" = "ऐप के अनुसार (%@)";
+"Detectar automaticamente" = "अपने आप पहचानें";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "अंतर्निहित आवाज़ ऐप की भाषा का अनुसरण करती है। पहचान ऊपर चुनी गई भाषा का उपयोग करती है; छोटे या शोर वाले ऑडियो पर स्वचालित पहचान ज़्यादा गलती करती है, और iOS की अपनी पहचान भाषा बिलकुल नहीं पहचानती — वहाँ हमेशा ऐप की भाषा ही चलती है।";
 
 "Neural (%@)" = "न्यूरल (%@)";
 "Neural (indisponível)" = "न्यूरल (उपलब्ध नहीं)";

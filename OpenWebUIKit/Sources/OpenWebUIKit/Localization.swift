@@ -142,6 +142,25 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
+    /// The code to send to a Whisper-family transcription server, or nil when
+    /// the model has never heard of the language and letting the server detect
+    /// it is the only honest option.
+    ///
+    /// Region and script are dropped from `speechLocale` — `pt-BR` → `pt`,
+    /// `zh-Hans` → `zh`, `de-AT` → `de` — because ISO-639-1 is what OpenAI's
+    /// `/audio/transcriptions` documents and what Open WebUI forwards.
+    ///
+    /// Uyghur is the single gap across the 44: it is absent from Whisper's
+    /// language table, which every server in this family validates against, so
+    /// naming it does not degrade to a guess — the request is rejected and the
+    /// recording is lost. Sending nothing leaves the server detecting, which is
+    /// what a Uyghur speaker had before any of this and is still better than an
+    /// error.
+    public var sttServerCode: String? {
+        guard self != .ug else { return nil }
+        return String(speechLocale.prefix(while: { $0 != "-" }))
+    }
+
     /// Best shipped match for a device/system BCP-47 code (e.g. "ja-JP", "zh-Hant-TW", "de-CH").
     static func match(_ code: String) -> AppLanguage? {
         let c = code.lowercased()
@@ -271,6 +290,36 @@ public final class LanguageManager: ObservableObject {
 public func L(_ key: String, _ args: CVarArg...) -> String {
     let s = LanguageManager.snapshotBundle.localizedString(forKey: key, value: key, table: nil)
     return args.isEmpty ? s : String(format: s, arguments: args)
+}
+
+/// The language the speech engines listen in, chosen separately from the app's
+/// UI language — a Portuguese interface used by someone who dictates in English
+/// is a real pairing, and following the UI language was the only option before.
+///
+/// Stored as a string because the answer has three shapes: an `AppLanguage` raw
+/// value, "follow the app", or "let the engine guess".
+public enum SpeechLanguage {
+    public static let key = "voice.stt.language"
+    /// Stored value meaning "whatever Ajustes › Idioma says".
+    public static let followApp = ""
+    /// Stored value meaning "let the engine detect it".
+    public static let auto = "auto"
+
+    public static var stored: String { UserDefaults.standard.string(forKey: key) ?? followApp }
+
+    /// The language to pin, or nil when the engine should detect it itself.
+    ///
+    /// An unrecognised stored code (a language dropped by a later build) falls
+    /// back to the app's language rather than to detection — detection is the
+    /// worse of the two failure modes, since Whisper-family models guess a
+    /// random language on short or noisy audio and hand back nothing.
+    public static func pinned() -> AppLanguage? {
+        switch stored {
+        case auto:      return nil
+        case followApp: return LanguageManager.shared.current
+        case let raw:   return AppLanguage(rawValue: raw) ?? LanguageManager.shared.current
+        }
+    }
 }
 
 /// Date and time formatting that follows the language chosen **in the app**.

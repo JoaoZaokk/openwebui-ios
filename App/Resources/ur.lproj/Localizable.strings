@@ -228,6 +228,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "اس ڈیوائس پر %@ کے لیے تقریر کی شناخت دستیاب نہیں ہے۔";
 "Processar só no aparelho" = "صرف ڈیوائس پر پروسیس کریں";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "صرف ڈیوائس پر پروسیس کرنے سے آڈیو Apple کو نہیں بھیجا جاتا، مگر آف لائن ماڈل زیادہ الفاظ غلط پہچانتا ہے۔ اگر نقل خراب ہو تو بند رکھیں۔";
+"Idioma da fala" = "بولنے کی زبان";
+"Seguir o app (%@)" = "ایپ کے مطابق (%@)";
+"Detectar automaticamente" = "خودکار شناخت";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "بلٹ اِن آواز ایپ کی زبان کی پیروی کرتی ہے۔ شناخت اوپر منتخب کردہ زبان استعمال کرتی ہے؛ خودکار شناخت مختصر یا شور والی آواز پر زیادہ غلطی کرتی ہے، اور iOS کی اپنی شناخت زبان بالکل نہیں پہچانتی — وہاں ہمیشہ ایپ کی زبان ہی چلتی ہے۔";
 
 "Neural (%@)" = "نیورل (%@)";
 "Neural (indisponível)" = "نیورل (دستیاب نہیں)";

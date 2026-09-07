@@ -228,6 +228,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Prepoznavanje govora za %@ na tej napravi ni na voljo.";
 "Processar só no aparelho" = "Obdelaj samo v napravi";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Obdelava samo v napravi ne pošilja zvoka Applu, vendar model brez povezave zgreši več besed. Pustite izklopljeno, če je prepis slab.";
+"Idioma da fala" = "Jezik govora";
+"Seguir o app (%@)" = "Sledi aplikaciji (%@)";
+"Detectar automaticamente" = "Samodejno zaznaj";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "Vgrajeni glas sledi jeziku aplikacije. Prepoznavanje pa uporablja zgoraj izbrani jezik; samodejno zaznavanje se pogosteje zmoti pri kratkem ali hrupnem zvoku, vgrajeno prepoznavanje v iOS pa jezika sploh ne zazna — tam vedno velja jezik aplikacije.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (ni na voljo)";
