@@ -360,10 +360,10 @@ struct ChatScreen: View {
                 // By offset, not by value: two attachments of the same photo are
                 // byte-identical data: URLs, and identical ids made ForEach drop one
                 // of the two thumbnails while both stayed queued for sending.
-                ForEach(Array(vm.pendingImageURLs.enumerated()), id: \.offset) { _, url in
+                ForEach(Array(vm.pendingImageURLs.enumerated()), id: \.offset) { i, url in
                     ZStack(alignment: .topTrailing) {
                         AttachmentThumb(url: url, size: 56)
-                        Button { vm.removePendingImage(url) } label: {
+                        Button { vm.removePendingImage(at: i) } label: {
                             Image(systemName: "xmark.circle.fill")
                                 .foregroundStyle(.white, .black.opacity(0.5))
                         }

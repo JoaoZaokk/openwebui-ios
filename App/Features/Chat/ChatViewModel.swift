@@ -178,7 +178,12 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
-    func removePendingImage(_ url: String) { pendingImageURLs.removeAll { $0 == url } }
+    /// By position, not by value: the same photo attached twice is two equal
+    /// `data:` URLs, and removing "the one equal to this" took both.
+    func removePendingImage(at index: Int) {
+        guard pendingImageURLs.indices.contains(index) else { return }
+        pendingImageURLs.remove(at: index)
+    }
     func removePendingDocument(_ att: OWAttachment) { pendingDocuments.removeAll { $0.id == att.id } }
 
     /// Upload raw data and stage it as a document attachment.
@@ -311,6 +316,13 @@ final class ChatViewModel: ObservableObject {
     private func runStream(model: String, convo: [OWChatMessageInput],
                            files: [OWAttachment], assistantID: String, query: String) async {
         var sawText = false
+        // Every exit — [DONE], a stream that simply stopped, a thrown error, Stop
+        // during the reply, Stop during the web search — closes the turn the same
+        // way. The web-search cancellation used to `return` past the close: the
+        // "Pesquisando…" pill stayed, the blank assistant node was persisted as
+        // the leaf, and in a new conversation the question itself never reached
+        // the server, because the save only ran at the end of this function.
+        defer { closeTurn(assistantID, sawText: sawText) }
         var streamFiles = files
         // Web search: run it OURSELVES via /api/v1/retrieval/process/web/search
         // (same engine the web UI uses) and attach the result — works on every
@@ -358,26 +370,31 @@ final class ChatViewModel: ObservableObject {
                     break
                 }
             }
-            // A reply that is only reasoning still said something — the
-            // disclosure shows it, so don't stamp it "(no response)" (which
-            // would then be persisted over a real turn).
-            if !sawText, let i = index(of: assistantID),
-               messages[i].content.isEmpty, messages[i].reasoning.isEmpty {
-                if Task.isCancelled {
-                    // Stopped before the first token. A cancelled SSE stream ends
-                    // cleanly rather than throwing, so this landed here and stamped
-                    // the placeholder — which `schedulePersist()` then wrote to the
-                    // server as the assistant's answer, and every later load showed
-                    // "_(sem resposta)_" as a real turn. There is no reply to keep.
-                    discardEmptyTurn(assistantID)
-                } else {
-                    messages[i].content = L("_(sem resposta)_")
-                }
-            }
         } catch is CancellationError {
             // user stopped — keep whatever streamed so far
         } catch {
             failTurn(assistantID, OWFailure.msg(error))
+        }
+    }
+
+    /// The one way a turn ends, whatever ended it. Runs from `runStream`'s
+    /// `defer`, so no exit path can skip it.
+    private func closeTurn(_ assistantID: String, sawText: Bool) {
+        // A reply that is only reasoning still said something — the disclosure
+        // shows it, so don't stamp it "(no response)" (which would then be
+        // persisted over a real turn).
+        if !sawText, let i = index(of: assistantID),
+           messages[i].content.isEmpty, messages[i].reasoning.isEmpty {
+            if Task.isCancelled {
+                // Stopped before the first token. A cancelled SSE stream ends
+                // cleanly rather than throwing, so this landed here and stamped
+                // the placeholder — which `schedulePersist()` then wrote to the
+                // server as the assistant's answer, and every later load showed
+                // "_(sem resposta)_" as a real turn. There is no reply to keep.
+                discardEmptyTurn(assistantID)
+            } else {
+                messages[i].content = L("_(sem resposta)_")
+            }
         }
         awaitingWebSearch = false
         isStreaming = false

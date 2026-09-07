@@ -407,7 +407,7 @@ struct GenHistorySheet: View {
                                     .foregroundStyle(theme.secondaryText)
                                 ScrollView(.horizontal, showsIndicators: false) {
                                     HStack(spacing: 8) {
-                                        ForEach(rec.urls, id: \.self) { url in
+                                        ForEach(Array(rec.urls.enumerated()), id: \.offset) { _, url in
                                             Button { viewer = ImageGenView.ViewerItem(url: url) } label: {
                                                 AttachmentThumb(url: url, size: 84, client: client)
                                             }
