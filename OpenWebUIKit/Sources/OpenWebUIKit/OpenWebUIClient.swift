@@ -65,6 +65,12 @@ public final class OpenWebUIClient: @unchecked Sendable {
     /// `mergesHistoryServerSide`.
     public private(set) var serverVersion: String?
     private var serverInfoFetched = false
+    /// Bumped whenever `baseURL` changes. An `/api/config` answer only counts if
+    /// the client still points where it was asked: a slow reply from the
+    /// previous server landing after a switch would otherwise re-arm the
+    /// merge gate with that server's version — and on a 0.10 server a write
+    /// that omits a node deletes the message.
+    private var configGeneration = 0
 
     public func updateConfig(_ config: OWConfig) {
         // A token is a credential for the host that issued it. Pointing the client
@@ -86,6 +92,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
         if config.baseURL != self.config.baseURL {
             serverVersion = nil
             serverInfoFetched = false
+            configGeneration &+= 1
         }
         self.config = config
     }
@@ -442,9 +449,12 @@ public final class OpenWebUIClient: @unchecked Sendable {
     public func serverConfig() async throws -> OWServerConfig {
         var req = URLRequest(url: config.url("/api/config"))
         req.setValue("application/json", forHTTPHeaderField: "Accept")
+        let asked = configGeneration
         let cfg = try decode(OWServerConfig.self, try await send(req))
-        serverVersion = cfg.version
-        serverInfoFetched = true
+        if asked == configGeneration {
+            serverVersion = cfg.version
+            serverInfoFetched = true
+        }
         return cfg
     }
 
