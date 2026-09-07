@@ -18,6 +18,9 @@ final class StubTransport: URLProtocol {
         var status: Int
         var body: Data
         var headers: [String: String]
+        /// Seconds to hold the answer back — for a test about an answer that
+        /// arrives after the app has moved on.
+        var delay: TimeInterval = 0
 
         init(_ status: Int = 200, _ body: Data = Data(), headers: [String: String] = [:]) {
             self.status = status; self.body = body; self.headers = headers
@@ -96,9 +99,16 @@ final class StubTransport: URLProtocol {
 
         let resp = HTTPURLResponse(url: request.url!, statusCode: reply.status,
                                    httpVersion: "HTTP/1.1", headerFields: reply.headers)!
-        client?.urlProtocol(self, didReceive: resp, cacheStoragePolicy: .notAllowed)
-        if !reply.body.isEmpty { client?.urlProtocol(self, didLoad: reply.body) }
-        client?.urlProtocolDidFinishLoading(self)
+        let deliver = { [self] in
+            client?.urlProtocol(self, didReceive: resp, cacheStoragePolicy: .notAllowed)
+            if !reply.body.isEmpty { client?.urlProtocol(self, didLoad: reply.body) }
+            client?.urlProtocolDidFinishLoading(self)
+        }
+        if reply.delay > 0 {
+            DispatchQueue.global().asyncAfter(deadline: .now() + reply.delay, execute: deliver)
+        } else {
+            deliver()
+        }
     }
 
     override func stopLoading() {}
