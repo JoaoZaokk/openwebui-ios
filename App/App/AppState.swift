@@ -51,6 +51,10 @@ final class AppState: ObservableObject {
         guard phase == .main else { return }
         user = nil
         models = []
+        // The login screen has a slot for the reason and used to get nothing —
+        // the app just appeared there, as if it had crashed. The key already
+        // exists in all 44 catalogues.
+        loginError = OWFailure.msg(OWError.notAuthenticated)
         phase = .login
     }
 
@@ -77,8 +81,23 @@ final class AppState: ObservableObject {
             await loadModels()
             phase = .main
             await flushPendingChats()
-        } catch {
+        } catch is CancellationError {
+        } catch OWError.notAuthenticated {
+            // The server said the token is dead. `endSession` cannot say so from
+            // here — it guards on `.main` — so the reason is set by hand.
+            loginError = OWFailure.msg(OWError.notAuthenticated)
             phase = .login
+        } catch {
+            // No network, or the server is down. That is not "the token is dead",
+            // and treating it as one sent the user to the login screen with a
+            // valid token in the Keychain and an offline cache they could no
+            // longer open — every cached conversation and the local search live
+            // behind `.main`. Go in without a profile; the chat list explains the
+            // failed load, and the next authenticated request that meets a real
+            // 401 still routes back to login.
+            user = nil
+            await loadModels()
+            phase = .main
         }
     }
 
@@ -215,6 +234,7 @@ final class AppState: ObservableObject {
         await SSOWebSession.clear()
         user = nil
         models = []
+        loginError = nil
         phase = .login
     }
 
