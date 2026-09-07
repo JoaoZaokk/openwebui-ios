@@ -53,7 +53,7 @@ struct ModelNamesView: View {
                     ForEach(models) { m in row(m) }
                 } footer: {
                     Text("Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original.")
-                        .font(.ody(size: 11, design: .monospaced))
+                        .font(.ody(size: 11))
                         .foregroundStyle(theme.secondaryText)
                 }
             }
@@ -67,12 +67,12 @@ struct ModelNamesView: View {
     private func row(_ m: OWModel) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             TextField(m.shortName, text: binding(for: m.id))
-                .font(.ody(.body, design: .monospaced))
+                .font(.ody(.body))
                 .foregroundStyle(theme.fg)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
             Text(verbatim: m.id)
-                .font(.ody(size: 10, design: .monospaced))
+                .font(.ody(size: 10))
                 .foregroundStyle(theme.secondaryText)
                 .lineLimit(1).truncationMode(.middle)
         }

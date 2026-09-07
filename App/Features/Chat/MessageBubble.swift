@@ -106,7 +106,7 @@ struct MessageBubble: View {
                 .buttonStyle(.plain).disabled(b.index <= 1)
                 .accessibilityLabel(L("Resposta anterior"))
             Text(verbatim: "\(b.index)/\(b.total)")
-                .font(.ody(size: 11, design: .monospaced))
+                .font(.ody(size: 11))
             Button { onBranch?(1) } label: { Image(systemName: "chevron.right") }
                 .buttonStyle(.plain).disabled(b.index >= b.total)
                 .accessibilityLabel(L("Próxima resposta"))
@@ -138,7 +138,7 @@ struct MessageBubble: View {
         VStack(alignment: .trailing, spacing: 6) {
             TextField(L("Editar mensagem"), text: $draft, axis: .vertical)
                 .textFieldStyle(.plain)
-                .font(.ody(.body, design: .monospaced))
+                .font(.ody(.body))
                 .foregroundStyle(theme.fg)
                 .padding(.horizontal, 14).padding(.vertical, 10)
                 .background(theme.userBubble, in: RoundedRectangle(cornerRadius: 14))
@@ -162,7 +162,7 @@ struct MessageBubble: View {
     @ViewBuilder private var timeLabel: some View {
         if let t = message.timestamp {
             Text(OWDates.time(Date(timeIntervalSince1970: t)))
-                .font(.ody(size: 10, design: .monospaced))
+                .font(.ody(size: 10))
                 .foregroundStyle(theme.secondaryText.opacity(0.7))
                 .padding(.horizontal, 2)
         }
@@ -179,7 +179,7 @@ struct MessageBubble: View {
         HStack(spacing: 6) {
             BrandMark(size: 16)
             Text(verbatim: modelLabel)
-                .font(.ody(size: 11, design: .monospaced))
+                .font(.ody(size: 11))
                 .foregroundStyle(theme.secondaryText)
             if !message.content.isEmpty {
                 Button { speech.toggle(message.content, id: message.id) } label: {
@@ -245,7 +245,7 @@ struct MessageBubble: View {
             ForEach(message.otherDocuments) { doc in
                 HStack(spacing: 6) {
                     Image(systemName: "doc.fill").font(.ody(size: 12)).foregroundStyle(theme.accent)
-                    Text(doc.displayName).font(.ody(size: 11, design: .monospaced))
+                    Text(doc.displayName).font(.ody(size: 11))
                         .foregroundStyle(theme.fg).lineLimit(1)
                 }
                 .padding(.horizontal, 10).padding(.vertical, 7)
@@ -275,7 +275,7 @@ struct MessageBubble: View {
                     HStack(spacing: 7) {
                         ProgressView().controlSize(.mini).tint(theme.secondaryText)
                         Text(status)
-                            .font(.ody(size: 12, design: .monospaced))
+                            .font(.ody(size: 12))
                             .foregroundStyle(theme.secondaryText)
                     }
                     .frame(height: 14)
@@ -284,7 +284,7 @@ struct MessageBubble: View {
                 }
             } else if isUser {
                 Text(message.content)
-                    .font(.ody(.body, design: .monospaced))
+                    .font(.ody(.body))
                     .foregroundStyle(theme.fg)
                     .textSelection(.enabled)
             } else {
@@ -328,7 +328,7 @@ struct CodeBlockView: View {
             HStack(spacing: 2) {
                 if let lang = configuration.language, !lang.isEmpty {
                     Text(lang)
-                        .font(.ody(size: 10, design: .monospaced))
+                        .font(.ody(size: 10))
                         .foregroundStyle(theme.secondaryText)
                         .padding(.horizontal, 7).padding(.vertical, 2)
                         .background(theme.bg.opacity(0.6), in: Capsule())
@@ -394,7 +394,7 @@ struct ReasoningDisclosure: View {
                     Image(systemName: "brain")
                         .font(.ody(size: 11))
                     Text(L("Raciocínio"))
-                        .font(.ody(size: 11, design: .monospaced))
+                        .font(.ody(size: 11))
                     if streaming && text.isEmpty { ProgressView().controlSize(.mini) }
                     Image(systemName: "chevron.right")
                         .font(.ody(size: 9))
@@ -406,7 +406,7 @@ struct ReasoningDisclosure: View {
 
             if isOpen && !text.isEmpty {
                 Text(text)
-                    .font(.ody(size: 12, design: .monospaced))
+                    .font(.ody(size: 12))
                     .foregroundStyle(theme.secondaryText)
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -433,10 +433,10 @@ struct ToolUseCard: View {
             Button { withAnimation(.easeInOut(duration: 0.18)) { expanded.toggle() } } label: {
                 HStack(spacing: 6) {
                     Image(systemName: tool.icon).font(.ody(size: 11))
-                    Text(tool.title).font(.ody(size: 12, design: .monospaced)).lineLimit(1)
+                    Text(tool.title).font(.ody(size: 12)).lineLimit(1)
                     Spacer(minLength: 6)
                     if !tool.sources.isEmpty {
-                        Text("\(tool.sources.count)").font(.ody(size: 10, design: .monospaced))
+                        Text("\(tool.sources.count)").font(.ody(size: 10))
                     }
                     Image(systemName: "chevron.right")
                         .font(.ody(size: 9, weight: .semibold))
@@ -450,7 +450,7 @@ struct ToolUseCard: View {
             if expanded {
                 if !tool.results.isEmpty {
                     Text(tool.results)
-                        .font(.ody(size: 11, design: .monospaced))
+                        .font(.ody(size: 11))
                         .foregroundStyle(theme.secondaryText)
                         .textSelection(.enabled)
                         .frame(maxWidth: .infinity, alignment: .leading)

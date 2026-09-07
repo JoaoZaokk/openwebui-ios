@@ -99,18 +99,18 @@ struct NotesView: View {
         HStack(spacing: 10) {
             if note.pinned { Image(systemName: "pin.fill").font(.caption2).foregroundStyle(theme.accent) }
             VStack(alignment: .leading, spacing: 2) {
-                Text(note.title).font(.ody(.subheadline, design: .monospaced))
+                Text(note.title).font(.ody(.subheadline))
                     .foregroundStyle(theme.fg).lineLimit(1)
                 let preview = note.markdown.replacingOccurrences(of: "#", with: "")
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                 if !preview.isEmpty {
-                    Text(preview).font(.ody(size: 11, design: .monospaced))
+                    Text(preview).font(.ody(size: 11))
                         .foregroundStyle(theme.secondaryText).lineLimit(1)
                 }
             }
             Spacer()
             if let ts = note.updatedAt {
-                Text(RelativeDate.string(ts)).font(.ody(size: 9, design: .monospaced))
+                Text(RelativeDate.string(ts)).font(.ody(size: 9))
                     .foregroundStyle(theme.secondaryText.opacity(0.7))
             }
         }
@@ -130,10 +130,10 @@ struct NotesView: View {
         VStack(spacing: 14) {
             Image(systemName: "note.text").font(.ody(size: 44)).foregroundStyle(theme.accent)
             Text("Nenhuma nota ainda")
-                .font(.ody(.headline, design: .monospaced)).foregroundStyle(theme.fg)
+                .font(.ody(.headline)).foregroundStyle(theme.fg)
             Button { editing = NoteEdit(note: nil) } label: {
                 Label("Nova nota", systemImage: "square.and.pencil")
-                    .font(.ody(.subheadline, design: .monospaced))
+                    .font(.ody(.subheadline))
                     .padding(.horizontal, 16).padding(.vertical, 10)
                     .background(theme.accent, in: Capsule()).foregroundStyle(theme.onAccent)
             }
@@ -171,12 +171,12 @@ struct NoteEditorView: View {
                 theme.bg.ignoresSafeArea()
                 VStack(spacing: 0) {
                     TextField("Título", text: $title)
-                        .font(.ody(.title3, design: .monospaced).weight(.semibold))
+                        .font(.ody(.title3).weight(.semibold))
                         .foregroundStyle(theme.fg)
                         .padding(.horizontal, 16).padding(.vertical, 12)
                     Divider().overlay(theme.border)
                     TextEditor(text: $markdown)
-                        .font(.ody(.body, design: .monospaced))
+                        .font(.ody(.body))
                         .foregroundStyle(theme.fg)
                         .scrollContentBackground(.hidden)
                         .padding(.horizontal, 12)
@@ -184,14 +184,14 @@ struct NoteEditorView: View {
                         .overlay(alignment: .topLeading) {
                             if markdown.isEmpty {
                                 Text("Escreva em markdown…")
-                                    .font(.ody(.body, design: .monospaced))
+                                    .font(.ody(.body))
                                     .foregroundStyle(theme.secondaryText)
                                     .padding(.horizontal, 17).padding(.vertical, 8)
                                     .allowsHitTesting(false)
                             }
                         }
                     if let error {
-                        Text(error).font(.ody(size: 11, design: .monospaced))
+                        Text(error).font(.ody(size: 11))
                             .foregroundStyle(theme.danger)
                             .frame(maxWidth: .infinity, alignment: .leading).padding(12)
                     }

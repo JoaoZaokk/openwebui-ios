@@ -237,10 +237,15 @@ enum Appearance {
 
 extension Font {
     /// Drop-in for `Font.system` that honors the chosen `AppFontFamily`.
-    static func ody(_ style: Font.TextStyle, design: Font.Design = .monospaced, weight: Font.Weight = .regular) -> Font {
+    ///
+    /// There is deliberately no `design:` parameter: the family the user picked
+    /// owns the design (`Appearance.font` reads `fontFamily.design`), so a
+    /// per-call design could never take effect. It used to be accepted and
+    /// dropped on the floor, and 136 call sites passed `.monospaced` into it.
+    static func ody(_ style: Font.TextStyle, weight: Font.Weight = .regular) -> Font {
         Appearance.font(style: style, weight: weight)
     }
-    static func ody(size: CGFloat, weight: Font.Weight = .regular, design: Font.Design = .monospaced) -> Font {
+    static func ody(size: CGFloat, weight: Font.Weight = .regular) -> Font {
         Appearance.font(size: size, weight: weight)
     }
 }

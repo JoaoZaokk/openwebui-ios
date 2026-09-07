@@ -20,7 +20,7 @@ struct ErrorBanner: View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
             Image(systemName: "exclamationmark.triangle.fill").font(.ody(size: 12))
             Text(message)
-                .font(.ody(size: 11, design: .monospaced))
+                .font(.ody(size: 11))
                 .frame(maxWidth: .infinity, alignment: .leading)
             Button(action: onDismiss) {
                 Image(systemName: "xmark").font(.ody(size: 11, weight: .semibold))

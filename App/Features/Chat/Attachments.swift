@@ -65,7 +65,7 @@ struct AttachmentThumb: View {
                             Image(systemName: "photo.badge.exclamationmark")
                                 .font(.system(size: size > 80 ? 22 : 16))
                             Text(failure)
-                                .font(.ody(size: 9, design: .monospaced))
+                                .font(.ody(size: 9))
                                 .multilineTextAlignment(.center).lineLimit(2)
                                 .padding(.horizontal, 4)
                         }
@@ -174,12 +174,12 @@ struct NotePickerSheet: View {
                 theme.bg.ignoresSafeArea()
                 if loading { ProgressView().tint(theme.accent) }
                 else if notes.isEmpty {
-                    Text("Nenhuma nota.").font(.ody(.footnote, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                    Text("Nenhuma nota.").font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                 } else {
                     List(notes) { n in
                         Button { onPick(n); dismiss() } label: {
                             HStack {
-                                Text(n.title).font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                                Text(n.title).font(.ody(.subheadline)).foregroundStyle(theme.fg)
                                 Spacer(minLength: 0)
                             }
                             .padding(.vertical, 6)
@@ -214,12 +214,12 @@ struct ChatPickerSheet: View {
                 theme.bg.ignoresSafeArea()
                 if loading { ProgressView().tint(theme.accent) }
                 else if chats.isEmpty {
-                    Text("Nenhuma conversa.").font(.ody(.footnote, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                    Text("Nenhuma conversa.").font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                 } else {
                     List(chats) { c in
                         Button { onPick(c); dismiss() } label: {
                             HStack {
-                                Text(c.title).font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                                Text(c.title).font(.ody(.subheadline)).foregroundStyle(theme.fg)
                                 Spacer(minLength: 0)
                             }
                             .padding(.vertical, 6)
@@ -255,12 +255,12 @@ struct KBPickerSheet: View {
                 if loading { ProgressView().tint(theme.accent) }
                 else if items.isEmpty {
                     Text("Nenhuma base de conhecimento.")
-                        .font(.ody(.footnote, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                        .font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                 } else {
                     List(items) { kb in
                         Button { onPick(kb); dismiss() } label: {
                             HStack {
-                                Text(kb.name).font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                                Text(kb.name).font(.ody(.subheadline)).foregroundStyle(theme.fg)
                                 Spacer(minLength: 0)
                             }
                             .padding(.vertical, 6).contentShape(Rectangle())
@@ -293,7 +293,7 @@ struct ToolPickerSheet: View {
                 if vm.loadingTools { ProgressView().tint(theme.accent) }
                 else if vm.availableTools.isEmpty {
                     Text("Nenhuma ferramenta neste servidor.")
-                        .font(.ody(.footnote, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                        .font(.ody(.footnote)).foregroundStyle(theme.secondaryText)
                         .multilineTextAlignment(.center).padding(.horizontal, 32)
                 } else {
                     List {
@@ -304,7 +304,7 @@ struct ToolPickerSheet: View {
                             }
                         } footer: {
                             Text("A ferramenta roda no servidor e o resultado entra na resposta.")
-                                .font(.ody(size: 11, design: .monospaced))
+                                .font(.ody(size: 11))
                                 .foregroundStyle(theme.secondaryText)
                         }
                     }
@@ -323,9 +323,9 @@ struct ToolPickerSheet: View {
             Image(systemName: on ? "checkmark.circle.fill" : "circle")
                 .font(.ody(size: 14)).foregroundStyle(on ? theme.accent : theme.secondaryText)
             VStack(alignment: .leading, spacing: 2) {
-                Text(tool.name).font(.ody(.subheadline, design: .monospaced)).foregroundStyle(theme.fg)
+                Text(tool.name).font(.ody(.subheadline)).foregroundStyle(theme.fg)
                 if let d = tool.description, !d.isEmpty {
-                    Text(d).font(.ody(size: 11, design: .monospaced))
+                    Text(d).font(.ody(size: 11))
                         .foregroundStyle(theme.secondaryText).lineLimit(2)
                 }
             }

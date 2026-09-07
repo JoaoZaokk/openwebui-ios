@@ -23,12 +23,12 @@ struct SettingsView: View {
                         } label: {
                             Label {
                                 HStack {
-                                    Text("Idioma").font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg)
+                                    Text("Idioma").font(.ody(.body)).foregroundStyle(theme.fg)
                                     Spacer(minLength: 8)
                                     Text(verbatim: lang.isAutomatic
                                          ? "🌐 \(LanguageManager.deviceLanguage().endonym)"
                                          : "\(lang.current.flag) \(lang.current.endonym)")
-                                        .font(.ody(.subheadline, design: .monospaced))
+                                        .font(.ody(.subheadline))
                                         .foregroundStyle(theme.secondaryText).lineLimit(1)
                                 }
                             } icon: { Image(systemName: "globe").foregroundStyle(theme.accent) }
@@ -40,7 +40,7 @@ struct SettingsView: View {
                         NavigationLink {
                             ThemePickerView(inSheet: false).environmentObject(themes)
                         } label: {
-                            Label { Text("Tema").font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg) }
+                            Label { Text("Tema").font(.ody(.body)).foregroundStyle(theme.fg) }
                             icon: { Image(systemName: "paintpalette").foregroundStyle(theme.accent) }
                         }
                         .listRowBackground(theme.panel)
@@ -50,7 +50,7 @@ struct SettingsView: View {
                         NavigationLink {
                             ModelNamesView(models: app.models)
                         } label: {
-                            Label { Text("Nomes dos modelos").font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg) }
+                            Label { Text("Nomes dos modelos").font(.ody(.body)).foregroundStyle(theme.fg) }
                             icon: { Image(systemName: "text.badge.star").foregroundStyle(theme.accent) }
                         }
                         .listRowBackground(theme.panel)
@@ -60,7 +60,7 @@ struct SettingsView: View {
                         NavigationLink {
                             VoiceSettingsView()
                         } label: {
-                            Label { Text("Voz e modelos").font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg) }
+                            Label { Text("Voz e modelos").font(.ody(.body)).foregroundStyle(theme.fg) }
                             icon: { Image(systemName: "waveform").foregroundStyle(theme.accent) }
                         }
                         .listRowBackground(theme.panel)
@@ -75,7 +75,7 @@ struct SettingsView: View {
                             Task { await app.logout(); dismiss() }
                         } label: {
                             Label("Sair", systemImage: "rectangle.portrait.and.arrow.right")
-                                .font(.ody(.body, design: .monospaced))
+                                .font(.ody(.body))
                         }
                         .listRowBackground(theme.panel)
                     }
@@ -105,15 +105,15 @@ struct SettingsView: View {
         Section {
             content()
         } header: {
-            Text(LocalizedStringKey(title)).font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.secondaryText)
+            Text(LocalizedStringKey(title)).font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
         }
     }
 
     private func labeled(_ key: String, _ value: String) -> some View {
         HStack {
-            Text(LocalizedStringKey(key)).font(.ody(.body, design: .monospaced)).foregroundStyle(theme.fg)
+            Text(LocalizedStringKey(key)).font(.ody(.body)).foregroundStyle(theme.fg)
             Spacer(minLength: 8)
-            Text(value).font(.ody(.subheadline, design: .monospaced))
+            Text(value).font(.ody(.subheadline))
                 .foregroundStyle(theme.secondaryText).lineLimit(1)
         }
     }
@@ -134,7 +134,7 @@ struct ServerSheet: View {
                 Form {
                     Section {
                         TextField("http://localhost:3000", text: $text)
-                            .font(.ody(.body, design: .monospaced))
+                            .font(.ody(.body))
                             .foregroundStyle(theme.fg)
                             .textInputAutocapitalization(.never)
                             .autocorrectionDisabled()
@@ -142,10 +142,10 @@ struct ServerSheet: View {
                             .listRowBackground(theme.panel)
                     } header: {
                         Text("ENDEREÇO DO SERVIDOR OPEN WEBUI")
-                            .font(.ody(size: 11, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                            .font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
                     } footer: {
                         Text("Ex.: http://localhost:3000  ou  https://meu-servidor.com\nSe você não digitar http(s)://, assumimos https.")
-                            .font(.ody(size: 10, design: .monospaced)).foregroundStyle(theme.secondaryText)
+                            .font(.ody(size: 10)).foregroundStyle(theme.secondaryText)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
