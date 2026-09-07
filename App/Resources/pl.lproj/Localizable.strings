@@ -228,6 +228,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Rozpoznawanie mowy niedostępne dla %@ na tym urządzeniu.";
 "Processar só no aparelho" = "Przetwarzaj tylko na urządzeniu";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Przetwarzanie tylko na urządzeniu nie wysyła dźwięku do Apple, ale model offline myli więcej słów. Zostaw wyłączone, jeśli transkrypcja jest słaba.";
+"Idioma da fala" = "Język mowy";
+"Seguir o app (%@)" = "Zgodnie z aplikacją (%@)";
+"Detectar automaticamente" = "Wykryj automatycznie";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "Wbudowany głos podąża za językiem aplikacji. Rozpoznawanie używa jednak języka wybranego powyżej; automatyczne wykrywanie myli się częściej przy krótkim lub zaszumionym dźwięku, a wbudowane rozpoznawanie iOS w ogóle nie wykrywa języka — tam zawsze obowiązuje język aplikacji.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (niedostępny)";

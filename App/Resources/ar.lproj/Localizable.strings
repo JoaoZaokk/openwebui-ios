@@ -228,6 +228,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "التعرّف على الكلام غير متاح لـ %@ على هذا الجهاز.";
 "Processar só no aparelho" = "المعالجة على الجهاز فقط";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "المعالجة على الجهاز فقط لا ترسل الصوت إلى Apple، لكن النموذج دون اتصال يخطئ في كلمات أكثر. اتركه معطّلاً إذا كان النسخ سيئاً.";
+"Idioma da fala" = "لغة الكلام";
+"Seguir o app (%@)" = "اتّباع لغة التطبيق (%@)";
+"Detectar automaticamente" = "الكشف تلقائيًا";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "الصوت المدمج يتبع لغة التطبيق. أمّا التعرّف فيستخدم اللغة المختارة أعلاه؛ والكشف التلقائي يخطئ أكثر مع المقاطع القصيرة أو المشوّشة، كما أنّ تعرّف iOS المدمج لا يكشف اللغة إطلاقًا — فيه تُعتمد لغة التطبيق دائمًا.";
 
 "Neural (%@)" = "عصبي (%@)";
 "Neural (indisponível)" = "عصبي (غير متاح)";

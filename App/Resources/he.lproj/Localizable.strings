@@ -225,6 +225,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "זיהוי דיבור אינו זמין עבור %@ במכשיר הזה.";
 "Processar só no aparelho" = "עיבוד במכשיר בלבד";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "עיבוד במכשיר בלבד לא שולח אודיו ל-Apple, אבל המודל הלא-מקוון טועה ביותר מילים. השאירו כבוי אם התמלול גרוע.";
+"Idioma da fala" = "שפת הדיבור";
+"Seguir o app (%@)" = "לפי האפליקציה (%@)";
+"Detectar automaticamente" = "זיהוי אוטומטי";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "הקול המובנה עוקב אחר שפת האפליקציה. הזיהוי, לעומת זאת, משתמש בשפה שנבחרה למעלה; זיהוי אוטומטי טועה יותר באודיו קצר או רועש, והזיהוי המובנה של iOS אינו מזהה שפה כלל — שם תמיד קובעת שפת האפליקציה.";
 
 "Neural (%@)" = "נוירלי (%@)";
 "Neural (indisponível)" = "נוירלי (לא זמין)";

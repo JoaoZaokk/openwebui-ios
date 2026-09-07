@@ -37,11 +37,17 @@ extension OpenWebUIClient {
 
     /// POST /api/v1/audio/transcriptions — server-side STT (Whisper). Uploads the
     /// audio (multipart) and returns the recognized text.
+    ///
+    /// `language` is an ISO-639-1 code (`AppLanguage.sttServerCode`). Empty means
+    /// send nothing, which leaves the server detecting the language — the shape
+    /// this call always had, and still the right answer for a language Whisper
+    /// does not know.
     public func transcribe(audio: Data, filename: String = "speech.wav",
-                           mime: String = "audio/wav") async throws -> String {
+                           mime: String = "audio/wav", language: String = "") async throws -> String {
         var req = request("/api/v1/audio/transcriptions", method: "POST")
         let form = OWMultipart()
         form.appendFile(name: "file", filename: filename, mime: mime, fileData: audio)
+        if !language.isEmpty { form.append(name: "language", value: language) }
         req.setValue(form.contentType, forHTTPHeaderField: "Content-Type")
         req.httpBody = form.finalized
         struct R: Decodable { var text: String }

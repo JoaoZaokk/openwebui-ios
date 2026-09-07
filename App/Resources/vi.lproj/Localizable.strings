@@ -228,6 +228,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Nhận dạng giọng nói không khả dụng cho %@ trên thiết bị này.";
 "Processar só no aparelho" = "Chỉ xử lý trên thiết bị";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Chỉ xử lý trên thiết bị sẽ không gửi âm thanh đến Apple, nhưng mô hình ngoại tuyến sai nhiều từ hơn. Hãy tắt nếu bản ghi kém.";
+"Idioma da fala" = "Ngôn ngữ khi nói";
+"Seguir o app (%@)" = "Theo ứng dụng (%@)";
+"Detectar automaticamente" = "Tự động nhận diện";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "Giọng tích hợp đi theo ngôn ngữ của ứng dụng. Còn nhận dạng thì dùng ngôn ngữ chọn ở trên; tự động nhận diện sai nhiều hơn với âm thanh ngắn hoặc nhiều tạp âm, và nhận dạng tích hợp của iOS không nhận diện ngôn ngữ nào cả — ở đó luôn dùng ngôn ngữ của ứng dụng.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (không khả dụng)";

@@ -225,6 +225,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Энэ төхөөрөмж дээр %@ хэлний яриа таних боломжгүй.";
 "Processar só no aparelho" = "Зөвхөн төхөөрөмж дээр боловсруулах";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Зөвхөн төхөөрөмж дээр боловсруулах нь аудиог Apple рүү илгээхгүй, гэхдээ офлайн загвар илүү олон үгийг буруу таних магадлалтай. Хөрвүүлэлт муу байвал унтраалттай орхино уу.";
+"Idioma da fala" = "Ярианы хэл";
+"Seguir o app (%@)" = "Аппыг дагах (%@)";
+"Detectar automaticamente" = "Автоматаар илрүүлэх";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "Суурилуулсан хоолой аппын хэлийг дагана. Таних систем нь дээр сонгосон хэлийг ашиглана; автоматаар илрүүлэх нь богино эсвэл чимээ шуугиантай аудио дээр илүү их алддаг, харин iOS-ийн суурилуулсан таних систем юу ч илрүүлдэггүй — тэнд үргэлж аппын хэл хүчинтэй.";
 
 "Neural (%@)" = "Нейрон (%@)";
 "Neural (indisponível)" = "Нейрон (боломжгүй)";

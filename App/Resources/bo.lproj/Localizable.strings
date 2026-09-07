@@ -225,6 +225,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "སྒྲིག་ཆས་འདིའི་སྟེང་ %@ ཡི་སྐད་ངོས་འཛིན་མི་ཐུབ།";
 "Processar só no aparelho" = "ཐབས་ཆས་ནང་ཁོ་ནར་སྒྲུབ་པ།";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "ཐབས་ཆས་ནང་ཁོ་ནར་སྒྲུབ་ན་སྒྲ་དེ་ Apple ལ་མི་སྐུར། འོན་ཀྱང་དྲ་མེད་དཔེ་དབྱིབས་ཀྱིས་ཚིག་མང་བ་ནོར་བར་བྱེད། ཡི་གེར་བསྒྱུར་བ་ཡག་པོ་མེད་ན་སྒོ་རྒྱག་རོགས།";
+"Idioma da fala" = "སྐད་ཆའི་སྐད་རིགས།";
+"Seguir o app (%@)" = "ཉེར་སྤྱོད་དང་མཐུན་པ། (%@)";
+"Detectar automaticamente" = "རང་འགུལ་གྱིས་ངོས་འཛིན།";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "ནང་ཆས་ཀྱི་སྐད་གདངས་དེས་ཉེར་སྤྱོད་ཀྱི་སྐད་རིགས་རྗེས་འབྲངས་བྱེད། ངོས་འཛིན་གྱིས་ནི་གོང་དུ་བདམས་པའི་སྐད་རིགས་བེད་སྤྱོད་བྱེད། རང་འགུལ་ངོས་འཛིན་ནི་སྒྲ་ཐུང་ངམ་སྒྲ་སྐད་ཅན་ལ་ནོར་འཁྲུལ་མང་བ་ཡོང་། iOS ཀྱི་ནང་ཆས་ངོས་འཛིན་གྱིས་སྐད་རིགས་གཏན་ནས་ངོས་འཛིན་མི་ཐུབ་པས། དེའི་ནང་དུ་རྟག་ཏུ་ཉེར་སྤྱོད་ཀྱི་སྐད་རིགས་བེད་སྤྱོད་བྱེད།";
 
 "Neural (%@)" = "ནཱི་ཡོ་རལ། (%@)";
 "Neural (indisponível)" = "ནཱི་ཡོ་རལ། (མི་ཐུབ།)";

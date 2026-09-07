@@ -228,6 +228,10 @@
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "本机不支持 %@ 的语音识别。";
 "Processar só no aparelho" = "仅在设备上处理";
 "Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "仅在设备上处理不会将音频发送给 Apple，但离线模型识别错误更多。转写效果差时请关闭。";
+"Idioma da fala" = "语音语言";
+"Seguir o app (%@)" = "跟随应用（%@）";
+"Detectar automaticamente" = "自动检测";
+"A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app." = "内置语音跟随应用语言。识别则使用上面选择的语言；自动检测在短音频或嘈杂音频上出错更多，而 iOS 内置识别根本不做语言检测——那里始终使用应用语言。";
 
 "Neural (%@)" = "神经语音 (%@)";
 "Neural (indisponível)" = "神经语音 (不可用)";

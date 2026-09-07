@@ -110,10 +110,12 @@ final class VoiceInputManager: ObservableObject {
         captureToModel = useModel || useServer   // both buffer raw audio to upload/transcribe
 
         if !useModel && !useServer {
-            guard let rec = Self.recognizer(for: LanguageManager.shared.current), rec.isAvailable else {
+            // Apple ships no auto-detecting recognizer, so "detect" degrades to
+            // the app language here; only the Whisper engines can actually guess.
+            let want = SpeechLanguage.pinned() ?? LanguageManager.shared.current
+            guard let rec = Self.recognizer(for: want), rec.isAvailable else {
                 deactivateSession()
-                error = L("Reconhecimento de voz indisponível para %@ neste aparelho.",
-                          LanguageManager.shared.current.endonym)
+                error = L("Reconhecimento de voz indisponível para %@ neste aparelho.", want.endonym)
                 return false
             }
             let req = SFSpeechAudioBufferRecognitionRequest()
@@ -223,7 +225,8 @@ final class VoiceInputManager: ObservableObject {
 
         // Fixed language beats "auto" (auto guesses romanian on imperfect audio).
         // Language-tuned models pin their own language; universal models follow
-        // the app UI language.
+        // the speech language, which is the app's UI language unless Settings
+        // says otherwise.
         let lang: WhisperLanguage
         switch VoiceCatalog.all.first(where: { $0.id == activeModelID })?.lang {
         case .english:    lang = .english
@@ -231,7 +234,7 @@ final class VoiceInputManager: ObservableObject {
         case .japanese:   lang = .japanese
         case .french:     lang = .french
         case .portuguese: lang = .portuguese
-        default:          lang = Self.appWhisperLanguage()
+        default:          lang = Self.chosenWhisperLanguage()
         }
 
         do {
@@ -271,7 +274,10 @@ final class VoiceInputManager: ObservableObject {
         normalize(&frames)
         let wav = Self.wavData(frames, sampleRate: 16_000)
         do {
-            let text = try await client.transcribe(audio: wav, filename: "speech.wav", mime: "audio/wav")
+            // Nothing was ever sent before, so the server detected the language on
+            // every recording — the failure mode Whisper is worst at.
+            let text = try await client.transcribe(audio: wav, filename: "speech.wav", mime: "audio/wav",
+                                                   language: SpeechLanguage.pinned()?.sttServerCode ?? "")
             let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
             if t.isEmpty { error = L("Não captei nenhuma fala.") }
             return t
@@ -327,10 +333,13 @@ final class VoiceInputManager: ObservableObject {
         return nil
     }
 
-    /// Maps the app's UI language to a Whisper language for the universal
-    /// models. Unknown/unsupported → .auto.
-    private static func appWhisperLanguage() -> WhisperLanguage {
-        switch LanguageManager.shared.current {
+    /// Maps the speech language — the app's UI language unless Ajustes › Voz
+    /// pins another one — to a Whisper language for the universal models.
+    /// `.auto` only when the user actually asked for detection: it is the worse
+    /// default, since Whisper guesses a random language on short or noisy audio.
+    private static func chosenWhisperLanguage() -> WhisperLanguage {
+        guard let want = SpeechLanguage.pinned() else { return .auto }
+        switch want {
         case .ptBR:           return .portuguese
         case .en:             return .english
         case .es:             return .spanish

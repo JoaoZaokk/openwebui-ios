@@ -181,6 +181,20 @@ final class OWMultipart {
         write("\r\n")
     }
 
+    /// A plain (non-file) form field — the other half of `multipart/form-data`,
+    /// and the shape every extra parameter of an upload endpoint takes.
+    ///
+    /// No `filename` and no `Content-Type`: either one turns the part into a
+    /// file as far as the server's parser is concerned, and the value would stop
+    /// arriving as a parameter. The value itself is written raw, because only
+    /// header values need escaping.
+    func append(name: String, value: String) {
+        write("--\(boundary)\r\n")
+        write("Content-Disposition: form-data; name=\"\(Self.headerQuoted(name))\"\r\n\r\n")
+        write(value)
+        write("\r\n")
+    }
+
     /// Escapes a value for the header's quoted-string, in the one convention the
     /// server's parser actually reverses.
     ///
