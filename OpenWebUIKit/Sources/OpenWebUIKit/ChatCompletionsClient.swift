@@ -195,7 +195,12 @@ public final class ChatCompletionsClient: @unchecked Sendable {
     }
 
     /// A whole-body JSON completion (non-streaming server path).
-    private static func yieldJSONCompletion(_ body: String,
+    ///
+    /// Internal, not private, for the same reason `buildRequest` is: from the
+    /// outside this branch is indistinguishable from the SSE one, and the two
+    /// bodies that reach it — a full completion, and the literal `null` a 0.6.x
+    /// error path answers 200 with — are only tellable apart by what it yields.
+    static func yieldJSONCompletion(_ body: String,
                                             into c: AsyncThrowingStream<OWStreamUpdate, Error>.Continuation) {
         let trimmed = body.trimmingCharacters(in: .whitespacesAndNewlines)
         // 0.6.x error path answers HTTP 200 with a literal `null` body.
@@ -213,7 +218,8 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         if let err = extractError(trimmed) { c.yield(.error(err)) }
     }
 
-    private static func extractError(_ body: String) -> String? {
+    /// Internal so the sentence a refusal turns into can be pinned directly.
+    static func extractError(_ body: String) -> String? {
         // FastAPI/Open WebUI errors are usually {"detail": "..."} or {"message": "..."}.
         if let data = body.data(using: .utf8),
            let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
