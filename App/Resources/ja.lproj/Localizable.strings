@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "この端末で表示される名前だけを変更します。サーバーに送信されるモデルは変わりません。空欄にすると元の名前に戻ります。";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "内蔵の音声と内蔵の認識はアプリの言語に従います（設定 › 言語）。";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "この端末では %@ の音声認識を利用できません。";
+"Processar só no aparelho" = "デバイス内でのみ処理";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "デバイス内でのみ処理すると音声は Apple に送信されませんが、オフラインモデルは誤認識が増えます。文字起こしの精度が低い場合はオフにしてください。";
 
 "Neural (%@)" = "ニューラル (%@)";
 "Neural (indisponível)" = "ニューラル (利用不可)";

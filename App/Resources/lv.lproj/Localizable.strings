@@ -223,6 +223,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Maina tikai šajā ierīcē redzamo nosaukumu — serverim nosūtītais modelis paliek tas pats. Atstājiet tukšu, lai atjaunotu sākotnējo nosaukumu.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Iebūvētā balss un iebūvētā atpazīšana seko lietotnes valodai (Iestatījumi › Valoda).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Runas atpazīšana šajā ierīcē %@ nav pieejama.";
+"Processar só no aparelho" = "Apstrādāt tikai ierīcē";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Apstrāde tikai ierīcē nesūta audio uz Apple, taču bezsaistes modelis kļūdās vairāk vārdu. Atstājiet izslēgtu, ja transkripcija ir slikta.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (nav pieejams)";

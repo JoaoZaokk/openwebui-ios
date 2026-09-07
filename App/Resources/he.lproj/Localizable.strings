@@ -223,6 +223,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "משנה רק את השם המוצג במכשיר הזה — הדגם שנשלח לשרת נשאר אותו דגם. השאירו ריק כדי לחזור לשם המקורי.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "הקול המובנה והזיהוי המובנה עוקבים אחרי שפת האפליקציה (הגדרות › שפה).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "זיהוי דיבור אינו זמין עבור %@ במכשיר הזה.";
+"Processar só no aparelho" = "עיבוד במכשיר בלבד";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "עיבוד במכשיר בלבד לא שולח אודיו ל-Apple, אבל המודל הלא-מקוון טועה ביותר מילים. השאירו כבוי אם התמלול גרוע.";
 
 "Neural (%@)" = "נוירלי (%@)";
 "Neural (indisponível)" = "נוירלי (לא זמין)";

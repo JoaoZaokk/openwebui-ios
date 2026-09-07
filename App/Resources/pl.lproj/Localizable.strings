@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Zmienia tylko nazwę wyświetlaną na tym urządzeniu — model wysyłany na serwer pozostaje ten sam. Zostaw puste, aby przywrócić oryginalną nazwę.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Wbudowany głos i wbudowane rozpoznawanie podążają za językiem aplikacji (Ustawienia › Język).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Rozpoznawanie mowy niedostępne dla %@ na tym urządzeniu.";
+"Processar só no aparelho" = "Przetwarzaj tylko na urządzeniu";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Przetwarzanie tylko na urządzeniu nie wysyła dźwięku do Apple, ale model offline myli więcej słów. Zostaw wyłączone, jeśli transkrypcja jest słaba.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (niedostępny)";

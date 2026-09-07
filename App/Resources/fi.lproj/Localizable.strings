@@ -223,6 +223,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Muuttaa vain tällä laitteella näkyvän nimen — palvelimelle lähetettävä malli pysyy samana. Jätä tyhjäksi palauttaaksesi alkuperäisen nimen.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Sisäänrakennettu ääni ja tunnistus seuraavat sovelluksen kieltä (Asetukset › Kieli).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Puheentunnistus ei ole käytettävissä kielelle %@ tällä laitteella.";
+"Processar só no aparelho" = "Käsittele vain laitteessa";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Vain laitteessa käsittely ei lähetä ääntä Applelle, mutta offline-malli erehtyy useammista sanoista. Jätä pois päältä, jos litterointi on huonoa.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (ei käytettävissä)";

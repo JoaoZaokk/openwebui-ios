@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Змінює лише назву, показану на цьому пристрої — модель, що надсилається на сервер, залишається тією самою. Залиште порожнім, щоб повернути початкову назву.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Вбудований голос і вбудоване розпізнавання слідують мові застосунку (Налаштування › Мова).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Розпізнавання мовлення недоступне для %@ на цьому пристрої.";
+"Processar só no aparelho" = "Обробляти лише на пристрої";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Обробка лише на пристрої не надсилає аудіо до Apple, але офлайн-модель помиляється в більшій кількості слів. Залиште вимкненим, якщо транскрипція погана.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (недоступно)";

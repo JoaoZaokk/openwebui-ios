@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Spremeni samo ime, prikazano na tej napravi — model, poslan strežniku, ostane isti. Pustite prazno za vrnitev izvirnega imena.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Vgrajeni glas in vgrajeno prepoznavanje sledita jeziku aplikacije (Nastavitve › Jezik).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Prepoznavanje govora za %@ na tej napravi ni na voljo.";
+"Processar só no aparelho" = "Obdelaj samo v napravi";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Obdelava samo v napravi ne pošilja zvoka Applu, vendar model brez povezave zgreši več besed. Pustite izklopljeno, če je prepis slab.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (ni na voljo)";

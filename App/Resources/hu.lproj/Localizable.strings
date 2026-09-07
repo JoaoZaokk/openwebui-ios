@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Csak az ezen az eszközön megjelenő nevet változtatja meg — a kiszolgálónak küldött modell ugyanaz marad. Hagyd üresen az eredeti név visszaállításához.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "A beépített hang és a beépített felismerés az alkalmazás nyelvét követi (Beállítások › Nyelv).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "A beszédfelismerés nem érhető el %@ nyelvhez ezen a készüléken.";
+"Processar só no aparelho" = "Feldolgozás csak az eszközön";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "A csak eszközön történő feldolgozás nem küld hangot az Apple-nek, de az offline modell több szót ront el. Hagyd kikapcsolva, ha rossz az átirat.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (nem érhető el)";

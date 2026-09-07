@@ -53,6 +53,11 @@ final class VoiceInputManager: ObservableObject {
     private var useModel: Bool { UserDefaults.standard.string(forKey: "voice.stt.engine") == "model" }
     private var useServer: Bool { UserDefaults.standard.string(forKey: "voice.stt.engine") == "server" }
     private var activeModelID: String { UserDefaults.standard.string(forKey: "voice.stt.model") ?? "" }
+    /// Keeps Apple's dictation on the device instead of letting it send audio to
+    /// Apple's servers. Off by default: the on-device model is the less accurate
+    /// of the two, and forcing it unconditionally — which is what this file used
+    /// to do — is the likeliest cause of "it keeps mangling my words".
+    private var onDeviceOnly: Bool { UserDefaults.standard.bool(forKey: "voice.stt.onDeviceOnly") }
 
     /// Injected at startup — required for the "server" STT engine.
     var client: OpenWebUIClient?
@@ -113,7 +118,7 @@ final class VoiceInputManager: ObservableObject {
             }
             let req = SFSpeechAudioBufferRecognitionRequest()
             req.shouldReportPartialResults = true
-            req.requiresOnDeviceRecognition = rec.supportsOnDeviceRecognition
+            req.requiresOnDeviceRecognition = onDeviceOnly && rec.supportsOnDeviceRecognition
             request = req
             task = rec.recognitionTask(with: req) { [weak self] result, err in
                 Task { @MainActor in

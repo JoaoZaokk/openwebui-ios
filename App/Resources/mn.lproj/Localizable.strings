@@ -223,6 +223,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Зөвхөн энэ төхөөрөмж дээр харагдах нэрийг өөрчилнө — сервер рүү илгээгдэх загвар хэвээр үлдэнэ. Анхны нэр рүү буцаахын тулд хоосон орхино уу.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Суурилуулсан хоолой ба таних систем нь аппын хэлийг дагана (Тохиргоо › Хэл).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Энэ төхөөрөмж дээр %@ хэлний яриа таних боломжгүй.";
+"Processar só no aparelho" = "Зөвхөн төхөөрөмж дээр боловсруулах";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Зөвхөн төхөөрөмж дээр боловсруулах нь аудиог Apple рүү илгээхгүй, гэхдээ офлайн загвар илүү олон үгийг буруу таних магадлалтай. Хөрвүүлэлт муу байвал унтраалттай орхино уу.";
 
 "Neural (%@)" = "Нейрон (%@)";
 "Neural (indisponível)" = "Нейрон (боломжгүй)";

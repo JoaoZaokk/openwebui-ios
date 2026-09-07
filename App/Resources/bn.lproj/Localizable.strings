@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "শুধু এই ডিভাইসে দেখানো নাম বদলায় — সার্ভারে পাঠানো মডেল একই থাকে। আসল নামে ফিরতে ফাঁকা রাখুন।";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "অন্তর্নির্মিত কণ্ঠ ও অন্তর্নির্মিত শনাক্তকরণ অ্যাপের ভাষা অনুসরণ করে (সেটিংস › ভাষা)।";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "এই ডিভাইসে %@ এর জন্য বাক্ শনাক্তকরণ উপলব্ধ নয়।";
+"Processar só no aparelho" = "শুধু ডিভাইসে প্রসেস করুন";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "শুধু ডিভাইসে প্রসেস করলে অডিও Apple-এ পাঠানো হয় না, তবে অফলাইন মডেল বেশি শব্দ ভুল করে। প্রতিলিপি খারাপ হলে বন্ধ রাখুন।";
 
 "Neural (%@)" = "নিউরাল (%@)";
 "Neural (indisponível)" = "নিউরাল (অনুপলব্ধ)";

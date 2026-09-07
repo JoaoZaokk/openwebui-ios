@@ -223,6 +223,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "སྒྲིག་ཆས་འདིའི་སྟེང་མངོན་པའི་མིང་ཙམ་བརྗེ་བ་ཡིན། ཞབས་ཞུ་བར་སྐུར་བའི་དཔེ་དབྱིབས་སྔར་བཞིན་ཡིན། མིང་གཞི་མར་ལོག་ན་སྟོང་པར་བཞག";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "ནང་འདུས་སྐད་དང་ནང་འདུས་ངོས་འཛིན་གཉིས་ཀྱིས་མཉེན་ཆས་ཀྱི་སྐད་ཡིག་རྗེས་འབྲང་བྱེད། (སྒྲིག་འགོད། › སྐད་ཡིག)";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "སྒྲིག་ཆས་འདིའི་སྟེང་ %@ ཡི་སྐད་ངོས་འཛིན་མི་ཐུབ།";
+"Processar só no aparelho" = "ཐབས་ཆས་ནང་ཁོ་ནར་སྒྲུབ་པ།";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "ཐབས་ཆས་ནང་ཁོ་ནར་སྒྲུབ་ན་སྒྲ་དེ་ Apple ལ་མི་སྐུར། འོན་ཀྱང་དྲ་མེད་དཔེ་དབྱིབས་ཀྱིས་ཚིག་མང་བ་ནོར་བར་བྱེད། ཡི་གེར་བསྒྱུར་བ་ཡག་པོ་མེད་ན་སྒོ་རྒྱག་རོགས།";
 
 "Neural (%@)" = "ནཱི་ཡོ་རལ། (%@)";
 "Neural (indisponível)" = "ནཱི་ཡོ་རལ། (མི་ཐུབ།)";

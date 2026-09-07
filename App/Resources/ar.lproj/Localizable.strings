@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "يغيّر الاسم المعروض على هذا الجهاز فقط — النموذج المُرسَل إلى الخادم يبقى كما هو. اتركه فارغًا للعودة إلى الاسم الأصلي.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "يتبع الصوت المدمج والتعرّف المدمج لغة التطبيق (الإعدادات › اللغة).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "التعرّف على الكلام غير متاح لـ %@ على هذا الجهاز.";
+"Processar só no aparelho" = "المعالجة على الجهاز فقط";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "المعالجة على الجهاز فقط لا ترسل الصوت إلى Apple، لكن النموذج دون اتصال يخطئ في كلمات أكثر. اتركه معطّلاً إذا كان النسخ سيئاً.";
 
 "Neural (%@)" = "عصبي (%@)";
 "Neural (indisponível)" = "عصبي (غير متاح)";

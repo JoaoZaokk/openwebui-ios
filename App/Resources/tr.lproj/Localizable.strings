@@ -226,6 +226,8 @@
 "Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original." = "Yalnızca bu cihazda gösterilen adı değiştirir — sunucuya gönderilen model aynı kalır. Özgün ada dönmek için boş bırakın.";
 "A voz nativa e o reconhecimento nativo seguem o idioma do app (Ajustes › Idioma)." = "Yerleşik ses ve yerleşik tanıma, uygulama dilini izler (Ayarlar › Dil).";
 "Reconhecimento de voz indisponível para %@ neste aparelho." = "Konuşma tanıma bu cihazda %@ için kullanılamıyor.";
+"Processar só no aparelho" = "Yalnızca cihazda işle";
+"Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim." = "Yalnızca cihazda işlemek Apple'a ses göndermez, ancak çevrimdışı model daha çok kelimeyi yanlış anlar. Yazıya dökme kötüyse kapalı bırakın.";
 
 "Neural (%@)" = "Neural (%@)";
 "Neural (indisponível)" = "Neural (kullanılamıyor)";
