@@ -111,10 +111,20 @@ struct VoiceSettingsView: View {
                     .disabled(speech.isPreparing("__prepare__") || speech.neuralReady
                               || !speech.neuralAvailableForCurrentLanguage)
                 }
-                // Shown for every engine, not just neural and server: an audio
-                // session the OS refuses is reported through the same channel,
-                // and the native voice — the default — used to be the one case
-                // where that message had nowhere to appear.
+                // Two rows, because the manager has two things to say and they
+                // are not the same thing. "No neural pack for this language —
+                // using the native voice" is a notice on a path that goes on to
+                // speak; it was sharing the failure row, so most UI languages
+                // saw a red line saying the voice was broken when it was
+                // working. A refused audio session is the failure.
+                //
+                // Both are shown for every engine, not just neural and server:
+                // the session can be refused under the native voice too — the
+                // default — and that message used to have nowhere to appear.
+                // Switching engines clears whatever is left over (below).
+                if let n = speech.neuralNotice {
+                    Text(n).font(.footnote).foregroundStyle(theme.secondaryText)
+                }
                 if let e = speech.neuralError {
                     Text(e).font(.footnote).foregroundStyle(theme.danger)
                 }
@@ -173,6 +183,9 @@ struct VoiceSettingsView: View {
         // Re-scan after a download finishes, so the new pack (and the freed or
         // claimed space) shows up without leaving the screen.
         .onChange(of: speech.neuralReady) { _, ready in if ready { neural.refresh() } }
+        // A message belongs to the engine that produced it: leaving it up after
+        // a switch has the new engine explaining itself with the old one's words.
+        .onChange(of: ttsEngine) { _, _ in speech.clearVoiceMessages() }
         .confirmationDialog(
             Text("Apagar voz neural"),
             isPresented: Binding(get: { pendingDelete != nil },

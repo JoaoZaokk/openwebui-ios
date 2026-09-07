@@ -22,7 +22,29 @@ final class SpeechManager: NSObject, ObservableObject {
     @Published private(set) var speakingID: String?
     @Published private(set) var preparingID: String?   // neural: downloading/synthesizing
     @Published var neuralReady = false
-    @Published var neuralError: String?
+
+    /// A real failure to produce audio — a refused audio session, a synthesis
+    /// error, a player that would not start. Rendered as a failure.
+    @Published private(set) var neuralError: String?
+
+    /// Informational, and deliberately *not* on `neuralError`: upstream ships
+    /// no neural pack for the current UI language, so the native voice speaks
+    /// instead.
+    ///
+    /// That branch goes on to SPEAK — it is a success — and while it shared the
+    /// failure channel the Settings screen painted it in the danger colour, in
+    /// each of the 36 UI languages with no pack. Same screen, different meaning,
+    /// so: different property.
+    @Published private(set) var neuralNotice: String?
+
+    /// Why `activateTTSSession()` was last refused.
+    ///
+    /// The refusal is published to `neuralError` for the Settings screen, but
+    /// the callers need the same text too: each of them has to abandon its own
+    /// utterance, and the voice loop has to put the reason on the voice screen.
+    /// Reading it back off a published property with several writers would be a
+    /// guess about who wrote last.
+    private(set) var sessionFailure: String?
 
     /// One-shot hook fired when an utterance finishes (or is cancelled) playing.
     /// The hands-free voice loop uses it to advance to the next turn.
@@ -33,15 +55,24 @@ final class SpeechManager: NSObject, ObservableObject {
     /// no finish callback and would otherwise hang the loop forever.
     ///
     /// The loop used to learn about that by watching the `@Published neuralError`
-    /// string, which is not a failure channel: `speakNeural`'s "no PocketTTS pack
-    /// for this language" branch writes it and then speaks anyway, natively. The
-    /// loop read that as "TTS died" and reopened the microphone on top of the
-    /// assistant's own voice — in any of the 36 UI languages with no pack, i.e.
-    /// most of them. Only the paths that genuinely produce no audio call this.
+    /// string, which was not a failure channel at all: `speakNeural`'s "no
+    /// PocketTTS pack for this language" branch wrote it and then spoke anyway,
+    /// natively. The loop read that as "TTS died" and reopened the microphone on
+    /// top of the assistant's own voice — in any of the 36 UI languages with no
+    /// pack, i.e. most of them. That notice has its own property now
+    /// (`neuralNotice`), and only the paths that genuinely produce no audio call
+    /// this.
     ///
-    /// The message is nil when there is nothing to say about it: a reply that
-    /// strips down to no speakable text never plays either, but it is not an
-    /// error to put on screen.
+    /// The message is nil when there is nothing left to say about it: a reply
+    /// that strips down to no speakable text never plays either but is not an
+    /// error to put on screen, and a refused audio session has already published
+    /// its own reason.
+    ///
+    /// It fires only where nothing is about to be spoken. That is not a
+    /// formality: the hands-free loop installs the hook *before* handing text
+    /// over, so it runs while the call that fired it is still on the stack —
+    /// the turn ends and the microphone reopens under a speak path that has not
+    /// returned yet. Every caller has to have given up first.
     ///
     /// Unlike `onSpeechFinished` this is not one-shot — nothing consumes it, so
     /// it stays installed for the whole turn. Like the finish hook it belongs to
@@ -152,7 +183,7 @@ final class SpeechManager: NSObject, ObservableObject {
     /// and `closeQueue()` — which only fires the finish callback when
     /// `!speakingChunk` — would become a permanent no-op. The turn could then
     /// never end on its own.
-    private func chunkFailed(_ id: String, _ message: String) {
+    private func chunkFailed(_ id: String, _ message: String?) {
         preparingID = nil
         if chunkID == id {
             chunks.removeAll()
@@ -294,8 +325,12 @@ final class SpeechManager: NSObject, ObservableObject {
     /// Common tail of both buffered engines: claim the session, hand the bytes
     /// to a player, start it.
     private func play(_ data: Data, id: String) {
+        // The refusal has to abandon the chunk *before* a player exists. It used
+        // to report the failure and then play anyway — and in the hands-free
+        // loop the report is what reopens the microphone, so the assistant sang
+        // straight into it.
+        guard activateTTSSession() else { chunkFailed(id, sessionFailure); return }
         do {
-            activateTTSSession()
             let p = try AVAudioPlayer(data: data)
             p.delegate = self
             player = p
@@ -317,20 +352,34 @@ final class SpeechManager: NSObject, ObservableObject {
     /// session on its way in and barge-in was armed on the line right after
     /// `toggle()` returned — but the queue arms barge-in *before* handing the
     /// first sentence over, so the session has to be claimed by someone else.
-    func prepareDuplexSession() {
-        activateTTSSession()
+    /// Returns false when the OS refused the session: the caller must then
+    /// neither arm barge-in nor open a speaking turn, because nothing can play
+    /// and no finish callback will ever arrive to close it.
+    func prepareDuplexSession() -> Bool {
+        let ok = activateTTSSession()
         #if os(iOS)
         let s = AVAudioSession.sharedInstance()
-        VoiceLog.log("sessão", "categoria=\(s.category.rawValue) modo=\(s.mode.rawValue) duplex=\(duplexSession)")
+        VoiceLog.log("sessão", "ok=\(ok) categoria=\(s.category.rawValue) modo=\(s.mode.rawValue) duplex=\(duplexSession)")
         #endif
+        return ok
     }
 
-    /// Configures the session for playback. Failures used to be four `try?`s, so
-    /// a session the OS refused to configure produced silent no-audio and nothing
-    /// else — while `VoiceInputManager` raises a localized error for the very same
-    /// failure on the recording side. It is reported now: `neuralError` is the
-    /// channel the voice UI already renders.
-    private func activateTTSSession() {
+    /// Configures the session for playback, and says whether it worked.
+    ///
+    /// Failures used to be four `try?`s, so a session the OS refused produced
+    /// silent no-audio and nothing else — while `VoiceInputManager` raises a
+    /// localized error for the very same failure on the recording side. It is
+    /// reported now, but *only* reported: it publishes the reason and hands the
+    /// verdict back.
+    ///
+    /// Calling `fail(...)` from in here — which is what it did — fired
+    /// `onSpeechFailed` from inside the synchronous body of every TTS entry
+    /// point. In the hands-free loop that hook ends the turn and schedules the
+    /// next `listen()`; control then returned into the speak path, which went on
+    /// to `synth.speak(u)` regardless. The assistant spoke into a microphone
+    /// that was already reopening. Every caller now checks the Bool *before*
+    /// there is anything to speak.
+    private func activateTTSSession() -> Bool {
         #if os(iOS)
         let s = AVAudioSession.sharedInstance()
         do {
@@ -344,9 +393,14 @@ final class SpeechManager: NSObject, ObservableObject {
                 try s.setActive(true)
             }
         } catch {
-            fail(L("Áudio indisponível: %@", OWFailure.msg(error)))
+            let why = L("Áudio indisponível: %@", OWFailure.msg(error))
+            sessionFailure = why
+            neuralError = why
+            return false
         }
         #endif
+        sessionFailure = nil
+        return true
     }
 
     /// In hands-free voice mode: loudspeaker when the phone is away from the ear,
@@ -420,7 +474,8 @@ final class SpeechManager: NSObject, ObservableObject {
     // MARK: - Native (AVSpeechSynthesizer)
 
     private func speakNative(_ clean: String, id: String) {
-        activateTTSSession()
+        // Before the utterance exists, so a refusal speaks nothing at all.
+        guard activateTTSSession() else { chunkFailed(id, sessionFailure); return }
         let u = AVSpeechUtterance(string: clean)
         u.voice = Self.bestVoice(for: language)
         u.rate = AVSpeechUtteranceDefaultSpeechRate
@@ -457,9 +512,10 @@ final class SpeechManager: NSObject, ObservableObject {
         guard preparingID == nil else { return }
         let lang = LanguageManager.shared.current
         guard let pack = Self.pocketPack(for: lang) else {
-            neuralError = L("Voz neural indisponível para %@ — usando a voz nativa.", lang.endonym)
+            neuralNotice = L("Voz neural indisponível para %@ — usando a voz nativa.", lang.endonym)
             return
         }
+        neuralNotice = nil
         guard pocket == nil || pocketLanguage != pack else { return }
         preparingID = "__prepare__"
         neuralError = nil
@@ -508,14 +564,17 @@ final class SpeechManager: NSObject, ObservableObject {
         // Silently swapping engines would look like the neural setting is
         // ignored; refusing to speak at all would be worse.
         //
-        // This writes `neuralError` on a path that goes on to SPEAK, which is
-        // why nothing may read that string as "TTS failed" — see
-        // `onSpeechFailed`.
+        // This is a notice on a path that goes on to SPEAK, which is why it has
+        // its own channel and neither reads nor writes the failure one — see
+        // `neuralNotice` and `onSpeechFailed`.
         guard let make = synthesizer(for: "neural") else {
-            neuralError = L("Voz neural indisponível para %@ — usando a voz nativa.", lang.endonym)
+            neuralNotice = L("Voz neural indisponível para %@ — usando a voz nativa.", lang.endonym)
             speakNative(clean, id: id)
             return
         }
+        // There is a pack for this language, so any notice left over from an
+        // earlier one has stopped being true.
+        neuralNotice = nil
         speakBuffered(clean, id: id, make)
     }
 
@@ -543,14 +602,18 @@ final class SpeechManager: NSObject, ObservableObject {
     private func speakBuffered(_ clean: String, id: String,
                                failure: @escaping (String) -> String = { $0 },
                                _ make: @escaping (String) async throws -> Data) {
-        preparingID = id
-        neuralError = nil
         // Claim the audio session now, synchronously, exactly as speakNative
         // does. It used to happen inside the task, after synthesis — but the mic
         // tap was then installed while the session was still `.playback` and the
         // input node reported 0 Hz, so barge-in silently never armed for neural
         // or server TTS.
-        activateTTSSession()
+        //
+        // First of all, though: a refusal has to return before the synthesis
+        // task is created, and before `neuralError` is cleared — that line would
+        // wipe the very reason the session just published.
+        guard activateTTSSession() else { chunkFailed(id, sessionFailure); return }
+        preparingID = id
+        neuralError = nil
         speechGeneration &+= 1
         let generation = speechGeneration
         neuralTask = Task { [weak self] in
@@ -595,12 +658,23 @@ final class SpeechManager: NSObject, ObservableObject {
     }
 
     /// A real failure to produce audio: shown on the Settings screen and handed
-    /// to the voice loop. The loop must never read `neuralError` itself — that
-    /// string has a second writer (the missing-pack notice) which goes on to
-    /// speak.
-    private func fail(_ text: String) {
-        neuralError = text
+    /// to the voice loop.
+    ///
+    /// `nil` means the reason is already published — the refused audio session
+    /// writes `neuralError` on its way out — or that there is nothing worth
+    /// showing. The loop still has to be told either way, or it waits for a
+    /// finish callback that cannot come.
+    private func fail(_ text: String?) {
+        if let text { neuralError = text }
         onSpeechFailed?(text)
+    }
+
+    /// Drops both status rows. The Settings screen calls it when the TTS engine
+    /// changes: a message about the engine the user just left would otherwise
+    /// stay on screen, now describing the new one.
+    func clearVoiceMessages() {
+        neuralError = nil
+        neuralNotice = nil
     }
 
     // MARK: - Helpers
