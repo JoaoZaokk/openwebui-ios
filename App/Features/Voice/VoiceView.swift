@@ -65,13 +65,22 @@ struct VoiceView: View {
             }
         }
         .tint(theme.accent)
-        .onChange(of: convo.phase) { _, p in
-            pulse = (p == .listening || p == .speaking)
-        }
+        .onChange(of: convo.phase) { _, p in pulse = Self.pulses(p) }
         .onAppear {
             if speech.useServer { Task { await speech.loadServerVoices() } }
             if let seed { convo.seedOnce(chatID: seed.chatID, messages: seed.messages, model: seed.model) }
             else if !convo.active { convo.reset() }   // Voz tab → always a new conversation
+        }
+    }
+
+    /// Phases the orb breathes in: the mic is open, or a reply is still playing —
+    /// the handoff out of one included, so the animation doesn't blink between
+    /// turns. A function rather than a third `||` inline: the body's type-check
+    /// blew its time budget with the comparison written out in the modifier.
+    private static func pulses(_ p: VoiceConversation.Phase) -> Bool {
+        switch p {
+        case .listening, .speaking, .finishing: return true
+        case .idle, .thinking: return false
         }
     }
 
@@ -181,7 +190,9 @@ struct VoiceView: View {
         case .idle:      return convo.active ? "…" : L("Toque para conversar")
         case .listening: return L("Ouvindo…")
         case .thinking:  return L("Pensando…")
-        case .speaking:  return L("Falando…")
+        // The handoff out of a reply still belongs to "Falando…": it lasts one
+        // hop and reads as the tail of the sentence, not as a fourth state.
+        case .speaking, .finishing: return L("Falando…")
         }
     }
 
