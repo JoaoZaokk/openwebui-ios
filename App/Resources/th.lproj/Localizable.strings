@@ -40,6 +40,7 @@
 "Editar" = "แก้ไข";
 "Editar mensagem" = "แก้ไขข้อความ";
 "Em breve" = "เร็ว ๆ นี้";
+"Google Drive — em breve." = "Google Drive — เร็ว ๆ นี้";
 "Email" = "อีเมล";
 "Endereço" = "ที่อยู่";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "ขณะที่ AI กำลังพูด การเริ่มพูดจะตัดคำตอบและให้ AI ฟังคุณ ความไวสูงจะขัดจังหวะแม้เสียงเบา (แต่อาจทำงานเองจากเสียงสะท้อน) ส่วนความไวต่ำต้องพูดให้หนักแน่นขึ้น";
@@ -83,6 +84,7 @@
 "Nenhum modelo disponível." = "ไม่มีโมเดลที่ใช้ได้";
 "Nenhuma base de conhecimento." = "ไม่มีฐานความรู้";
 "Nenhuma conversa ainda" = "ยังไม่มีการสนทนา";
+"Conversas não enviadas. Toque para reenviar." = "การสนทนายังไม่ถูกส่ง แตะเพื่อส่งอีกครั้ง";
 "Nenhuma conversa." = "ไม่มีการสนทนา";
 "Nenhuma nota ainda" = "ยังไม่มีโน้ต";
 "Nenhuma nota." = "ไม่มีโน้ต";

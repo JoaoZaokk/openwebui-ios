@@ -42,6 +42,7 @@
 "Editar" = "Edit";
 "Editar mensagem" = "Edit message";
 "Em breve" = "Coming soon";
+"Google Drive — em breve." = "Google Drive — coming soon.";
 "Email" = "Email";
 "Endereço" = "Address";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "While the AI is speaking, starting to talk cuts off the reply and it listens to you. High sensitivity interrupts with little speech (but may trigger on echo); low requires speaking more firmly.";
@@ -86,6 +87,7 @@
 "Nenhum modelo disponível." = "No model available.";
 "Nenhuma base de conhecimento." = "No knowledge base.";
 "Nenhuma conversa ainda" = "No chats yet";
+"Conversas não enviadas. Toque para reenviar." = "Unsent conversations. Tap to resend.";
 "Nenhuma conversa." = "No chats.";
 "Nenhuma nota ainda" = "No notes yet";
 "Nenhuma nota." = "No notes.";

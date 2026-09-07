@@ -41,6 +41,7 @@
 "Editar" = "Editar";
 "Editar mensagem" = "Editar mensaje";
 "Em breve" = "Próximamente";
+"Google Drive — em breve." = "Google Drive — próximamente.";
 "Email" = "Email";
 "Endereço" = "Dirección";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Mientras la IA habla, empezar a hablar corta la respuesta y te escucha. Una sensibilidad alta interrumpe con poca voz (pero puede activarse sola por el eco); una baja exige hablar con más firmeza.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Ningún modelo disponible.";
 "Nenhuma base de conhecimento." = "Ninguna base de conocimiento.";
 "Nenhuma conversa ainda" = "Aún no hay chats";
+"Conversas não enviadas. Toque para reenviar." = "Conversaciones sin enviar. Toca para reenviarlas.";
 "Nenhuma conversa." = "No hay chats.";
 "Nenhuma nota ainda" = "Aún no hay notas";
 "Nenhuma nota." = "No hay notas.";

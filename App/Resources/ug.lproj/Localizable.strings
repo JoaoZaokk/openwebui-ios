@@ -40,6 +40,7 @@
 "Editar" = "تەھرىرلەش";
 "Editar mensagem" = "ئۇچۇرنى تەھرىرلەش";
 "Em breve" = "پات يېقىندا";
+"Google Drive — em breve." = "Google Drive — پات يېقىندا.";
 "Email" = "ئېلخەت";
 "Endereço" = "ئادرېس";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI سۆزلەۋاتقاندا، سىز سۆزلەشكە باشلىسىڭىز جاۋاب ئۈزۈلۈپ، ئۇ سىزنى ئاڭلايدۇ. يۇقىرى سەزگۈرلۈك ئاز ئاۋاز بىلەنلا ئۈزىدۇ (بىراق ئەكس-سادا بىلەن ئۆزلۈكىدىن قوزغىلىشى مۇمكىن)؛ تۆۋەن سەزگۈرلۈك تېخىمۇ ئېنىق سۆزلەشنى تەلەپ قىلىدۇ.";
@@ -83,6 +84,7 @@
 "Nenhum modelo disponível." = "ئىشلەتكىلى بولىدىغان مودېل يوق.";
 "Nenhuma base de conhecimento." = "بىلىم ئامبىرى يوق.";
 "Nenhuma conversa ainda" = "تېخى سۆھبەت يوق";
+"Conversas não enviadas. Toque para reenviar." = "ئەۋەتىلمىگەن سۆھبەتلەر. قايتا ئەۋەتىش ئۈچۈن چېكىڭ.";
 "Nenhuma conversa." = "سۆھبەت يوق.";
 "Nenhuma nota ainda" = "تېخى خاتىرە يوق";
 "Nenhuma nota." = "خاتىرە يوق.";

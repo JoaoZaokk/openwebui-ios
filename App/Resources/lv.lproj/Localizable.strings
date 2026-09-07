@@ -40,6 +40,7 @@
 "Editar" = "Rediģēt";
 "Editar mensagem" = "Rediģēt ziņu";
 "Em breve" = "Drīzumā";
+"Google Drive — em breve." = "Google Drive — drīzumā.";
 "Email" = "E-pasts";
 "Endereço" = "Adrese";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Kamēr MI runā, runāšanas sākšana pārtrauc atbildi un tas jūs sadzird. Augsta jutība pārtrauc jau pie klusas balss (bet var nostrādāt pati no sevis atbalss dēļ); zema prasa runāt stingrāk.";
@@ -83,6 +84,7 @@
 "Nenhum modelo disponível." = "Nav pieejamu modeļu.";
 "Nenhuma base de conhecimento." = "Nav zināšanu bāzes.";
 "Nenhuma conversa ainda" = "Vēl nav sarunu";
+"Conversas não enviadas. Toque para reenviar." = "Nenosūtītas sarunas. Pieskarieties, lai nosūtītu vēlreiz.";
 "Nenhuma conversa." = "Nav sarunu.";
 "Nenhuma nota ainda" = "Vēl nav piezīmju";
 "Nenhuma nota." = "Nav piezīmju.";

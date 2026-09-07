@@ -41,6 +41,7 @@
 "Editar" = "Sửa";
 "Editar mensagem" = "Sửa tin nhắn";
 "Em breve" = "Sắp ra mắt";
+"Google Drive — em breve." = "Google Drive — sắp ra mắt.";
 "Email" = "Email";
 "Endereço" = "Địa chỉ";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Trong khi AI đang nói, việc bắt đầu nói sẽ cắt ngang câu trả lời và nó lắng nghe bạn. Độ nhạy cao ngắt lời chỉ với một chút giọng nói (nhưng có thể tự kích hoạt do tiếng vọng); thấp đòi hỏi bạn nói dứt khoát hơn.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Không có mô hình khả dụng.";
 "Nenhuma base de conhecimento." = "Không có cơ sở kiến thức.";
 "Nenhuma conversa ainda" = "Chưa có cuộc trò chuyện nào";
+"Conversas não enviadas. Toque para reenviar." = "Cuộc trò chuyện chưa gửi. Chạm để gửi lại.";
 "Nenhuma conversa." = "Không có cuộc trò chuyện nào.";
 "Nenhuma nota ainda" = "Chưa có ghi chú nào";
 "Nenhuma nota." = "Không có ghi chú nào.";

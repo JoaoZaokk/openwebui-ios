@@ -41,6 +41,7 @@
 "Editar" = "संपादित करें";
 "Editar mensagem" = "संदेश संपादित करें";
 "Em breve" = "जल्द आ रहा है";
+"Google Drive — em breve." = "Google Drive — जल्द आ रहा है।";
 "Email" = "ईमेल";
 "Endereço" = "पता";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "जब AI बोल रहा हो, तब बोलना शुरू करने पर उत्तर रुक जाता है और वह आपकी सुनता है। उच्च संवेदनशीलता हल्की आवाज़ पर भी रोक देती है (पर इको से अपने आप चल सकती है); कम संवेदनशीलता के लिए अधिक स्पष्ट बोलना पड़ता है।";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "कोई मॉडल उपलब्ध नहीं है।";
 "Nenhuma base de conhecimento." = "कोई नॉलेज बेस नहीं।";
 "Nenhuma conversa ainda" = "अभी तक कोई चैट नहीं";
+"Conversas não enviadas. Toque para reenviar." = "बातचीत नहीं भेजी गईं। फिर से भेजने के लिए टैप करें।";
 "Nenhuma conversa." = "कोई चैट नहीं।";
 "Nenhuma nota ainda" = "अभी तक कोई नोट नहीं";
 "Nenhuma nota." = "कोई नोट नहीं।";

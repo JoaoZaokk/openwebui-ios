@@ -41,6 +41,7 @@
 "Editar" = "سمون";
 "Editar mensagem" = "پیغام سمول";
 "Em breve" = "ډېر ژر";
+"Google Drive — em breve." = "Google Drive — ډېر ژر.";
 "Email" = "بریښنالیک";
 "Endereço" = "پته";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "کله چې مصنوعي ذهانت خبرې کوي، د خبرو پیل ځواب پرېکوي او هغه ستاسو خبرو ته غوږ نیسي. لوړ حساسیت په لږ غږ مداخله کوي (خو ممکن د انعکاس له امله پخپله فعال شي)؛ ټیټ حساسیت نور کلک خبرې کول غواړي.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "هیڅ موډل شتون نلري.";
 "Nenhuma base de conhecimento." = "هیڅ د پوهې بنسټ نشته.";
 "Nenhuma conversa ainda" = "تر اوسه هیڅ خبرې اترې نشته";
+"Conversas não enviadas. Toque para reenviar." = "نالېږل شوې خبرې اترې. د بیا لېږلو لپاره کلیک وکړئ.";
 "Nenhuma conversa." = "هیڅ خبرې اترې نشته.";
 "Nenhuma nota ainda" = "تر اوسه هیڅ یادښت نشته";
 "Nenhuma nota." = "هیڅ یادښت نشته.";

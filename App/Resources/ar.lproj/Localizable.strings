@@ -41,6 +41,7 @@
 "Editar" = "تعديل";
 "Editar mensagem" = "تعديل الرسالة";
 "Em breve" = "قريباً";
+"Google Drive — em breve." = "Google Drive — قريباً.";
 "Email" = "البريد الإلكتروني";
 "Endereço" = "العنوان";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "أثناء تحدّث الذكاء الاصطناعي، بدء الكلام يقطع الرد فيبدأ الإنصات إليك. الحساسية العالية تقاطع بأقل قدر من الكلام (لكنها قد تنطلق تلقائياً بسبب الصدى)؛ والمنخفضة تتطلّب التحدث بصوت أوضح.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "لا يوجد نموذج متاح.";
 "Nenhuma base de conhecimento." = "لا توجد قاعدة معرفة.";
 "Nenhuma conversa ainda" = "لا محادثات بعد";
+"Conversas não enviadas. Toque para reenviar." = "محادثات لم تُرسل. انقر لإعادة الإرسال.";
 "Nenhuma conversa." = "لا توجد محادثات.";
 "Nenhuma nota ainda" = "لا ملاحظات بعد";
 "Nenhuma nota." = "لا توجد ملاحظات.";

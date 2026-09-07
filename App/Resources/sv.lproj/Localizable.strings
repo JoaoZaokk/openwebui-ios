@@ -40,6 +40,7 @@
 "Editar" = "Redigera";
 "Editar mensagem" = "Redigera meddelande";
 "Em breve" = "Kommer snart";
+"Google Drive — em breve." = "Google Drive — kommer snart.";
 "Email" = "E-post";
 "Endereço" = "Adress";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "När AI:n talar avbryter du svaret genom att börja prata, och den lyssnar på dig. Hög känslighet avbryter vid låg röst (men kan utlösas av ekot); låg kräver att du talar tydligare.";
@@ -83,6 +84,7 @@
 "Nenhum modelo disponível." = "Inga modeller tillgängliga.";
 "Nenhuma base de conhecimento." = "Ingen kunskapsbas.";
 "Nenhuma conversa ainda" = "Inga konversationer än";
+"Conversas não enviadas. Toque para reenviar." = "Osända konversationer. Tryck för att skicka igen.";
 "Nenhuma conversa." = "Inga konversationer.";
 "Nenhuma nota ainda" = "Inga anteckningar än";
 "Nenhuma nota." = "Inga anteckningar.";

@@ -41,6 +41,7 @@
 "Editar" = "Düzenle";
 "Editar mensagem" = "Mesajı düzenle";
 "Em breve" = "Yakında";
+"Google Drive — em breve." = "Google Drive — yakında.";
 "Email" = "E-posta";
 "Endereço" = "Adres";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI konuşurken konuşmaya başlamak yanıtı keser ve sizi dinler. Yüksek hassasiyet az bir sesle araya girer (ancak yankıyla kendiliğinden tetiklenebilir); düşük ise daha net konuşmanızı gerektirir.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Kullanılabilir model yok.";
 "Nenhuma base de conhecimento." = "Bilgi tabanı yok.";
 "Nenhuma conversa ainda" = "Henüz sohbet yok";
+"Conversas não enviadas. Toque para reenviar." = "Gönderilmemiş konuşmalar. Yeniden göndermek için dokunun.";
 "Nenhuma conversa." = "Sohbet yok.";
 "Nenhuma nota ainda" = "Henüz not yok";
 "Nenhuma nota." = "Not yok.";
