@@ -164,17 +164,14 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
             if c.contains("-ch") { return .deCH }
             return .de
         }
-        let map: [String: AppLanguage] = [
-            "en": .en, "es": .es, "fr": .fr, "it": .it, "nl": .nl, "pl": .pl, "cs": .cs,
-            "sk": .sk, "sl": .sl, "hr": .hr, "bg": .bg, "mk": .mk, "sr": .sr,
-            "uk": .uk, "be": .be, "ru": .ru, "tr": .tr, "hu": .hu, "vi": .vi,
-            "id": .ind, "in": .ind, "ms": .ms, "ja": .ja, "ko": .ko,
-            "hi": .hi, "bn": .bn, "ar": .ar, "fa": .fa, "ur": .ur, "ps": .ps,
-            "lb": .lb, "lv": .lv, "fi": .fi, "sv": .sv, "th": .th,
-            "he": .he, "iw": .he,   // "iw" = legacy ISO code for Hebrew
-            "ug": .ug, "bo": .bo, "mn": .mn,
-        ]
-        return map[String(c.prefix(2))]
+        // Every remaining language's raw value IS its two-letter code — the six
+        // that are not (pt-BR, de-*, zh-*) were all resolved by the prefix branches
+        // above — so the enum is the table. Only the two legacy ISO codes, which
+        // old devices still report, need naming.
+        let two = String(c.prefix(2))
+        if two == "in" { return .ind }   // "in" = legacy ISO code for Indonesian
+        if two == "iw" { return .he }    // "iw" = legacy ISO code for Hebrew
+        return AppLanguage(rawValue: two)
     }
 }
 
