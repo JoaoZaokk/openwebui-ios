@@ -164,6 +164,20 @@ final class AppLanguageMatchTests: XCTestCase {
         XCTAssertEqual(AppLanguage.match("in-ID"), .ind, "legacy ISO code for Indonesian")
         XCTAssertNil(AppLanguage.match("xx-YY"))
     }
+
+    /// `match` derives the answer from the enum's raw values instead of a
+    /// hand-kept table. This is the property that replaces the table: every
+    /// language the prefix branches do not handle must round-trip from its own
+    /// raw value — bare, with a region, and in upper case.
+    func testEveryTwoLetterLanguageRoundTripsFromItsRawValue() {
+        let prefixHandled: Set<AppLanguage> = [.ptBR, .de, .deAT, .deCH, .zhHans, .zhHant]
+        for lang in AppLanguage.allCases where !prefixHandled.contains(lang) {
+            XCTAssertEqual(lang.rawValue.count, 2, "\(lang) is neither prefix-handled nor a two-letter code")
+            XCTAssertEqual(AppLanguage.match(lang.rawValue), lang)
+            XCTAssertEqual(AppLanguage.match("\(lang.rawValue)-XX"), lang)
+            XCTAssertEqual(AppLanguage.match(lang.rawValue.uppercased()), lang)
+        }
+    }
 }
 
 /// A picture is a picture however it was attached. Open WebUI uploads one added
