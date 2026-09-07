@@ -53,6 +53,7 @@ final class ImageGenStore: ObservableObject {
     func loadModels() async {
         do {
             models = try await client.imageModels()
+            error = nil   // the tab's `.task` re-runs on every return; a stale failure must not outlive the failure
         } catch is CancellationError {
         } catch {
             self.error = OWFailure.msg(error)

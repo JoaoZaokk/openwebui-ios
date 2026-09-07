@@ -117,6 +117,14 @@ final class ChatStore: ObservableObject {
 
     /// Full-text search: title match across the whole list, plus body matches over
     /// cached (previously-opened) conversations. Entirely on-device.
+    /// The box was emptied. `query` must go with the results: the list's
+    /// "no results" overlay trusts `query` to mean "these results answer this
+    /// text", and a stale one made it flash over a search that did have matches.
+    func clearSearch() {
+        query = ""
+        searchResults = []
+    }
+
     func search(_ text: String) async {
         let q = text.trimmingCharacters(in: .whitespacesAndNewlines)
         query = q
