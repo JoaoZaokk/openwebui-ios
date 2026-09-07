@@ -51,11 +51,16 @@ struct Theme: Equatable, Identifiable {
         self.userBubble = Color(hex: userBubbleBg ?? bg)
         self.aiBubble = Color(hex: aiBubbleBg ?? panel)
         self.secondaryText = Color(hex: fg).opacity(0.55)
-        // The web has no per-theme green; pick one that reads on this background.
-        self.green = Color(hex: dark ? "5fd97a" : "2f9e5b")
-        // Semantic error red, per background — errors must not wear the brand
-        // accent (several themes use it for non-error meanings).
-        self.danger = Color(hex: dark ? "ff6b6b" : "c62828")
+        // The web has no per-theme status colours. These two are chosen by the
+        // theme's lightness and were measured, not picked: against every theme in
+        // `all` (bg, panel, and the 12% tint the error banner paints over them)
+        // the old light green "2f9e5b" fell under WCAG AA on 15 of 51 pairs and
+        // the old danger pair on 8 — including Hermes, the default. The current
+        // values clear 4.5:1 everywhere but two banner tints at 4.4. Errors must
+        // never wear the brand accent: several themes use it for non-error
+        // meanings, and on `terminal` it *is* the text colour.
+        self.green = Color(hex: dark ? "5fd97a" : "20713f")
+        self.danger = Color(hex: dark ? "ffa39a" : "a32b1f")
         // Foreground on accent fills: white on darker accents, near-black on the
         // light ones (mint/gold/neon/pink), decided by the accent's luma.
         self.onAccent = Theme.luma(red) < 0.6 ? .white : Color(hex: "1a1a1a")

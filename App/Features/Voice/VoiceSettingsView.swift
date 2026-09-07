@@ -76,7 +76,7 @@ struct VoiceSettingsView: View {
                         }
                     }
                     if let e = speech.neuralError {
-                        Text(e).font(.footnote).foregroundStyle(theme.accent)
+                        Text(e).font(.footnote).foregroundStyle(theme.danger)
                     }
                 }
                 if ttsEngine == "neural" {
@@ -99,7 +99,7 @@ struct VoiceSettingsView: View {
                     .disabled(speech.isPreparing("__prepare__") || speech.neuralReady
                               || !speech.neuralAvailableForCurrentLanguage)
                     if let e = speech.neuralError {
-                        Text(e).font(.footnote).foregroundStyle(theme.accent)
+                        Text(e).font(.footnote).foregroundStyle(theme.danger)
                     }
                 }
             } header: { Text("Texto → Voz") } footer: {
@@ -352,7 +352,7 @@ struct VoiceSettingsView: View {
                 .accessibilityAddTraits(selected ? .isSelected : [])
                 // Delete
                 Button(role: .destructive) { downloads.delete(model) } label: {
-                    Image(systemName: "trash").foregroundStyle(theme.accent)
+                    Image(systemName: "trash")
                 }
                 .buttonStyle(.borderless)
                 .accessibilityLabel(Text("Apagar modelo"))
@@ -368,7 +368,7 @@ struct VoiceSettingsView: View {
                 // row; catalog entries can't be removed, so this is custom-only.
                 if model.isCustom {
                     Button(role: .destructive) { downloads.delete(model) } label: {
-                        Image(systemName: "trash").foregroundStyle(theme.accent)
+                        Image(systemName: "trash")
                     }
                     .buttonStyle(.borderless)
                     .accessibilityLabel(Text("Apagar modelo"))
