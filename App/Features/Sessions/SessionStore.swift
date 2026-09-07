@@ -231,7 +231,10 @@ final class ChatStore: ObservableObject {
 /// (they're already `Codable`) so the schema stays a single table.
 @Model
 final class CachedServerChat {
-    @Attribute(.unique) var id: String
+    // Not `.unique`: identity is (owner, id). One account reaching one server by
+    // two addresses is two owners, and a unique `id` made the second owner's
+    // insert *upsert* the first owner's row — history and all.
+    var id: String
     var title: String
     var createdAt: Double
     var updatedAt: Double
@@ -270,28 +273,51 @@ final class ServerChatCache {
     private let container: ModelContainer
     fileprivate var ctx: ModelContext { container.mainContext }
 
-    /// Every read and write is scoped to this account on this server. nil
-    /// between sessions, when nothing is readable and nothing is written.
+    /// What every read and write is scoped to.
     ///
-    /// Without it the store was one table for everyone: signing in as another
-    /// account and typing a letter listed the previous account's titles and
-    /// message excerpts, and a conversation held back for a failed save was
+    /// Without a scope the store was one table for everyone: signing in as
+    /// another account and typing a letter listed the previous account's titles
+    /// and message excerpts, and a conversation held back for a failed save was
     /// pushed on the next launch to whichever server the app was pointed at.
-    private(set) var owner: String?
+    enum Scope: Equatable {
+        /// Between sessions: nothing is readable, nothing is written.
+        case none
+        /// An install from before the column existed, launched offline with no
+        /// owner recorded anywhere: the rows with no owner are its own, and
+        /// stay readable until a launch that can name the account claims them.
+        case legacy
+        case owner(String)
+    }
+    private(set) var scope: Scope = .none
 
-    func adopt(owner key: String) {
-        owner = key
-        // Rows from before the column existed carry no owner. The app holds one
-        // token at a time, so the first identity seen after the upgrade is the
-        // account that was signed in when they were written; stamp them once.
+    /// - Parameter claimingLegacy: whether rows with no owner may be stamped as
+    ///   this account's. True only from the launch that still holds the token
+    ///   persisted before the upgrade — that token is the account that wrote
+    ///   them. A sign-in is a new identity and claims nothing: the leftover
+    ///   rows are deleted, because a cache is a mirror the server refills and a
+    ///   draft delivered to the wrong account is worse than a draft lost.
+    func adopt(owner key: String, claimingLegacy: Bool) {
+        scope = .owner(key)
         let d = FetchDescriptor<CachedServerChat>(predicate: #Predicate { $0.owner == nil })
         let legacy = (try? ctx.fetch(d)) ?? []
         guard !legacy.isEmpty else { return }
-        for e in legacy { e.owner = key }
+        for e in legacy {
+            if claimingLegacy { e.owner = key } else { ctx.delete(e) }
+        }
         try? ctx.save()
     }
 
-    func forgetOwner() { owner = nil }
+    func enterLegacyScope() { scope = .legacy }
+    func forgetOwner() { scope = .none }
+
+    /// The owner a new row is written with, or nil when nothing may be written.
+    private var writeOwner: String?? {
+        switch scope {
+        case .none: return nil
+        case .legacy: return .some(nil)
+        case .owner(let key): return .some(key)
+        }
+    }
 
     init() {
         // Fall back to an in-memory store if the on-disk one can't open, so a
@@ -305,21 +331,29 @@ final class ServerChatCache {
     }
 
     private func cached(id: String) -> CachedServerChat? {
-        guard let key = owner else { return nil }
-        let d = FetchDescriptor<CachedServerChat>(predicate: #Predicate { $0.id == id && $0.owner == key })
+        let d: FetchDescriptor<CachedServerChat>
+        switch scope {
+        case .none: return nil
+        case .legacy: d = FetchDescriptor(predicate: #Predicate { $0.id == id && $0.owner == nil })
+        case .owner(let key): d = FetchDescriptor(predicate: #Predicate { $0.id == id && $0.owner == key })
+        }
         return try? ctx.fetch(d).first ?? nil
     }
 
-    /// This owner's rows, in the given order; nobody's when there is no owner.
+    /// This scope's rows, in the given order; nobody's when there is no scope.
     private func mine(sortBy: [SortDescriptor<CachedServerChat>]) -> [CachedServerChat] {
-        guard let key = owner else { return [] }
-        let d = FetchDescriptor<CachedServerChat>(predicate: #Predicate { $0.owner == key }, sortBy: sortBy)
+        let d: FetchDescriptor<CachedServerChat>
+        switch scope {
+        case .none: return []
+        case .legacy: d = FetchDescriptor(predicate: #Predicate { $0.owner == nil }, sortBy: sortBy)
+        case .owner(let key): d = FetchDescriptor(predicate: #Predicate { $0.owner == key }, sortBy: sortBy)
+        }
         return (try? ctx.fetch(d)) ?? []
     }
 
     /// Refresh cached list metadata from a server fetch (keeps any cached history).
     func cacheSummaries(_ list: [OWChatSummary]) {
-        guard let key = owner else { return }
+        guard let key = writeOwner else { return }
         for s in list {
             if let e = cached(id: s.id) {
                 e.title = s.title
@@ -347,8 +381,11 @@ final class ServerChatCache {
     }
 
     /// Store a chat's messages for offline reading.
-    func cacheChat(_ chat: OWChat) {
-        guard let key = owner, !chat.id.isEmpty, !chat.messages.isEmpty else { return }
+    /// Returns whether anything was written: with no scope nothing is, and the
+    /// caller must not claim otherwise.
+    @discardableResult
+    func cacheChat(_ chat: OWChat) -> Bool {
+        guard let key = writeOwner, !chat.id.isEmpty, !chat.messages.isEmpty else { return false }
         if let e = cached(id: chat.id) {
             if !chat.title.isEmpty { e.title = chat.title }
             e.models = chat.models
@@ -359,7 +396,7 @@ final class ServerChatCache {
                 createdAt: now, updatedAt: now, pinned: false, archived: false,
                 models: chat.models, messages: chat.messages, owner: key))
         }
-        try? ctx.save()
+        do { try ctx.save(); return true } catch { return false }
     }
 
     /// Reconstruct a cached chat for offline reading (nil if none cached).
@@ -442,10 +479,11 @@ enum PendingChat {
 
 extension ServerChatCache {
     /// Keeps a conversation the server refused. Overwrites any earlier attempt for
-    /// the same chat — this is a draft, not a log.
-    func keepPending(id: String, title: String, models: [String], messages: [OWMessage]) {
-        guard !messages.isEmpty else { return }
-        cacheChat(OWChat(id: id, title: title, models: models, messages: messages))
+    /// the same chat — this is a draft, not a log. False when it could not be
+    /// kept, so the banner does not promise what did not happen.
+    func keepPending(id: String, title: String, models: [String], messages: [OWMessage]) -> Bool {
+        guard !messages.isEmpty else { return false }
+        return cacheChat(OWChat(id: id, title: title, models: models, messages: messages))
     }
 
     /// Every conversation still waiting to reach the server, oldest first so they

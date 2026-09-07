@@ -28,11 +28,6 @@ final class AppState: ObservableObject {
     @Published var modelsError: String?
 
     private var sessionEnded: (any NSObjectProtocol)?
-    /// The last account the cache was scoped to, so an offline launch — token
-    /// present, server unreachable — can still open that account's cache. A
-    /// server switch drops the token, so a token that is still there belongs to
-    /// the owner recorded here.
-    private static let cacheOwnerKey = "openwebui.cacheOwner"
 
     init() {
         let cfg = ServerConfig.load()
@@ -77,12 +72,14 @@ final class AppState: ObservableObject {
         await loadModels()
     }
 
-    /// Scopes the on-device cache to the account that just became known.
-    private func adoptCacheOwner() {
+    /// Scopes the on-device cache to the account that just became known. The
+    /// owner is recorded next to the token in the Keychain — same lifetime — so
+    /// an offline launch can still open this account's cache.
+    private func adoptCacheOwner(claimingLegacy: Bool) {
         guard let user else { return }
         let key = OpenWebUIClient.cacheOwner(origin: serverConfig.baseURL, userID: user.id)
-        cache.adopt(owner: key)
-        UserDefaults.standard.set(key, forKey: Self.cacheOwnerKey)
+        cache.adopt(owner: key, claimingLegacy: claimingLegacy)
+        keychain.save(cacheOwner: key)
     }
 
     /// Asks the server what it offers before drawing the login screen.
@@ -110,7 +107,9 @@ final class AppState: ObservableObject {
         guard client.isAuthenticated else { phase = .login; return }
         do {
             user = try await client.me()
-            adoptCacheOwner()
+            // The token that answered is the one persisted before this launch —
+            // the account that wrote any rows from before the cache was scoped.
+            adoptCacheOwner(claimingLegacy: true)
             await loadModels()
             phase = .main
             await flushPendingChats()
@@ -129,8 +128,13 @@ final class AppState: ObservableObject {
             // failed load, and the next authenticated request that meets a real
             // 401 still routes back to login.
             user = nil
-            if let last = UserDefaults.standard.string(forKey: Self.cacheOwnerKey) {
-                cache.adopt(owner: last)
+            if let last = keychain.loadCacheOwner() {
+                cache.adopt(owner: last, claimingLegacy: true)
+            } else {
+                // An install from before the cache was scoped, first launched
+                // offline: its rows are its own, readable until a launch that
+                // can name the account claims them.
+                cache.enterLegacyScope()
             }
             await loadModels()
             phase = .main
@@ -184,7 +188,7 @@ final class AppState: ObservableObject {
         defer { loggingIn = false }
         do {
             user = try await client.signIn(email: email, password: password)
-            adoptCacheOwner()
+            adoptCacheOwner(claimingLegacy: false)
             keychain.saveCredentials(email: email, password: nil)   // remember email only
             await loadModels()
             phase = .main
@@ -216,7 +220,7 @@ final class AppState: ObservableObject {
         do {
             let providerToken = try await NativeSSO.signIn(provider: provider, anchor: anchor)
             user = try await client.exchangeOAuthToken(provider: provider, providerToken: providerToken)
-            adoptCacheOwner()
+            adoptCacheOwner(claimingLegacy: false)
             if let email = user?.email, !email.isEmpty {
                 keychain.saveCredentials(email: email, password: nil)
             }
@@ -246,7 +250,7 @@ final class AppState: ObservableObject {
         defer { loggingIn = false }
         do {
             user = try await client.adopt(token: token)
-            adoptCacheOwner()
+            adoptCacheOwner(claimingLegacy: false)
             if let email = user?.email, !email.isEmpty {
                 keychain.saveCredentials(email: email, password: nil)
             }
@@ -263,7 +267,7 @@ final class AppState: ObservableObject {
         defer { loggingIn = false }
         do {
             user = try await client.signInLDAP(user: name, password: password)
-            adoptCacheOwner()
+            adoptCacheOwner(claimingLegacy: false)
             keychain.saveCredentials(email: name, password: nil)
             await loadModels()
             phase = .main
