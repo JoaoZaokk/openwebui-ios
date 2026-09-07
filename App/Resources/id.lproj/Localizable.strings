@@ -41,6 +41,7 @@
 "Editar" = "Edit";
 "Editar mensagem" = "Edit pesan";
 "Em breve" = "Segera hadir";
+"Google Drive — em breve." = "Google Drive — segera hadir.";
 "Email" = "Email";
 "Endereço" = "Alamat";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Saat AI berbicara, mulai berbicara akan memotong balasannya dan ia mendengarkan Anda. Sensitivitas tinggi menginterupsi dengan sedikit suara (tetapi bisa terpicu sendiri oleh gema); rendah menuntut Anda berbicara lebih tegas.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Tidak ada model yang tersedia.";
 "Nenhuma base de conhecimento." = "Tidak ada basis pengetahuan.";
 "Nenhuma conversa ainda" = "Belum ada obrolan";
+"Conversas não enviadas. Toque para reenviar." = "Percakapan belum terkirim. Ketuk untuk mengirim ulang.";
 "Nenhuma conversa." = "Tidak ada obrolan.";
 "Nenhuma nota ainda" = "Belum ada catatan";
 "Nenhuma nota." = "Tidak ada catatan.";

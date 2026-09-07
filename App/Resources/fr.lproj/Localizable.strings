@@ -41,6 +41,7 @@
 "Editar" = "Modifier";
 "Editar mensagem" = "Modifier le message";
 "Em breve" = "Bientôt disponible";
+"Google Drive — em breve." = "Google Drive — bientôt disponible.";
 "Email" = "E-mail";
 "Endereço" = "Adresse";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Pendant que l'IA parle, commencer à parler coupe la réponse et elle vous écoute. Une sensibilité élevée interrompt avec peu de voix (mais peut se déclencher seule à cause de l'écho) ; une sensibilité basse exige de parler plus fermement.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Aucun modèle disponible.";
 "Nenhuma base de conhecimento." = "Aucune base de connaissances.";
 "Nenhuma conversa ainda" = "Aucune discussion pour l'instant";
+"Conversas não enviadas. Toque para reenviar." = "Conversations non envoyées. Touchez pour les renvoyer.";
 "Nenhuma conversa." = "Aucune discussion.";
 "Nenhuma nota ainda" = "Aucune note pour l'instant";
 "Nenhuma nota." = "Aucune note.";

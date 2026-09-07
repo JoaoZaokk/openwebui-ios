@@ -40,6 +40,7 @@
 "Editar" = "Muokkaa";
 "Editar mensagem" = "Muokkaa viestiä";
 "Em breve" = "Tulossa pian";
+"Google Drive — em breve." = "Google Drive — tulossa pian.";
 "Email" = "Sähköposti";
 "Endereço" = "Osoite";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Kun tekoäly puhuu, puhumaan alkaminen katkaisee vastauksen ja se kuuntelee sinua. Korkea herkkyys keskeyttää pienelläkin äänellä (mutta voi laueta itsestään kaiun takia); matala vaatii jämäkämpää puhetta.";
@@ -83,6 +84,7 @@
 "Nenhum modelo disponível." = "Ei malleja saatavilla.";
 "Nenhuma base de conhecimento." = "Ei tietämyskantoja.";
 "Nenhuma conversa ainda" = "Ei vielä keskusteluja";
+"Conversas não enviadas. Toque para reenviar." = "Lähettämättömiä keskusteluja. Napauta lähettääksesi uudelleen.";
 "Nenhuma conversa." = "Ei keskusteluja.";
 "Nenhuma nota ainda" = "Ei vielä muistiinpanoja";
 "Nenhuma nota." = "Ei muistiinpanoja.";

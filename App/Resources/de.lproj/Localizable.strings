@@ -41,6 +41,7 @@
 "Editar" = "Bearbeiten";
 "Editar mensagem" = "Nachricht bearbeiten";
 "Em breve" = "Demnächst";
+"Google Drive — em breve." = "Google Drive — demnächst.";
 "Email" = "E-Mail";
 "Endereço" = "Adresse";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Während die KI spricht, unterbricht das Sprechen die Antwort und sie hört dir zu. Hohe Empfindlichkeit unterbricht schon bei wenig Sprache (kann aber durch das Echo selbst auslösen); niedrige erfordert festeres Sprechen.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Kein Modell verfügbar.";
 "Nenhuma base de conhecimento." = "Keine Wissensdatenbank.";
 "Nenhuma conversa ainda" = "Noch keine Chats";
+"Conversas não enviadas. Toque para reenviar." = "Nicht gesendete Gespräche. Zum erneuten Senden tippen.";
 "Nenhuma conversa." = "Keine Chats.";
 "Nenhuma nota ainda" = "Noch keine Notizen";
 "Nenhuma nota." = "Keine Notizen.";

@@ -40,6 +40,7 @@
 "Editar" = "Засах";
 "Editar mensagem" = "Мессежийг засах";
 "Em breve" = "Удахгүй";
+"Google Drive — em breve." = "Google Drive — удахгүй.";
 "Email" = "Имэйл";
 "Endereço" = "Хаяг";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI ярьж байх үед ярьж эхэлбэл хариултыг таслаж, таныг сонсоно. Өндөр мэдрэмж бага дуугаар тасалдуулна (гэхдээ цуурайнаас болж өөрөө ажиллаж магадгүй); бага мэдрэмж илүү тод ярихыг шаардана.";
@@ -83,6 +84,7 @@
 "Nenhum modelo disponível." = "Боломжтой загвар алга.";
 "Nenhuma base de conhecimento." = "Мэдлэгийн сан алга.";
 "Nenhuma conversa ainda" = "Одоогоор яриа алга";
+"Conversas não enviadas. Toque para reenviar." = "Илгээгээгүй яриа байна. Дахин илгээхийн тулд товшино уу.";
 "Nenhuma conversa." = "Яриа алга.";
 "Nenhuma nota ainda" = "Одоогоор тэмдэглэл алга";
 "Nenhuma nota." = "Тэмдэглэл алга.";

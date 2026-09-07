@@ -41,6 +41,7 @@
 "Editar" = "Изменить";
 "Editar mensagem" = "Изменить сообщение";
 "Em breve" = "Скоро";
+"Google Drive — em breve." = "Google Drive — скоро.";
 "Email" = "Email";
 "Endereço" = "Адрес";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Пока ИИ говорит, начав говорить, вы прерываете ответ, и он вас слушает. Высокая чувствительность прерывает даже при тихом голосе (но может срабатывать сама от эха); низкая требует говорить твёрже.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Нет доступных моделей.";
 "Nenhuma base de conhecimento." = "Нет баз знаний.";
 "Nenhuma conversa ainda" = "Пока нет чатов";
+"Conversas não enviadas. Toque para reenviar." = "Неотправленные разговоры. Коснитесь, чтобы отправить снова.";
 "Nenhuma conversa." = "Нет чатов.";
 "Nenhuma nota ainda" = "Пока нет заметок";
 "Nenhuma nota." = "Нет заметок.";

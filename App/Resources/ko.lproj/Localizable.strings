@@ -41,6 +41,7 @@
 "Editar" = "편집";
 "Editar mensagem" = "메시지 편집";
 "Em breve" = "곧 제공 예정";
+"Google Drive — em breve." = "Google Drive — 곧 제공 예정.";
 "Email" = "이메일";
 "Endereço" = "주소";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "AI가 말하는 동안 말을 시작하면 답변이 중단되고 AI가 당신의 말을 듣습니다. 감도가 높으면 작은 소리에도 중단됩니다(다만 에코로 인해 저절로 실행될 수 있음). 낮으면 더 또렷하게 말해야 합니다.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "사용 가능한 모델이 없습니다.";
 "Nenhuma base de conhecimento." = "지식 베이스가 없습니다.";
 "Nenhuma conversa ainda" = "아직 채팅이 없습니다";
+"Conversas não enviadas. Toque para reenviar." = "전송되지 않은 대화가 있습니다. 탭하여 다시 보내세요.";
 "Nenhuma conversa." = "채팅이 없습니다.";
 "Nenhuma nota ainda" = "아직 노트가 없습니다";
 "Nenhuma nota." = "노트가 없습니다.";

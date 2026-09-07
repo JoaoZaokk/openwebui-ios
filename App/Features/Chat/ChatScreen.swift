@@ -344,7 +344,7 @@ struct ChatScreen: View {
             Button { showNotePicker = true } label: { Label("Anexar Notas", systemImage: "note.text") }
             Button { showKBPicker = true } label: { Label("Anexar Base de Conhecimento", systemImage: "cylinder.split.1x2") }
             Button { showChatPicker = true } label: { Label("Chats de Referência", systemImage: "clock.arrow.circlepath") }
-            Button { comingSoon = "Google Drive — em breve." } label: { Label("Google Drive", systemImage: "externaldrive") }
+            Button { comingSoon = L("Google Drive — em breve.") } label: { Label("Google Drive", systemImage: "externaldrive") }
         } label: {
             Image(systemName: "plus")
                 .font(.ody(size: 20))

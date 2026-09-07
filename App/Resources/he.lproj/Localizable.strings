@@ -40,6 +40,7 @@
 "Editar" = "עריכה";
 "Editar mensagem" = "עריכת ההודעה";
 "Em breve" = "בקרוב";
+"Google Drive — em breve." = "Google Drive — בקרוב.";
 "Email" = "אימייל";
 "Endereço" = "כתובת";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "בזמן שה-AI מדבר, התחלת דיבור קוטעת את התשובה והוא מקשיב לך. רגישות גבוהה קוטעת גם בקול חלש (אך עלולה לפעול מעצמה בגלל ההד); נמוכה דורשת לדבר בבירור רב יותר.";
@@ -83,6 +84,7 @@
 "Nenhum modelo disponível." = "אין מודלים זמינים.";
 "Nenhuma base de conhecimento." = "אין בסיס ידע.";
 "Nenhuma conversa ainda" = "אין שיחות עדיין";
+"Conversas não enviadas. Toque para reenviar." = "שיחות שלא נשלחו. הקש כדי לשלוח שוב.";
 "Nenhuma conversa." = "אין שיחות.";
 "Nenhuma nota ainda" = "אין פתקים עדיין";
 "Nenhuma nota." = "אין פתקים.";

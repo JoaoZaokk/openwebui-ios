@@ -41,6 +41,7 @@
 "Editar" = "Upravit";
 "Editar mensagem" = "Upravit zprávu";
 "Em breve" = "Již brzy";
+"Google Drive — em breve." = "Google Drive — již brzy.";
 "Email" = "E-mail";
 "Endereço" = "Adresa";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Když AI mluví, začnete-li mluvit, přeruší se odpověď a AI vás poslouchá. Vysoká citlivost přeruší i při málo řeči (ale může se spustit i ozvěnou); nízká vyžaduje mluvit důrazněji.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Není dostupný žádný model.";
 "Nenhuma base de conhecimento." = "Žádná znalostní báze.";
 "Nenhuma conversa ainda" = "Zatím žádné chaty";
+"Conversas não enviadas. Toque para reenviar." = "Neodeslané konverzace. Klepnutím je odešlete znovu.";
 "Nenhuma conversa." = "Žádné chaty.";
 "Nenhuma nota ainda" = "Zatím žádné poznámky";
 "Nenhuma nota." = "Žádné poznámky.";

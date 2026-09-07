@@ -41,6 +41,7 @@
 "Editar" = "Szerkesztés";
 "Editar mensagem" = "Üzenet szerkesztése";
 "Em breve" = "Hamarosan";
+"Google Drive — em breve." = "Google Drive — hamarosan.";
 "Email" = "E-mail";
 "Endereço" = "Cím";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Amíg az MI beszél, ha megszólalsz, az megszakítja a választ, és téged hallgat. A magas érzékenység már kevés beszédnél megszakítja (de a visszhang miatt magától is kioldhat); az alacsony határozottabb beszédet igényel.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Nincs elérhető modell.";
 "Nenhuma base de conhecimento." = "Nincs tudásbázis.";
 "Nenhuma conversa ainda" = "Még nincsenek csevegések";
+"Conversas não enviadas. Toque para reenviar." = "Elküldetlen beszélgetések. Koppints az újraküldéshez.";
 "Nenhuma conversa." = "Nincsenek csevegések.";
 "Nenhuma nota ainda" = "Még nincsenek jegyzetek";
 "Nenhuma nota." = "Nincsenek jegyzetek.";

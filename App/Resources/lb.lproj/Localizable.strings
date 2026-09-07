@@ -40,6 +40,7 @@
 "Editar" = "Änneren";
 "Editar mensagem" = "Noriicht änneren";
 "Em breve" = "Geschwënn";
+"Google Drive — em breve." = "Google Drive — geschwënn.";
 "Email" = "E-Mail";
 "Endereço" = "Adress";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Wärend d'KI schwätzt, ënnerbrécht d'Ufänke vum Schwätzen d'Äntwert a si lauschtert Iech. Héich Empfindlechkeet ënnerbrécht mat wéineg Stëmm (kann awer duerch den Echo vu sech eleng ausléisen); niddreg verlaangt méi fest ze schwätzen.";
@@ -83,6 +84,7 @@
 "Nenhum modelo disponível." = "Kee Modell disponibel.";
 "Nenhuma base de conhecimento." = "Keng Wëssensbasis.";
 "Nenhuma conversa ainda" = "Nach keng Gespréicher";
+"Conversas não enviadas. Toque para reenviar." = "Net geschéckte Gespréicher. Tippt fir se nei ze schécken.";
 "Nenhuma conversa." = "Keng Gespréicher.";
 "Nenhuma nota ainda" = "Nach keng Notizen";
 "Nenhuma nota." = "Keng Notizen.";

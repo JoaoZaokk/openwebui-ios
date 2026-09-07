@@ -41,6 +41,7 @@
 "Editar" = "Уреди";
 "Editar mensagem" = "Уреди поруку";
 "Em breve" = "Ускоро";
+"Google Drive — em breve." = "Google Drive — ускоро.";
 "Email" = "Email";
 "Endereço" = "Адреса";
 "Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme." = "Док AI говори, ако почнете да говорите, одговор се прекида и он вас слуша. Висока осетљивост прекида и уз мало говора (али може да се активира и због еха); ниска захтева одлучнији говор.";
@@ -84,6 +85,7 @@
 "Nenhum modelo disponível." = "Ниједан модел није доступан.";
 "Nenhuma base de conhecimento." = "Нема базе знања.";
 "Nenhuma conversa ainda" = "Још нема ћаскања";
+"Conversas não enviadas. Toque para reenviar." = "Непослати разговори. Додирните да их поново пошаљете.";
 "Nenhuma conversa." = "Нема ћаскања.";
 "Nenhuma nota ainda" = "Још нема белешки";
 "Nenhuma nota." = "Нема белешки.";
