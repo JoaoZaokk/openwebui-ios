@@ -262,7 +262,12 @@ final class VoiceInputManager: ObservableObject {
         guard let frames = PendingAudioStore.frames(of: p) else { PendingAudioStore.delete(p); return nil }
         let q = PendingAudioStore.bumpAttempts(p)
         let engine = STTEngine(rawValue: q.engine) ?? .model
-        let text = await transcribe(frames: frames, engine: engine, modelID: q.modelID, language: q.language)
+        // The take replays the model it was recorded for; when that model is
+        // gone (deleted to free space after the jetsam, or a take whose sidecar
+        // was never written), the one selected now is the user's answer.
+        let recorded = VoiceCatalog.all.first { $0.id == q.modelID }
+        let modelID = recorded.flatMap(installedModelURL(for:)) != nil ? q.modelID : activeModelID
+        let text = await transcribe(frames: frames, engine: engine, modelID: modelID, language: q.language)
         if !lastTranscriptionFailed { PendingAudioStore.delete(q) }
         return text.isEmpty ? nil : text
     }
@@ -271,7 +276,11 @@ final class VoiceInputManager: ObservableObject {
 
     private func transcribeWithWhisper(frames: [Float], modelID: String) async -> String {
         guard let model = VoiceCatalog.all.first(where: { $0.id == modelID }),
-              let url = installedModelURL(for: model) else { error = L("Nenhum modelo Whisper selecionado."); return "" }
+              let url = installedModelURL(for: model) else {
+            // Not a clean "heard nothing": the take must survive so the user
+            // can pick a model and try again.
+            error = L("Nenhum modelo Whisper selecionado."); lastTranscriptionFailed = true; return ""
+        }
         processing = true; defer { processing = false }
 
         // A fixed language beats "auto" (auto guesses romanian on imperfect
