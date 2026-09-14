@@ -99,3 +99,51 @@ func owSaveImage(_ image: OWPlatformImage) {
     UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
 }
 #endif
+
+// MARK: - Diagnostics: save-to-disk + clipboard, shared by both platforms
+
+/// Writes `data` to disk and lets the user choose where it lands: a save
+/// panel on macOS, the share sheet on iOS. `nil` = the user cancelled,
+/// `false` = the write/share failed, `true` = it completed.
+@MainActor
+func owSaveJSON(_ data: Data, suggested: String) async -> Bool? {
+    #if os(macOS)
+    let panel = NSSavePanel()
+    panel.nameFieldStringValue = suggested
+    panel.allowedContentTypes = [.json]
+    guard panel.runModal() == .OK, let url = panel.url else { return nil }
+    do { try data.write(to: url); return true } catch { return false }
+    #else
+    let url = FileManager.default.temporaryDirectory.appendingPathComponent(suggested)
+    do { try data.write(to: url) } catch { return false }
+    // Find the topmost view controller and hand the file to the share sheet.
+    guard let scene = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .first(where: { $0.activationState == .foregroundActive }),
+          var top = scene.keyWindow?.rootViewController else { return false }
+    while let presented = top.presentedViewController { top = presented }
+    return await withCheckedContinuation { cont in
+        let avc = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+        avc.completionWithItemsHandler = { _, completed, _, error in
+            try? FileManager.default.removeItem(at: url)
+            if error != nil { cont.resume(returning: false) }
+            else { cont.resume(returning: completed ? true : nil) }
+        }
+        // iPad requires a popover anchor or UIKit crashes the app.
+        avc.popoverPresentationController?.sourceView = top.view
+        avc.popoverPresentationController?.sourceRect = CGRect(
+            x: top.view.bounds.midX, y: top.view.bounds.midY, width: 0, height: 0)
+        avc.popoverPresentationController?.permittedArrowDirections = []
+        top.present(avc, animated: true)
+    }
+    #endif
+}
+
+func owCopyToClipboard(_ text: String) {
+    #if os(macOS)
+    NSPasteboard.general.clearContents()
+    NSPasteboard.general.setString(text, forType: .string)
+    #else
+    UIPasteboard.general.string = text
+    #endif
+}

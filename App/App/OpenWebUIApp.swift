@@ -74,7 +74,11 @@ struct RootView: View {
             }
         }
         .onChange(of: scenePhase) { _, p in
-            if p == .active { Task { await app.refreshModelsIfNeeded() } }
+            if p == .active {
+                Task { await app.refreshModelsIfNeeded() }
+                DiagnosticsStore.shared.resumeSession()
+            }
+            if p == .background { DiagnosticsStore.shared.endSession() }
         }
         .task {
             // Reconcile the home-screen icon with the active (saved/default) theme.
@@ -82,6 +86,10 @@ struct RootView: View {
             // no-op (and shows no alert) when they already match.
             AppIconManager.apply(themeID: themes.theme.id)
             SpeechManager.shared.client = app.client   // enables server-side TTS
+            let info = Bundle.main.infoDictionary
+            DiagnosticsStore.shared.startSession(version: info?["CFBundleShortVersionString"] as? String ?? "?",
+                                                 build: info?["CFBundleVersion"] as? String ?? "?")
+            MetricKitCollector.shared.start()
             await app.bootstrap()
         }
     }
