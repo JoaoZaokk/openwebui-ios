@@ -168,7 +168,11 @@ struct VoiceSettingsView: View {
 
             customModelSection
 
-            modelSection(title: L("Modelos STT · Whisper"), task: .stt,
+            // Two engines, two headers: a Parakeet row under "Whisper" told the
+            // user it was something it is not. The brand name needs no catalogue.
+            modelSection(title: L("Modelos STT · Whisper"), task: .stt, engine: .whisper,
+                         selectedID: sttModelID) { id in sttModelID = id; sttEngine = STTEngine.model.rawValue }
+            modelSection(title: "NVIDIA Parakeet", task: .stt, engine: .parakeet,
                          selectedID: sttModelID) { id in sttModelID = id; sttEngine = STTEngine.model.rawValue }
 
             if totalOnDisk > 0 {
@@ -357,8 +361,8 @@ struct VoiceSettingsView: View {
     }
 
     @ViewBuilder
-    private func modelSection(title: String, task: VoiceTask, selectedID: String, select: @escaping (String) -> Void) -> some View {
-        let models = VoiceCatalog.filtered(task: task, lang: lang)
+    private func modelSection(title: String, task: VoiceTask, engine: STTModelEngine, selectedID: String, select: @escaping (String) -> Void) -> some View {
+        let models = VoiceCatalog.filtered(task: task, lang: lang).filter { $0.engine == engine }
         ForEach(VoiceModel.Bucket.allCases, id: \.rawValue) { bucket in
             let items = models.filter { $0.bucket == bucket }
             if !items.isEmpty {

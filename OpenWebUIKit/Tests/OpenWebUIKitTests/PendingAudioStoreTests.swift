@@ -65,6 +65,16 @@ final class PendingAudioStoreTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: dir.appendingPathComponent("ghost.json").path))
     }
 
+    func testPurgeDropsAPartFileLeftByAKillMidWrite() throws {
+        try Data(repeating: 0, count: 100).write(to: dir.appendingPathComponent("half.wav.part"))
+        let p = try XCTUnwrap(PendingAudioStore.save(frames: tone(seconds: 0.4), engine: "model", modelID: "m", language: nil, in: dir))
+        XCTAssertEqual(PendingAudioStore.list(in: dir).map(\.id), [p.id], "the .part is never offered as a take")
+        PendingAudioStore.purge(in: dir)
+        let names = try FileManager.default.contentsOfDirectory(atPath: dir.path)
+        XCTAssertFalse(names.contains("half.wav.part"))
+        XCTAssertEqual(PendingAudioStore.list(in: dir).map(\.id), [p.id], "the real take survives the purge")
+    }
+
     func testPurgeKeepsNewestFiveAndDropsOldTakes() throws {
         for i in 0..<7 {
             var p = try XCTUnwrap(PendingAudioStore.save(frames: tone(seconds: 0.4), engine: "model", modelID: "m", language: nil, in: dir))

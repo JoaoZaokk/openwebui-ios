@@ -130,8 +130,14 @@ public enum PendingAudioStore {
         return q
     }
 
-    /// Drops takes older than a week and everything beyond the newest five.
+    /// Drops takes older than a week and everything beyond the newest five,
+    /// plus any `.wav.part` a kill between the write and the rename left
+    /// behind (`list()` never sees those, so nothing else would).
     public static func purge(now: Date = Date(), in dir: URL? = nil) {
+        let dir = dir ?? directory()
+        for n in (try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? [] where n.hasSuffix(".part") {
+            try? FileManager.default.removeItem(at: dir.appendingPathComponent(n))
+        }
         let all = list(in: dir)
         for p in all where now.timeIntervalSince(p.at) > maxAge { delete(p, in: dir) }
         let fresh = list(in: dir)

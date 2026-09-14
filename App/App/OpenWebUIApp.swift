@@ -56,6 +56,9 @@ struct RootView: View {
     @Environment(\.theme) private var theme
     @State private var pendingAudio: PendingAudioStore.Pending?
     @State private var recovered: String?
+    /// The take being transcribed right now: its file is still on disk, so a
+    /// scene change mid-recovery must not offer it a second time.
+    @State private var recoveringID: String?
 
     var body: some View {
         ZStack {
@@ -79,7 +82,7 @@ struct RootView: View {
             if p == .active {
                 Task { await app.refreshModelsIfNeeded() }
                 DiagnosticsStore.shared.resumeSession()
-                pendingAudio = PendingAudioStore.list().last
+                if recoveringID == nil { pendingAudio = PendingAudioStore.list().last }
             }
             if p == .background { DiagnosticsStore.shared.endSession() }
         }
@@ -123,6 +126,8 @@ struct RootView: View {
     private static func seconds(_ s: Double) -> String { String(format: "%.0f s", s) }
 
     private func recoverPending(_ p: PendingAudioStore.Pending) async {
+        recoveringID = p.id
+        defer { recoveringID = nil }
         let voice = VoiceInputManager()
         voice.client = app.client
         let text = await voice.transcribe(pending: p)
