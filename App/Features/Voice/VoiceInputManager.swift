@@ -1,12 +1,11 @@
 import Foundation
 @preconcurrency import AVFoundation
 import Speech
-import SwiftWhisper
 import OpenWebUIKit
 
 /// Records the mic and transcribes to text using the engine chosen in Settings:
-/// **native** (`SFSpeechRecognizer`) or **model** (a downloaded Whisper GGUF via
-/// whisper.cpp).
+/// **native** (`SFSpeechRecognizer`), **model** (a downloaded Whisper/Parakeet
+/// ggml via whisper.cpp) or **server** (the Open WebUI server's own STT).
 ///
 /// Audio strategy: the tap copies *raw* mono samples at the hardware rate during
 /// recording, then we resample the WHOLE recording to 16 kHz in a single pass at
@@ -45,13 +44,16 @@ final class VoiceInputManager: ObservableObject {
     private let lock = NSLock()
     private var task: SFSpeechRecognitionTask?
 
-    // Keep the loaded Whisper model in memory so repeated transcriptions don't
-    // reload it from disk each time.
-    private var cachedWhisper: Whisper?
-    private var cachedModelID = ""
+    /// True while the on-device model is being read into memory (seconds for a
+    /// q5, minutes the first time a Core ML encoder is compiled), so the UI can
+    /// say so instead of looking frozen.
+    @Published private(set) var loadingModel = false
+    /// Set when the last transcription ended in an error (as opposed to a clean
+    /// "heard nothing"): the pending recording is kept for a retry in that case.
+    private(set) var lastTranscriptionFailed = false
+    /// The recording saved to disk by the last `stop()`, until it is transcribed.
+    private(set) var pending: PendingAudioStore.Pending?
 
-    private var useModel: Bool { UserDefaults.standard.string(forKey: "voice.stt.engine") == "model" }
-    private var useServer: Bool { UserDefaults.standard.string(forKey: "voice.stt.engine") == "server" }
     private var activeModelID: String { UserDefaults.standard.string(forKey: "voice.stt.model") ?? "" }
     /// Keeps Apple's dictation on the device instead of letting it send audio to
     /// Apple's servers. Off by default: the on-device model is the less accurate
@@ -75,7 +77,8 @@ final class VoiceInputManager: ObservableObject {
         error = nil; partialText = ""; sawFinal = false
         lock.withLock { rawSamples = [] }
 
-        if useModel && installedModelURL() == nil {
+        let stt = STTEngine.current
+        if stt == .model && installedModelURL() == nil {
             error = L("Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo).")
             return false
         }
@@ -107,9 +110,11 @@ final class VoiceInputManager: ObservableObject {
             return false
         }
         hwRate = inputFormat.sampleRate
-        captureToModel = useModel || useServer   // both buffer raw audio to upload/transcribe
+        // Every non-native engine transcribes a finished recording, so they all
+        // need the raw buffer rather than Apple's live stream.
+        captureToModel = stt.needsRawCapture
 
-        if !useModel && !useServer {
+        if stt == .native {
             // Apple ships no auto-detecting recognizer, so "detect" degrades to
             // the app language here; only the Whisper engines can actually guess.
             let want = SpeechLanguage.pinned() ?? LanguageManager.shared.current
@@ -148,6 +153,8 @@ final class VoiceInputManager: ObservableObject {
             guard let self else { return }
             let lvl = Self.rms(buffer)
             Task { @MainActor in self.level = lvl }
+            VoiceLog.metered("mic.level", every: 0.5,
+                             "\(VoiceLog.bar(lvl)) rms=\(String(format: "%.4f", lvl))")
             if toModel { self.captureRaw(buffer) }
             else { req?.append(buffer) }
         }
@@ -175,8 +182,19 @@ final class VoiceInputManager: ObservableObject {
         request?.endAudio()
         deactivateSession()
 
-        if useServer { return await transcribeWithServer() }
-        if useModel { return await transcribeWithWhisper() }
+        let engineNow = STTEngine.current
+        if engineNow != .native {
+            // Save first, transcribe second (the Redoma pattern): from here on a
+            // death of the process — jetsam under a big model, a watchdog, a
+            // dropped connection — costs a retry, not the words.
+            guard let frames = finishedFrames() else { return "" }
+            let language = engineNow == .model ? nil : SpeechLanguage.pinned()?.sttServerCode
+            let p = PendingAudioStore.save(frames: frames, engine: engineNow.rawValue, modelID: activeModelID, language: language)
+            pending = p
+            let text = await transcribe(frames: frames, engine: engineNow, modelID: activeModelID, language: language)
+            if let p, !lastTranscriptionFailed { PendingAudioStore.delete(p); pending = nil }
+            return text
+        }
 
         for _ in 0..<30 { if sawFinal { break }; try? await Task.sleep(nanoseconds: 100_000_000) }
         task?.cancel(); task = nil; request = nil
@@ -209,103 +227,102 @@ final class VoiceInputManager: ObservableObject {
         #endif
     }
 
-    // MARK: - Whisper
+    // MARK: - Finished recording
 
-    private func transcribeWithWhisper() async -> String {
-        guard let url = installedModelURL() else { error = L("Nenhum modelo Whisper selecionado."); return "" }
-        let raw = lock.withLock { rawSamples }
+    /// Snapshot of the take as 16 kHz mono, normalized, or nil when it is too
+    /// short to mean anything. Frees the raw buffer (a 2-minute take at 48 kHz
+    /// is ~23 MB) — the frames are what every engine consumes from here on.
+    private func finishedFrames() -> [Float]? {
+        let raw = lock.withLock { let r = rawSamples; rawSamples = []; return r }
         guard raw.count > Int(hwRate * 0.3) else {   // < ~0.3 s
             error = L("Áudio muito curto — toque, fale e toque de novo pra parar.")
-            return ""
+            return nil
         }
-        processing = true; defer { processing = false }
-
         var frames = resampleTo16k(raw, from: hwRate)
         normalize(&frames)
+        return frames
+    }
 
-        // Fixed language beats "auto" (auto guesses romanian on imperfect audio).
-        // Language-tuned models pin their own language; universal models follow
-        // the speech language, which is the app's UI language unless Settings
-        // says otherwise.
-        let lang: WhisperLanguage
-        switch VoiceCatalog.all.first(where: { $0.id == activeModelID })?.lang {
-        case .english:    lang = .english
-        case .chinese:    lang = .chinese
-        case .japanese:   lang = .japanese
-        case .french:     lang = .french
-        case .portuguese: lang = .portuguese
-        default:          lang = Self.chosenWhisperLanguage()
+    /// Runs the given engine over finished frames. Used by `stop()` and by the
+    /// recovery of a pending recording, which replays the engine, model and
+    /// language chosen when it was recorded.
+    func transcribe(frames: [Float], engine: STTEngine, modelID: String, language: String?) async -> String {
+        lastTranscriptionFailed = false
+        switch engine {
+        case .server: return await transcribeWithServer(frames: frames, language: language)
+        case .model:  return await transcribeWithWhisper(frames: frames, modelID: modelID)
+        case .native: return ""
         }
+    }
+
+    /// Transcribes a recording left over by an earlier run. Bumps the attempt
+    /// counter before the engine loads (a model that killed the app must not
+    /// be loaded forever) and deletes the file on success.
+    func transcribe(pending p: PendingAudioStore.Pending) async -> String? {
+        guard let frames = PendingAudioStore.frames(of: p) else { PendingAudioStore.delete(p); return nil }
+        let q = PendingAudioStore.bumpAttempts(p)
+        let engine = STTEngine(rawValue: q.engine) ?? .model
+        let text = await transcribe(frames: frames, engine: engine, modelID: q.modelID, language: q.language)
+        if !lastTranscriptionFailed { PendingAudioStore.delete(q) }
+        return text.isEmpty ? nil : text
+    }
+
+    // MARK: - Whisper / Parakeet (on device)
+
+    private func transcribeWithWhisper(frames: [Float], modelID: String) async -> String {
+        guard let model = VoiceCatalog.all.first(where: { $0.id == modelID }),
+              let url = installedModelURL(for: model) else { error = L("Nenhum modelo Whisper selecionado."); return "" }
+        processing = true; defer { processing = false }
+
+        // A fixed language beats "auto" (auto guesses romanian on imperfect
+        // audio), so the setting defaults to one. Language-tuned models pin
+        // their own language regardless — a pt-tuned checkpoint cannot honour a
+        // request for German — and only the universal ones read the setting.
+        // Parakeet detects the language itself and ignores the code.
+        let lang = model.lang.whisperCode ?? Self.chosenWhisperCode()
+        let coreMLBytes = ModelDownloadManager.shared.coreMLBytes(model)
 
         do {
-            let whisper: Whisper
-            if let cached = cachedWhisper, cachedModelID == activeModelID {
-                whisper = cached                       // reuse — skips the disk reload
-            } else {
-                whisper = Whisper(fromFileURL: url)
-                cachedWhisper = whisper
-                cachedModelID = activeModelID
-            }
-            whisper.params.language = lang
-            let segments = try await whisper.transcribe(audioFrames: frames)
-            let text = segments.map(\.text).joined()
+            let text = try await STTRunner.shared.transcribe(
+                model: model, url: url, coreMLBytes: coreMLBytes, samples: frames, language: lang,
+                onLoading: { Task { @MainActor in self.loadingModel = true } })
                 .replacingOccurrences(of: "[BLANK_AUDIO]", with: "")
                 .replacingOccurrences(of: "[ Silence ]", with: "")
                 .trimmingCharacters(in: .whitespacesAndNewlines)
+            loadingModel = false
             if text.isEmpty { error = L("Não captei nenhuma fala.") }
             return text
         } catch {
-            self.error = L("Falha na transcrição: %@", error.localizedDescription)
+            loadingModel = false
+            lastTranscriptionFailed = true
+            self.error = (error as? LocalizedError)?.errorDescription ?? L("Falha na transcrição: %@", error.localizedDescription)
             return ""
         }
     }
 
     // MARK: - Server STT
 
-    private func transcribeWithServer() async -> String {
-        guard let client else { error = L("Servidor de voz indisponível."); return "" }
-        let raw = lock.withLock { rawSamples }
-        guard raw.count > Int(hwRate * 0.3) else {
-            error = L("Áudio muito curto — toque, fale e toque de novo pra parar.")
-            return ""
-        }
+    /// Everything the upload-based transcriber does around the one call that
+    /// differs: the WAV wrapper and the empty-result message.
+    private func transcribeUpload(frames: [Float], _ send: (Data) async throws -> String) async rethrows -> String {
         processing = true; defer { processing = false }
-        var frames = resampleTo16k(raw, from: hwRate)
-        normalize(&frames)
-        let wav = Self.wavData(frames, sampleRate: 16_000)
+        let t = try await send(WAV.encode(frames, sampleRate: 16_000))
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        if t.isEmpty { error = L("Não captei nenhuma fala.") }
+        return t
+    }
+
+    private func transcribeWithServer(frames: [Float], language: String?) async -> String {
+        guard let client else { error = L("Servidor de voz indisponível."); lastTranscriptionFailed = true; return "" }
         do {
-            // Nothing was ever sent before, so the server detected the language on
-            // every recording — the failure mode Whisper is worst at.
-            let text = try await client.transcribe(audio: wav, filename: "speech.wav", mime: "audio/wav",
-                                                   language: SpeechLanguage.pinned()?.sttServerCode ?? "")
-            let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
-            if t.isEmpty { error = L("Não captei nenhuma fala.") }
-            return t
+            return try await transcribeUpload(frames: frames) { wav in
+                try await client.transcribe(audio: wav, filename: "speech.wav", mime: "audio/wav", language: language ?? "")
+            }
         } catch {
+            lastTranscriptionFailed = true
             self.error = L("Transcrição (servidor): %@", error.localizedDescription)
             return ""
         }
-    }
-
-    /// Wraps 16-bit PCM mono samples in a minimal WAV container for upload.
-    private static func wavData(_ frames: [Float], sampleRate: Int) -> Data {
-        let channels = 1, bits = 16
-        let blockAlign = channels * bits / 8
-        let byteRate = sampleRate * blockAlign
-        let dataSize = frames.count * blockAlign
-        func u32(_ v: UInt32) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } }
-        func u16(_ v: UInt16) -> Data { withUnsafeBytes(of: v.littleEndian) { Data($0) } }
-        var d = Data()
-        d.append(Data("RIFF".utf8)); d.append(u32(UInt32(36 + dataSize))); d.append(Data("WAVE".utf8))
-        d.append(Data("fmt ".utf8)); d.append(u32(16)); d.append(u16(1)); d.append(u16(UInt16(channels)))
-        d.append(u32(UInt32(sampleRate))); d.append(u32(UInt32(byteRate)))
-        d.append(u16(UInt16(blockAlign))); d.append(u16(UInt16(bits)))
-        d.append(Data("data".utf8)); d.append(u32(UInt32(dataSize)))
-        for f in frames {
-            let s = Int16(max(-1, min(1, f)) * 32767)
-            d.append(u16(UInt16(bitPattern: s)))
-        }
-        return d
     }
 
     /// Apple's recognizer for the app's UI language, degrading region →
@@ -322,70 +339,39 @@ final class VoiceInputManager: ObservableObject {
     /// a paragraph of the wrong language.
     private static func recognizer(for lang: AppLanguage) -> SFSpeechRecognizer? {
         let tag = lang.speechLocale
+        // Bare codes resolve: Apple canonicalizes "en" to a region of its own
+        // choosing even though supportedLocales() only ever lists en-US, en-GB…
         if let r = SFSpeechRecognizer(locale: Locale(identifier: tag)), r.isAvailable { return r }
 
         let base = tag.split(separator: "-").first.map(String.init) ?? tag
         let supported = SFSpeechRecognizer.supportedLocales()
-        if let match = supported.first(where: { $0.identifier.replacingOccurrences(of: "_", with: "-")
-                                                 .lowercased().hasPrefix(base.lowercased() + "-") }),
-           let r = SFSpeechRecognizer(locale: match), r.isAvailable { return r }
-
+        // supportedLocales() is a Set, so pick the region deterministically
+        // instead of letting hash order decide between en-US and en-IN.
+        let regions = supported
+            .map { $0.identifier.replacingOccurrences(of: "_", with: "-") }
+            .filter { $0.lowercased().hasPrefix(base.lowercased() + "-") }
+            .sorted()
+        // The device's own region first when it speaks the same language.
+        let preferred = Locale.current.identifier.replacingOccurrences(of: "_", with: "-")
+        for candidate in ([preferred] + regions) where regions.contains(candidate) {
+            if let r = SFSpeechRecognizer(locale: Locale(identifier: candidate)), r.isAvailable { return r }
+        }
         return nil
     }
 
-    /// Maps the speech language — the app's UI language unless Ajustes › Voz
-    /// pins another one — to a Whisper language for the universal models.
-    /// `.auto` only when the user actually asked for detection: it is the worse
-    /// default, since Whisper guesses a random language on short or noisy audio.
-    private static func chosenWhisperLanguage() -> WhisperLanguage {
-        guard let want = SpeechLanguage.pinned() else { return .auto }
-        switch want {
-        case .ptBR:           return .portuguese
-        case .en:             return .english
-        case .es:             return .spanish
-        case .fr:             return .french
-        case .it:             return .italian
-        case .de, .deAT, .deCH: return .german
-        case .nl:             return .dutch
-        case .pl:             return .polish
-        case .cs:             return .czech
-        case .sk:             return .slovak
-        case .sl:             return .slovenian
-        case .hr:             return .croatian
-        case .bg:             return .bulgarian
-        case .mk:             return .macedonian
-        case .sr:             return .serbian
-        case .uk:             return .ukrainian
-        case .be:             return .belarusian
-        case .ru:             return .russian
-        case .tr:             return .turkish
-        case .hu:             return .hungarian
-        case .vi:             return .vietnamese
-        case .ind:            return .indonesian
-        case .ms:             return .malay
-        case .ja:             return .japanese
-        case .ko:             return .korean
-        case .zhHans, .zhHant: return .chinese
-        case .hi:             return .hindi
-        case .bn:             return .bengali
-        case .ar:             return .arabic
-        case .fa:             return .persian
-        case .ur:             return .urdu
-        case .ps:             return .pashto
-        case .lb:             return .luxembourgish
-        case .lv:             return .latvian
-        case .fi:             return .finnish
-        case .sv:             return .swedish
-        case .he:             return .hebrew
-        case .th:             return .thai
-        case .bo:             return .tibetan
-        case .mn:             return .mongolian
-        case .ug:             return .auto   // Whisper has no Uyghur model
-        }
+    /// Whisper language code for the universal models: the pinned speech
+    /// language, or "auto" when the user asked the engine to guess (or the
+    /// pinned language has no Whisper code, like Uyghur).
+    static func chosenWhisperCode() -> String {
+        SpeechLanguage.pinned()?.sttServerCode ?? "auto"
     }
 
     private func installedModelURL() -> URL? {
         guard let model = VoiceCatalog.all.first(where: { $0.id == activeModelID }) else { return nil }
+        return installedModelURL(for: model)
+    }
+
+    private func installedModelURL(for model: VoiceModel) -> URL? {
         let url = ModelDownloadManager.shared.localURL(model)
         return FileManager.default.fileExists(atPath: url.path) ? url : nil
     }
@@ -458,7 +444,7 @@ final class VoiceInputManager: ObservableObject {
             AVAudioApplication.requestRecordPermission { c.resume(returning: $0) }
         }
         guard mic else { return false }
-        if useModel || useServer { return true }   // no SFSpeech auth needed
+        guard STTEngine.current.needsSpeechAuthorization else { return true }
         let speech = await withCheckedContinuation { c in
             SFSpeechRecognizer.requestAuthorization { c.resume(returning: $0 == .authorized) }
         }

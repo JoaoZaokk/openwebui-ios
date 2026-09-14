@@ -35,12 +35,7 @@ final class ModelDownloadManager: NSObject, ObservableObject {
     /// user tries rides along in their backup forever. Marking the directory
     /// covers its whole subtree, and it's re-applied on each call so installs
     /// created before this existed get fixed too.
-    nonisolated static func excludeFromBackup(_ url: URL) {
-        var u = url
-        var values = URLResourceValues()
-        values.isExcludedFromBackup = true
-        try? u.setResourceValues(values)
-    }
+    nonisolated static func excludeFromBackup(_ url: URL) { OWStorage.excludeFromBackup(url) }
     private let dir = ModelDownloadManager.modelsDir()
 
     override init() {
@@ -54,10 +49,19 @@ final class ModelDownloadManager: NSObject, ObservableObject {
     private func coreMLFolderURL(_ model: VoiceModel) -> URL {
         dir.appendingPathComponent(Self.coreMLFolderName(id: model.id, filename: model.filename))
     }
-    nonisolated private static func coreMLFolderName(id: String, filename: String) -> String {
-        let bin = "\(id)-\(filename)"                       // w-base-ggml-base.bin
-        let stem = bin.hasSuffix(".bin") ? String(bin.dropLast(4)) : bin
-        return "\(stem)-encoder.mlmodelc"                   // w-base-ggml-base-encoder.mlmodelc
+    /// The folder name whisper.cpp itself looks for next to the .bin: the
+    /// extension AND a trailing `-qD_D` quantization suffix are dropped before
+    /// `-encoder.mlmodelc` (src/whisper.cpp, `whisper_get_coreml_path_encoder`).
+    /// An earlier build kept the suffix, so `w-turbo-q5-ggml-large-v3-turbo-q5_0-encoder.mlmodelc`
+    /// was installed while whisper.cpp opened `…-turbo-encoder.mlmodelc`, failed
+    /// quietly (ALLOW_FALLBACK) and ran the whole encoder without the Neural
+    /// Engine — the "700 MB model takes forever" report.
+    nonisolated static func coreMLFolderName(id: String, filename: String) -> String {
+        WhisperRules.coreMLEncoderPath(forModelAt: "\(id)-\(filename)")
+    }
+    /// What the earlier build wrote; `refresh()` renames these into place.
+    nonisolated static func legacyCoreMLFolderName(id: String, filename: String) -> String {
+        WhisperRules.legacyCoreMLEncoderPath(forModelAt: "\(id)-\(filename)")
     }
 
     func isInstalled(_ model: VoiceModel) -> Bool { installed.contains(model.id) }
@@ -68,9 +72,25 @@ final class ModelDownloadManager: NSObject, ObservableObject {
     func isDownloadingCoreML(_ model: VoiceModel) -> Bool { tasks["ml:\(model.id)"] != nil }
 
     func refresh() {
-        let files = Set((try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? [])
+        var files = Set((try? FileManager.default.contentsOfDirectory(atPath: dir.path)) ?? [])
+        // Migrate encoders installed under the legacy name to the one
+        // whisper.cpp reads.
+        for m in VoiceCatalog.all {
+            let legacy = Self.legacyCoreMLFolderName(id: m.id, filename: m.filename)
+            let wanted = Self.coreMLFolderName(id: m.id, filename: m.filename)
+            guard legacy != wanted, files.contains(legacy), !files.contains(wanted) else { continue }
+            if (try? FileManager.default.moveItem(at: dir.appendingPathComponent(legacy), to: dir.appendingPathComponent(wanted))) != nil {
+                files.remove(legacy); files.insert(wanted)
+                DiagnosticsStore.shared.event("coreml.migrated", ["model": m.id])
+            }
+        }
         installed = Set(VoiceCatalog.all.filter { files.contains("\($0.id)-\($0.filename)") }.map(\.id))
         coreMLInstalled = Set(VoiceCatalog.all.filter { files.contains(Self.coreMLFolderName(id: $0.id, filename: $0.filename)) }.map(\.id))
+    }
+
+    /// Bytes the Core ML encoder adds to RAM once installed (0 = none / unknown).
+    func coreMLBytes(_ model: VoiceModel) -> Int64 {
+        hasCoreML(model) ? VoiceCatalog.coreMLZipBytes(forID: model.id) : 0
     }
 
     // MARK: - GGUF model
@@ -78,6 +98,12 @@ final class ModelDownloadManager: NSObject, ObservableObject {
     func download(_ model: VoiceModel) {
         guard tasks[model.id] == nil, !isInstalled(model) else { return }
         error = nil
+        if let free = Self.freeBytes(), free < model.bytes + 50_000_000 {
+            error = AddError.noSpace(model.bytes).errorDescription
+            DiagnosticsStore.shared.event("download.refused", ["model": model.id, "freeMB": MemoryBudget.mb(free)])
+            return
+        }
+        DiagnosticsStore.shared.event("download.start", ["model": model.id, "bytes": String(model.bytes)])
         progress[model.id] = 0
         let task = session.downloadTask(with: model.url)
         task.taskDescription = model.id
@@ -92,6 +118,13 @@ final class ModelDownloadManager: NSObject, ObservableObject {
     func delete(_ model: VoiceModel) {
         try? FileManager.default.removeItem(at: localURL(model))
         installed.remove(model.id)
+        // The context stays resident otherwise (deleting freed disk, not RAM),
+        // and a selected-but-deleted id only fails later, mid-dictation.
+        STTRunner.shared.releaseIfLoaded(id: model.id)
+        if UserDefaults.standard.string(forKey: "voice.stt.model") == model.id {
+            UserDefaults.standard.removeObject(forKey: "voice.stt.model")
+        }
+        DiagnosticsStore.shared.event("model.deleted", ["model": model.id])
         deleteCoreML(model)   // the encoder is useless without the model
         // A user-added model has no catalog entry to fall back to — deleting the
         // file must also drop the registration, or the list keeps a dead row.
@@ -197,6 +230,13 @@ final class ModelDownloadManager: NSObject, ObservableObject {
         guard tasks[key] == nil, !hasCoreML(model),
               let url = VoiceCatalog.coreMLZipURL(forID: model.id) else { return }
         error = nil
+        let zipBytes = VoiceCatalog.coreMLZipBytes(forID: model.id)
+        // The zip and the unpacked encoder coexist for a moment.
+        if let free = Self.freeBytes(), zipBytes > 0, free < zipBytes * 2 + 50_000_000 {
+            error = AddError.noSpace(zipBytes * 2).errorDescription
+            return
+        }
+        DiagnosticsStore.shared.event("coreml.download.start", ["model": model.id, "bytes": String(zipBytes)])
         progress[key] = 0
         let task = session.downloadTask(with: url)
         task.taskDescription = key
@@ -214,8 +254,11 @@ final class ModelDownloadManager: NSObject, ObservableObject {
         coreMLInstalled.remove(model.id)
     }
 
+    /// Models plus their Core ML encoders (the encoders used to be left out,
+    /// under-reporting by up to 1.2 GB per turbo).
     func totalInstalledBytes() -> Int64 {
         VoiceCatalog.all.filter { installed.contains($0.id) }.reduce(0) { $0 + $1.bytes }
+            + VoiceCatalog.all.filter { coreMLInstalled.contains($0.id) }.reduce(0) { $0 + VoiceCatalog.coreMLZipBytes(forID: $1.id) }
     }
 }
 
@@ -235,7 +278,9 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
         if id.hasPrefix("ml:") {
             let modelID = String(id.dropFirst(3))
             guard let model = VoiceCatalog.all.first(where: { $0.id == modelID }) else { return }
+            DiagnosticsStore.shared.beginSpan("coreml.unpack", ["model": model.id, "freeMB": MemoryBudget.mb(MemoryBudget.freeDiskBytes)])
             let ok = Self.unpackCoreML(zip: location, id: model.id, filename: model.filename)
+            if ok { DiagnosticsStore.shared.endSpan("coreml.unpack") } else { DiagnosticsStore.shared.failSpan("coreml.unpack", "unzip") }
             Task { @MainActor in
                 self.tasks[id] = nil; self.progress[id] = nil
                 if ok { self.coreMLInstalled.insert(modelID) }

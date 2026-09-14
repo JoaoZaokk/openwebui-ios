@@ -15,9 +15,9 @@ packages:
   MarkdownUI:
     url: https://github.com/gonzalezreal/swift-markdown-ui
     from: "2.4.1"
-  SwiftWhisper:
-    url: https://github.com/exPHAT/SwiftWhisper
-    branch: master
+  WhisperCPP:
+    # Official whisper.cpp xcframework (whisper + parakeet + ggml/Metal), see Vendor/WhisperCPP/Package.swift.
+    path: Vendor/WhisperCPP
   ZIPFoundation:
     url: https://github.com/weichsel/ZIPFoundation
     from: "0.9.0"
@@ -44,7 +44,7 @@ targets:
     dependencies:
       - package: OpenWebUIKit
       - package: MarkdownUI
-      - package: SwiftWhisper
+      - package: WhisperCPP
       - package: ZIPFoundation
       - package: FluidAudio
     settings:
@@ -176,7 +176,7 @@ targets:
     dependencies:
       - package: OpenWebUIKit
       - package: MarkdownUI
-      - package: SwiftWhisper
+      - package: WhisperCPP
       - package: ZIPFoundation
       - package: FluidAudio
     settings:

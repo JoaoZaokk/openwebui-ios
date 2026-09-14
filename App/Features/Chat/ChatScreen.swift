@@ -326,7 +326,11 @@ struct ChatScreen: View {
         ErrorBanner(message: err) { vm.error = nil; voice.error = nil }
     }
 
-    private var inputPrompt: LocalizedStringKey { voice.isRecording ? "Ouvindo…" : "Mensagem…" }
+    private var inputPrompt: LocalizedStringKey {
+        if voice.isRecording { return "Ouvindo…" }
+        if voice.loadingModel { return "Carregando modelo… A primeira vez pode levar minutos." }
+        return "Mensagem…"
+    }
     private var inputBinding: Binding<String> {
         voice.isRecording ? .constant(voice.partialText) : $vm.input
     }
@@ -410,7 +414,7 @@ struct ChatScreen: View {
     private var micButton: some View {
         Button { Task { await toggleMic() } } label: {
             ZStack {
-                if voice.processing {
+                if voice.processing || voice.loadingModel {
                     ProgressView().controlSize(.small)
                 } else {
                     Image(systemName: voice.isRecording ? "stop.circle.fill" : "mic")
