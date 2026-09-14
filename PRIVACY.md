@@ -32,6 +32,17 @@ que **você controla**. Nenhum dado passa por servidores nossos.
 
 Nenhuma dessas permissões envia dados ao desenvolvedor.
 
+## Diagnóstico e relatório de bug
+
+O app registra localmente, no aparelho, informações técnicas como tempos de
+carregamento, memória disponível e travamentos — para que você mesmo possa
+consultá-las em Ajustes › Diagnóstico. **Nada disso é enviado automaticamente.**
+
+O botão "Reportar bug" abre o **seu próprio aplicativo de e-mail**, com a
+última hora desses registros já anexada, para que você revise o conteúdo
+antes de decidir enviar. Esse anexo nunca inclui áudio, texto de mensagens
+ou o endereço do seu servidor.
+
 ## Crianças
 
 O app não é direcionado a crianças e não coleta dados delas.
