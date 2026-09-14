@@ -52,10 +52,7 @@ final class VoiceConversation: ObservableObject {
     private var heardSpeech = false
     private var lastLoud = Date()
     private let speechLevel: Float = 0.04
-    private var sttIsNative: Bool {
-        let e = UserDefaults.standard.string(forKey: "voice.stt.engine")
-        return e != "model" && e != "server"
-    }
+    private var sttIsNative: Bool { STTEngine.current.hasLivePartials }
     private var streamTask: Task<Void, Never>?
     private var speakingTurnID = ""
     /// False until this reply has queued its first chunk — see

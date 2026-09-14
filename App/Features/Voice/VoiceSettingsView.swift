@@ -14,7 +14,7 @@ struct VoiceSettingsView: View {
     @State private var customURL = ""
     @State private var addingModel = false
 
-    @AppStorage("voice.stt.engine") private var sttEngine = "native"
+    @AppStorage(STTEngine.key) private var sttEngine = STTEngine.native.rawValue
     @AppStorage("voice.stt.model") private var sttModelID = ""
     @AppStorage("voice.stt.onDeviceOnly") private var sttOnDeviceOnly = false
     @AppStorage(SpeechLanguage.key) private var sttLanguage = SpeechLanguage.followApp
@@ -28,20 +28,24 @@ struct VoiceSettingsView: View {
 
     private var lang: VoiceLang? { VoiceLang(rawValue: langFilter) }
 
+    // The engine is *persisted* as a raw string — that is what the picker binds
+    // to — but every question this screen asks about it is asked of the enum.
+    private var stt: STTEngine { STTEngine(rawValue: sttEngine) ?? .native }
+
     var body: some View {
         List {
             Section {
                 Picker("Reconhecimento (STT)", selection: $sttEngine) {
-                    Text("Nativo iOS").tag("native")
-                    Text("Modelo on-device").tag("model")
-                    Text("Servidor").tag("server")
+                    ForEach(STTEngine.allCases) { engine in
+                        Text(verbatim: engine.label).tag(engine.rawValue)
+                    }
                 }
-                if sttEngine == "model" {
+                if stt == .model {
                     LabeledContent("Modelo ativo", value: modelName(sttModelID) ?? L("nenhum"))
                 }
                 // Only the native engine has the choice: the Whisper engines are
                 // on-device by construction, and the server one never is.
-                if sttEngine == "native" {
+                if stt == .native {
                     Toggle("Processar só no aparelho", isOn: $sttOnDeviceOnly)
                 }
                 speechLanguagePicker
@@ -53,7 +57,7 @@ struct VoiceSettingsView: View {
                     } else {
                         Text("A voz nativa segue o idioma do app. O reconhecimento usa o idioma escolhido acima; detectar automaticamente erra mais em áudio curto ou com ruído, e o reconhecimento nativo do iOS não detecta nada — nele vale sempre o idioma do app.")
                     }
-                    if sttEngine == "native" {
+                    if stt == .native {
                         Text("Processar só no aparelho não envia áudio à Apple, mas o modelo offline erra mais palavras. Deixe desligado se a transcrição estiver ruim.")
                     }
                 }
@@ -165,7 +169,7 @@ struct VoiceSettingsView: View {
             customModelSection
 
             modelSection(title: L("Modelos STT · Whisper"), task: .stt,
-                         selectedID: sttModelID) { id in sttModelID = id; sttEngine = "model" }
+                         selectedID: sttModelID) { id in sttModelID = id; sttEngine = STTEngine.model.rawValue }
 
             if totalOnDisk > 0 {
                 Section {
@@ -335,11 +339,20 @@ struct VoiceSettingsView: View {
             .buttonStyle(.borderless)
             .accessibilityLabel(Text("Remover aceleração Core ML"))
         } else {
+            // The encoder ADDS its weights to the model's RAM (whisper.cpp keeps
+            // the ggml encoder too), so on a phone it is offered only when the
+            // pair fits under the jetsam line right now.
+            let zip = VoiceCatalog.coreMLZipBytes(forID: model.id)
+            let fits = STTRunner.fits(model, coreMLBytes: zip) ?? true
             Button { downloads.downloadCoreML(model) } label: {
-                Image(systemName: "bolt").font(.ody(size: 18)).foregroundStyle(theme.secondaryText)
+                Image(systemName: "bolt").font(.ody(size: 18)).foregroundStyle(fits ? theme.secondaryText : theme.secondaryText.opacity(0.35))
             }
             .buttonStyle(.borderless)
+            .disabled(!fits)
             .accessibilityLabel(Text("Ativar aceleração Core ML"))
+            .help(fits ? L("Baixa o encoder Core ML (%@). A primeira carga compila para o Neural Engine e pode levar minutos.", ByteCountFormatter.string(fromByteCount: zip, countStyle: .file))
+                       : L("Este modelo não cabe na memória deste aparelho (precisa de %@, há %@ livres). Use um q5 ou o Parakeet.",
+                           MemoryBudget.human(STTRunner.memoryRequired(for: model, coreMLBytes: zip)), MemoryBudget.human(MemoryBudget.availableBytes)))
         }
     }
 
@@ -361,7 +374,8 @@ struct VoiceSettingsView: View {
     }
 
     private func modelRow(_ model: VoiceModel, selected: Bool, select: @escaping (String) -> Void) -> some View {
-        HStack(spacing: 10) {
+        let fits = STTRunner.fits(model, coreMLBytes: downloads.coreMLBytes(model)) ?? true
+        return HStack(spacing: 10) {
             Text(model.lang.label)
                 .font(.ody(size: 9))
                 .foregroundStyle(theme.secondaryText)
@@ -370,6 +384,12 @@ struct VoiceSettingsView: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(model.name).font(.ody(.subheadline)).foregroundStyle(theme.fg)
                 Text(model.humanSize).font(.ody(size: 10)).foregroundStyle(theme.secondaryText)
+                if !fits {
+                    // Selecting it would not fail, it would kill the app (jetsam,
+                    // no error), so say so here instead.
+                    Text("Não cabe na memória deste aparelho")
+                        .font(.ody(size: 10)).foregroundStyle(theme.danger)
+                }
             }
             Spacer()
             trailing(model, selected: selected, select: select)
@@ -397,6 +417,7 @@ struct VoiceSettingsView: View {
                         .foregroundStyle(selected ? theme.green : theme.secondaryText)
                 }
                 .buttonStyle(.borderless)
+                .disabled(!(STTRunner.fits(model, coreMLBytes: downloads.coreMLBytes(model)) ?? true) && !selected)
                 .accessibilityLabel(Text("Selecionar modelo"))
                 .accessibilityAddTraits(selected ? .isSelected : [])
                 // Delete

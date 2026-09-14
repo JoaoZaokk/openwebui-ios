@@ -25,6 +25,18 @@ enum VoiceLang: String, Codable, CaseIterable {
         case .french:     L("Francês")
         }
     }
+
+    /// Whisper language code the tuned models pin (nil = follow the setting).
+    var whisperCode: String? {
+        switch self {
+        case .universal:  nil
+        case .english:    "en"
+        case .portuguese: "pt"
+        case .chinese:    "zh"
+        case .japanese:   "ja"
+        case .french:     "fr"
+        }
+    }
 }
 
 /// A downloadable on-device speech model (single-file). STT = whisper.cpp GGUF;
@@ -36,6 +48,11 @@ struct VoiceModel: Identifiable, Hashable, Sendable {
     let lang: VoiceLang
     let bytes: Int64
     let url: URL
+
+    /// Which C engine loads the file. Encoded in the id prefix so custom
+    /// (`u-`) and legacy (`w-`) ids keep working unchanged: only `p-` is
+    /// Parakeet.
+    var engine: STTModelEngine { id.hasPrefix("p-") ? .parakeet : .whisper }
 
     /// On-disk name. `localURL` prefixes it with the model id, so this only has
     /// to be file-system safe — a URL that ends in a slash or carries a query
@@ -214,5 +231,22 @@ enum VoiceCatalog {
     static func coreMLZipURL(forID id: String) -> URL? {
         guard let f = coreMLByID[id] else { return nil }
         return URL(string: "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/\(f)")
+    }
+
+    /// Size of the Core ML encoder zip (≈ its resident weight, fp16 is
+    /// incompressible), from the ggerganov/whisper.cpp file list. Shown before
+    /// the download and counted against the memory budget: the encoder ADDS to
+    /// the model's RAM, it does not replace the ggml encoder.
+    static func coreMLZipBytes(forID id: String) -> Int64 {
+        guard let f = coreMLByID[id] else { return 0 }
+        switch f {
+        case "ggml-tiny-encoder.mlmodelc.zip", "ggml-tiny.en-encoder.mlmodelc.zip":   return 16_000_000
+        case "ggml-base-encoder.mlmodelc.zip", "ggml-base.en-encoder.mlmodelc.zip":   return 40_000_000
+        case "ggml-small-encoder.mlmodelc.zip", "ggml-small.en-encoder.mlmodelc.zip": return 165_000_000
+        case "ggml-medium-encoder.mlmodelc.zip":                                       return 600_000_000
+        case "ggml-large-v3-turbo-encoder.mlmodelc.zip":                               return 1_173_000_000
+        case "ggml-large-v3-encoder.mlmodelc.zip":                                     return 1_173_000_000
+        default: return 0
+        }
     }
 }
