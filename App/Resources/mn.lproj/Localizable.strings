@@ -303,3 +303,6 @@
 "Anexo: %@" = "Хавсралт: %@";
 "DIAGNÓSTICO" = "ОНОШЛОГОО";
 "Versão" = "Хувилбар";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "%@ загварыг ачаалж чадсангүй.";

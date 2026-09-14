@@ -306,3 +306,6 @@
 "Anexo: %@" = "Прикачен файл: %@";
 "DIAGNÓSTICO" = "ДИАГНОСТИКА";
 "Versão" = "Версия";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Моделът %@ не можа да се зареди.";

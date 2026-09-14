@@ -306,3 +306,6 @@
 "Anexo: %@" = "Załącznik: %@";
 "DIAGNÓSTICO" = "DIAGNOSTYKA";
 "Versão" = "Wersja";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Nie można wczytać modelu %@.";

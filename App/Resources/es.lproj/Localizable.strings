@@ -306,3 +306,6 @@
 "Anexo: %@" = "Adjunto: %@";
 "DIAGNÓSTICO" = "DIAGNÓSTICO";
 "Versão" = "Versión";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "No se pudo cargar el modelo %@.";

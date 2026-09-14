@@ -306,3 +306,6 @@
 "Anexo: %@" = "Melléklet: %@";
 "DIAGNÓSTICO" = "DIAGNOSZTIKA";
 "Versão" = "Verzió";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "A(z) %@ modellt nem sikerült betölteni.";

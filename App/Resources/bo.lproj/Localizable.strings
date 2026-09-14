@@ -303,3 +303,6 @@
 "Anexo: %@" = "སྦྲགས་ཡིག: %@";
 "DIAGNÓSTICO" = "བརྟག་དཔྱད།";
 "Versão" = "པར་གཞི།";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "དཔེ་གཞི་ %@ བཙུགས་མ་ཐུབ།";

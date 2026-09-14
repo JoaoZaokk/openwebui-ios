@@ -303,3 +303,6 @@
 "Anexo: %@" = "Bilaga: %@";
 "DIAGNÓSTICO" = "DIAGNOSTIK";
 "Versão" = "Version";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Det gick inte att läsa in modellen %@.";
