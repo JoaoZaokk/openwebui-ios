@@ -303,3 +303,6 @@
 "Anexo: %@" = "ไฟล์แนบ: %@";
 "DIAGNÓSTICO" = "ข้อมูลวินิจฉัย";
 "Versão" = "เวอร์ชัน";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "โหลดโมเดล %@ ไม่ได้";

@@ -303,3 +303,6 @@
 "Anexo: %@" = "Liite: %@";
 "DIAGNÓSTICO" = "DIAGNOSTIIKKA";
 "Versão" = "Versio";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Mallia %@ ei voitu ladata.";

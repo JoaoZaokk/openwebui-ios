@@ -306,3 +306,6 @@
 "Anexo: %@" = "ضمیمه: %@";
 "DIAGNÓSTICO" = "تشخیص";
 "Versão" = "نسخه";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "%@ ماډل نه شو پورته کېدای.";

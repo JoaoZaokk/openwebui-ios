@@ -306,3 +306,6 @@
 "Anexo: %@" = "Privitak: %@";
 "DIAGNÓSTICO" = "DIJAGNOSTIKA";
 "Versão" = "Verzija";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Model %@ nije moguće učitati.";

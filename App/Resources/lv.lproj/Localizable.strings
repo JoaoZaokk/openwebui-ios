@@ -303,3 +303,6 @@
 "Anexo: %@" = "Pielikums: %@";
 "DIAGNÓSTICO" = "DIAGNOSTIKA";
 "Versão" = "Versija";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Modeli %@ nevarēja ielādēt.";

@@ -306,3 +306,6 @@
 "Anexo: %@" = "附件：%@";
 "DIAGNÓSTICO" = "诊断";
 "Versão" = "版本";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "无法加载模型%@。";

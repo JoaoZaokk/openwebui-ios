@@ -306,3 +306,6 @@
 "Anexo: %@" = "Lampiran: %@";
 "DIAGNÓSTICO" = "DIAGNOSTIK";
 "Versão" = "Versi";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Model %@ tidak dapat dimuat.";

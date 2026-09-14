@@ -306,3 +306,6 @@
 "Anexo: %@" = "添付ファイル：%@";
 "DIAGNÓSTICO" = "診断";
 "Versão" = "バージョン";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "モデル%@を読み込めませんでした。";

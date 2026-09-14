@@ -306,3 +306,6 @@
 "Anexo: %@" = "সংযুক্তি: %@";
 "DIAGNÓSTICO" = "ডায়াগনস্টিকস";
 "Versão" = "সংস্করণ";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "মডেল %@ লোড করা যায়নি।";

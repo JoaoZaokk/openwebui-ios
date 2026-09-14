@@ -306,3 +306,6 @@
 "Anexo: %@" = "Вложение: %@";
 "DIAGNÓSTICO" = "ДИАГНОСТИКА";
 "Versão" = "Версия";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Не удалось загрузить модель %@.";

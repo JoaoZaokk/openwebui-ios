@@ -306,3 +306,6 @@
 "Anexo: %@" = "첨부 파일: %@";
 "DIAGNÓSTICO" = "진단";
 "Versão" = "버전";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "%@ 모델을 불러올 수 없습니다.";

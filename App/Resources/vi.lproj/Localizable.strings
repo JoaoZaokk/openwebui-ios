@@ -306,3 +306,6 @@
 "Anexo: %@" = "Tệp đính kèm: %@";
 "DIAGNÓSTICO" = "CHẨN ĐOÁN";
 "Versão" = "Phiên bản";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Không thể tải mô hình %@.";

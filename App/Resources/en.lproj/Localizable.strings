@@ -312,3 +312,6 @@
 "Anexo: %@" = "Attachment: %@";
 "DIAGNÓSTICO" = "DIAGNOSTICS";
 "Versão" = "Version";
+
+/* 1.9 — motor on-device */
+"Não consegui carregar o modelo %@." = "Couldn't load the model %@.";
