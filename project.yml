@@ -63,6 +63,11 @@ targets:
       - package: FluidAudio
     settings:
       base:
+        # increased-memory-limit, so a 1-2 GB on-device speech model is not
+        # jetsammed without a word (see the file). Adding it invalidated the
+        # Xcode-managed App Store profile: recreate the profile before the
+        # next export, or revert this one commit to ship without it.
+        CODE_SIGN_ENTITLEMENTS: App/Resources/OpenWebUI.entitlements
         # Dev/simulator id. The App Store listing is `com.zao.openwebui` — pass
         # PRODUCT_BUNDLE_IDENTIFIER=com.zao.openwebui on the archive command, or
         # the export fails with "No profiles for 'com.example.openwebui'".
@@ -199,6 +204,7 @@ targets:
       - path: App
         excludes:
           - "Resources/Info.plist"
+          - "Resources/OpenWebUI.entitlements"
           - "Resources/OpenWebUI-macOS.entitlements"
     dependencies:
       - package: OpenWebUIKit
