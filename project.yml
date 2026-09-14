@@ -32,6 +32,20 @@ settings:
     SWIFT_VERSION: "5.0"
     ENABLE_USER_SCRIPT_SANDBOXING: YES
 
+schemes:
+  OpenWebUI:
+    build:
+      targets:
+        OpenWebUI: all
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - OpenWebUITests
+    archive:
+      config: Release
+
 targets:
   OpenWebUI:
     type: application
@@ -162,6 +176,19 @@ targets:
             AppIcon-odysseus:
               CFBundleIconFiles: ["AppIcon-odysseus"]
               UIPrerenderedIcon: false
+
+  OpenWebUITests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: OpenWebUITests
+    dependencies:
+      - target: OpenWebUI
+    settings:
+      base:
+        # xcodegen writes no Info.plist for the test bundle, and codesign refuses
+        # to sign it without one.
+        GENERATE_INFOPLIST_FILE: YES
 
   # Native macOS app — same SwiftUI source as iOS, with platform shims in
   # App/Config/PlatformCompat.swift. Apple Silicon Macs, macOS 14+.

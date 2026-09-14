@@ -154,7 +154,7 @@ struct VoiceSettingsView: View {
             }
 
             Section("Filtrar catálogo por idioma") {
-                // Menu (not segmented): 7 options, text labels only — no flags.
+                // Menu (not segmented): 22 options (21 language buckets + "Todos"), text labels only — no flags.
                 Picker("Idioma", selection: $langFilter) {
                     Text("Todos").tag("all")
                     ForEach(VoiceLang.allCases, id: \.rawValue) { l in
