@@ -10,6 +10,7 @@ struct SettingsView: View {
     @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var showServer = false
+    @State private var showBugReport = false
 
     var body: some View {
         NavigationStack {
@@ -66,11 +67,28 @@ struct SettingsView: View {
                         .listRowBackground(theme.panel)
                     }
 
+                    section("DIAGNÓSTICO") {
+                        NavigationLink {
+                            DiagnosticsView()
+                        } label: {
+                            Label { Text("Diagnóstico").font(.ody(.body)).foregroundStyle(theme.fg) }
+                            icon: { Image(systemName: "waveform.path.ecg").foregroundStyle(theme.accent) }
+                        }
+                        .listRowBackground(theme.panel)
+                    }
+
                     section("CONTA") {
                         if let u = app.user {
                             labeled("Usuário", u.name ?? u.email ?? "—").listRowBackground(theme.panel)
                             if let email = u.email { labeled("Email", email).listRowBackground(theme.panel) }
                         }
+                        labeled("Versão", Self.versionString).listRowBackground(theme.panel)
+                        Button { showBugReport = true } label: {
+                            Label("Reportar bug", systemImage: "ladybug")
+                                .font(.ody(.body))
+                        }
+                        .listRowBackground(theme.panel)
+                        .sheet(isPresented: $showBugReport) { BugReportSheet() }
                         Button(role: .destructive) {
                             Task { await app.logout(); dismiss() }
                         } label: {
@@ -116,6 +134,13 @@ struct SettingsView: View {
             Text(value).font(.ody(.subheadline))
                 .foregroundStyle(theme.secondaryText).lineLimit(1)
         }
+    }
+
+    static var versionString: String {
+        let info = Bundle.main.infoDictionary ?? [:]
+        let short = info["CFBundleShortVersionString"] as? String ?? "?"
+        let build = info["CFBundleVersion"] as? String ?? "?"
+        return "\(short) (\(build))"
     }
 }
 
