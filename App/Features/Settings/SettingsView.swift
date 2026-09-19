@@ -26,8 +26,11 @@ struct SettingsView: View {
                                 HStack {
                                     Text("Idioma").font(.ody(.body)).foregroundStyle(theme.fg)
                                     Spacer(minLength: 8)
+                                    // `current`, not a fresh `deviceLanguage()`: in automatic mode the row has
+                                    // to name the language actually in effect, which is the one resolved at
+                                    // launch — the two disagree the moment the device language changes.
                                     Text(verbatim: lang.isAutomatic
-                                         ? "🌐 \(LanguageManager.deviceLanguage().endonym)"
+                                         ? "🌐 \(lang.current.endonym)"
                                          : "\(lang.current.flag) \(lang.current.endonym)")
                                         .font(.ody(.subheadline))
                                         .foregroundStyle(theme.secondaryText).lineLimit(1)

@@ -23,6 +23,22 @@ final class TransportSeamTests: XCTestCase {
         XCTAssertEqual(StubTransport.sentHeaders["/api/config"]?["Accept"], "application/json")
     }
 
+    /// The client turns a transport failure into an `OWError` right at the
+    /// boundary, and whatever sentence it puts in there is the one the banner
+    /// shows. Taking `URLError.localizedDescription` there meant taking
+    /// Foundation's sentence, written in the *device's* language: a phone in
+    /// Portuguese put "Não foi possível conectar-se ao servidor." on the screen
+    /// of an app the user had set to English, every time the server was asleep.
+    func testATransportFailureIsDescribedInTheAppLanguage() async {
+        StubTransport.route("/api/config", .failing(.cannotConnectToHost))
+        do {
+            _ = try await Self.stubbed().serverConfig()
+            XCTFail("a failing transport answered")
+        } catch {
+            XCTAssertEqual(OWFailure.msg(error), L("Não consegui falar com o servidor. Ele está ligado?"))
+        }
+    }
+
     /// The production default is Foundation's own chain. This pins that `nil`
     /// really means "no interception" — otherwise a stub registered by one test
     /// could quietly answer the app's own requests in another.

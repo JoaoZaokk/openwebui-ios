@@ -167,7 +167,7 @@ final class VoiceInputManager: ObservableObject {
         } catch {
             input.removeTap(onBus: 0)
             deactivateSession()
-            self.error = error.localizedDescription
+            self.error = L("Áudio indisponível: %@", OWFailure.msg(error))
             return false
         }
         #endif

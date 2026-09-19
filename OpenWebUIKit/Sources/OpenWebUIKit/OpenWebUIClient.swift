@@ -208,7 +208,10 @@ public final class OpenWebUIClient: @unchecked Sendable {
             if error.isCancellation {
                 throw CancellationError()
             }
-            throw OWError.transport(error.localizedDescription)
+            // `OWFailure.msg`, not `localizedDescription`: the sentence chosen
+            // here is the one the banner shows, and Foundation writes its own in
+            // the device's language, not the app's.
+            throw OWError.transport(OWFailure.msg(error))
         }
     }
 
