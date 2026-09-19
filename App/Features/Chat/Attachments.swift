@@ -92,8 +92,7 @@ struct AttachmentThumb: View {
                             // latching it painted "cancelado" over a picture that
                             // was fine.
                         } catch {
-                            failure = (error as? LocalizedError)?.errorDescription
-                                ?? error.localizedDescription
+                            failure = OWFailure.msg(error)
                         }
                     }
             }

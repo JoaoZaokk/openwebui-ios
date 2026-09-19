@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Ти си пријателски гласовен придружник, кој зборува македонски. Одговарај кратко и природно (1 до 3 реченици), како во говорен разговор. Без списоци, markdown или емоџиња — само течен говор.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Нема интернет врска.";
+"O servidor demorou demais para responder." = "Серверот не одговори навреме.";
+"Não encontrei esse servidor. Confira o endereço." = "Овој сервер не беше пронајден. Проверете ја адресата.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Не успеа поврзувањето со серверот. Дали е вклучен?";
+"A conexão caiu no meio do caminho." = "Врската прекина на средина.";
+"Falha na conexão segura com o servidor." = "Не успеа безбедната врска со серверот.";
+"Falha de rede (%@)." = "Мрежна грешка (%@).";

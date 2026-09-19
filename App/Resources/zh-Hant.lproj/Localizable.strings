@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "你是一個友善的語音夥伴，說繁體中文。請簡短自然地回答（1到3句話），就像口語對話一樣。不要使用清單、markdown或表情符號，只用流暢的口語表達。";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "沒有網路連線。";
+"O servidor demorou demais para responder." = "伺服器回應時間過長。";
+"Não encontrei esse servidor. Confira o endereço." = "找不到該伺服器,請確認位址。";
+"Não consegui falar com o servidor. Ele está ligado?" = "無法連上伺服器,它開著嗎?";
+"A conexão caiu no meio do caminho." = "連線在中途中斷了。";
+"Falha na conexão segura com o servidor." = "與伺服器的安全連線失敗。";
+"Falha de rede (%@)." = "網路發生故障(%@)。";

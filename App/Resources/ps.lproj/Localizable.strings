@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "ته یو ملګری غږیز همراه یې چې پښتو خبرې کوي. لنډ او طبیعي ځواب ورکړه (له یوې تر درې جملو)، لکه په خبرو اترو کې. هیڅ لیست، مارک ډاون یا ایموجي نه — یوازې روانه وینا.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "د انټرنېټ اړیکه نشته.";
+"O servidor demorou demais para responder." = "سرور ته د ځواب ورکولو لپاره ډېر وخت ونیو.";
+"Não encontrei esse servidor. Confira o endereço." = "دا سرور ونه موندل شو. پته وګورئ.";
+"Não consegui falar com o servidor. Ele está ligado?" = "له سرور سره اړیکه ونشوه. ایا دا فعاله ده؟";
+"A conexão caiu no meio do caminho." = "اړیکه په منځ کې پرې شوه.";
+"Falha na conexão segura com o servidor." = "له سرور سره خوندي اړیکه ونه شوه.";
+"Falha de rede (%@)." = "د شبکې ستونزه (%@).";

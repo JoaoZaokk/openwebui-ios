@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Je bent een vriendelijke stemgezel die Nederlands spreekt. Antwoord kort en natuurlijk (1 tot 3 zinnen), zoals in een gesproken gesprek. Geen lijsten, markdown of emoji's — alleen vloeiende spraak.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Geen internetverbinding.";
+"O servidor demorou demais para responder." = "De server deed er te lang over om te antwoorden.";
+"Não encontrei esse servidor. Confira o endereço." = "Deze server is niet gevonden. Controleer het adres.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Kon de server niet bereiken. Staat hij aan?";
+"A conexão caiu no meio do caminho." = "De verbinding is halverwege afgebroken.";
+"Falha na conexão segura com o servidor." = "De beveiligde verbinding met de server is mislukt.";
+"Falha de rede (%@)." = "Netwerkfout (%@).";

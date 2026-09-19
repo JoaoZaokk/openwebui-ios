@@ -310,3 +310,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Olet ystävällinen ääniseuralainen, joka puhuu suomea. Vastaa lyhyesti ja luonnollisesti (1–3 lausetta), kuten puhutussa keskustelussa. Ei listoja, ei markdownia eikä emojeja — vain sujuvaa puhetta.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Ei internetyhteyttä.";
+"O servidor demorou demais para responder." = "Palvelin ei vastannut ajoissa.";
+"Não encontrei esse servidor. Confira o endereço." = "Palvelinta ei löytynyt. Tarkista osoite.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Palvelimeen ei saatu yhteyttä. Onko se käynnissä?";
+"A conexão caiu no meio do caminho." = "Yhteys katkesi kesken kaiken.";
+"Falha na conexão segura com o servidor." = "Suojatun yhteyden muodostaminen palvelimeen epäonnistui.";
+"Falha de rede (%@)." = "Verkkovirhe (%@).";

@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "أنت رفيق صوتي ودود يتحدث العربية. أجب بإيجاز وبشكل طبيعي (من جملة إلى ثلاث جمل)، كما في حديث منطوق. بلا قوائم أو markdown أو إيموجي — فقط كلام سلس.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "لا يوجد اتصال بالإنترنت.";
+"O servidor demorou demais para responder." = "استغرق الخادم وقتاً طويلاً للرد.";
+"Não encontrei esse servidor. Confira o endereço." = "تعذر العثور على هذا الخادم. تحقق من العنوان.";
+"Não consegui falar com o servidor. Ele está ligado?" = "تعذر الاتصال بالخادم. هل هو قيد التشغيل؟";
+"A conexão caiu no meio do caminho." = "انقطع الاتصال في المنتصف.";
+"Falha na conexão segura com o servidor." = "فشل الاتصال الآمن بالخادم.";
+"Falha de rede (%@)." = "خطأ في الشبكة (%@).";

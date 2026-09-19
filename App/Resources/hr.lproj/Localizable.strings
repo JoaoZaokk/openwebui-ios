@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Ti si prijateljski glasovni pratitelj koji govori hrvatski. Odgovaraj kratko i prirodno (1 do 3 rečenice), kao u govornom razgovoru. Bez popisa, markdowna ili emojija — samo tečan govor.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Nema internetske veze.";
+"O servidor demorou demais para responder." = "Poslužitelj predugo nije odgovorio.";
+"Não encontrei esse servidor. Confira o endereço." = "Taj poslužitelj nije pronađen. Provjerite adresu.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Povezivanje s poslužiteljem nije uspjelo. Je li uključen?";
+"A conexão caiu no meio do caminho." = "Veza se prekinula na pola puta.";
+"Falha na conexão segura com o servidor." = "Sigurna veza s poslužiteljem nije uspjela.";
+"Falha de rede (%@)." = "Mrežna pogreška (%@).";

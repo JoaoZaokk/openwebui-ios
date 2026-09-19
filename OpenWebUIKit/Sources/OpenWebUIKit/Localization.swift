@@ -164,33 +164,46 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
     /// Best shipped match for a device/system BCP-47 code (e.g. "ja-JP", "zh-Hant-TW", "de-CH").
     static func match(_ code: String) -> AppLanguage? {
         let c = code.lowercased()
-        if c.hasPrefix("pt") { return .ptBR }
-        if c.hasPrefix("zh") {
+        // A tag is a list of subtags, and only the first one names the language.
+        // Reading the first two *characters* instead invented matches: "fil-PH"
+        // — Filipino, which iOS offers and this app does not ship — became "fi",
+        // and a phone set to Filipino drew the whole interface in Finnish.
+        let subtags = c.split(separator: "-").map(String.init)
+        guard let primary = subtags.first else { return nil }
+        if primary == "pt" { return .ptBR }
+        // Cantonese comes in as "yue-…" and is written in Chinese script, which
+        // this app ships both of. Unqualified, it is Hong Kong's, i.e. Traditional.
+        if primary == "yue" {
+            if subtags.contains("hans") { return .zhHans }
+            return .zhHant
+        }
+        if primary == "zh" {
             // Script first, region only as a fallback. Region was tested first, so
             // "zh-Hans-HK" and "zh-Hans-MO" — Simplified Chinese as written in Hong
             // Kong and Macau, both real system codes — matched "-hk"/"-mo" and were
             // served Traditional. An explicit script always wins over the region it
             // is spoken in. Matched by subtag, not substring: a tag is a list of
             // subtags and "hant" is only a script when it stands alone as one.
-            let subtags = c.split(separator: "-").map(String.init)
             if subtags.contains("hans") { return .zhHans }
             if subtags.contains("hant") { return .zhHant }
             if subtags.contains("tw") || subtags.contains("hk") || subtags.contains("mo") { return .zhHant }
             return .zhHans
         }
-        if c.hasPrefix("de") {
-            if c.contains("-at") { return .deAT }
-            if c.contains("-ch") { return .deCH }
+        if primary == "de" {
+            if subtags.contains("at") { return .deAT }
+            if subtags.contains("ch") { return .deCH }
             return .de
         }
         // Every remaining language's raw value IS its two-letter code — the six
-        // that are not (pt-BR, de-*, zh-*) were all resolved by the prefix branches
-        // above — so the enum is the table. Only the two legacy ISO codes, which
-        // old devices still report, need naming.
-        let two = String(c.prefix(2))
-        if two == "in" { return .ind }   // "in" = legacy ISO code for Indonesian
-        if two == "iw" { return .he }    // "iw" = legacy ISO code for Hebrew
-        return AppLanguage(rawValue: two)
+        // that are not (pt-BR, de-*, zh-*) were all resolved by the branches
+        // above — so the enum is the table. A subtag of any other length names a
+        // language this app does not ship, and the caller moves on to the user's
+        // next preferred one. Only the two legacy ISO codes, which old devices
+        // still report, need naming.
+        guard primary.count == 2 else { return nil }
+        if primary == "in" { return .ind }   // "in" = legacy ISO code for Indonesian
+        if primary == "iw" { return .he }    // "iw" = legacy ISO code for Hebrew
+        return AppLanguage(rawValue: primary)
     }
 }
 
@@ -233,6 +246,7 @@ public final class LanguageManager: ObservableObject {
     // separate from the `@Published` properties to avoid a data race.
     private static let bundleLock = NSLock()
     private static var activeBundle: Bundle = .main
+    private static var activeLocale: Locale = .current
 
     private init() {
         let stored = UserDefaults.standard.string(forKey: Self.overrideKey)
@@ -293,7 +307,7 @@ public final class LanguageManager: ObservableObject {
 
     private static func setActiveBundle(for lang: AppLanguage) {
         let b = computeBundle(for: lang)
-        bundleLock.lock(); activeBundle = b; bundleLock.unlock()
+        bundleLock.lock(); activeBundle = b; activeLocale = Locale(identifier: lang.rawValue); bundleLock.unlock()
     }
 
     /// The cached `.lproj` for the current language — safe to read from any thread.
@@ -301,6 +315,17 @@ public final class LanguageManager: ObservableObject {
         _ = shared   // ensure the singleton initialized the snapshot
         bundleLock.lock(); defer { bundleLock.unlock() }
         return activeBundle
+    }
+
+    /// The current language's locale, for formatting off the main actor — the
+    /// same snapshot discipline as `snapshotBundle`. `OWDates` covers the views;
+    /// this is for the code that builds text away from them, where reading the
+    /// `@Published` property would be a data race and `Locale.current` would
+    /// quietly hand back the device's answer instead of the app's.
+    public static var snapshotLocale: Locale {
+        _ = shared
+        bundleLock.lock(); defer { bundleLock.unlock() }
+        return activeLocale
     }
 }
 
@@ -384,6 +409,9 @@ public enum OWDates {
     public static func day(_ d: Date) -> String { formatter(date: .medium, time: .none).string(from: d) }
     /// Day and time — the chat list on macOS.
     public static func dayAndTime(_ d: Date) -> String { formatter(date: .medium, time: .short).string(from: d) }
+    /// Time down to the second — the diagnostics log, where the gap between two
+    /// lines is the whole point of reading it.
+    public static func preciseTime(_ d: Date) -> String { formatter(date: .none, time: .medium).string(from: d) }
 
     /// "3 h ago", in the app's language.
     public static func relative(_ epochSeconds: Double) -> String {

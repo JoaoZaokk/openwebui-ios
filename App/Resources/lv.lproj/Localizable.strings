@@ -310,3 +310,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Tu esi draudzīgs balss pavadonis, kas runā latviski. Atbildi īsi un dabiski (1 līdz 3 teikumos), kā runātā sarunā. Bez sarakstiem, Markdown formatējuma vai emocijzīmēm — tikai plūstoša runa.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Nav interneta savienojuma.";
+"O servidor demorou demais para responder." = "Serveris pārāk ilgi neatbildēja.";
+"Não encontrei esse servidor. Confira o endereço." = "Šis serveris netika atrasts. Pārbaudi adresi.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Neizdevās sazināties ar serveri. Vai tas darbojas?";
+"A conexão caiu no meio do caminho." = "Savienojums pārtrūka pusceļā.";
+"Falha na conexão segura com o servidor." = "Neizdevās izveidot drošu savienojumu ar serveri.";
+"Falha de rede (%@)." = "Tīkla kļūda (%@).";

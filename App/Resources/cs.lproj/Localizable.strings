@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Jsi přátelský hlasový společník, mluvící česky. Odpovídej krátce a přirozeně (1 až 3 věty), jako v mluveném rozhovoru. Žádné seznamy, markdown ani emoji — jen plynulá řeč.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Není připojení k internetu.";
+"O servidor demorou demais para responder." = "Server odpovídal příliš dlouho.";
+"Não encontrei esse servidor. Confira o endereço." = "Tento server se nepodařilo najít. Zkontrolujte adresu.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Nepodařilo se spojit se serverem. Je spuštěný?";
+"A conexão caiu no meio do caminho." = "Spojení se uprostřed přerušilo.";
+"Falha na conexão segura com o servidor." = "Nepodařilo se navázat zabezpečené připojení k serveru.";
+"Falha de rede (%@)." = "Chyba sítě (%@).";

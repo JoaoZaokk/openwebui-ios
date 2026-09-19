@@ -16,9 +16,38 @@ import Foundation
 ///    never looked up again as a key.
 /// 3. Server text (`OWError.http`'s detail) is passed through verbatim: it is the
 ///    server's sentence, not a catalogue key.
+/// 4. A `URLError` describes itself in the *device's* language, not the app's.
+///    Foundation wrote those sentences, and it writes them in whatever the phone
+///    is set to, so a phone in Portuguese put "Não foi possível conectar-se ao
+///    servidor." in the banner of an app the user had set to English. A
+///    self-hosted client shows that banner every time the server is asleep, so
+///    the common codes get sentences from the catalogue and the rest get the
+///    number, which belongs to no language.
 public enum OWFailure {
     public static func msg(_ e: Error) -> String {
-        (e as? LocalizedError)?.errorDescription ?? e.localizedDescription
+        if let described = (e as? LocalizedError)?.errorDescription { return described }
+        if let url = e as? URLError { return network(url) }
+        return e.localizedDescription
+    }
+
+    private static func network(_ e: URLError) -> String {
+        switch e.code {
+        case .notConnectedToInternet:
+            return L("Sem conexão com a internet.")
+        case .timedOut:
+            return L("O servidor demorou demais para responder.")
+        case .cannotFindHost, .dnsLookupFailed:
+            return L("Não encontrei esse servidor. Confira o endereço.")
+        case .cannotConnectToHost:
+            return L("Não consegui falar com o servidor. Ele está ligado?")
+        case .networkConnectionLost:
+            return L("A conexão caiu no meio do caminho.")
+        case .secureConnectionFailed, .serverCertificateUntrusted, .serverCertificateHasBadDate,
+             .serverCertificateNotYetValid, .serverCertificateHasUnknownRoot, .clientCertificateRejected:
+            return L("Falha na conexão segura com o servidor.")
+        default:
+            return L("Falha de rede (%@).", "\(e.errorCode)")
+        }
     }
 }
 

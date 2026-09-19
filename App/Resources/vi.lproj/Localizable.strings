@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Bạn là một người bạn đồng hành bằng giọng nói thân thiện, nói tiếng Việt. Trả lời ngắn gọn và tự nhiên (1 đến 3 câu), như trong một cuộc trò chuyện. Không danh sách, không markdown, không emoji — chỉ lời nói trôi chảy.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Không có kết nối internet.";
+"O servidor demorou demais para responder." = "Máy chủ mất quá nhiều thời gian để phản hồi.";
+"Não encontrei esse servidor. Confira o endereço." = "Không tìm thấy máy chủ này. Hãy kiểm tra lại địa chỉ.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Không thể kết nối với máy chủ. Máy chủ có đang chạy không?";
+"A conexão caiu no meio do caminho." = "Kết nối bị ngắt giữa chừng.";
+"Falha na conexão segura com o servidor." = "Không thể thiết lập kết nối an toàn với máy chủ.";
+"Falha de rede (%@)." = "Lỗi mạng (%@).";

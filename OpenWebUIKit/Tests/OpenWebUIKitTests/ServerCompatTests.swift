@@ -165,6 +165,27 @@ final class AppLanguageMatchTests: XCTestCase {
         XCTAssertNil(AppLanguage.match("xx-YY"))
     }
 
+    /// Not every language subtag is two letters, and cutting one down to two
+    /// invents a match: Filipino ("fil-PH", a language iOS offers and this app
+    /// does not ship) became "fi", and a phone set to Filipino drew the whole
+    /// interface in Finnish. No catalogue is the honest answer — the caller
+    /// then tries the user's next preferred language, and English after that.
+    func testThreeLetterCodesAreNotTruncatedIntoTheWrongLanguage() {
+        XCTAssertNil(AppLanguage.match("fil-PH"), "Filipino is not Finnish")
+        XCTAssertNil(AppLanguage.match("fil"))
+        XCTAssertNil(AppLanguage.match("haw"), "Hawaiian is not Hausa")
+        XCTAssertNil(AppLanguage.match("swa"), "3-letter Swahili is not Swedish")
+    }
+
+    /// Cantonese is the exception worth naming: iOS reports it as "yue-…", it is
+    /// written in Chinese script, and this app ships both. Falling through to
+    /// English would have been the loss.
+    func testCantoneseIsServedChinese() {
+        XCTAssertEqual(AppLanguage.match("yue-Hant-HK"), .zhHant)
+        XCTAssertEqual(AppLanguage.match("yue-Hans-CN"), .zhHans)
+        XCTAssertEqual(AppLanguage.match("yue"), .zhHant, "unqualified Cantonese is Hong Kong's")
+    }
+
     /// `match` derives the answer from the enum's raw values instead of a
     /// hand-kept table. This is the property that replaces the table: every
     /// language the prefix branches do not handle must round-trip from its own

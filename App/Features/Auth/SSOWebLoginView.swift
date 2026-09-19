@@ -248,7 +248,7 @@ private struct SSOWebView {
             // A cancelled load is the one we asked for above, not a failure.
             guard !settled, (error as? URLError)?.code != .cancelled else { return }
             settled = true
-            done(.failure(.server(error.localizedDescription)))
+            done(.failure(.server(OWFailure.msg(error))))
         }
     }
 }

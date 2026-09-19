@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Vous êtes un compagnon vocal amical, parlant français. Répondez de façon brève et naturelle (1 à 3 phrases), comme dans une conversation parlée. Pas de listes, de markdown ni d'émojis — juste une parole fluide.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Aucune connexion internet.";
+"O servidor demorou demais para responder." = "Le serveur a mis trop de temps à répondre.";
+"Não encontrei esse servidor. Confira o endereço." = "Serveur introuvable. Vérifiez l'adresse.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Impossible de joindre le serveur. Est-il allumé ?";
+"A conexão caiu no meio do caminho." = "La connexion a été interrompue en cours de route.";
+"Falha na conexão segura com o servidor." = "Échec de la connexion sécurisée au serveur.";
+"Falha de rede (%@)." = "Échec réseau (%@).";

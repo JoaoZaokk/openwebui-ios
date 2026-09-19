@@ -409,7 +409,7 @@ struct GenHistorySheet: View {
                                 Text(rec.prompt)
                                     .font(.ody(size: 12))
                                     .foregroundStyle(theme.fg).lineLimit(2)
-                                Text(rec.date.formatted(date: .abbreviated, time: .shortened))
+                                Text(verbatim: OWDates.dayAndTime(rec.date))
                                     .font(.ody(size: 10))
                                     .foregroundStyle(theme.secondaryText)
                                 ScrollView(.horizontal, showsIndicators: false) {

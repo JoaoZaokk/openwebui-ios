@@ -18,7 +18,7 @@ struct DiagnosticsView: View {
             Section {
                 if let death {
                     Text(death.explanation).font(.ody(.body)).foregroundStyle(theme.fg)
-                    Text(death.date.formatted(date: .abbreviated, time: .shortened))
+                    Text(verbatim: OWDates.dayAndTime(death.date))
                         .font(.ody(size: 10)).foregroundStyle(theme.secondaryText)
                 } else {
                     Text("Nenhum registro.").font(.ody(.body)).foregroundStyle(theme.secondaryText)
@@ -82,7 +82,7 @@ struct DiagnosticsView: View {
                             Text(e.name).font(.ody(size: 11))
                                 .foregroundStyle(e.name.hasSuffix(".fail") || e.name.hasPrefix("death") || e.name == "crash" ? theme.danger : theme.fg)
                             Spacer()
-                            Text(e.date.formatted(date: .omitted, time: .standard))
+                            Text(verbatim: OWDates.preciseTime(e.date))
                                 .font(.ody(size: 10)).foregroundStyle(theme.secondaryText)
                         }
                         if !e.props.isEmpty {
