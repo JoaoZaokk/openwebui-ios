@@ -202,6 +202,22 @@ public enum AppLanguage: String, CaseIterable, Identifiable, Sendable {
 ///     thread-safe cached bundle (the selected `.lproj`).
 /// We deliberately do NOT touch `AppleLanguages` — that would pollute the
 /// device-language auto-detection on the next launch.
+///
+/// Measured, because the sibling app does it differently and the difference
+/// matters. A probe app (macOS 26, three catalogues, system language pt-BR)
+/// rendering `Text("literal")` answered:
+///   • no environment locale  → the key, i.e. the system's language;
+///   • `\.locale` = en / ja    → the en / ja catalogue;
+///   • `Bundle.main`'s class swapped for one that forwards every
+///     `localizedString(forKey:value:table:)` elsewhere → **no effect at all**,
+///     while `L(_:)` followed the swap exactly.
+/// So the environment locale is what moves SwiftUI, and the `Bundle.main`
+/// swizzle Odysseus installs no longer reaches `Text` on this generation of the
+/// framework — it only steers `Bundle.main.localizedString` callers. Both of
+/// this app's paths are already pointed at `current`, so nothing here is
+/// missing; what bites instead is a literal with no catalogue entry, which
+/// resolves to itself and draws Portuguese in all 44 languages
+/// (see `LocalizationCatalogTests`).
 public final class LanguageManager: ObservableObject {
     public static let shared = LanguageManager()
 

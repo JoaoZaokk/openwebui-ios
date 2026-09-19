@@ -26,7 +26,7 @@ final class LocalizationCatalogTests: XCTestCase {
     func testEveryLocalizedLiteralInTheAppHasACatalogueEntry() throws {
         let keys = try catalogue(for: "pt-BR")
         var orphans: [String: String] = [:]      // literal → first site
-        for file in try swiftSources() {
+        for file in try swiftSources() + kitSources() {
             let source = try String(contentsOf: file, encoding: .utf8)
             for (literal, line) in localizedLiterals(in: source) {
                 guard !Self.notTranslated.contains(literal), !keys.contains(literal) else { continue }
@@ -132,9 +132,15 @@ final class LocalizationCatalogTests: XCTestCase {
             .sorted()
     }
 
-    private func swiftSources() throws -> [URL] {
-        let app = Self.repo.appendingPathComponent("App")
-        guard let walker = FileManager.default.enumerator(at: app, includingPropertiesForKeys: nil) else { return [] }
+    private func swiftSources() throws -> [URL] { sources(under: "App") }
+
+    /// The kit calls `L(_:)` too — its keys live in the app's catalogues like
+    /// every other, and drift the same way.
+    private func kitSources() throws -> [URL] { sources(under: "OpenWebUIKit/Sources") }
+
+    private func sources(under path: String) -> [URL] {
+        let root = Self.repo.appendingPathComponent(path)
+        guard let walker = FileManager.default.enumerator(at: root, includingPropertiesForKeys: nil) else { return [] }
         return walker.compactMap { $0 as? URL }.filter { $0.pathExtension == "swift" }.sorted { $0.path < $1.path }
     }
 
