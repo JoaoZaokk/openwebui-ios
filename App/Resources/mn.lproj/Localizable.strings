@@ -310,3 +310,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Та монголоор ярьдаг найрсаг дуут хамтрагч. Ярианы хэллэгээр, товч бөгөөд байгалийн байдлаар (1-ээс 3 өгүүлбэрээр) хариул. Жагсаалт, markdown, эможи бүү ашигла — зөвхөн урсгал яриа хэрэглэ.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Интернэт холболтгүй байна.";
+"O servidor demorou demais para responder." = "Сервер хариу өгөхөд хэт удлаа.";
+"Não encontrei esse servidor. Confira o endereço." = "Энэ серверийг олсонгүй. Хаягаа шалгана уу.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Сервертэй холбогдож чадсангүй. Энэ ажиллаж байна уу?";
+"A conexão caiu no meio do caminho." = "Холболт замын дундуур тасарлаа.";
+"Falha na conexão segura com o servidor." = "Сервертэй аюулгүй холболт үүсгэж чадсангүй.";
+"Falha de rede (%@)." = "Сүлжээний алдаа (%@).";

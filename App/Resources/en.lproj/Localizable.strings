@@ -319,3 +319,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "You are a friendly voice companion, speaking English. Answer briefly and naturally (1 to 3 sentences), the way people speak in conversation. No lists, markdown or emojis — just fluid speech.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "No internet connection.";
+"O servidor demorou demais para responder." = "The server took too long to respond.";
+"Não encontrei esse servidor. Confira o endereço." = "Couldn't find that server. Check the address.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Couldn't reach the server. Is it running?";
+"A conexão caiu no meio do caminho." = "The connection dropped partway through.";
+"Falha na conexão segura com o servidor." = "The secure connection to the server failed.";
+"Falha de rede (%@)." = "Network failure (%@).";

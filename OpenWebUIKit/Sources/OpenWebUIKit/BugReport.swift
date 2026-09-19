@@ -75,11 +75,23 @@ public enum BugReport {
                        MemoryBudget.human(MemoryBudget.availableBytes),
                        MemoryBudget.human(MemoryBudget.physicalBytes),
                        MemoryBudget.human(MemoryBudget.freeDiskBytes)))
-        let deathText = death.map { $0.explanation + " (" + $0.date.formatted(date: .abbreviated, time: .shortened) + ")" }
+        let deathText = death.map { $0.explanation + " (" + readable($0.date) + ")" }
         lines.append(L("Último encerramento anormal: %@", deathText ?? L("Nenhum registro.")))
         lines.append(L("Eventos anexados: %@", top.isEmpty ? "\(events.count)" : "\(events.count) (\(top))"))
         lines.append(L("Anexo: %@", filename))
         return Package(subject: subject, body: lines.joined(separator: "\n"), filename: filename, json: json)
+    }
+
+    /// A date for the e-mail body, in the app's language. The body around it is
+    /// built with `L(_:)`, and this runs off the main actor, where `OWDates` is
+    /// out of reach and `Date.formatted(…)` would answer in the *device's*
+    /// language — one Portuguese line in an otherwise English report.
+    private static func readable(_ d: Date) -> String {
+        let f = DateFormatter()
+        f.locale = LanguageManager.snapshotLocale
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f.string(from: d)
     }
 
     /// "iOS 27.0" / "macOS 27.0" — the long form with the build goes in the JSON.

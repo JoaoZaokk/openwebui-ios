@@ -310,3 +310,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "คุณคือเพื่อนคู่สนทนาด้วยเสียงที่เป็นมิตร พูดภาษาไทย ตอบสั้น ๆ และเป็นธรรมชาติ (1 ถึง 3 ประโยค) เหมือนการสนทนาพูดคุยทั่วไป ห้ามใช้รายการ มาร์กดาวน์ หรืออิโมจิ — ใช้แค่คำพูดที่ลื่นไหล";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "ไม่มีการเชื่อมต่ออินเทอร์เน็ต";
+"O servidor demorou demais para responder." = "เซิร์ฟเวอร์ใช้เวลาตอบกลับนานเกินไป";
+"Não encontrei esse servidor. Confira o endereço." = "ไม่พบเซิร์ฟเวอร์นี้ กรุณาตรวจสอบที่อยู่";
+"Não consegui falar com o servidor. Ele está ligado?" = "ไม่สามารถติดต่อเซิร์ฟเวอร์ได้ เซิร์ฟเวอร์เปิดอยู่หรือไม่";
+"A conexão caiu no meio do caminho." = "การเชื่อมต่อขาดหายไปกลางทาง";
+"Falha na conexão segura com o servidor." = "การเชื่อมต่อที่ปลอดภัยกับเซิร์ฟเวอร์ล้มเหลว";
+"Falha de rede (%@)." = "เครือข่ายขัดข้อง (%@)";

@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Anda ialah rakan bicara suara yang mesra, bertutur dalam bahasa Melayu. Jawab secara ringkas dan semula jadi (1 hingga 3 ayat), seperti dalam perbualan lisan. Jangan guna senarai, markdown atau emoji — hanya pertuturan yang lancar.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Tiada sambungan internet.";
+"O servidor demorou demais para responder." = "Pelayan mengambil masa terlalu lama untuk bertindak balas.";
+"Não encontrei esse servidor. Confira o endereço." = "Pelayan ini tidak dijumpai. Sila semak alamatnya.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Tidak dapat menghubungi pelayan. Adakah ia sedang berjalan?";
+"A conexão caiu no meio do caminho." = "Sambungan terputus di tengah jalan.";
+"Falha na conexão segura com o servidor." = "Sambungan selamat ke pelayan gagal.";
+"Falha de rede (%@)." = "Ralat rangkaian (%@).";

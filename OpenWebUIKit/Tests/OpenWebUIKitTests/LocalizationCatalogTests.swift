@@ -37,6 +37,25 @@ final class LocalizationCatalogTests: XCTestCase {
                       + orphans.sorted { $0.key < $1.key }.map { "  \($0.value): \"\($0.key)\"" }.joined(separator: "\n"))
     }
 
+    /// `Date.formatted(…)` reads `Locale.autoupdatingCurrent` — the *device*
+    /// language. In an app whose whole point is that the interface language and
+    /// the device's can differ, that draws a Portuguese date under an English
+    /// screen. `OWDates` exists so a date follows the picker like everything
+    /// else; this keeps the sugar from creeping back in.
+    func testNoDateIsFormattedAgainstTheDeviceLocale() throws {
+        let sugar = try NSRegularExpression(pattern: #"\.formatted\((?:date:|\))"#)
+        var sites: [String] = []
+        for file in try swiftSources() + kitSources() {
+            let source = try String(contentsOf: file, encoding: .utf8)
+            for (i, line) in source.components(separatedBy: "\n").enumerated() {
+                guard !line.trimmingCharacters(in: .whitespaces).hasPrefix("//") else { continue }
+                guard sugar.firstMatch(in: line, range: NSRange(line.startIndex..., in: line)) != nil else { continue }
+                sites.append("\(file.lastPathComponent):\(i + 1): \(line.trimmingCharacters(in: .whitespaces))")
+            }
+        }
+        XCTAssertTrue(sites.isEmpty, "dates formatted in the device language instead of the app's (use OWDates):\n  " + sites.joined(separator: "\n  "))
+    }
+
     // MARK: - The catalogues themselves
 
     func testEveryLanguageCarriesTheSameKeys() throws {

@@ -310,3 +310,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "ཁྱོད་ནི་བོད་སྐད་བཤད་མཁན་གྱི་མཛའ་གྲོགས་སྒྲ་འཕྲིན་ཞིག་ཡིན། གཏམ་བཤད་ལྟར་ཚིག་གྲུབ་གཅིག་ནས་གསུམ་བར་མདོར་བསྡུས་ཤིང་རང་བཞིན་གྱིས་ལན་འདེབས་གནང་རོགས། ཐོ་གཞུང་དང་མཱརཀ་ཌའུན་ཡང་ན་ཉམས་འཛིན་རི་མོ་བེད་སྤྱོད་མི་བྱེད་པར་འཇགས་ལྡན་གྱི་སྐད་ཆ་ཙམ་བེད་སྤྱོད་གནང་རོགས།";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "ཨིན་ཊར་ནེཊ་མཐུད་ལམ་མེད།";
+"O servidor demorou demais para responder." = "སར་བར་ནས་ལན་འདེབས་པར་དུས་ཚོད་མང་དྲགས་སོང་།";
+"Não encontrei esse servidor. Confira o endereço." = "སར་བར་དེ་མ་རྙེད། ཁ་བྱང་ཞིབ་བཤེར་གནང་རོགས།";
+"Não consegui falar com o servidor. Ele está ligado?" = "སར་བར་དང་འབྲེལ་མཐུད་མ་ཐུབ། དེ་འགུལ་བཞིན་ཡོད་དམ།";
+"A conexão caiu no meio do caminho." = "འབྲེལ་མཐུད་བར་ལམ་ནས་ཆད་སོང་།";
+"Falha na conexão segura com o servidor." = "སར་བར་དང་བདེ་སྲུང་འབྲེལ་མཐུད་ལ་འགྱེལ་ཁ་བྱུང་།";
+"Falha de rede (%@)." = "དྲ་རྒྱའི་ནོར་འཁྲུལ་(%@)བྱུང་།";

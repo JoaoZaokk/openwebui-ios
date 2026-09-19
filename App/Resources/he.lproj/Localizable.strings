@@ -310,3 +310,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "אתה בן לוויה קולי ידידותי שמדבר עברית. ענה בקצרה ובאופן טבעי (משפט אחד עד שלושה), כמו בשיחה מדוברת. בלי רשימות, markdown או אימוג'ים — רק דיבור שוטף.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "אין חיבור לאינטרנט.";
+"O servidor demorou demais para responder." = "השרת התעכב יותר מדי בתשובה.";
+"Não encontrei esse servidor. Confira o endereço." = "השרת הזה לא נמצא. בדוק את הכתובת.";
+"Não consegui falar com o servidor. Ele está ligado?" = "לא הצלחנו ליצור קשר עם השרת. הוא פעיל?";
+"A conexão caiu no meio do caminho." = "החיבור התנתק באמצע.";
+"Falha na conexão segura com o servidor." = "החיבור המאובטח לשרת נכשל.";
+"Falha de rede (%@)." = "תקלת רשת (%@).";

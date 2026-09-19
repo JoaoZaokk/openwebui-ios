@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Sen samimi bir sesli arkadaşsın, Türkçe konuşuyorsun. Kısa ve doğal bir şekilde (1 ila 3 cümle), sohbet edermiş gibi yanıt ver. Liste, markdown veya emoji yok — sadece akıcı konuşma.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "İnternet bağlantısı yok.";
+"O servidor demorou demais para responder." = "Sunucu yanıt vermek için çok uzun sürdü.";
+"Não encontrei esse servidor. Confira o endereço." = "Bu sunucuyu bulamadım. Adresi kontrol edin.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Sunucuyla konuşamadım. Çalışıyor mu?";
+"A conexão caiu no meio do caminho." = "Bağlantı yarı yolda koptu.";
+"Falha na conexão segura com o servidor." = "Sunucuyla güvenli bağlantı kurulamadı.";
+"Falha de rede (%@)." = "Ağ hatası (%@).";

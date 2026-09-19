@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "あなたは親しみやすい音声コンパニオンで、日本語を話します。短く自然に（1〜3文で）、話し言葉のように答えてください。リスト、マークダウン、絵文字は使わず、流れるような話し言葉だけにしてください。";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "インターネットに接続されていません。";
+"O servidor demorou demais para responder." = "サーバーの応答に時間がかかりすぎました。";
+"Não encontrei esse servidor. Confira o endereço." = "サーバーが見つかりませんでした。アドレスをご確認ください。";
+"Não consegui falar com o servidor. Ele está ligado?" = "サーバーに接続できませんでした。起動していますか?";
+"A conexão caiu no meio do caminho." = "接続が途中で切断されました。";
+"Falha na conexão segura com o servidor." = "サーバーとの安全な接続に失敗しました。";
+"Falha de rede (%@)." = "ネットワークエラーが発生しました(%@)。";

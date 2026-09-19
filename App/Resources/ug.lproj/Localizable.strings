@@ -310,3 +310,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "سەن دوستانە بىر ئاۋازلىق ھەمراھ بولۇپ، ئۇيغۇرچە سۆزلەيسەن. قىسقا ۋە تەبىئىي ھالدا جاۋاب بەر (1 دىن 3 جۈملىگىچە)، خۇددى ئېغىزچە سۆھبەتتىكىدەك. تىزىملىك، مارکداۋن ياكى ئىمودزى يوق — پەقەت راۋان سۆز.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "ئىنتېرنېت باغلىنىشى يوق.";
+"O servidor demorou demais para responder." = "مۇلازىمېتىر جاۋاب بېرىشكە بەك كۆپ ۋاقىت كەتتى.";
+"Não encontrei esse servidor. Confira o endereço." = "بۇ مۇلازىمېتىر تېپىلمىدى. ئادرېسنى تەكشۈرۈڭ.";
+"Não consegui falar com o servidor. Ele está ligado?" = "مۇلازىمېتىر بىلەن ئالاقىلىشىپ بولالمىدۇق. ئۇ ئوچۇقمۇ؟";
+"A conexão caiu no meio do caminho." = "باغلىنىش ئوتتۇرىدا ئۈزۈلۈپ قالدى.";
+"Falha na conexão segura com o servidor." = "مۇلازىمېتىرغا بولغان بىخەتەر باغلىنىش مەغلۇپ بولدى.";
+"Falha de rede (%@)." = "تور خاتالىقى (%@).";

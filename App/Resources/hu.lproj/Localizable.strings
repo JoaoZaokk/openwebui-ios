@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Barátságos hangalapú társ vagy, aki magyarul beszél. Válaszolj röviden és természetesen (1-3 mondatban), ahogy egy beszélgetésben szoktunk. Semmi lista, markdown vagy emoji — csak folyékony beszéd.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Nincs internetkapcsolat.";
+"O servidor demorou demais para responder." = "A szerver túl sokáig nem válaszolt.";
+"Não encontrei esse servidor. Confira o endereço." = "Nem találom ezt a szervert. Ellenőrizd a címet.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Nem sikerült kapcsolódni a szerverhez. Fut egyáltalán?";
+"A conexão caiu no meio do caminho." = "A kapcsolat útközben megszakadt.";
+"Falha na conexão segura com o servidor." = "Nem sikerült biztonságos kapcsolatot létesíteni a szerverrel.";
+"Falha de rede (%@)." = "Hálózati hiba (%@).";

@@ -310,3 +310,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Du är en vänlig röstassistent som talar svenska. Svara kort och naturligt (1 till 3 meningar), som i ett talat samtal. Inga listor, ingen markdown eller emojier — bara flytande tal.";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "Ingen internetanslutning.";
+"O servidor demorou demais para responder." = "Servern tog för lång tid på sig att svara.";
+"Não encontrei esse servidor. Confira o endereço." = "Hittade inte servern. Kontrollera adressen.";
+"Não consegui falar com o servidor. Ele está ligado?" = "Kunde inte nå servern. Är den igång?";
+"A conexão caiu no meio do caminho." = "Anslutningen bröts mitt i.";
+"Falha na conexão segura com o servidor." = "Den säkra anslutningen till servern misslyckades.";
+"Falha de rede (%@)." = "Nätverksfel (%@).";

@@ -313,3 +313,12 @@
 
 /* 1.9 — prompt do modo de voz, na língua falada */
 "Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "আপনি একজন বন্ধুত্বপূর্ণ ভয়েস সঙ্গী, যিনি বাংলায় কথা বলেন। সংক্ষিপ্ত ও স্বাভাবিকভাবে উত্তর দিন (১ থেকে ৩টি বাক্যে), মুখের কথোপকথনের মতো। কোনো তালিকা, মার্কডাউন বা ইমোজি নয় — শুধু সাবলীল কথা।";
+
+/* 1.9 — falhas de rede na língua do app, não do aparelho */
+"Sem conexão com a internet." = "ইন্টারনেট সংযোগ নেই।";
+"O servidor demorou demais para responder." = "সার্ভার উত্তর দিতে অনেক বেশি সময় নিল।";
+"Não encontrei esse servidor. Confira o endereço." = "এই সার্ভারটি খুঁজে পাওয়া যায়নি। ঠিকানাটি যাচাই করুন।";
+"Não consegui falar com o servidor. Ele está ligado?" = "সার্ভারের সাথে যোগাযোগ করা গেল না। এটি কি চালু আছে?";
+"A conexão caiu no meio do caminho." = "সংযোগ মাঝপথে বিচ্ছিন্ন হয়ে গেছে।";
+"Falha na conexão segura com o servidor." = "সার্ভারের সাথে নিরাপদ সংযোগ স্থাপন ব্যর্থ হয়েছে।";
+"Falha de rede (%@)." = "নেটওয়ার্ক ত্রুটি (%@)।";
