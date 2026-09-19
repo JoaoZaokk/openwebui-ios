@@ -534,9 +534,18 @@ final class VoiceConversation: ObservableObject {
         Task { await listen() }
     }
 
-    static let systemPrompt = """
-    Você é um companheiro de voz amigável, falando português do Brasil. \
-    Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. \
-    Nada de listas, markdown ou emojis — apenas fala fluida.
-    """
+    /// The companion's instructions, written in the language the user is
+    /// speaking: the pinned voice language, or the interface language when the
+    /// engine is left to detect — the same resolution `VoiceInputManager` uses
+    /// to choose a recognizer.
+    ///
+    /// This was a Portuguese literal, which told the model to answer in
+    /// Portuguese no matter who was speaking or what the app was set to. It is
+    /// the one string in the app that is not read by the user but sent to
+    /// something with a language of its own, which is why it takes `L(_:in:)`
+    /// and not `L(_:)`.
+    static var systemPrompt: String {
+        let spoken = SpeechLanguage.pinned() ?? LanguageManager.shared.current
+        return L("Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida.", in: spoken)
+    }
 }

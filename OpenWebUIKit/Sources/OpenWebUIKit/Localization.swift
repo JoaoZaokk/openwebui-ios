@@ -279,12 +279,16 @@ public final class LanguageManager: ObservableObject {
 
     // MARK: - Thread-safe bundle snapshot
 
+    /// The catalogue for a named language, which is not always the active one:
+    /// the voice companion's system prompt has to be written in the language the
+    /// user *speaks*, and that setting is deliberately separate from the
+    /// interface's. `nil` when the bundle ships no catalogue for it.
+    public static func catalogue(for lang: AppLanguage, in container: Bundle = .main) -> Bundle? {
+        container.path(forResource: lang.rawValue, ofType: "lproj").flatMap(Bundle.init(path:))
+    }
+
     private static func computeBundle(for lang: AppLanguage) -> Bundle {
-        if let p = Bundle.main.path(forResource: lang.rawValue, ofType: "lproj"),
-           let b = Bundle(path: p) {
-            return b
-        }
-        return .main
+        catalogue(for: lang) ?? .main
     }
 
     private static func setActiveBundle(for lang: AppLanguage) {
@@ -305,6 +309,17 @@ public final class LanguageManager: ObservableObject {
 /// messages). `key` is the Portuguese source string. Thread-safe.
 public func L(_ key: String, _ args: CVarArg...) -> String {
     let s = LanguageManager.snapshotBundle.localizedString(forKey: key, value: key, table: nil)
+    return args.isEmpty ? s : String(format: s, arguments: args)
+}
+
+/// Localizes `key` in a language the caller names, whatever the interface is
+/// set to. For strings that are not read by the user but *sent* somewhere that
+/// has its own language — today, the voice companion's system prompt, which
+/// must be written in the language being spoken. Falls back to the interface
+/// language when nothing ships for it.
+public func L(_ key: String, in language: AppLanguage, _ args: CVarArg...) -> String {
+    let bundle = LanguageManager.catalogue(for: language) ?? LanguageManager.snapshotBundle
+    let s = bundle.localizedString(forKey: key, value: key, table: nil)
     return args.isEmpty ? s : String(format: s, arguments: args)
 }
 

@@ -307,3 +307,6 @@
 
 /* 1.9 — motor on-device */
 "Não consegui carregar o modelo %@." = "དཔེ་གཞི་ %@ བཙུགས་མ་ཐུབ།";
+
+/* 1.9 — prompt do modo de voz, na língua falada */
+"Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "ཁྱོད་ནི་བོད་སྐད་བཤད་མཁན་གྱི་མཛའ་གྲོགས་སྒྲ་འཕྲིན་ཞིག་ཡིན། གཏམ་བཤད་ལྟར་ཚིག་གྲུབ་གཅིག་ནས་གསུམ་བར་མདོར་བསྡུས་ཤིང་རང་བཞིན་གྱིས་ལན་འདེབས་གནང་རོགས། ཐོ་གཞུང་དང་མཱརཀ་ཌའུན་ཡང་ན་ཉམས་འཛིན་རི་མོ་བེད་སྤྱོད་མི་བྱེད་པར་འཇགས་ལྡན་གྱི་སྐད་ཆ་ཙམ་བེད་སྤྱོད་གནང་རོགས།";

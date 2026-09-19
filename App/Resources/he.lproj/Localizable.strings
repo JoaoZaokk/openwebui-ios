@@ -307,3 +307,6 @@
 
 /* 1.9 — motor on-device */
 "Não consegui carregar o modelo %@." = "לא ניתן היה לטעון את הדגם %@.";
+
+/* 1.9 — prompt do modo de voz, na língua falada */
+"Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "אתה בן לוויה קולי ידידותי שמדבר עברית. ענה בקצרה ובאופן טבעי (משפט אחד עד שלושה), כמו בשיחה מדוברת. בלי רשימות, markdown או אימוג'ים — רק דיבור שוטף.";

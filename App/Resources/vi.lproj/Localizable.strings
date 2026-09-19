@@ -310,3 +310,6 @@
 
 /* 1.9 — motor on-device */
 "Não consegui carregar o modelo %@." = "Không thể tải mô hình %@.";
+
+/* 1.9 — prompt do modo de voz, na língua falada */
+"Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Bạn là một người bạn đồng hành bằng giọng nói thân thiện, nói tiếng Việt. Trả lời ngắn gọn và tự nhiên (1 đến 3 câu), như trong một cuộc trò chuyện. Không danh sách, không markdown, không emoji — chỉ lời nói trôi chảy.";

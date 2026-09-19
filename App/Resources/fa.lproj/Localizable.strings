@@ -310,3 +310,6 @@
 
 /* 1.9 — motor on-device */
 "Não consegui carregar o modelo %@." = "بارگذاری مدل %@ ممکن نشد.";
+
+/* 1.9 — prompt do modo de voz, na língua falada */
+"Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "تو یک همراه صوتی دوستانه هستی که به فارسی صحبت می‌کنی. کوتاه و طبیعی پاسخ بده (یک تا سه جمله)، مثل یک گفت‌وگوی گفتاری. بدون فهرست، مارک‌داون یا شکلک — فقط گفتار روان.";

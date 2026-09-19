@@ -307,3 +307,6 @@
 
 /* 1.9 — motor on-device */
 "Não consegui carregar o modelo %@." = "Modeli %@ nevarēja ielādēt.";
+
+/* 1.9 — prompt do modo de voz, na língua falada */
+"Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Tu esi draudzīgs balss pavadonis, kas runā latviski. Atbildi īsi un dabiski (1 līdz 3 teikumos), kā runātā sarunā. Bez sarakstiem, Markdown formatējuma vai emocijzīmēm — tikai plūstoša runa.";
