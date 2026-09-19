@@ -21,9 +21,20 @@ final class StubTransport: URLProtocol {
         /// Seconds to hold the answer back — for a test about an answer that
         /// arrives after the app has moved on.
         var delay: TimeInterval = 0
+        /// Set instead of a status: the request fails with this `URLError`.
+        var failure: URLError.Code?
 
         init(_ status: Int = 200, _ body: Data = Data(), headers: [String: String] = [:]) {
             self.status = status; self.body = body; self.headers = headers
+        }
+
+        /// No answer at all: the transport itself fails, the way a sleeping
+        /// server or a phone in a lift does. What the app makes of that is the
+        /// point of the test, not the bytes.
+        static func failing(_ code: URLError.Code) -> Reply {
+            var r = Reply(0)
+            r.failure = code
+            return r
         }
 
         static func json(_ raw: String, status: Int = 200) -> Reply {
@@ -94,6 +105,11 @@ final class StubTransport: URLProtocol {
             client?.urlProtocol(self, didFailWithError: URLError(
                 .unsupportedURL,
                 userInfo: [NSLocalizedDescriptionKey: "StubTransport has no route for \(path)"]))
+            return
+        }
+
+        if let failure = reply.failure {
+            client?.urlProtocol(self, didFailWithError: URLError(failure))
             return
         }
 
