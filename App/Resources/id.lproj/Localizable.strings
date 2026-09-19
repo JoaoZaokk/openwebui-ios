@@ -310,3 +310,6 @@
 
 /* 1.9 — motor on-device */
 "Não consegui carregar o modelo %@." = "Model %@ tidak dapat dimuat.";
+
+/* 1.9 — prompt do modo de voz, na língua falada */
+"Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Anda adalah teman bicara suara yang ramah, berbicara dalam bahasa Indonesia. Jawablah secara singkat dan alami (1 hingga 3 kalimat), seperti dalam percakapan lisan. Jangan gunakan daftar, markdown, atau emoji — cukup ucapan yang lancar.";

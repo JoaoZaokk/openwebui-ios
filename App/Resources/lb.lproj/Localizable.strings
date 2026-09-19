@@ -307,3 +307,6 @@
 
 /* 1.9 — motor on-device */
 "Não consegui carregar o modelo %@." = "D'Modell %@ konnt net geluede ginn.";
+
+/* 1.9 — prompt do modo de voz, na língua falada */
+"Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "Du bass e frëndleche Stëmmbegleeder, deen Lëtzebuergesch schwätzt. Äntwert kuerz a natierlech (1 bis 3 Sätz), wéi an engem geschwatene Gespréich. Keng Lëschten, kee Markdown a keng Emojien — nëmmen fléissend Ried.";

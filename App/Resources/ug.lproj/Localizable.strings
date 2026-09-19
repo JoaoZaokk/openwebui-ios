@@ -307,3 +307,6 @@
 
 /* 1.9 — motor on-device */
 "Não consegui carregar o modelo %@." = "%@ مودېلىنى يۈكلىيەلمىدى.";
+
+/* 1.9 — prompt do modo de voz, na língua falada */
+"Você é um companheiro de voz amigável, falando português do Brasil. Responda de forma curta e natural (1 a 3 frases), como numa conversa falada. Nada de listas, markdown ou emojis — apenas fala fluida." = "سەن دوستانە بىر ئاۋازلىق ھەمراھ بولۇپ، ئۇيغۇرچە سۆزلەيسەن. قىسقا ۋە تەبىئىي ھالدا جاۋاب بەر (1 دىن 3 جۈملىگىچە)، خۇددى ئېغىزچە سۆھبەتتىكىدەك. تىزىملىك، مارکداۋن ياكى ئىمودزى يوق — پەقەت راۋان سۆز.";
