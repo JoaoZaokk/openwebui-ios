@@ -24,9 +24,28 @@ struct VoiceSettingsView: View {
     @AppStorage("voice.tts.serverModel") private var serverModel = ""
     @AppStorage("voice.bargein.enabled") private var bargeEnabled = true
     @AppStorage("voice.bargein.sensitivity") private var bargeSensitivity = 0.5
-    @State private var langFilter = "all"
+    /// Stored value of the language filter meaning "nothing picked yet". The
+    /// filter used to open on "all", and "all" is 65 models laid end to end —
+    /// the choice that shortens the list was buried under the list it shortens.
+    /// Now the catalogue stays folded until the user opens the menu.
+    private static let noLanguage = ""
+    @State private var langFilter = VoiceSettingsView.noLanguage
+    /// Which size groups are open, keyed `engine|bucket`. Empty at launch: every
+    /// group starts closed, so picking a language costs four rows, not forty.
+    @State private var openBuckets: Set<String> = []
 
     private var lang: VoiceLang? { VoiceLang(rawValue: langFilter) }
+    private var languageChosen: Bool { langFilter != Self.noLanguage }
+
+    /// Open/closed state of one size group. Keyed by engine as well as bucket:
+    /// "Up to 1 GB" under Whisper and under Parakeet are two different rows.
+    private func bucketBinding(_ engine: STTModelEngine, _ bucket: VoiceModel.Bucket) -> Binding<Bool> {
+        let key = "\(engine.rawValue)|\(bucket.rawValue)"
+        return Binding(get: { openBuckets.contains(key) },
+                       set: { open in
+                           if open { openBuckets.insert(key) } else { openBuckets.remove(key) }
+                       })
+    }
 
     // The engine is *persisted* as a raw string — that is what the picker binds
     // to — but every question this screen asks about it is asked of the enum.
@@ -154,8 +173,10 @@ struct VoiceSettingsView: View {
             }
 
             Section("Filtrar catálogo por idioma") {
-                // Menu (not segmented): 22 options (21 language buckets + "Todos"), text labels only — no flags.
+                // Menu (not segmented): 23 options (21 language buckets, "Todos",
+                // and the empty opening state), text labels only — no flags.
                 Picker("Idioma", selection: $langFilter) {
+                    Text("Escolha um idioma").tag(VoiceSettingsView.noLanguage)
                     Text("Todos").tag("all")
                     ForEach(VoiceLang.allCases, id: \.rawValue) { l in
                         Text(l.label).tag(l.rawValue)
@@ -360,18 +381,38 @@ struct VoiceSettingsView: View {
         }
     }
 
+    /// Nothing at all until a language is picked, then one closed row per size
+    /// group. The catalogue is 65 speech-to-text models; drawn flat, as it was,
+    /// the screen opened on a scroll no one reads to the end of.
     @ViewBuilder
     private func modelSection(title: String, task: VoiceTask, engine: STTModelEngine, selectedID: String, select: @escaping (String) -> Void) -> some View {
-        let models = VoiceCatalog.filtered(task: task, lang: lang).filter { $0.engine == engine }
-        ForEach(VoiceModel.Bucket.allCases, id: \.rawValue) { bucket in
-            let items = models.filter { $0.bucket == bucket }
-            if !items.isEmpty {
+        if languageChosen {
+            let models = VoiceCatalog.filtered(task: task, lang: lang).filter { $0.engine == engine }
+            if !models.isEmpty {
                 Section {
-                    ForEach(items) { model in
-                        modelRow(model, selected: selectedID == model.id, select: select)
+                    ForEach(VoiceModel.Bucket.allCases, id: \.rawValue) { bucket in
+                        let items = models.filter { $0.bucket == bucket }
+                        if !items.isEmpty {
+                            DisclosureGroup(isExpanded: bucketBinding(engine, bucket)) {
+                                ForEach(items) { model in
+                                    modelRow(model, selected: selectedID == model.id, select: select)
+                                }
+                            } label: {
+                                HStack {
+                                    Text(verbatim: bucket.label)
+                                        .font(.ody(.subheadline)).foregroundStyle(theme.fg)
+                                    Spacer()
+                                    // How many are inside, so a closed group is
+                                    // still worth a decision.
+                                    Text(verbatim: "\(items.count)")
+                                        .font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
+                                }
+                            }
+                            .listRowBackground(theme.bg)
+                        }
                     }
                 } header: {
-                    Text(verbatim: "\(title) · \(bucket.label)")
+                    Text(verbatim: title)
                 }
             }
         }

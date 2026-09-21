@@ -322,3 +322,4 @@
 "A conexão caiu no meio do caminho." = "接続が途中で切断されました。";
 "Falha na conexão segura com o servidor." = "サーバーとの安全な接続に失敗しました。";
 "Falha de rede (%@)." = "ネットワークエラーが発生しました(%@)。";
+"Escolha um idioma" = "言語を選択";
