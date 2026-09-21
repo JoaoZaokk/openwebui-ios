@@ -322,3 +322,4 @@
 "A conexão caiu no meio do caminho." = "Соединение прервалось на середине.";
 "Falha na conexão segura com o servidor." = "Не удалось установить защищённое соединение с сервером.";
 "Falha de rede (%@)." = "Ошибка сети (%@).";
+"Escolha um idioma" = "Выберите язык";

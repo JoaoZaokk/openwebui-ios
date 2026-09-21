@@ -322,3 +322,4 @@
 "A conexão caiu no meio do caminho." = "A kapcsolat útközben megszakadt.";
 "Falha na conexão segura com o servidor." = "Nem sikerült biztonságos kapcsolatot létesíteni a szerverrel.";
 "Falha de rede (%@)." = "Hálózati hiba (%@).";
+"Escolha um idioma" = "Válasszon nyelvet";

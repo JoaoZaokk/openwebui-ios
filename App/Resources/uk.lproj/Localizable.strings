@@ -322,3 +322,4 @@
 "A conexão caiu no meio do caminho." = "З’єднання перервалося на середині.";
 "Falha na conexão segura com o servidor." = "Не вдалося встановити захищене з’єднання із сервером.";
 "Falha de rede (%@)." = "Помилка мережі (%@).";
+"Escolha um idioma" = "Виберіть мову";

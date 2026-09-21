@@ -328,3 +328,4 @@
 "A conexão caiu no meio do caminho." = "The connection dropped partway through.";
 "Falha na conexão segura com o servidor." = "The secure connection to the server failed.";
 "Falha de rede (%@)." = "Network failure (%@).";
+"Escolha um idioma" = "Choose a language";
