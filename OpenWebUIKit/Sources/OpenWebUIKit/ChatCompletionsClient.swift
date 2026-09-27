@@ -76,6 +76,88 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                        messages: [OWChatMessageInput],
                        files: [OWAttachment] = [],
                        options: OWStreamOptions = .init()) -> AsyncThrowingStream<OWStreamUpdate, Error> {
+        guard messages.contains(where: { $0.role == "system" }) else {
+            return attempt(model: model, messages: messages, files: files, options: options)
+        }
+        // Gemma through Google's API refuses the system role outright ("Developer
+        // instruction is not enabled for models/gemma-…"), and the voice mode and
+        // the image prompt helper both open with one — on Gemma neither produced
+        // a word. One retry, with the instruction folded into the first user
+        // turn, and only for that refusal and only before anything was shown.
+        return AsyncThrowingStream { continuation in
+            let task = Task {
+                var shown = false
+                do {
+                    for try await update in attempt(model: model, messages: messages, files: files, options: options) {
+                        if !shown, case .error(let why) = update, Self.refusesSystemRole(why) {
+                            try await relay(model: model, messages: Self.foldingSystemPrompt(messages),
+                                            files: files, options: options, into: continuation)
+                            return
+                        }
+                        if case .sources = update {} else { shown = true }
+                        continuation.yield(update)
+                    }
+                    continuation.finish()
+                } catch OWError.http(_, let why?) where !shown && Self.refusesSystemRole(why) {
+                    do {
+                        try await relay(model: model, messages: Self.foldingSystemPrompt(messages),
+                                        files: files, options: options, into: continuation)
+                    } catch is CancellationError {
+                        continuation.finish()
+                    } catch {
+                        continuation.finish(throwing: error)
+                    }
+                } catch is CancellationError {
+                    continuation.finish()
+                } catch {
+                    continuation.finish(throwing: error)
+                }
+            }
+            continuation.onTermination = { _ in task.cancel() }
+        }
+    }
+
+    private func relay(model: String, messages: [OWChatMessageInput], files: [OWAttachment],
+                       options: OWStreamOptions,
+                       into continuation: AsyncThrowingStream<OWStreamUpdate, Error>.Continuation) async throws {
+        for try await update in attempt(model: model, messages: messages, files: files, options: options) {
+            continuation.yield(update)
+        }
+        continuation.finish()
+    }
+
+    /// A provider saying it takes no system/developer instruction. Google's
+    /// wording is the one met in practice; the others are the same refusal from
+    /// other OpenAI-compatible hosts.
+    static func refusesSystemRole(_ message: String) -> Bool {
+        let m = message.lowercased()
+        return m.contains("developer instruction is not enabled")
+            || m.contains("system instruction is not enabled")
+            || m.contains("system role is not supported")
+            || m.contains("system messages are not supported")
+            || m.contains("does not support system")
+    }
+
+    /// The system turns, joined, placed ahead of the first user turn's text.
+    /// With no user turn at all they become one.
+    static func foldingSystemPrompt(_ messages: [OWChatMessageInput]) -> [OWChatMessageInput] {
+        let system = messages.filter { $0.role == "system" }.map(\.text).filter { !$0.isEmpty }
+        var rest = messages.filter { $0.role != "system" }
+        guard !system.isEmpty else { return rest }
+        let instruction = system.joined(separator: "\n\n")
+        if let i = rest.firstIndex(where: { $0.role == "user" }) {
+            let text = rest[i].text
+            rest[i].text = text.isEmpty ? instruction : instruction + "\n\n" + text
+        } else {
+            rest.insert(OWChatMessageInput(role: "user", text: instruction), at: 0)
+        }
+        return rest
+    }
+
+    private func attempt(model: String,
+                         messages: [OWChatMessageInput],
+                         files: [OWAttachment],
+                         options: OWStreamOptions) -> AsyncThrowingStream<OWStreamUpdate, Error> {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do {
@@ -233,12 +315,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
     /// Internal so the sentence a refusal turns into can be pinned directly.
     static func extractError(_ body: String) -> String? {
         // FastAPI/Open WebUI errors are usually {"detail": "..."} or {"message": "..."}.
-        if let data = body.data(using: .utf8),
-           let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
-            if let d = obj["detail"] as? String { return d }
-            if let m = obj["message"] as? String { return m }
-            if let e = obj["error"] as? String { return e }
-        }
+        if let data = body.data(using: .utf8), let s = OWErrorSentence.sentence(data) { return s }
         return body.count < 300 && !body.isEmpty ? body : nil
     }
 }
