@@ -10,6 +10,7 @@ struct ChatScreen: View {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var vm: ChatViewModel
     @StateObject private var voice = VoiceInputManager()
+    @ObservedObject private var speech = SpeechManager.shared
     @FocusState private var inputFocused: Bool
     @State private var photoItems: [PhotosPickerItem] = []
     @State private var showPhotos = false
@@ -101,12 +102,23 @@ struct ChatScreen: View {
 
     private var modelMenu: some View {
         Menu {
-            ForEach(app.models) { m in
-                Button { vm.selectModel(m.id); app.rememberModel(m.id) } label: {
-                    if vm.selectedModel == m.id {
-                        Label(aliases.display(m), systemImage: "checkmark")
-                    } else {
-                        Text(verbatim: aliases.display(m))
+            ForEach(app.chatModels) { m in modelButton(m) }
+            // What the server lists but cannot hold a conversation — a Gemini or
+            // OpenAI key brings speech, image, video and embedding models along.
+            // Kept apart, under what each is for, instead of mixed into the list
+            // above where picking one could only end in a provider error. Still
+            // pickable: the sorting is a guess from the id, and the user may know
+            // better.
+            let others = app.otherModels
+            if !others.isEmpty {
+                Section(L("Não conversam")) {
+                    ForEach(others, id: \.kind) { group in
+                        Menu {
+                            ForEach(group.models) { m in modelButton(m) }
+                        } label: {
+                            Label(L("%@ (%@)", group.kind.title, String(group.models.count)),
+                                  systemImage: group.kind.symbol)
+                        }
                     }
                 }
             }
@@ -118,7 +130,18 @@ struct ChatScreen: View {
             .foregroundStyle(theme.secondaryText)
         }
         .accessibilityLabel(Text("Escolher modelo"))
+        .accessibilityIdentifier("chat.modelMenu")
         .accessibilityValue(Text(verbatim: vm.selectedModelName))
+    }
+
+    private func modelButton(_ m: OWModel) -> some View {
+        Button { vm.selectModel(m.id); app.rememberModel(m.id) } label: {
+            if vm.selectedModel == m.id {
+                Label(aliases.display(m), systemImage: "checkmark")
+            } else {
+                Text(verbatim: aliases.display(m))
+            }
+        }
     }
 
     // MARK: - Messages
@@ -265,12 +288,17 @@ struct ChatScreen: View {
                 Spacer()
             }
             .padding(.horizontal, 12)
-            if let err = vm.error ?? voice.error { errorBanner(err) }
+            if let err = vm.error ?? voice.error {
+                errorBanner(err)
+            } else if let failure = speech.playbackFailure {
+                ErrorBanner(message: failure.banner) { speech.dismissPlaybackFailure() }
+            }
             if !vm.pendingImageURLs.isEmpty || !vm.pendingDocuments.isEmpty || vm.uploading { pendingStrip }
             HStack(alignment: .bottom, spacing: 8) {
                 attachButton
                 micButton
                 TextField(inputPrompt, text: inputBinding, axis: .vertical)
+                    .accessibilityIdentifier("composer.field")
                     .font(.ody(.body))
                     .foregroundStyle(theme.fg)
                     .focused($inputFocused)
@@ -470,6 +498,7 @@ struct ChatScreen: View {
                 .background(active ? theme.accent : theme.border, in: Circle())
         }
         .accessibilityLabel(Text(vm.isStreaming ? "Parar resposta" : "Enviar mensagem"))
+        .accessibilityIdentifier(vm.isStreaming ? "composer.stop" : "composer.send")
         .disabled(!voice.isRecording && !vm.isStreaming && !canSend)
     }
 

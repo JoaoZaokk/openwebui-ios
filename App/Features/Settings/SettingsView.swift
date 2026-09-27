@@ -162,6 +162,7 @@ struct ServerSheet: View {
                 Form {
                     Section {
                         TextField("http://localhost:3000", text: $text)
+                            .accessibilityIdentifier("server.url")
                             .font(.ody(.body))
                             .foregroundStyle(theme.fg)
                             .textInputAutocapitalization(.never)
@@ -189,6 +190,7 @@ struct ServerSheet: View {
                         dismiss()
                     }
                     .disabled(ServerConfig.normalize(text) == nil)
+                    .accessibilityIdentifier("server.save")
                 }
             }
         }

@@ -21,7 +21,6 @@ struct VoiceSettingsView: View {
     @AppStorage("voice.tts.engine") private var ttsEngine = "native"
     @AppStorage("voice.tts.pocketVoice") private var pocketVoice = "alba"
     @AppStorage("voice.tts.serverVoice") private var serverVoice = ""
-    @AppStorage("voice.tts.serverModel") private var serverModel = ""
     @AppStorage("voice.bargein.enabled") private var bargeEnabled = true
     @AppStorage("voice.bargein.sensitivity") private var bargeSensitivity = 0.5
     /// Stored value of the language filter meaning "nothing picked yet". The
@@ -102,12 +101,17 @@ struct VoiceSettingsView: View {
                         TextField("Voz (ex: alloy, nova, onyx)", text: $serverVoice)
                             .textInputAutocapitalization(.never).autocorrectionDisabled()
                     }
-                    TextField("Modelo (ex: tts-1 — opcional)", text: $serverModel)
-                        .textInputAutocapitalization(.never).autocorrectionDisabled()
+                    // No model field: `/audio/speech` overwrites whatever model the
+                    // request names with the one in the server's admin audio
+                    // settings, for every engine (routers/audio.py, 0.11.4), so a
+                    // model typed here never reached anything.
+                    Text("O modelo de voz é o das configurações de áudio do servidor (Painel de administração › Configurações › Áudio).")
+                        .font(.ody(size: 11))
+                        .foregroundStyle(theme.secondaryText)
                     Button {
-                        speech.toggle(L("Olá! Esta é a voz do servidor."), id: "__test__")
+                        speech.toggle(L("Olá! Esta é a voz do servidor."), id: SpeechManager.engineTestID)
                     } label: {
-                        if speech.isPreparing("__test__") {
+                        if speech.isPreparing(SpeechManager.engineTestID) {
                             HStack { ProgressView(); Text("Sintetizando…") }
                         } else {
                             Label("Testar voz", systemImage: "speaker.wave.2")

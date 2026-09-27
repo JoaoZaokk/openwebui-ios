@@ -89,6 +89,7 @@ struct ChatListView: View {
                         Button { path.append(.new(temporary: false)) } label: {
                             Label("Nova conversa", systemImage: "square.and.pencil")
                         }
+                        .accessibilityIdentifier("chats.new")
                         Button { path.append(.new(temporary: true)) } label: {
                             Label("Conversa temporária", systemImage: "clock.badge.xmark")
                         }
@@ -100,6 +101,7 @@ struct ChatListView: View {
                         Image(systemName: "square.and.pencil")
                     }
                     .accessibilityLabel(Text("Nova conversa"))
+                    .accessibilityIdentifier("chats.newMenu")
                 }
             }
             .navigationDestination(for: ChatRoute.self) { route in
