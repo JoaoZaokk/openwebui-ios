@@ -68,9 +68,21 @@ final class StubTransport: URLProtocol {
         routes[path] = reply
     }
 
+    /// Answers the first requests to `path` with these replies, in order, then
+    /// falls back to `route(_:_:)`. For a client that retries: the refusal and
+    /// what the retry is answered with are two different replies.
+    nonisolated(unsafe) private static var queued: [String: [Reply]] = [:]
+    /// Every body sent to `path`, in order — `sentBodies` keeps only the last.
+    nonisolated(unsafe) private(set) static var allBodies: [String: [Data]] = [:]
+
+    static func routeSequence(_ path: String, _ replies: [Reply]) {
+        lock.lock(); defer { lock.unlock() }
+        queued[path] = replies
+    }
+
     static func reset() {
         lock.lock(); defer { lock.unlock() }
-        routes = [:]; seen = []; sentBodies = [:]; sentHeaders = [:]
+        routes = [:]; seen = []; sentBodies = [:]; sentHeaders = [:]; queued = [:]; allBodies = [:]
     }
 
     static func requested(_ path: String) -> Bool {
@@ -98,7 +110,13 @@ final class StubTransport: URLProtocol {
         // so fall back to draining the stream.
         if let b = request.httpBody { Self.sentBodies[path] = b }
         else if let s = request.httpBodyStream { Self.sentBodies[path] = Self.drain(s) }
-        let reply = Self.routes[path]
+        if let b = Self.sentBodies[path] { Self.allBodies[path, default: []].append(b) }
+        let reply: Reply?
+        if var q = Self.queued[path], !q.isEmpty {
+            reply = q.removeFirst(); Self.queued[path] = q
+        } else {
+            reply = Self.routes[path]
+        }
         Self.lock.unlock()
 
         guard let reply else {

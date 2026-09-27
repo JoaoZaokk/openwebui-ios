@@ -285,6 +285,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
 
     static func detail(from data: Data) -> String? {
         guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+            if let s = OWErrorSentence.sentence(data) { return s }
             return String(data: data, encoding: .utf8).flatMap { $0.isEmpty ? nil : $0 }
         }
         // FastAPI validation errors: detail = [{ loc, msg, … }]
@@ -300,7 +301,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
             }
             if !msgs.isEmpty { return msgs.joined(separator: " · ") }
         }
-        return obj["detail"] as? String ?? obj["message"] as? String ?? obj["error"] as? String
+        return OWErrorSentence.sentence(in: obj)
     }
 
     // MARK: - Auth

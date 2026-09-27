@@ -32,7 +32,15 @@ extension OpenWebUIClient {
         var req = request("/api/v1/audio/speech", method: "POST")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONSerialization.data(withJSONObject: body)
-        return try await send(req, long: true)
+        do {
+            return try await send(req, long: true)
+        } catch OWError.http(let code, _) where code == 404 || code == 503 {
+            // 404 is what the endpoint answers when the admin's speech engine is
+            // the browser default (it has nothing to synthesize with); 503 is the
+            // slim image with no external engine. Both used to reach the chat as
+            // the server's own sentence, which does not say what to change.
+            throw OWError.http(code, L("O servidor não tem um motor de voz (TTS) configurado."))
+        }
     }
 
     /// POST /api/v1/audio/transcriptions — server-side STT (Whisper). Uploads the
