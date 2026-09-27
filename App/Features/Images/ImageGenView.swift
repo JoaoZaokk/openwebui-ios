@@ -149,7 +149,7 @@ struct ImageGenView: View {
         self.app = app
         _store = StateObject(wrappedValue: ImageGenStore(client: app.client,
                                                          completions: app.completions,
-                                                         llmModels: app.models))
+                                                         llmModels: app.chatModels))
     }
 
     var body: some View {

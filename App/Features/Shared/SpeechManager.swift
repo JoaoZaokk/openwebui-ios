@@ -45,6 +45,28 @@ final class SpeechManager: NSObject, ObservableObject {
     /// Reading it back off a published property with several writers would be a
     /// guess about who wrote last.
     private(set) var sessionFailure: String?
+    /// Why a message's 🔊 produced no audio from the chosen engine — the one
+    /// failure the *chat* shows.
+    ///
+    /// Everything else here reports to `neuralError`, which only the Settings
+    /// screen reads. So in the chat a failed 🔊 looked like this: a spinner,
+    /// then the speaker icon again, then nothing ("não deixa ouvir as
+    /// mensagens", 27/09). The button path now also falls back to the device
+    /// voice, so the message is heard either way and this says why it did not
+    /// come in the voice that was picked.
+    struct PlaybackFailure: Equatable {
+        let messageID: String
+        let text: String
+        /// True when the device voice went on to read the message instead.
+        let readByDevice: Bool
+
+        /// The sentence the chat banner shows.
+        var banner: String {
+            readByDevice ? L("%@ — lido com a voz do aparelho.", text) : text
+        }
+    }
+    @Published private(set) var playbackFailure: PlaybackFailure?
+    func dismissPlaybackFailure() { playbackFailure = nil }
 
     /// One-shot hook fired when an utterance finishes (or is cancelled) playing.
     /// The hands-free voice loop uses it to advance to the next turn.
@@ -183,7 +205,7 @@ final class SpeechManager: NSObject, ObservableObject {
     /// and `closeQueue()` — which only fires the finish callback when
     /// `!speakingChunk` — would become a permanent no-op. The turn could then
     /// never end on its own.
-    private func chunkFailed(_ id: String, _ message: String?) {
+    private func chunkFailed(_ id: String, _ message: String?, fallback: String? = nil) {
         preparingID = nil
         if chunkID == id {
             chunks.removeAll()
@@ -192,9 +214,26 @@ final class SpeechManager: NSObject, ObservableObject {
             speakingChunk = false
             failedChunkID = id
             discardPrefetch()
+            fail(message)
+            return
         }
-        fail(message)
+        // Not a queued reply: a 🔊 the user tapped. Nothing is listening for
+        // `onSpeechFailed` on this path — the voice loop only ever speaks
+        // through the queue — so the failure goes to the chat, and the text
+        // still gets read by the device voice when there is one to read with.
+        if let message { neuralError = message }
+        // Except the Settings "test voice" button: it exists to hear the engine
+        // that was picked, and a device voice answering for it would pass the
+        // test the engine just failed.
+        let readByDevice = fallback != nil && id != Self.engineTestID
+        playbackFailure = PlaybackFailure(messageID: id,
+                                          text: message ?? sessionFailure ?? L("Não foi possível reproduzir o áudio."),
+                                          readByDevice: readByDevice)
+        if readByDevice, let fallback { speakNative(fallback, id: id) }
     }
+
+    /// The utterance id of the Settings screen's "test voice" button.
+    static let engineTestID = "__test__"
 
     /// Starts the next queued sentence, if nothing is playing.
     private func pump() {
@@ -281,8 +320,8 @@ final class SpeechManager: NSObject, ObservableObject {
         switch engine {
         case "server":
             guard let client else { return nil }
-            let voice = voiceOverride ?? serverVoice, model = serverModel
-            return { try await client.speech(text: $0, voice: voice, model: model) }
+            let voice = voiceOverride ?? serverVoice
+            return { try await client.speech(text: $0, voice: voice) }
         case "neural":
             guard let pack = Self.pocketPack(for: LanguageManager.shared.current) else { return nil }
             let voice = neuralVoice
@@ -432,7 +471,6 @@ final class SpeechManager: NSObject, ObservableObject {
     var useServer: Bool { UserDefaults.standard.string(forKey: "voice.tts.engine") == "server" }
     private var neuralVoice: String { UserDefaults.standard.string(forKey: "voice.tts.pocketVoice") ?? "alba" }
     private var serverVoice: String { UserDefaults.standard.string(forKey: "voice.tts.serverVoice") ?? "" }
-    private var serverModel: String { UserDefaults.standard.string(forKey: "voice.tts.serverModel") ?? "" }
 
     override init() { super.init(); synth.delegate = self }
 
@@ -443,6 +481,7 @@ final class SpeechManager: NSObject, ObservableObject {
     func toggle(_ text: String, id: String) {
         if speakingID == id || preparingID == id { stop(); return }
         stop()
+        playbackFailure = nil
         let clean = SpokenText.strip(text)
         // Nothing speakable left (a reply that was only a think block, or bare
         // markdown punctuation). No audio will play and no delegate will fire,
@@ -584,7 +623,7 @@ final class SpeechManager: NSObject, ObservableObject {
         guard let make = synthesizer(for: "server") else {
             // Synchronous bail-out: it still has to release the queue, or the
             // turn hangs exactly the way an async failure would.
-            chunkFailed(id, L("Servidor de voz indisponível."))
+            chunkFailed(id, L("Servidor de voz indisponível."), fallback: clean)
             return
         }
         speakBuffered(clean, id: id, failure: { L("TTS do servidor falhou: %@", $0) }, make)
@@ -626,7 +665,7 @@ final class SpeechManager: NSObject, ObservableObject {
                 if self.isCurrent(generation) { self.preparingID = nil }
             } catch {
                 guard self.isCurrent(generation) else { return }
-                self.chunkFailed(id, failure(OWFailure.msg(error)))
+                self.chunkFailed(id, failure(OWFailure.msg(error)), fallback: clean)
             }
         }
     }

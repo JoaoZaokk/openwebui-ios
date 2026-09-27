@@ -49,12 +49,24 @@ struct ModelNamesView: View {
         ZStack {
             theme.bg.ignoresSafeArea()
             List {
-                Section {
-                    ForEach(models) { m in row(m) }
-                } footer: {
-                    Text("Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original.")
-                        .font(.ody(size: 11))
-                        .foregroundStyle(theme.secondaryText)
+                // One section per kind, chat first — with a Gemini or OpenAI key
+                // the flat list mixed dozens of speech, image and embedding
+                // models into the ones that can actually be talked to.
+                ForEach(groups, id: \.kind) { group in
+                    Section {
+                        ForEach(group.models) { m in row(m) }
+                    } header: {
+                        Label(L("%@ (%@)", group.kind.title, String(group.models.count)),
+                              systemImage: group.kind.symbol)
+                            .font(.ody(size: 11))
+                            .foregroundStyle(theme.secondaryText)
+                    } footer: {
+                        if group.kind == groups.last?.kind {
+                            Text("Só muda o nome exibido neste aparelho — o modelo enviado ao servidor continua o mesmo. Deixe em branco para voltar ao nome original.")
+                                .font(.ody(size: 11))
+                                .foregroundStyle(theme.secondaryText)
+                        }
+                    }
                 }
             }
             .scrollContentBackground(.hidden)
@@ -62,6 +74,13 @@ struct ModelNamesView: View {
         .navigationTitle("Nomes dos modelos")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear { drafts = aliases.map }
+    }
+
+    private var groups: [(kind: OWModelKind, models: [OWModel])] {
+        OWModelKind.allCases.compactMap { kind in
+            let list = models.filter { $0.kind == kind }
+            return list.isEmpty ? nil : (kind, list)
+        }
     }
 
     private func row(_ m: OWModel) -> some View {

@@ -73,9 +73,14 @@ struct MessageBubble: View {
     /// every message, so it has to disappear until you look for it.
     @ViewBuilder
     private var actionBar: some View {
-        let hasActions = branch != nil || (!isUser && (onRegenerate != nil || onRetryModel != nil))
+        // A sent message had no 🔊 anywhere — the only one lived in the reply
+        // header, so what the user wrote could not be listened to at all.
+        let canSpeakSent = isUser && !message.content.isEmpty
+        let hasActions = branch != nil || canSpeakSent
+            || (!isUser && (onRegenerate != nil || onRetryModel != nil))
         if hasActions {
             HStack(spacing: 16) {
+                if canSpeakSent { speakButton(size: 12) }
                 if let b = branch { branchNav(b) }
                 if !isUser, let onRegenerate {
                     Button { onRegenerate() } label: { Image(systemName: "arrow.clockwise") }
@@ -116,6 +121,10 @@ struct MessageBubble: View {
     @ViewBuilder
     private var messageMenu: some View {
         if !message.content.isEmpty {
+            Button { speech.toggle(message.content, id: message.id) } label: {
+                Label(speech.isSpeaking(message.id) ? L("Parar leitura") : L("Ler em voz alta"),
+                      systemImage: "speaker.wave.2")
+            }
             Button {
                 #if os(iOS)
                 UIPasteboard.general.string = message.content
@@ -181,20 +190,28 @@ struct MessageBubble: View {
             Text(verbatim: modelLabel)
                 .font(.ody(size: 11))
                 .foregroundStyle(theme.secondaryText)
-            if !message.content.isEmpty {
-                Button { speech.toggle(message.content, id: message.id) } label: {
-                    if speech.isPreparing(message.id) {
-                        ProgressView().controlSize(.mini)
-                    } else {
-                        Image(systemName: speech.isSpeaking(message.id) ? "speaker.wave.2.fill" : "speaker.wave.2")
-                            .font(.ody(size: 11))
-                            .foregroundStyle(speech.isSpeaking(message.id) ? theme.accent : theme.secondaryText)
-                    }
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(Text(speech.isSpeaking(message.id) ? "Parar leitura" : "Ler em voz alta"))
+            if !message.content.isEmpty { speakButton(size: 11) }
+        }
+    }
+
+    /// 🔊 for this message — on a reply it sits in the header, on a sent message
+    /// in the action row under the bubble.
+    private func speakButton(size: CGFloat) -> some View {
+        let speaking = speech.isSpeaking(message.id)
+        return Button { speech.toggle(message.content, id: message.id) } label: {
+            if speech.isPreparing(message.id) {
+                ProgressView().controlSize(.mini)
+            } else {
+                Image(systemName: speaking ? "speaker.wave.2.fill" : "speaker.wave.2")
+                    .font(.ody(size: size))
+                    .foregroundStyle(speaking ? theme.accent : theme.secondaryText)
+                    .frame(minWidth: 28, minHeight: 28)
+                    .contentShape(Rectangle())
             }
         }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("message.speak")
+        .accessibilityLabel(Text(speaking ? "Parar leitura" : "Ler em voz alta"))
     }
 
     /// Fixed columns, not `.adaptive`: an adaptive grid claims the full width and

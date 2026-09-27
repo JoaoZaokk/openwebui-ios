@@ -54,6 +54,7 @@ struct LoginView: View {
                         .font(.ody(.footnote))
                         .foregroundStyle(ServerConfig.isConfigured ? theme.secondaryText : theme.accent)
                         .onTapGesture { showServerSheet = true }
+                        .accessibilityIdentifier("login.server")
                 }
 
                 if passwordAvailable || usingLDAP {
@@ -94,6 +95,7 @@ struct LoginView: View {
                     }
                     .disabled(!canSubmit)
                     .opacity(canSubmit ? 1 : 0.6)
+                    .accessibilityIdentifier("login.submit")
                 }
 
                 if app.loggingIn && !(passwordAvailable || usingLDAP) {
@@ -214,6 +216,7 @@ struct LoginView: View {
             TextField("", text: text)
                 .focused($focus, equals: field)
                 .styledInput(theme)
+                .accessibilityIdentifier("login.\(field)")
         }
     }
 
@@ -225,6 +228,7 @@ struct LoginView: View {
                 .textContentType(.password)
                 .focused($focus, equals: field)
                 .styledInput(theme)
+                .accessibilityIdentifier("login.\(field)")
         }
     }
 }

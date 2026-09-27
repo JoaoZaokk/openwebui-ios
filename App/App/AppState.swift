@@ -101,15 +101,28 @@ final class AppState: ObservableObject {
     /// paths whether this server merges history (0.11+) or replaces the whole chat
     /// blob, and it is what the login screen needs to know which ways in exist.
     /// Leaving it unread meant every session guessed.
+    ///
+    /// The three launch reads run side by side. They used to run one after the
+    /// other, each on the 30 s session, so a server that was down — or behind a
+    /// proxy answering 502 only after its own 30 s — held the splash for a minute
+    /// and a half before the offline cache opened (measured 27/09, server
+    /// restarting after an upgrade). Now the wait is the slowest one, and the
+    /// offline branch opens the cache before asking for the model list again.
     func bootstrap() async {
-        await AppStorefront.refresh()
-        await loadServerFeatures()
-        guard client.isAuthenticated else { phase = .login; return }
+        let storefront = Task { await AppStorefront.refresh() }
+        let features = Task { await loadServerFeatures() }
+        guard client.isAuthenticated else {
+            await storefront.value
+            await features.value
+            phase = .login
+            return
+        }
         do {
             user = try await client.me()
             // The token that answered is the one persisted before this launch —
             // the account that wrote any rows from before the cache was scoped.
             adoptCacheOwner(claimingLegacy: true)
+            await features.value
             await loadModels()
             phase = .main
             await flushPendingChats()
@@ -136,8 +149,8 @@ final class AppState: ObservableObject {
                 // can name the account claims them.
                 cache.enterLegacyScope()
             }
-            await loadModels()
             phase = .main
+            await loadModels()
         }
     }
 
@@ -319,7 +332,28 @@ final class AppState: ObservableObject {
     /// removed or lost its access control falls back to the first available.
     var defaultModel: String? {
         OWModelChoice.resolve(remembered: UserDefaults.standard.string(forKey: lastModelKey),
-                              available: models.map(\.id))
+                              available: chatModels.map(\.id))
+    }
+
+    /// The models a conversation can be sent to.
+    ///
+    /// A Gemini or OpenAI key puts the provider's whole catalogue on
+    /// `/api/models` — speech, Imagen/DALL·E, Veo/Sora, embeddings, live audio —
+    /// and every one of those fails the moment it is chatted with. A new chat
+    /// used to open on whichever came first. If sorting leaves nothing (a
+    /// server whose ids fool the heuristic), everything is offered, as before.
+    var chatModels: [OWModel] {
+        let chat = models.filter { $0.kind.canChat }
+        return chat.isEmpty ? models : chat
+    }
+
+    /// Everything else the server lists, grouped by what it is for, in a
+    /// stable order.
+    var otherModels: [(kind: OWModelKind, models: [OWModel])] {
+        OWModelKind.allCases.filter { !$0.canChat }.compactMap { kind in
+            let list = models.filter { $0.kind == kind }
+            return list.isEmpty ? nil : (kind, list)
+        }
     }
 
     /// Records an explicit pick from the model menu. Adopting an existing chat's
@@ -347,6 +381,6 @@ final class AppState: ObservableObject {
     func makeChatStore() -> ChatStore { ChatStore(client: client, cache: cache) }
     func makeChatViewModel(chat: OWChatSummary?, temporary: Bool = false) -> ChatViewModel {
         ChatViewModel(client: client, completions: completions, chat: chat,
-                      models: models, defaultModel: defaultModel, temporary: temporary, cache: cache)
+                      models: chatModels, defaultModel: defaultModel, temporary: temporary, cache: cache)
     }
 }

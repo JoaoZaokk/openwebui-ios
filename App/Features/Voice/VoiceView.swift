@@ -28,7 +28,7 @@ struct VoiceView: View {
         self.seed = seed
         _convo = StateObject(wrappedValue: VoiceConversation(client: app.client,
                                                              completions: app.completions,
-                                                             models: app.models,
+                                                             models: app.chatModels,
                                                              defaultModel: app.defaultModel))
     }
 

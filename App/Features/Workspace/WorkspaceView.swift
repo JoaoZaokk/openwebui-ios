@@ -60,11 +60,19 @@ struct WorkspaceView: View {
             ZStack {
                 theme.bg.ignoresSafeArea()
                 List {
-                    sec("Modelos", "cpu", store.models.map { Row(name: $0.shortName, sub: $0.ownedBy) })
-                    sec("Conhecimento", "books.vertical", store.knowledge.map { Row(name: $0.name, sub: $0.description) })
-                    sec("Prompts", "text.quote", store.prompts.map { Row(name: $0.name, sub: $0.description) })
-                    sec("Tools", "wrench.and.screwdriver", store.tools.map { Row(name: $0.name, sub: $0.description) })
-                    sec("Functions", "function", store.functions.map { Row(name: $0.name, sub: $0.description) })
+                    // One section per kind of model: a Gemini or OpenAI key lists
+                    // speech, image, video and embedding models next to the chat
+                    // ones, and a single "Modelos" section mixed them all.
+                    if modelKinds.isEmpty { sec(L("Modelos"), "cpu", []) }
+                    ForEach(modelKinds, id: \.self) { kind in
+                        sec(kind == .chat ? L("Modelos") : kind.title,
+                            kind == .chat ? "cpu" : kind.symbol,
+                            store.models.filter { $0.kind == kind }.map { Row(name: $0.shortName, sub: $0.ownedBy) })
+                    }
+                    sec(L("Conhecimento"), "books.vertical", store.knowledge.map { Row(name: $0.name, sub: $0.description) })
+                    sec(L("Prompts"), "text.quote", store.prompts.map { Row(name: $0.name, sub: $0.description) })
+                    sec(L("Tools"), "wrench.and.screwdriver", store.tools.map { Row(name: $0.name, sub: $0.description) })
+                    sec(L("Functions"), "function", store.functions.map { Row(name: $0.name, sub: $0.description) })
                 }
                 #if os(iOS)
                 .listStyle(.insetGrouped)
@@ -84,6 +92,10 @@ struct WorkspaceView: View {
     }
 
     @ViewBuilder
+    private var modelKinds: [OWModelKind] {
+        OWModelKind.allCases.filter { k in store.models.contains { $0.kind == k } }
+    }
+
     private func sec(_ title: String, _ icon: String, _ rows: [Row]) -> some View {
         Section {
             if rows.isEmpty {
@@ -103,7 +115,10 @@ struct WorkspaceView: View {
                 }
             }
         } header: {
-            Label("\(title) (\(rows.count))", systemImage: icon)
+            // `title` arrives already translated. Interpolated into a
+            // LocalizedStringKey it was looked up as nothing and drawn as the
+            // Portuguese literal it was written as, in every language.
+            Label(L("%@ (%@)", title, String(rows.count)), systemImage: icon)
                 .font(.ody(.caption)).foregroundStyle(theme.secondaryText)
         }
     }
