@@ -100,8 +100,13 @@ targets:
         # port (whisper.cpp + Parakeet, diagnostics, bug report) and the
         # language fixes, among them issue #14 — the voice companion was
         # told to answer in Portuguese whoever was speaking.
-        MARKETING_VERSION: "1.9"
-        CURRENT_PROJECT_VERSION: "17"
+        # 1.9 (17) went live on 2026-09-27.
+        # 1.10 (18): messages can be listened to again (sent ones too, and a
+        # voice that fails says why and the device reads instead), provider
+        # refusals come out readable, Gemma answers without a system turn,
+        # and the model menu is split by what each model is for.
+        MARKETING_VERSION: "1.10"
+        CURRENT_PROJECT_VERSION: "18"
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
