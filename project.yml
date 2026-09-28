@@ -45,6 +45,19 @@ schemes:
         - OpenWebUITests
     archive:
       config: Release
+  # The walkthrough as a test: types the owner fixture into the login screen,
+  # signs in against the real server, then drives the chat. Its own scheme so
+  # the default test run stays server-free.
+  #   TEST_RUNNER_OW_FIXTURE=$PWD/.ow-test-login xcodebuild test -scheme OpenWebUI-UI …
+  OpenWebUI-UI:
+    build:
+      targets:
+        OpenWebUI: all
+        OpenWebUIUITests: [test]
+    test:
+      config: Debug
+      targets:
+        - OpenWebUIUITests
 
 targets:
   OpenWebUI:
@@ -200,6 +213,18 @@ targets:
         # xcodegen writes no Info.plist for the test bundle, and codesign refuses
         # to sign it without one.
         GENERATE_INFOPLIST_FILE: YES
+
+  OpenWebUIUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: OpenWebUIUITests
+    dependencies:
+      - target: OpenWebUI
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: OpenWebUI
 
   # Native macOS app — same SwiftUI source as iOS, with platform shims in
   # App/Config/PlatformCompat.swift. Apple Silicon Macs, macOS 14+.
