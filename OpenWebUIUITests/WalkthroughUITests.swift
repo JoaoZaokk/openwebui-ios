@@ -79,17 +79,31 @@ final class WalkthroughUITests: XCTestCase {
         pass.typeText(f.senha)
         app.buttons["login.submit"].tap()
         XCTAssertTrue(tabBar.waitForExistence(timeout: 90), "no tab bar after Entrar")
-        // iOS offers to save the password right after a sign-in; it sits over
-        // the first tab and swallows the next tap.
-        let notNow = app.buttons["Agora Não"]
-        if notNow.waitForExistence(timeout: 5) { notNow.tap() }
+        // iOS offers to save the password after a sign-in, sometimes ten
+        // seconds later; it sits over the list and swallows the next tap.
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let deadline2 = Date().addingTimeInterval(15)
+        while Date() < deadline2 {
+            if let notNow = [app.buttons["Agora Não"], springboard.buttons["Agora Não"]].first(where: \.exists) {
+                notNow.tap(); break
+            }
+            usleep(300_000)
+        }
+    }
+
+    /// Taps a menu and waits for one of its items; a tap the system ate is tried again.
+    private func open(_ app: XCUIApplication, menu: String, item: String) {
+        for _ in 0..<3 {
+            app.buttons[menu].tap()
+            if app.buttons[item].waitForExistence(timeout: 4) { return }
+        }
+        XCTFail("\(menu) never showed \(item)")
     }
 
     /// Sends one short message in a new chat and waits for the reply to settle.
     private func converse(_ app: XCUIApplication, _ text: String) -> XCUIElementQuery {
         app.tabBars.firstMatch.buttons.element(boundBy: 0).tap()
-        app.buttons["chats.newMenu"].tap()
-        XCTAssertTrue(app.buttons["chats.new"].waitForExistence(timeout: 5))
+        open(app, menu: "chats.newMenu", item: "chats.new")
         app.buttons["chats.new"].tap()
         let field = app.descendants(matching: .any)["composer.field"]
         XCTAssertTrue(field.waitForExistence(timeout: 20))
@@ -155,8 +169,7 @@ final class WalkthroughUITests: XCTestCase {
         }
 
         // A new conversation.
-        app.buttons["chats.newMenu"].tap()
-        XCTAssertTrue(app.buttons["chats.new"].waitForExistence(timeout: 5))
+        open(app, menu: "chats.newMenu", item: "chats.new")
         app.buttons["chats.new"].tap()
 
         let model = app.buttons["chat.modelMenu"]
