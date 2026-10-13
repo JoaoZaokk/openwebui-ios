@@ -80,6 +80,7 @@ struct WorkspaceView: View {
                 .listStyle(.inset)
                 #endif
                 .scrollContentBackground(.hidden)
+                .readableColumn()
                 if store.loading && store.models.isEmpty { ProgressView().tint(theme.accent) }
             }
             .errorBanner(store.error) { store.error = nil }

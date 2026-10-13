@@ -77,7 +77,15 @@ struct NotesView: View {
                         .accessibilityLabel(Text("Nova nota"))
                 }
             }
-            .task { await store.load() }
+            .task {
+                await store.load()
+                #if DEBUG
+                if let id = ScreenshotRoute.value("note"), ScreenshotRoute.once("note"),
+                   let note = store.notes.first(where: { $0.id == id }) {
+                    editing = NoteEdit(note: note)
+                }
+                #endif
+            }
             .refreshable { await store.load() }
             .sheet(item: $editing, onDismiss: { Task { await store.load() } }) { e in
                 NoteEditorView(client: app.client, note: e.note)
@@ -101,6 +109,7 @@ struct NotesView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .readableColumn()
     }
 
     private func row(_ note: OWNote) -> some View {

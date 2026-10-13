@@ -20,6 +20,15 @@ struct ServerConfig: Equatable {
 
     func save() { UserDefaults.standard.set(baseURL.absoluteString, forKey: Self.key) }
 
+    /// The server name the UI shows. Debug captures against the local stub
+    /// replace it (`-screenshotHost`) so no screen reads 127.0.0.1.
+    var displayHost: String {
+        #if DEBUG
+        if let h = ScreenshotRoute.hostLabel { return h }
+        #endif
+        return baseURL.host ?? baseURL.absoluteString
+    }
+
     /// Bridge to the package's connection config.
     var owConfig: OWConfig { OWConfig(baseURL: baseURL) }
 

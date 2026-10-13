@@ -27,6 +27,13 @@ struct ChatScreen: View {
     /// Whether the user is at (or near) the end of the transcript. Streaming only
     /// auto-scrolls while pinned, so scrolling up to re-read mid-reply sticks.
     @State private var pinnedToBottom = true
+    /// Set by the user's own drag, cleared when they are back at the end or
+    /// send. Measuring the position alone was not enough: a reply that grows by
+    /// a whole list item at once pushes the end past the threshold before the
+    /// scroll that follows it lands, the transcript stopped following on its
+    /// own, and the suggestions under the reply arrived off screen.
+    @State private var userScrolledAway = false
+    private var followsEnd: Bool { pinnedToBottom || !userScrolledAway }
     /// Bumped on each send so `.sensoryFeedback` fires a light tap.
     @State private var sendFeedback = 0
     @AppStorage(ChatViewModel.followUpsKey) private var followUpsOn = true
@@ -78,6 +85,9 @@ struct ChatScreen: View {
             vm.loadHistoryIfNeeded()
             voice.client = app.client
         }
+        #if DEBUG
+        .task { await openScreenshotRoute() }
+        #endif
         // Coming back from the background: re-fetch so messages/images created
         // meanwhile on the web UI show up (unless we're mid-stream).
         .onChange(of: scenePhase) { _, phase in
@@ -100,6 +110,22 @@ struct ChatScreen: View {
                 .environment(\.theme, theme)
         }
     }
+
+    #if DEBUG
+    /// `voice:<id>` opens the voice mode over this chat once its history is in;
+    /// `ask:<question>` sends the question in a new chat.
+    private func openScreenshotRoute() async {
+        if let id = ScreenshotRoute.value("voice"), id == vm.chatID, ScreenshotRoute.once("voice") {
+            while vm.messages.isEmpty { try? await Task.sleep(for: .milliseconds(200)) }
+            showVoice = true
+        }
+        if let q = ScreenshotRoute.value("ask"), vm.isNewChat, ScreenshotRoute.once("ask") {
+            try? await Task.sleep(for: .milliseconds(600))
+            vm.input = q
+            vm.send()
+        }
+    }
+    #endif
 
     private var modelMenu: some View {
         Menu {
@@ -154,7 +180,7 @@ struct ChatScreen: View {
                     if vm.isLoadingHistory && vm.messages.isEmpty {
                         ProgressView().tint(theme.accent).padding(.top, 80)
                     } else if vm.messages.isEmpty {
-                        welcome.padding(.top, 60)
+                        welcome.padding(.top, 60).readableColumn()
                     }
                     LazyVStack(spacing: 16) {
                         ForEach(Array(vm.messages.enumerated()), id: \.element.id) { idx, msg in
@@ -184,6 +210,7 @@ struct ChatScreen: View {
                     }
                     .animation(.easeOut(duration: 0.2), value: vm.followUps)
                     .padding(.horizontal, 14).padding(.vertical, 16)
+                    .readableColumn()
                     // Bottom sentinel: its position inside the viewport tells us
                     // whether the user is pinned to the end of the transcript.
                     Color.clear.frame(height: 1).id("bottom")
@@ -196,27 +223,33 @@ struct ChatScreen: View {
                 .onPreferenceChange(BottomEdgeKey.self) { minY in
                     let pinned = minY < viewport.size.height + 60
                     if pinned != pinnedToBottom { pinnedToBottom = pinned }
+                    if pinned { userScrolledAway = false }
                 }
+                .simultaneousGesture(DragGesture(minimumDistance: 8).onChanged { _ in
+                    userScrolledAway = true
+                })
                 .scrollDismissesKeyboard(.interactively)
                 .refreshable { await vm.reloadHistory() }
                 // Per-token updates: follow the stream only while pinned, and
                 // without animation — animated per-token scrolls rubber-band.
                 .onChange(of: vm.messages.last?.content) { _, _ in
-                    if pinnedToBottom { proxy.scrollTo("bottom", anchor: .bottom) }
+                    if followsEnd { proxy.scrollTo("bottom", anchor: .bottom) }
                 }
                 // The questions land a moment after the reply; keep them in view.
                 .onChange(of: vm.followUps) { _, _ in
-                    if pinnedToBottom { scrollToBottom(proxy) }
+                    if followsEnd { scrollToBottom(proxy) }
                 }
                 // A new message (send/regenerate) is user-initiated — scroll
                 // gently and re-pin. Same when the keyboard opens.
                 .onChange(of: vm.messages.count) { _, _ in
                     pinnedToBottom = true
+                    userScrolledAway = false
                     scrollToBottom(proxy)
                 }
                 .onChange(of: inputFocused) { _, focused in
                     if focused {
                         pinnedToBottom = true
+                        userScrolledAway = false
                         scrollToBottom(proxy)
                     }
                 }
@@ -225,6 +258,7 @@ struct ChatScreen: View {
                     if !pinnedToBottom {
                         Button {
                             pinnedToBottom = true
+                            userScrolledAway = false
                             scrollToBottom(proxy)
                         } label: {
                             Image(systemName: "chevron.down")
@@ -279,7 +313,7 @@ struct ChatScreen: View {
             Text("Como posso ajudar?")
                 .font(.ody(.title2).weight(.semibold))
                 .foregroundStyle(theme.fg)
-            Text(app.serverConfig.baseURL.host ?? "Open WebUI")
+            Text(app.serverConfig.displayHost)
                 .font(.ody(.footnote))
                 .foregroundStyle(theme.secondaryText)
         }
@@ -323,6 +357,7 @@ struct ChatScreen: View {
             }
             .padding(.horizontal, 12).padding(.bottom, 8)
         }
+        .readableColumn()
         .background(theme.bg)
         .photosPicker(isPresented: $showPhotos, selection: $photoItems, maxSelectionCount: 4, matching: .images)
         .onChange(of: photoItems) { _, items in loadPhotos(items) }

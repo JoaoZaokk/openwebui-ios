@@ -5,19 +5,33 @@ import OpenWebUIKit
 struct MainView: View {
     let app: AppState
     @Environment(\.theme) private var theme
+    @State private var tab = Self.firstTab
+
+    private static var firstTab: Int {
+        #if DEBUG
+        ScreenshotRoute.tab
+        #else
+        0
+        #endif
+    }
 
     var body: some View {
-        TabView {
+        TabView(selection: $tab) {
             ChatListView(app: app)
                 .tabItem { Label("Conversas", systemImage: "bubble.left.and.bubble.right") }
+                .tag(0)
             NotesView(app: app)
                 .tabItem { Label("Notas", systemImage: "note.text") }
+                .tag(1)
             ImageGenView(app: app)
                 .tabItem { Label("Imagem", systemImage: "photo.artframe") }
+                .tag(2)
             VoiceView(app: app)
                 .tabItem { Label("Voz", systemImage: "waveform") }
+                .tag(3)
             WorkspaceView(app: app)
                 .tabItem { Label("Workspace", systemImage: "square.grid.2x2") }
+                .tag(4)
         }
         .tint(theme.accent)
     }
@@ -112,7 +126,12 @@ struct ChatListView: View {
                     ChatScreen(app: app, chat: nil, temporary: temp, onChanged: { Task { await store.load() } })
                 }
             }
-            .task { await store.load() }
+            .task {
+                await store.load()
+                #if DEBUG
+                openScreenshotRoute()
+                #endif
+            }
             .refreshable { await store.load(); await app.refreshModelsIfNeeded() }
         }
         .tint(theme.accent)
@@ -135,6 +154,18 @@ struct ChatListView: View {
             }
         }
     }
+
+    #if DEBUG
+    private func openScreenshotRoute() {
+        guard ScreenshotRoute.once("list") else { return }
+        if ScreenshotRoute.matches("settings") { showSettings = true }
+        if ScreenshotRoute.value("ask") != nil { path.append(.new(temporary: false)) }
+        if let id = ScreenshotRoute.value("chat") ?? ScreenshotRoute.value("voice"),
+           let chat = store.chats.first(where: { $0.id == id }) {
+            path.append(.existing(chat))
+        }
+    }
+    #endif
 
     /// A conversation the server never took is kept on device — but keeping it
     /// silently is only half an answer. This says something is waiting and hands
@@ -213,6 +244,7 @@ struct ChatListView: View {
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
+        .readableColumn()
         .searchable(text: $search, prompt: "Buscar conversas")
         .onChange(of: search) { _, new in runSearch(new) }
         // An overlay on the List rather than another branch of `content`:

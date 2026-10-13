@@ -11,6 +11,16 @@ import SwiftUI
 // screen draws its own themed header bar in-content, which also themes correctly.
 
 extension View {
+    /// Keeps content in a centered column on a wide screen (iPad, Mac).
+    ///
+    /// The transcript ran the full 1,032 pt of a 13" iPad: the question hugged
+    /// the right edge, the answer the left, with a screen of nothing between
+    /// them. 720 pt is the web's own chat width; below it — every iPhone — this
+    /// changes nothing.
+    func readableColumn(_ width: CGFloat = 720) -> some View {
+        frame(maxWidth: width).frame(maxWidth: .infinity)
+    }
+
     /// Makes a navigation bar adopt the theme (iOS): a solid themed background +
     /// a matching bar color scheme, so the title/buttons stay legible no matter
     /// the device's system appearance. Fixes "light theme, dark menu, blue

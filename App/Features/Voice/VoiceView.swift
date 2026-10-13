@@ -46,6 +46,7 @@ struct VoiceView: View {
                     controlButton
                 }
                 .padding(16)
+                .readableColumn()
             }
             .navigationTitle("Voz")
             .navigationBarTitleDisplayMode(.inline)

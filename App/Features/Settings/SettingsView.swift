@@ -114,7 +114,7 @@ struct SettingsView: View {
 
                     section("SERVIDOR") {
                         Button { showServer = true } label: {
-                            labeled("Endereço", app.serverConfig.baseURL.host ?? app.serverConfig.baseURL.absoluteString)
+                            labeled("Endereço", app.serverConfig.displayHost)
                         }
                         .listRowBackground(theme.panel)
                     }

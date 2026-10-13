@@ -165,6 +165,7 @@ struct ImageGenView: View {
                         results
                     }
                     .padding(16)
+                    .readableColumn()
                 }
                 .scrollDismissesKeyboard(.interactively)
                 // Above the content, not inside it: inline, the reason scrolled
@@ -197,7 +198,15 @@ struct ImageGenView: View {
                     }
                 }
             }
-            .task { await store.loadModels() }
+            .task {
+                await store.loadModels()
+                #if DEBUG
+                if let p = ScreenshotRoute.value("image"), ScreenshotRoute.once("image") {
+                    store.prompt = p
+                    await store.generate()
+                }
+                #endif
+            }
             .sheet(isPresented: $showHistory) {
                 GenHistorySheet(store: store, client: app.client)
                     .environment(\.theme, theme)

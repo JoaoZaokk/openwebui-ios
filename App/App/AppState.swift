@@ -30,6 +30,9 @@ final class AppState: ObservableObject {
     private var sessionEnded: (any NSObjectProtocol)?
 
     init() {
+        #if DEBUG
+        ScreenshotRoute.primeToken(OWKeychainStore())
+        #endif
         let cfg = ServerConfig.load()
         self.serverConfig = cfg
         let c = OpenWebUIClient(config: cfg.owConfig, tokens: keychain)

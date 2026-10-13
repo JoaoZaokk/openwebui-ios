@@ -704,6 +704,9 @@ final class ChatViewModel: ObservableObject {
     #if canImport(UIKit)
     private static var askedForNotifications = false
     private func askForNotificationsOnce() {
+        #if DEBUG
+        if ScreenshotRoute.raw != nil { return }   // no system alert over a capture
+        #endif
         guard !Self.askedForNotifications else { return }
         Self.askedForNotifications = true
         LocalNotifier.requestAuthorization()
