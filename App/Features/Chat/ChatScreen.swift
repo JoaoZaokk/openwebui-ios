@@ -29,6 +29,7 @@ struct ChatScreen: View {
     @State private var pinnedToBottom = true
     /// Bumped on each send so `.sensoryFeedback` fires a light tap.
     @State private var sendFeedback = 0
+    @AppStorage(ChatViewModel.followUpsKey) private var followUpsOn = true
 
     init(app: AppState, chat: OWChatSummary?, temporary: Bool = false, onChanged: @escaping () -> Void) {
         let model = app.makeChatViewModel(chat: chat, temporary: temporary)
@@ -173,7 +174,15 @@ struct ChatScreen: View {
                             )
                             .id(msg.id)
                         }
+                        if followUpsOn, !vm.followUps.isEmpty {
+                            FollowUpList(questions: vm.followUps) { q in
+                                sendFeedback += 1
+                                vm.sendFollowUp(q)
+                            }
+                            .transition(.opacity)
+                        }
                     }
+                    .animation(.easeOut(duration: 0.2), value: vm.followUps)
                     .padding(.horizontal, 14).padding(.vertical, 16)
                     // Bottom sentinel: its position inside the viewport tells us
                     // whether the user is pinned to the end of the transcript.
@@ -194,6 +203,10 @@ struct ChatScreen: View {
                 // without animation — animated per-token scrolls rubber-band.
                 .onChange(of: vm.messages.last?.content) { _, _ in
                     if pinnedToBottom { proxy.scrollTo("bottom", anchor: .bottom) }
+                }
+                // The questions land a moment after the reply; keep them in view.
+                .onChange(of: vm.followUps) { _, _ in
+                    if pinnedToBottom { scrollToBottom(proxy) }
                 }
                 // A new message (send/regenerate) is user-initiated — scroll
                 // gently and re-pin. Same when the keyboard opens.

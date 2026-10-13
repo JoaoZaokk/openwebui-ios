@@ -91,6 +91,15 @@ final class WalkthroughUITests: XCTestCase {
         }
     }
 
+    /// Answers a system alert (notifications, saved password) if one is up.
+    private func dismissSystemAlert() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        for label in ["Permitir", "Allow", "Agora Não", "Not Now"] {
+            let b = springboard.buttons[label]
+            if b.waitForExistence(timeout: label == "Permitir" ? 3 : 0.5) { b.tap(); return }
+        }
+    }
+
     /// Taps a menu and waits for one of its items; a tap the system ate is tried again.
     private func open(_ app: XCUIApplication, menu: String, item: String) {
         for _ in 0..<3 {
@@ -203,6 +212,61 @@ final class WalkthroughUITests: XCTestCase {
         speak.element(boundBy: 0).tap()
         XCTAssertTrue(listening(app), "the sent message's 🔊 produced neither audio nor a reason")
         snap(app, "ouvindo-enviada")
+    }
+
+    /// Issue #15: the questions the server suggests show up under the reply, a
+    /// tap asks the next one, and they are on the server — a fresh launch reads
+    /// them back from the chat, from the same `followUps` field the web reads.
+    func testFollowUpsAppearAndATapAsksTheNextQuestion() throws {
+        let f = try fixture()
+        var app = launch()
+        signIn(app, f)
+        _ = converse(app, "Em uma frase: o que é fotossíntese?")
+
+        let suggestions = app.buttons.matching(identifier: "chat.followUp")
+        XCTAssertTrue(suggestions.firstMatch.waitForExistence(timeout: 90), "no suggestions under the reply")
+        snap(app, "sugestoes")
+
+        // The first reply is when the app asks for notifications; that alert
+        // sits over the list and would take the tap.
+        dismissSystemAlert()
+        let question = suggestions.firstMatch.label
+        suggestions.firstMatch.tap()
+        // The list goes away while the reply streams, so a text with the
+        // question's words is now the message that was sent.
+        XCTAssertTrue(app.buttons["composer.stop"].waitForExistence(timeout: 15), "the tap did not start a turn")
+        XCTAssertTrue(app.staticTexts[question].exists, "the tapped question was not what was sent")
+        // Settled: a new list, under the new reply.
+        let renewed = NSPredicate { _, _ in
+            app.buttons["composer.send"].exists && suggestions.firstMatch.exists
+                && suggestions.firstMatch.label != question
+        }
+        expectation(for: renewed, evaluatedWith: NSObject())
+        waitForExpectations(timeout: 240)
+        snap(app, "sugestao-respondida")
+        let latest = suggestions.firstMatch.label
+        sleep(3)   // the save goes after the questions show
+
+        // A new process: nothing local left, the chat comes from the server.
+        app.terminate()
+        app = launch()
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 60))
+        let first = app.collectionViews.cells.firstMatch
+        XCTAssertTrue(first.waitForExistence(timeout: 30))
+        first.tap()
+        XCTAssertTrue(suggestions.firstMatch.waitForExistence(timeout: 30), "the server did not keep them")
+        XCTAssertEqual(suggestions.firstMatch.label, latest)
+        snap(app, "sugestoes-reabertas")
+    }
+
+    /// Ajustes › Conversa › "Sugestões de continuação" off: nothing is asked for.
+    func testWithTheSwitchOffNoSuggestionsAreShown() throws {
+        let f = try fixture()
+        let app = launch(["-chat.followUps", "NO"])
+        signIn(app, f)
+        _ = converse(app, "Responda só: ok.")
+        XCTAssertFalse(app.buttons["chat.followUp"].waitForExistence(timeout: 25))
+        snap(app, "sugestoes-desligadas")
     }
 
     /// True once a 🔊 turned into "stop reading" (it is playing), or a failure

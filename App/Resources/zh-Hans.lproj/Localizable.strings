@@ -339,3 +339,7 @@
 "Prompts" = "提示词";
 "Tools" = "工具";
 "Functions" = "函数";
+"CONVERSA" = "对话";
+"Sugestões de continuação" = "后续问题建议";
+"Continuar a conversa" = "继续对话";
+"Envia esta pergunta" = "发送这个问题";

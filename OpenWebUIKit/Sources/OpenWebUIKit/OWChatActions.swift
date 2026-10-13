@@ -101,8 +101,8 @@ extension OpenWebUIClient {
     /// means keep whatever title the chat already has.
     public func generateTitle(model: String, messages: [OWChatMessageInput],
                               chatID: String?) async throws -> String? {
-        let turn = messages.suffix(2).map { OWTitleTaskBody.Message(role: $0.role, content: $0.text) }
-        let body = OWTitleTaskBody(model: model, messages: Array(turn), chat_id: chatID)
+        let turn = messages.suffix(2).map { OWTaskBody.Message(role: $0.role, content: $0.text) }
+        let body = OWTaskBody(model: model, messages: Array(turn), chat_id: chatID)
         let req = try jsonRequest("/api/v1/tasks/title/completions", method: "POST", body: body)
         return Self.title(fromTaskResponse: try await send(req))
     }
@@ -143,10 +143,10 @@ extension OpenWebUIClient {
     }
 }
 
-/// The body of a title task. `chat_id` is optional server-side, and the
+/// The body of a title or follow-up task. `chat_id` is optional server-side, and the
 /// synthesized encoder omits it when nil — which is what a chat that is not
 /// saved yet needs.
-struct OWTitleTaskBody: Encodable {
+struct OWTaskBody: Encodable {
     var model: String
     var messages: [Message]
     var chat_id: String?

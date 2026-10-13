@@ -58,6 +58,10 @@ final class ChatViewModel: ObservableObject {
     private var streamTask: Task<Void, Never>?
     private var persistTask: Task<Void, Never>?
     private var historyTask: Task<Void, Never>?
+    /// Asks the server for the questions under the reply that just finished.
+    private var followUpTask: Task<Void, Never>?
+    /// Set by `failTurn`, so `closeTurn` knows the reply is an error, not an answer.
+    private var turnFailed = false
     private var historyLoaded = false
     /// Guards send() while a save is in flight (prevents duplicate createChat).
     private var isPersisting = false
@@ -88,6 +92,21 @@ final class ChatViewModel: ObservableObject {
     }
 
     var isNewChat: Bool { chatID == nil }
+
+    /// Ajustes › Conversa › "Sugestões de continuação". On by default, as
+    /// `autoFollowUps` is on the web.
+    static let followUpsKey = "chat.followUps"
+    static var followUpsEnabled: Bool {
+        let d = UserDefaults.standard
+        return d.object(forKey: followUpsKey) == nil ? true : d.bool(forKey: followUpsKey)
+    }
+
+    /// The questions to offer: only under the last reply of the branch on
+    /// screen, and only once it has finished — what the web shows.
+    var followUps: [String] {
+        guard !isStreaming, let last = messages.last, last.role == .assistant else { return [] }
+        return last.followUps
+    }
 
     var selectedModelName: String {
         guard let id = selectedModel else { return L("Selecionar modelo") }
@@ -153,7 +172,12 @@ final class ChatViewModel: ObservableObject {
         let known = Set(serverNodes.map(\.id))
         let hasUnsaved = tree.keys.contains { !known.contains($0) }
 
-        for n in serverNodes { tree[n.id] = n }
+        for var n in serverNodes {
+            // Questions shown before their save landed: a refresh in between
+            // must not take them off the screen.
+            if n.followUps.isEmpty, let local = tree[n.id]?.followUps, !local.isEmpty { n.followUps = local }
+            tree[n.id] = n
+        }
         if currentLeafId == nil || tree[currentLeafId!] == nil || (serverLeafIsNew && !hasUnsaved) {
             currentLeafId = chat.currentId ?? serverNodes.last?.id ?? chat.messages.last?.id
         }
@@ -306,8 +330,19 @@ final class ChatViewModel: ObservableObject {
         let docs = pendingDocuments
         guard (!text.isEmpty || !images.isEmpty || !docs.isEmpty),
               !isStreaming, !isPersisting, let model = selectedModel else { return }
-        input = ""; pendingImageURLs = []; pendingDocuments = []; error = nil
+        input = ""; pendingImageURLs = []; pendingDocuments = []
+        submit(text, images: images, docs: docs, model: model)
+    }
 
+    /// A tapped suggestion goes out as the next message, as on the web. What the
+    /// user was typing, and anything staged, stays where it is.
+    func sendFollowUp(_ question: String) {
+        guard !isStreaming, !isPersisting, let model = selectedModel else { return }
+        submit(question, images: [], docs: [], model: model)
+    }
+
+    private func submit(_ text: String, images: [String], docs: [OWAttachment], model: String) {
+        error = nil
         let now = Date().timeIntervalSince1970
         var user = OWMessage(role: .user, content: text, timestamp: now,
                              imageURLs: images, documents: docs)
@@ -329,6 +364,8 @@ final class ChatViewModel: ObservableObject {
                                     files: [OWAttachment], query: String) {
         isStreaming = true
         awaitingWebSearch = webSearch
+        turnFailed = false
+        followUpTask?.cancel()   // questions for a reply that is no longer the last
         beginBackgroundHold()   // let the reply finish if the user backgrounds the app
 
         // Context = the active branch except the empty assistant we stream into.
@@ -433,7 +470,39 @@ final class ChatViewModel: ObservableObject {
         // Ask for notification permission only once the first reply has landed —
         // asking at send time throws the system alert over a streaming answer.
         askForNotificationsOnce()
+        // Read before anything below can await: Stop is a cancelled stream task.
+        let answered = sawText && !Task.isCancelled && !turnFailed
         schedulePersist()
+        if answered, Self.followUpsEnabled { suggestFollowUps(after: assistantID) }
+    }
+
+    /// Asks the server for the questions to offer under `replyID`, shows them,
+    /// and keeps them on the reply's node where the web reads them.
+    ///
+    /// Asked right away rather than after the save, so they show up as soon as
+    /// the task model answers; only the write waits. It goes on the save chain:
+    /// a full-chat write fetched before the questions existed and landing after
+    /// them would put the node back without them.
+    private func suggestFollowUps(after replyID: String) {
+        guard let end = index(of: replyID) else { return }
+        let model = messages[end].model ?? selectedModel
+        guard let model else { return }
+        let convo = messages[...end].map { OWChatMessageInput(role: $0.role.rawValue, text: $0.content) }
+        followUpTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            guard let list = try? await self.client.generateFollowUps(model: model, messages: convo,
+                                                                       chatID: self.chatID),
+                  !list.isEmpty, !Task.isCancelled else { return }
+            self.tree[replyID]?.followUps = list
+            if let i = self.index(of: replyID) { self.messages[i].followUps = list }
+            guard !self.temporary else { return }   // shown, never saved
+            let previous = self.persistTask
+            self.persistTask = Task { @MainActor [weak self] in
+                await previous?.value
+                guard let self, let id = self.chatID else { return }
+                try? await self.client.saveFollowUps(list, replyID: replyID, chatID: id)
+            }
+        }
     }
 
     /// Saves outside `streamTask`.
@@ -463,6 +532,7 @@ final class ChatViewModel: ObservableObject {
     /// `schedulePersist()` right after wrote that loss to the server. Whatever
     /// arrived is the user's: an error never overwrites it.
     private func failTurn(_ assistantID: String, _ raw: String) {
+        turnFailed = true
         let msg = friendlyError(raw)
         if let i = index(of: assistantID), messages[i].content.isEmpty {
             messages[i].content = "⚠️ \(msg)"

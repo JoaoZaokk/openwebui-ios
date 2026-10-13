@@ -320,6 +320,10 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
     /// Auditable tool runs behind this reply (built-in web search / RAG, or a
     /// tool-calling pipe) — each with its query, raw results, and sources.
     public var toolUses: [OWToolUse]
+    /// The questions offered under this reply (issue #15). The server and the
+    /// web keep them on the history node as `followUps`; empty when none were
+    /// generated.
+    public var followUps: [String] = []
 
     public init(id: String = UUID().uuidString, role: OWRole, content: String,
                 model: String? = nil, timestamp: Double? = nil, reasoning: String = "",
@@ -334,7 +338,7 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
 
     enum CodingKeys: String, CodingKey {
         case id, role, content, model, timestamp, files, parentId
-        case output, sources, reasoning, statusHistory
+        case output, sources, reasoning, statusHistory, followUps
     }
 
     public init(from decoder: Decoder) throws {
@@ -394,6 +398,11 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         model = try? c.decodeIfPresent(String.self, forKey: .model)
         timestamp = try? c.decode(Double.self, forKey: .timestamp)
         parentId = try? c.decodeIfPresent(String.self, forKey: .parentId)
+        // Lossy: a stray non-string entry must not cost the rest of the list.
+        followUps = ((try? c.decode([OWLossy<String>].self, forKey: .followUps)) ?? [])
+            .compactMap(\.value)
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
 
         // Auditable tool runs live in statusHistory — the rich entries carry `action`.
         //
@@ -486,6 +495,7 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         // next save and sibling branches become unreachable.
         try c.encodeIfPresent(parentId, forKey: .parentId)
         if !reasoning.isEmpty { try c.encode(reasoning, forKey: .reasoning) }
+        if !followUps.isEmpty { try c.encode(followUps, forKey: .followUps) }
         if !sources.isEmpty {
             try c.encode(sources.map(OWSourceEntry.init), forKey: .sources)
         }
