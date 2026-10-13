@@ -38,6 +38,8 @@ package (`OpenWebUIKit`) that a second, voice-first companion app builds on.
 
 - **Chat** with model picker + streaming (OpenAI-compatible SSE), temporary chats,
   and native chat actions (pin, archive, rename, clone, share/unshare, download, delete)
+- **Follow-up suggestions** — the questions your server suggests under each answer;
+  tap one to ask it. Saved on the chat like the web does, and switchable in Settings
 - **Attachments** — photos, camera, documents (RAG), Notes, web pages, knowledge
   bases, and chat references
 - **Image generation** (ComfyUI) with size/steps/model + an LLM "prompt helper"
@@ -81,3 +83,6 @@ launch, type your Open WebUI server URL in the login screen and sign in.
 Licensed under the **PolyForm Noncommercial License 1.0.0** — see [LICENSE](LICENSE).
 Third-party projects, models, fonts, and brand-asset notices are in
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+Thanks to [@SaintChris](https://github.com/SaintChris), who requested and specified
+follow-up suggestions in [#15](https://github.com/JoaoZaokk/openwebui-ios/issues/15).

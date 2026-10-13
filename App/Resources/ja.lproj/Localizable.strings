@@ -339,3 +339,7 @@
 "Prompts" = "プロンプト";
 "Tools" = "ツール";
 "Functions" = "関数";
+"CONVERSA" = "チャット";
+"Sugestões de continuação" = "続きの質問の候補";
+"Continuar a conversa" = "会話を続ける";
+"Envia esta pergunta" = "この質問を送信します";

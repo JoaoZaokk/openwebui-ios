@@ -11,6 +11,7 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showServer = false
     @State private var showBugReport = false
+    @AppStorage(ChatViewModel.followUpsKey) private var followUps = true
 
     var body: some View {
         NavigationStack {
@@ -57,6 +58,16 @@ struct SettingsView: View {
                             Label { Text("Nomes dos modelos").font(.ody(.body)).foregroundStyle(theme.fg) }
                             icon: { Image(systemName: "text.badge.star").foregroundStyle(theme.accent) }
                         }
+                        .listRowBackground(theme.panel)
+                    }
+
+                    section("CONVERSA") {
+                        Toggle(isOn: $followUps) {
+                            Label { Text("Sugestões de continuação").font(.ody(.body)).foregroundStyle(theme.fg) }
+                            icon: { Image(systemName: "arrow.turn.down.right").foregroundStyle(theme.accent) }
+                        }
+                        .tint(theme.accent)
+                        .accessibilityIdentifier("settings.followUps")
                         .listRowBackground(theme.panel)
                     }
 
