@@ -37,6 +37,12 @@ struct ChatScreen: View {
     /// Bumped on each send so `.sensoryFeedback` fires a light tap.
     @State private var sendFeedback = 0
     @AppStorage(ChatViewModel.followUpsKey) private var followUpsOn = true
+    #if DEBUG
+    @ObservedObject private var design = DesignTools.shared
+    private var capturing: Bool { design.capturing }
+    #else
+    private var capturing: Bool { false }
+    #endif
 
     init(app: AppState, chat: OWChatSummary?, temporary: Bool = false, onChanged: @escaping () -> Void) {
         let model = app.makeChatViewModel(chat: chat, temporary: temporary)
@@ -255,7 +261,7 @@ struct ChatScreen: View {
                 }
                 // "Jump to latest" pill, shown only while scrolled up.
                 .overlay(alignment: .bottomTrailing) {
-                    if !pinnedToBottom {
+                    if !pinnedToBottom && !capturing {
                         Button {
                             pinnedToBottom = true
                             userScrolledAway = false

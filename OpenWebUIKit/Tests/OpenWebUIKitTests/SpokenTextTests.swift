@@ -9,6 +9,13 @@ import XCTest
 /// a lone code fence spoken as a backtick.
 final class SpokenTextTests: XCTestCase {
 
+    /// A searched reply cites its pages — "[2]" read out loud is "colchete dois".
+    func testCitationMarkersAreNotSpoken() {
+        XCTAssertEqual(SpokenText.strip("O dólar está em 5,01 reais [2]. Veja no Wise [3, 4]."),
+                       "O dólar está em 5,01 reais. Veja no Wise.")
+        XCTAssertEqual(SpokenText.strip("Leia [o guia](https://x.y)."), "Leia o guia.")
+    }
+
     // MARK: - sentenceCut
 
     /// The whole reason the cut requires whitespace after the terminator.

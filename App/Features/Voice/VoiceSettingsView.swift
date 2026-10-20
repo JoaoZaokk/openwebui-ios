@@ -23,6 +23,7 @@ struct VoiceSettingsView: View {
     @AppStorage("voice.tts.serverVoice") private var serverVoice = ""
     @AppStorage("voice.bargein.enabled") private var bargeEnabled = true
     @AppStorage("voice.bargein.sensitivity") private var bargeSensitivity = 0.5
+    @AppStorage(VoiceConversation.webSearchKey) private var voiceWebSearch = true
     /// Stored value of the language filter meaning "nothing picked yet". The
     /// filter used to open on "all", and "all" is 65 models laid end to end —
     /// the choice that shortens the list was buried under the list it shortens.
@@ -172,6 +173,7 @@ struct VoiceSettingsView: View {
                         Slider(value: $bargeSensitivity, in: 0...1)
                     }
                 }
+                Toggle("Buscar na web", isOn: $voiceWebSearch)
             } header: { Text("Conversa por voz") } footer: {
                 Text("Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme.")
             }

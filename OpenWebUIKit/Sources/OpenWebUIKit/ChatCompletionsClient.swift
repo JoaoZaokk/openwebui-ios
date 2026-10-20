@@ -49,8 +49,14 @@ public struct OWStreamOptions: Sendable {
     /// Workspace tool ids the server should make callable for this reply
     /// (`/api/v1/tools/`). Forces legacy function calling — see `buildRequest`.
     public var toolIDs: [String]
-    public init(temperature: Double? = nil, webSearch: Bool = false, toolIDs: [String] = []) {
+    /// Declare `OWWebSearchTool` in the request's own `tools`, so the model can
+    /// ask for a search. Running it is `streamReply`'s job — the server runs
+    /// nothing for a request that is not from a browser tab.
+    public var offerWebSearch: Bool
+    public init(temperature: Double? = nil, webSearch: Bool = false, toolIDs: [String] = [],
+                offerWebSearch: Bool = false) {
         self.temperature = temperature; self.webSearch = webSearch; self.toolIDs = toolIDs
+        self.offerWebSearch = offerWebSearch
     }
 }
 
@@ -61,6 +67,13 @@ public enum OWStreamUpdate: Sendable {
     /// Web-search citations (Open WebUI prepends a `data: {"sources": …}` frame
     /// before the first token when the RAG web-search path runs).
     case sources([OWWebSource])
+    /// The model asked for a function (structured `tool_calls`). Only `stream`
+    /// yields it; `streamReply` acts on it instead.
+    case toolCall(OWToolCall)
+    /// `streamReply` is running a web search the model asked for.
+    case searching([String])
+    /// That search failed; the reply continues without it. The text says why.
+    case searchFailed(String)
     case error(String)
     case done
 }
@@ -69,7 +82,7 @@ public enum OWStreamUpdate: Sendable {
 /// OpenAI-compatible endpoint: newline-delimited `data: {json}` frames whose
 /// `choices[0].delta.content` carries the tokens, terminated by `data: [DONE]`.
 public final class ChatCompletionsClient: @unchecked Sendable {
-    private let client: OpenWebUIClient
+    let client: OpenWebUIClient
     public init(client: OpenWebUIClient) { self.client = client }
 
     public func stream(model: String,
@@ -199,6 +212,11 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                         return
                     }
 
+                    // Structured tool calls arrive in pieces: the name in one
+                    // frame, the arguments a few characters at a time after it,
+                    // keyed by `index`. Yielded whole, once the stream ends.
+                    var pendingCalls: [Int: (name: String, args: String)] = [:]
+                    var sawDone = false
                     for try await rawLine in bytes.lines {
                         if Task.isCancelled { break }
                         let line = rawLine.trimmingCharacters(in: .whitespaces)
@@ -206,7 +224,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                         let payload = line.dropFirst(5).trimmingCharacters(in: .whitespaces)
 
                         if payload == "[DONE]" {
-                            continuation.yield(.done)
+                            sawDone = true
                             break
                         }
                         guard let data = payload.data(using: .utf8) else { continue }
@@ -223,6 +241,14 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                                 if let t = delta.content, !t.isEmpty {
                                     continuation.yield(.textDelta(t))
                                 }
+                                for (n, call) in (delta.tool_calls ?? []).enumerated() {
+                                    let key = call.index ?? n
+                                    var c = pendingCalls[key] ?? (name: "", args: "")
+                                    // Most providers send the name once; some repeat it on every piece.
+                                    if let name = call.function?.name, !name.isEmpty, name != c.name { c.name += name }
+                                    if let a = call.function?.arguments { c.args += a }
+                                    pendingCalls[key] = c
+                                }
                             }
                             // Not a chunk/error: maybe the prepended web-search
                             // sources frame ({"sources": [...]}, no choices key).
@@ -233,6 +259,13 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                             }
                         }
                     }
+                    for key in pendingCalls.keys.sorted() {
+                        let c = pendingCalls[key]!
+                        if !c.name.isEmpty {
+                            continuation.yield(.toolCall(OWToolCall(name: c.name, arguments: c.args)))
+                        }
+                    }
+                    if sawDone { continuation.yield(.done) }
                     continuation.finish()
                 } catch is CancellationError {
                     continuation.finish()
@@ -265,13 +298,22 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         // a socket.io session we don't have, so the call would silently do
         // nothing. Harmless on older servers.
         let needsLegacy = options.webSearch || !options.toolIDs.isEmpty
-        req.httpBody = try JSONEncoder().encode(
+        var body = try JSONEncoder().encode(
             Body(model: model, messages: messages, stream: true,
                  temperature: options.temperature, files: files.isEmpty ? nil : files,
                  tool_ids: options.toolIDs.isEmpty ? nil : options.toolIDs,
                  features: options.webSearch ? Body.Features(web_search: true) : nil,
                  params: needsLegacy ? Body.Params(function_calling: "legacy") : nil)
         )
+        // A `tools` key makes the server skip its own tool resolution and pass
+        // these through to the provider unchanged — which is the point: it is
+        // the one tool list a request from outside a browser tab can carry.
+        if options.offerWebSearch,
+           var obj = try JSONSerialization.jsonObject(with: body) as? [String: Any] {
+            obj["tools"] = [OWWebSearchTool.spec]
+            body = try JSONSerialization.data(withJSONObject: obj)
+        }
+        req.httpBody = body
         return req
     }
 
@@ -303,8 +345,13 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         }
         if let full = try? JSONDecoder().decode(OWFullCompletion.self, from: data) {
             if let err = full.errorMessage { c.yield(.error(err)); return }
-            if let t = full.text, !t.isEmpty {
-                c.yield(.textDelta(t))
+            let calls = (full.choices?.first?.message?.tool_calls ?? []).compactMap { d -> OWToolCall? in
+                guard let name = d.function?.name, !name.isEmpty else { return nil }
+                return OWToolCall(name: name, arguments: d.function?.arguments ?? "")
+            }
+            if let t = full.text, !t.isEmpty { c.yield(.textDelta(t)) }
+            for call in calls { c.yield(.toolCall(call)) }
+            if !(full.text ?? "").isEmpty || !calls.isEmpty {
                 c.yield(.done)
                 return
             }
@@ -355,13 +402,15 @@ struct OWCompletionChunk: Decodable {
             var content: String?
             var reasoning: String?
             var reasoning_content: String?
+            var tool_calls: [OWToolCallDelta]?
 
-            enum CodingKeys: String, CodingKey { case content, reasoning, reasoning_content }
+            enum CodingKeys: String, CodingKey { case content, reasoning, reasoning_content, tool_calls }
             init(from decoder: Decoder) throws {
                 let c = try decoder.container(keyedBy: CodingKeys.self)
                 content = (try? c.decode(OWFlexText.self, forKey: .content))?.text
                 reasoning = try? c.decodeIfPresent(String.self, forKey: .reasoning)
                 reasoning_content = try? c.decodeIfPresent(String.self, forKey: .reasoning_content)
+                tool_calls = try? c.decodeIfPresent([OWToolCallDelta].self, forKey: .tool_calls)
             }
         }
         var delta: Delta?
@@ -372,6 +421,19 @@ struct OWCompletionChunk: Decodable {
     var detail: String?
 
     var errorMessage: String? { error?.message ?? detail }
+}
+
+/// One piece of a structured tool call, as streamed.
+struct OWToolCallDelta: Decodable {
+    struct Function: Decodable { var name: String?; var arguments: String? }
+    var index: Int?
+    var function: Function?
+    enum CodingKeys: String, CodingKey { case index, function }
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        index = try? c.decodeIfPresent(Int.self, forKey: .index)
+        function = try? c.decodeIfPresent(Function.self, forKey: .function)
+    }
 }
 
 /// The prepended web-search frame: `data: {"sources": [ … ]}` (no choices key).
@@ -388,6 +450,7 @@ struct OWFullCompletion: Decodable {
         struct Msg: Decodable {
             var content: OWFlexText?
             var reasoning_content: String?
+            var tool_calls: [OWToolCallDelta]?
         }
         var message: Msg?
         var text: String?

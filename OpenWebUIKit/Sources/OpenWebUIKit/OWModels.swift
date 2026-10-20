@@ -379,7 +379,11 @@ public struct OWMessage: Codable, Identifiable, Hashable, Sendable {
         // as a leading <think>…</think> block. Lift it into `reasoning` so the
         // disclosure can show it and the raw tags never leak into the bubble.
         let split = OWMessage.splitReasoning(body)
-        content = split.content
+        // A reply saved while tool calls were shown as text (1.10 and before,
+        // Gemma through LM Studio) is that call and nothing else. Never
+        // something to show — and, sent back as history, an example the model
+        // copies on the next turn.
+        content = role == .user ? split.content : OWToolCallText.stripped(split.content)
         // A cached copy carries `reasoning` verbatim; server payloads never do.
         let stored = (try? c.decodeIfPresent(String.self, forKey: .reasoning)) ?? nil
         reasoning = stored ?? (outputReasoning.isEmpty ? split.reasoning
@@ -720,6 +724,8 @@ public struct OWServerConfig: Decodable, Sendable {
         public var authTrustedHeader: Bool?
         /// New in 0.11: with plugins off the server silently discards `tool_ids`.
         public var enablePlugins: Bool?
+        /// Only in the signed-in answer; absent from the public one.
+        public var enableWebSearch: Bool?
         enum CodingKeys: String, CodingKey {
             case auth
             case enableLoginForm = "enable_login_form"
@@ -727,6 +733,7 @@ public struct OWServerConfig: Decodable, Sendable {
             case enableSignup = "enable_signup"
             case authTrustedHeader = "auth_trusted_header"
             case enablePlugins = "enable_plugins"
+            case enableWebSearch = "enable_web_search"
         }
     }
 
@@ -740,6 +747,10 @@ public struct OWServerConfig: Decodable, Sendable {
     public var ldapAvailable: Bool { features?.enableLdap ?? false }
     /// `false` only when the admin turned plugins off — then `tool_ids` are dropped.
     public var pluginsAvailable: Bool { features?.enablePlugins ?? true }
+    /// `false` only when the server says web search is off. Unknown (the
+    /// public config, an older server) counts as available: a search that
+    /// then fails is reported, and the reply still comes.
+    public var webSearchAvailable: Bool { features?.enableWebSearch ?? true }
 }
 
 /// Which model a new conversation opens with.

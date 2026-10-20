@@ -141,6 +141,60 @@ final class WalkthroughUITests: XCTestCase {
         snap(app, "voz-servidor-sem-motor")
     }
 
+    /// A long press on the words of a sent question opens the message menu,
+    /// with Editar. `.textSelection` on the user's bubble used to take the
+    /// press: the system's Copiar / Pesquisar / Traduzir bar came up instead,
+    /// and Editar opened only from the bubble's padding.
+    func testALongPressOnTheSentQuestionOffersEdit() throws {
+        let f = try fixture()
+        let app = launch()
+        signIn(app, f)
+        // Two lines, as most questions are: a one-line one opened the menu even
+        // with the bug.
+        let question = "Responda só: ok. Esta pergunta é longa de propósito, para ocupar duas linhas no balão."
+        _ = converse(app, question)
+        dismissSystemAlert()
+        // The chat's title is the same words until the server names it: the
+        // bubble is the lower of the two.
+        let matches = app.staticTexts.matching(NSPredicate(format: "label == %@", question))
+        XCTAssertTrue(matches.firstMatch.waitForExistence(timeout: 10))
+        let text = try XCTUnwrap(matches.allElementsBoundByIndex.max { $0.frame.minY < $1.frame.minY })
+        text.press(forDuration: 1.2)
+        XCTAssertTrue(app.buttons["Editar"].waitForExistence(timeout: 5),
+                      "the press on the question did not open the message menu")
+        snap(app, "menu-da-pergunta")
+        app.buttons["Editar"].tap()
+        XCTAssertTrue(app.buttons["Cancelar"].waitForExistence(timeout: 5), "Editar did not open the editor")
+        snap(app, "editando-pergunta")
+        app.buttons["Cancelar"].tap()
+    }
+
+    /// Voice mode had no web search at all: a question about today was answered
+    /// from memory, or — with Gemma 4 through LM Studio — with a search command
+    /// read out as the reply. The model now gets a `search_web` it can call and
+    /// the app runs it. `-voiceSay` stands in for the microphone.
+    func testVoiceModeSearchesTheWebWhenTheQuestionNeedsIt() throws {
+        let f = try fixture()
+        let app = launch(["-voiceSay", "Pesquise na web: qual é a cotação do dólar em reais hoje?",
+                          "-voice.bargein.enabled", "NO"])
+        signIn(app, f)
+        let tab = app.tabBars.firstMatch.buttons["Voz"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 10))
+        tab.tap()
+        let start = app.buttons["Iniciar conversa"]
+        XCTAssertTrue(start.waitForExistence(timeout: 10))
+        start.tap()
+
+        let sources = app.descendants(matching: .any)["voice.sources"]
+        XCTAssertTrue(sources.waitForExistence(timeout: 240), "the reply never showed the sites it searched")
+        XCTAssertTrue(start.waitForExistence(timeout: 120), "the scripted session did not end")
+        let raw = app.staticTexts.matching(NSPredicate(format: "label CONTAINS 'tool_call' OR label CONTAINS 'call:search'"))
+        XCTAssertEqual(raw.count, 0)
+        let reply = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] 'real' OR label CONTAINS[c] 'R$' OR label CONTAINS[c] 'dólar'"))
+        XCTAssertGreaterThan(reply.count, 1, "no answer about the dollar besides the question")
+        snap(app, "voz-busca-na-web")
+    }
+
     func testSignInEveryTabAndListenToBothSidesOfAConversation() throws {
         let f = try fixture()
         let app = launch()
@@ -224,17 +278,34 @@ final class WalkthroughUITests: XCTestCase {
         _ = converse(app, "Em uma frase: o que é fotossíntese?")
 
         let suggestions = app.buttons.matching(identifier: "chat.followUp")
-        XCTAssertTrue(suggestions.firstMatch.waitForExistence(timeout: 90), "no suggestions under the reply")
+        // The server's task model has taken 119 s on a bad call; the app waits 180.
+        XCTAssertTrue(suggestions.firstMatch.waitForExistence(timeout: 200), "no suggestions under the reply")
         snap(app, "sugestoes")
 
         // The first reply is when the app asks for notifications; that alert
         // sits over the list and would take the tap.
         dismissSystemAlert()
         let question = suggestions.firstMatch.label
-        suggestions.firstMatch.tap()
+        // The list lands while the chat is still scrolling to show it. Once
+        // (15/10, server 0.12.2) the tap went nowhere — no alert in the way,
+        // the list unchanged for six minutes after. Tap when the list has
+        // stopped moving, and again if nothing started.
+        var started = false
+        for _ in 0..<3 where !started {
+            var last = CGRect.null
+            for _ in 0..<10 where suggestions.firstMatch.frame != last {
+                last = suggestions.firstMatch.frame
+                usleep(700_000)
+            }
+            suggestions.firstMatch.tap()
+            // Started: the stop button, or the list gone (a quick reply can end
+            // before the stop button is seen) or already replaced.
+            started = app.buttons["composer.stop"].waitForExistence(timeout: 15)
+                || !suggestions.firstMatch.exists || suggestions.firstMatch.label != question
+        }
+        XCTAssertTrue(started, "the tap did not start a turn")
         // The list goes away while the reply streams, so a text with the
         // question's words is now the message that was sent.
-        XCTAssertTrue(app.buttons["composer.stop"].waitForExistence(timeout: 15), "the tap did not start a turn")
         XCTAssertTrue(app.staticTexts[question].exists, "the tapped question was not what was sent")
         // Settled: a new list, under the new reply.
         let renewed = NSPredicate { _, _ in
@@ -242,7 +313,7 @@ final class WalkthroughUITests: XCTestCase {
                 && suggestions.firstMatch.label != question
         }
         expectation(for: renewed, evaluatedWith: NSObject())
-        waitForExpectations(timeout: 240)
+        waitForExpectations(timeout: 380)
         snap(app, "sugestao-respondida")
         let latest = suggestions.firstMatch.label
         sleep(3)   // the save goes after the questions show

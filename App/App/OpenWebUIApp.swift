@@ -8,6 +8,9 @@ struct OpenWebUIApp: App {
     // Singleton, observed (not owned) — @ObservedObject is the correct wrapper.
     @ObservedObject private var lang = LanguageManager.shared
     @ObservedObject private var modelAliases = ModelAliases.shared
+    #if DEBUG && os(macOS)
+    @AppStorage("design.phoneMode") private var phoneMode = false
+    #endif
 
     init() { FontLoader.registerBundledFonts() }
 
@@ -39,15 +42,48 @@ struct OpenWebUIApp: App {
                 // bordered chrome, and give the window desktop-sized bounds.
                 .buttonStyle(.plain)
                 .textFieldStyle(.plain)
-                .frame(minWidth: 900, minHeight: 560)
+                .frame(minWidth: macMinWidth, minHeight: 560)
                 #endif
         }
         #if os(macOS)
         .defaultSize(width: 1180, height: 760)
         .windowResizability(.contentMinSize)
         #endif
+        #if DEBUG && os(macOS)
+        .commands {
+            // Design export (Debug only): menu bar items, so the shortcuts work
+            // anywhere in the window. Portuguese only, for the owner: verbatim, out
+            // of the string catalogue.
+            CommandMenu("Design") {
+                Button { DesignTools.shared.saveFull() } label: { Text(verbatim: "Salvar tela inteira (com rolagem)") }
+                    .keyboardShortcut("s", modifiers: [.command, .shift])
+                Button { DesignTools.shared.saveVisible() } label: { Text(verbatim: "Salvar só o que está visível") }
+                    .keyboardShortcut("v", modifiers: [.command, .shift])
+                Divider()
+                Button { DesignTools.shared.togglePhoneMode() } label: {
+                    Text(verbatim: phoneMode ? "Voltar ao modo Mac" : "Modo celular (iPhone 17)")
+                }
+                    .keyboardShortcut("p", modifiers: [.command, .shift])
+                Button { DesignTools.shared.chooseFolder() } label: { Text(verbatim: "Escolher pasta…") }
+            }
+        }
+        #endif
     }
 }
+
+#if os(macOS)
+extension OpenWebUIApp {
+    /// The desktop minimum, except in the Debug phone mode, which needs an
+    /// iPhone-sized window.
+    var macMinWidth: CGFloat {
+        #if DEBUG
+        return phoneMode ? 320 : 900
+        #else
+        return 900
+        #endif
+    }
+}
+#endif
 
 struct RootView: View {
     @EnvironmentObject private var app: AppState
@@ -78,6 +114,12 @@ struct RootView: View {
                 AnimatedBackground(pattern: themes.background, tint: theme.accent)
             }
         }
+        #if DEBUG
+        .overlay(alignment: .topTrailing) {
+            if DesignTools.isOn { DesignToolsOverlay() }
+        }
+        .task { if DesignTools.isOn { await DesignTools.shared.autoCaptureIfAsked() } }
+        #endif
         .onChange(of: scenePhase) { _, p in
             if p == .active {
                 Task { await app.refreshModelsIfNeeded() }

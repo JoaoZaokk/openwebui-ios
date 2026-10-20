@@ -54,6 +54,9 @@ final class StreamReaderTests: XCTestCase {
             case .textDelta(let t):      return "text(\(t))"
             case .reasoningDelta(let r): return "reasoning(\(r))"
             case .sources(let s):        return "sources(\(s.map(\.name).joined(separator: ",")))"
+            case .toolCall(let c):       return "tool(\(c.name),\(c.arguments))"
+            case .searching(let q):      return "searching(\(q.joined(separator: ",")))"
+            case .searchFailed(let e):   return "searchFailed(\(e))"
             case .error(let e):          return "error(\(e))"
             case .done:                  return "done"
             }

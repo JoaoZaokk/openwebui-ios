@@ -93,6 +93,12 @@ final class ChatViewModel: ObservableObject {
 
     var isNewChat: Bool { chatID == nil }
 
+    /// Whether the server has web search on. With "Buscar na web" off nothing
+    /// is offered to the model — as on the web — but a model that writes out a
+    /// search call anyway (Gemma does, with no tool and no answer) gets the
+    /// search instead of having the call shown as its reply.
+    var serverSearches: () -> Bool = { true }
+
     /// Ajustes › Conversa › "Sugestões de continuação". On by default, as
     /// `autoFollowUps` is on the web.
     static let followUpsKey = "chat.followUps"
@@ -420,17 +426,32 @@ final class ChatViewModel: ObservableObject {
         do {
             let options = OWStreamOptions(webSearch: legacyFallback,
                                           toolIDs: Array(selectedToolIDs))
-            for try await update in completions.stream(model: model, messages: convo, files: streamFiles,
-                                                       options: options) {
+            // Already searched for this turn (or the server's search just
+            // failed): a call the model writes anyway is only cut.
+            let search = OWReplySearch(offer: false, mayRun: !webSearch && serverSearches())
+            for try await update in completions.streamReply(model: model, messages: convo, files: streamFiles,
+                                                            options: options, search: search) {
                 awaitingWebSearch = false
                 switch update {
+                case .searching:
+                    awaitingWebSearch = true
+                case .searchFailed(let why):
+                    self.error = why
+                case .toolCall:
+                    break
                 case .textDelta(let d):
                     sawText = true
                     append(assistantID, d)
                 case .reasoningDelta(let d):
                     appendReasoning(assistantID, d)
                 case .sources(let list):
-                    if let i = index(of: assistantID) { messages[i].sources = list }
+                    // After the app's own search the server sends a frame named
+                    // after the query, with no addresses: it must not replace
+                    // the sites already listed.
+                    if let i = index(of: assistantID),
+                       messages[i].sources.isEmpty || list.contains(where: { $0.url?.hasPrefix("http") == true }) {
+                        messages[i].sources = list
+                    }
                 case .error(let msg):
                     failTurn(assistantID, msg)
                 case .done:

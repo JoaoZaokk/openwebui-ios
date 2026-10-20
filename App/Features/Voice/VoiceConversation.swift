@@ -26,16 +26,30 @@ final class VoiceConversation: ObservableObject {
     @Published var turns: [Turn] = []
     @Published var liveText = ""        // partial user transcription while listening
     @Published var reply = ""           // streaming assistant reply
+    /// A web search the model asked for is running (`.thinking` either side).
+    @Published private(set) var searching = false
     @Published var error: String?
     @Published var model: String?
     /// Per-conversation server TTS voice ("" = global default). Persisted per chat.
     @Published var ttsVoice: String = ""
 
-    struct Turn: Identifiable, Equatable { var id: String = UUID().uuidString; let role: String; var text: String; var at = Date() }
+    struct Turn: Identifiable, Equatable {
+        var id: String = UUID().uuidString; let role: String; var text: String; var at = Date()
+        /// Pages the reply was written from, when the model searched the web.
+        var sources: [OWWebSource] = []
+    }
+
+    /// The model may search the web mid-conversation (Ajustes › Voz). On by
+    /// default: the server only runs tools for its own browser tab, so without
+    /// this a question about today got a search command read out as the answer.
+    static let webSearchKey = "voice.webSearch.enabled"
 
     let models: [OWModel]
     private let client: OpenWebUIClient
     private let completions: ChatCompletionsClient
+    /// Whether the server has web search on — asked per turn, since the signed-in
+    /// config can arrive after the screen opened.
+    private let serverSearches: () -> Bool
     private let voice = VoiceInputManager()
     private let tts = SpeechManager.shared
     private let bargeMonitor = BargeInMonitor()
@@ -69,11 +83,17 @@ final class VoiceConversation: ObservableObject {
     private let endpointSilence: TimeInterval = 1.6
 
     private var seeded = false
+    #if DEBUG
+    /// Set while a `-voiceSay` turn is the session (see `ScreenshotRoute`).
+    private var scripted = false
+    #endif
 
     init(client: OpenWebUIClient, completions: ChatCompletionsClient,
-         models: [OWModel], defaultModel: String? = nil) {
+         models: [OWModel], defaultModel: String? = nil,
+         serverSearches: @escaping () -> Bool = { true }) {
         self.client = client
         self.completions = completions
+        self.serverSearches = serverSearches
         self.models = models
         // Same remembered pick the chat screen opens with — voice was its own
         // `models.first`, so it reset on every session too.
@@ -106,11 +126,17 @@ final class VoiceConversation: ObservableObject {
         guard !seeded else { return }
         seeded = true
         self.chatID = chatID
-        turns = messages.map { m in
-            Turn(id: m.id,
-                 role: m.role == .user ? "user" : "assistant",
-                 text: m.content,
-                 at: m.timestamp.map { Date(timeIntervalSince1970: $0) } ?? Date())
+        // A reply saved before tool calls were handled can be nothing but the
+        // call the model wrote out. Sent back as history it is an example the
+        // model copies, so it is cut here — and a turn left empty dropped.
+        turns = messages.compactMap { m in
+            let text = m.role == .user ? m.content : OWToolCallText.stripped(m.content)
+            guard !text.isEmpty else { return nil }
+            return Turn(id: m.id,
+                        role: m.role == .user ? "user" : "assistant",
+                        text: text,
+                        at: m.timestamp.map { Date(timeIntervalSince1970: $0) } ?? Date(),
+                        sources: m.sources)
         }
         model = seedModel ?? messages.last(where: { $0.role == .assistant })?.model ?? model
         if let id = chatID { ttsVoice = UserDefaults.standard.string(forKey: Self.voiceKey(id)) ?? "" }
@@ -136,6 +162,14 @@ final class VoiceConversation: ObservableObject {
         active = true; error = nil; reply = ""
         tts.duplexSession = true   // play-AND-record so barge-in can listen mid-reply
         enableProximity()
+        #if DEBUG
+        if let said = ScreenshotRoute.voiceSay, !scripted {
+            scripted = true
+            turns.append(Turn(role: "user", text: said))
+            ask(said)
+            return
+        }
+        #endif
         await listen()
     }
 
@@ -156,6 +190,7 @@ final class VoiceConversation: ObservableObject {
         voice.cancel()
         disableProximity()
         phase = .idle
+        searching = false
         liveText = ""
         pendingSpeech = ""
     }
@@ -202,6 +237,9 @@ final class VoiceConversation: ObservableObject {
         // Arriving inactive means stop() ran during the handoff, and `.idle` is
         // the phase it already left.
         guard active else { phase = .idle; return }
+        #if DEBUG
+        if scripted { stop(); return }
+        #endif
         reply = ""; liveText = ""; lastPartial = ""
         heardSpeech = false
         // Release a recorder left running by an interrupted turn — a no-op on the
@@ -280,6 +318,7 @@ final class VoiceConversation: ObservableObject {
         openedThisTurn = false
         var msgs = [OWChatMessageInput(role: "system", text: Self.systemPrompt)]
         for t in turns { msgs.append(OWChatMessageInput(role: t.role, text: t.text)) }
+        let allowed = (UserDefaults.standard.object(forKey: Self.webSearchKey) as? Bool ?? true) && serverSearches()
         let replyTurn = Turn(role: "assistant", text: "")
         turns.append(replyTurn)
         speakingTurnID = replyTurn.id
@@ -291,11 +330,24 @@ final class VoiceConversation: ObservableObject {
             // from a slow synthesis without both marks.
             let t0 = Date()
             var firstDelta = true
+            defer { self.searching = false }
             do {
-                for try await u in self.completions.stream(model: model, messages: msgs) {
+                for try await u in self.completions.streamReply(model: model, messages: msgs,
+                                                                search: OWReplySearch(offer: allowed, mayRun: allowed)) {
                     if Task.isCancelled { return }
                     switch u {
+                    case .searching(let q):
+                        VoiceLog.log("busca.web", q.joined(separator: " | "))
+                        self.searching = true
+                    case .sources(let list):
+                        if let i = self.turns.lastIndex(where: { $0.id == replyTurn.id }) {
+                            self.turns[i].sources = list
+                        }
+                    case .searchFailed(let why):
+                        self.searching = false
+                        self.error = why
                     case .textDelta(let d):
+                        self.searching = false
                         if firstDelta {
                             firstDelta = false
                             VoiceLog.log("llm.1ºdelta", String(format: "%.0f ms", Date().timeIntervalSince(t0) * 1000))
@@ -357,7 +409,8 @@ final class VoiceConversation: ObservableObject {
                              role: t.role == "user" ? .user : .assistant,
                              content: txt,
                              model: t.role == "user" ? nil : model,
-                             timestamp: t.at.timeIntervalSince1970)
+                             timestamp: t.at.timeIntervalSince1970,
+                             sources: t.sources)
         }
         guard msgs.count >= 2 else { return }
         let firstUser = turns.first { $0.role == "user" }?.text ?? L("Conversa de voz")

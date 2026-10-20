@@ -38,16 +38,28 @@ enum ScreenshotRoute {
     /// `-screenshotHost <name>`: the server name shown in the UI.
     static var hostLabel: String? { string("screenshotHost") }
 
-    /// `-screenshotToken <token>`: saved before the client reads the Keychain, so
-    /// a capture run opens signed in to the stub.
-    static func primeToken(_ keychain: OWKeychainStore) {
-        if let t = string("screenshotToken") { keychain.save(token: t) }
+    /// `-screenshotToken <token>`: a capture run opens signed in to the stub,
+    /// from a Keychain entry of its own. Saved over the real session, the
+    /// stub's token outlived the run: the next plain launch sat signed in to
+    /// the real server with it — tab bar up, no models, nothing could be sent.
+    static func keychain() -> OWKeychainStore? {
+        guard let t = string("screenshotToken") else { return nil }
+        let k = OWKeychainStore(service: "com.example.openwebui.screenshots")
+        k.save(token: t)
+        return k
     }
 
     /// One-shot actions (sending a question, generating an image) must not run
     /// again when SwiftUI rebuilds the view that triggers them.
     @MainActor private static var done: Set<String> = []
     @MainActor static func once(_ key: String) -> Bool { done.insert(key).inserted }
+
+    /// `-voiceSay "…"`: the voice screen's first turn is this sentence, as if
+    /// it had been heard, and the session ends when the reply does. For UI
+    /// tests — the simulator has no voice to give it.
+    static var voiceSay: String? { string("voiceSay") }
+    /// `-voiceAutoStart YES`: the voice screen starts its session on its own.
+    static var voiceAutoStart: Bool { string("voiceAutoStart") != nil }
 
     private static func string(_ key: String) -> String? {
         let v = UserDefaults.standard.string(forKey: key)

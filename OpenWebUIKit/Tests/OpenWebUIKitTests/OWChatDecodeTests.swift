@@ -94,6 +94,18 @@ final class OWChatDecodeTests: XCTestCase {
 
     /// Web-search citations decode from the server `sources` shape (and from
     /// the SSE frame, which shares it) into deduplicated OWWebSource values.
+    /// 1.10 saved a Gemma reply that was only a written-out tool call. Loaded
+    /// back it was shown, and sent as history it taught the model to repeat it.
+    func testASavedToolCallReplyLoadsEmptyAndAQuestionAboutOneIsKept() throws {
+        let reply = #"{"id":"a","role":"assistant","content":"<tool_call>call:search_web{queries:[\"Flamengo\"]}</tool_call>"}"#
+        XCTAssertEqual(try JSONDecoder().decode(OWMessage.self, from: Data(reply.utf8)).content, "")
+        let mixed = #"{"id":"b","role":"assistant","content":"Vou ver.<|tool_call>call:search_web{query:<|\"|>x<|\"|>}<tool_call|>"}"#
+        XCTAssertEqual(try JSONDecoder().decode(OWMessage.self, from: Data(mixed.utf8)).content, "Vou ver.")
+        let asked = #"{"id":"c","role":"user","content":"O que significa <tool_call> no Qwen?"}"#
+        XCTAssertEqual(try JSONDecoder().decode(OWMessage.self, from: Data(asked.utf8)).content,
+                       "O que significa <tool_call> no Qwen?")
+    }
+
     func testSourcesDecodeAndSSEFrame() throws {
         let entry = """
         [ { "source": { "name": "Wikipedia" },

@@ -19,7 +19,7 @@ final class AppState: ObservableObject {
     let completions: ChatCompletionsClient
     /// Shared on-device cache of server chats (offline read + full-text search).
     let cache = ServerChatCache()
-    private let keychain = OWKeychainStore()
+    private let keychain: OWKeychainStore
 
     /// Capabilities the server advertises (`GET /api/config`): which login methods
     /// exist, and whether plugins are on. nil until the login screen asks.
@@ -31,7 +31,9 @@ final class AppState: ObservableObject {
 
     init() {
         #if DEBUG
-        ScreenshotRoute.primeToken(OWKeychainStore())
+        keychain = ScreenshotRoute.keychain() ?? OWKeychainStore()
+        #else
+        keychain = OWKeychainStore()
         #endif
         let cfg = ServerConfig.load()
         self.serverConfig = cfg
@@ -383,7 +385,9 @@ final class AppState: ObservableObject {
     // Factories
     func makeChatStore() -> ChatStore { ChatStore(client: client, cache: cache) }
     func makeChatViewModel(chat: OWChatSummary?, temporary: Bool = false) -> ChatViewModel {
-        ChatViewModel(client: client, completions: completions, chat: chat,
-                      models: chatModels, defaultModel: defaultModel, temporary: temporary, cache: cache)
+        let vm = ChatViewModel(client: client, completions: completions, chat: chat,
+                               models: chatModels, defaultModel: defaultModel, temporary: temporary, cache: cache)
+        vm.serverSearches = { [weak self] in self?.serverFeatures?.webSearchAvailable ?? true }
+        return vm
     }
 }

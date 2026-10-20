@@ -1,4 +1,5 @@
 import SwiftUI
+import MarkdownUI
 import OpenWebUIKit
 
 /// An existing chat to resume in voice mode (passed from a chat's voice button).
@@ -29,7 +30,10 @@ struct VoiceView: View {
         _convo = StateObject(wrappedValue: VoiceConversation(client: app.client,
                                                              completions: app.completions,
                                                              models: app.chatModels,
-                                                             defaultModel: app.defaultModel))
+                                                             defaultModel: app.defaultModel,
+                                                             serverSearches: { [weak app] in
+            app?.serverFeatures?.webSearchAvailable ?? true
+        }))
     }
 
     var body: some View {
@@ -75,6 +79,9 @@ struct VoiceView: View {
             if speech.useServer { Task { await speech.loadServerVoices() } }
             if let seed { convo.seedOnce(chatID: seed.chatID, messages: seed.messages, model: seed.model) }
             else if !convo.active { convo.reset() }   // Voz tab → always a new conversation
+            #if DEBUG
+            if ScreenshotRoute.voiceAutoStart, ScreenshotRoute.once("voiceAutoStart") { convo.toggleSession() }
+            #endif
         }
     }
 
@@ -131,14 +138,63 @@ struct VoiceView: View {
         let isUser = turn.role == "user"
         return HStack {
             if isUser { Spacer(minLength: 40) }
-            Text(turn.text.isEmpty ? "…" : turn.text)
-                .font(.ody(.subheadline))
-                .foregroundStyle(isUser ? theme.fg : theme.fg)
+            VStack(alignment: .leading, spacing: 6) {
+                words(turn, isUser: isUser)
+                if !turn.sources.isEmpty { sourcesLine(turn.sources) }
+            }
                 .padding(.horizontal, 12).padding(.vertical, 8)
                 .background(isUser ? theme.userBubble : theme.aiBubble,
                             in: RoundedRectangle(cornerRadius: 14))
                 .overlay(RoundedRectangle(cornerRadius: 14).stroke(theme.border, lineWidth: 1))
             if !isUser { Spacer(minLength: 40) }
+        }
+    }
+
+    /// The sites a searched reply was written from — the hosts, tappable.
+    private func sourcesLine(_ sources: [OWWebSource]) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: "globe").font(.system(size: 10))
+            ForEach(Array(sources.prefix(3).enumerated()), id: \.offset) { _, src in
+                if let url = src.url.flatMap(URL.init(string:)) {
+                    Link(destination: url) {
+                        Text(verbatim: src.name).lineLimit(1)
+                    }
+                } else {
+                    Text(verbatim: src.name).lineLimit(1)
+                }
+            }
+            if sources.count > 3 { Text(verbatim: "+\(sources.count - 3)") }
+        }
+        .font(.ody(size: 11))
+        .foregroundStyle(theme.secondaryText)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(Text("Busca na web"))
+        .accessibilityIdentifier("voice.sources")
+    }
+
+    /// A chat resumed here brings its written replies, markdown and all
+    /// ("### Dia 1", "**Castelo**"): they render as in the chat, at the
+    /// transcript's size. What the user said is plain speech.
+    @ViewBuilder
+    private func words(_ turn: VoiceConversation.Turn, isUser: Bool) -> some View {
+        if isUser || turn.text.isEmpty {
+            Text(turn.text.isEmpty ? "…" : turn.text)
+                .font(.ody(.subheadline))
+                .foregroundStyle(theme.fg)
+        } else {
+            // A searched reply cites its pages as "[2]": the sites are listed
+            // under it instead, and a marker is noise in a spoken conversation
+            // even where the list was not kept.
+            Markdown(turn.text.replacingOccurrences(of: "\\s*\\[\\d+(?:\\s*,\\s*\\d+)*\\]",
+                                                    with: "", options: .regularExpression))
+                .markdownTextStyle {
+                    FontSize(15)
+                    ForegroundColor(theme.fg)
+                }
+                .markdownTextStyle(\.code) {
+                    FontFamilyVariant(.monospaced)
+                    BackgroundColor(theme.panel)
+                }
         }
     }
 
@@ -194,7 +250,7 @@ struct VoiceView: View {
         switch convo.phase {
         case .idle:      return convo.active ? "…" : L("Toque para conversar")
         case .listening: return L("Ouvindo…")
-        case .thinking:  return L("Pensando…")
+        case .thinking:  return convo.searching ? L("Pesquisando na web…") : L("Pensando…")
         // The handoff out of a reply still belongs to "Falando…": it lasts one
         // hop and reads as the tail of the sentence, not as a fourth state.
         case .speaking, .finishing: return L("Falando…")
