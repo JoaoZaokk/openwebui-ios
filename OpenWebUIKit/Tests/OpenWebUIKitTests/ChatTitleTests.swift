@@ -117,6 +117,14 @@ final class ChatTitleTests: XCTestCase {
         OWChatMessageInput(role: "assistant", text: "A Selic é a taxa básica de juros…")
     ]
 
+    /// The same task model as the follow-up questions, measured at 45 s and
+    /// 119 s on a bad call: the title waits as long.
+    func testASlowTaskModelIsWaitedFor() async throws {
+        StubTransport.route(path, .json(Self.completion(#"{"title":"Selic explicada"}"#)))
+        _ = try await client().generateTitle(model: "gemma", messages: Self.fourTurns, chatID: nil)
+        XCTAssertGreaterThanOrEqual(try XCTUnwrap(StubTransport.sentTimeouts[path]), 120)
+    }
+
     /// `{{MESSAGES:END:2}}`: the template reads the last two messages, so those are
     /// the two that go — as plain text, with the image parts dropped. Sending the
     /// whole conversation, or an OpenAI parts array, would reach the task model as

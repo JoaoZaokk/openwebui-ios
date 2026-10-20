@@ -16,8 +16,9 @@ extension OpenWebUIClient {
                                   chatID: String?) async throws -> [String] {
         let turn = messages.suffix(6).map { OWTaskBody.Message(role: $0.role, content: $0.text) }
         let body = OWTaskBody(model: model, messages: Array(turn), chat_id: chatID)
-        let req = try jsonRequest("/api/v1/tasks/follow_up/completions", method: "POST", body: body)
-        return Self.followUps(fromTaskResponse: try await send(req))
+        var req = try jsonRequest("/api/v1/tasks/follow_up/completions", method: "POST", body: body)
+        req.timeoutInterval = Self.taskTimeout
+        return Self.followUps(fromTaskResponse: try await send(req, long: true))
     }
 
     /// Keeps the questions on the reply's history node as `followUps`, where the
@@ -84,6 +85,9 @@ extension OpenWebUIClient {
     /// Unlike `title(fromTaskResponse:)` the quotes are left alone: titles come
     /// back as single-quoted pseudo-JSON, but questions are full of apostrophes,
     /// and turning "What's" into `What"s` would make the whole object unreadable.
+    ///
+    /// One step past the server's parser: an object the model never closed is
+    /// read by its list (`listAfterKey`).
     public static func followUps(fromTaskResponse data: Data) -> [String] {
         struct Response: Decodable {
             struct Choice: Decodable {
@@ -96,11 +100,32 @@ extension OpenWebUIClient {
             .choices?.first?.message else { return [] }
         let content = message.content ?? ""
         let text = content.isEmpty ? (message.reasoning_content ?? "") : content
-        guard let open = text.firstIndex(of: "{"),
-              let close = text.lastIndex(of: "}"), open < close,
-              let parsed = try? JSONSerialization.jsonObject(with: Data(text[open...close].utf8)),
-              let list = (parsed as? [String: Any])?["follow_ups"] as? [Any] else { return [] }
+        var list: [Any]?
+        if let open = text.firstIndex(of: "{"), let close = text.lastIndex(of: "}"), open < close,
+           let parsed = try? JSONSerialization.jsonObject(with: Data(text[open...close].utf8)) {
+            list = (parsed as? [String: Any])?["follow_ups"] as? [Any]
+        }
+        guard let list = list ?? listAfterKey(in: text) else { return [] }
         return list.compactMap { ($0 as? String)?.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
+    }
+
+    /// The list after `"follow_ups"`, for an object left open: mimo-v2.5 behind
+    /// Open WebUI 0.12 writes `{"follow_ups": ["…", "…"]` and stops there about
+    /// one time in five (`finish_reason` "stop", not a length cut), and the
+    /// first-`{`-to-last-`}` span then holds nothing. Each `]` is tried in turn,
+    /// so one inside a question does not end the list early; a list cut off
+    /// midway never parses and stays nothing.
+    private static func listAfterKey(in text: String) -> [Any]? {
+        guard let key = text.range(of: "\"follow_ups\""),
+              let open = text[key.upperBound...].firstIndex(of: "[") else { return nil }
+        var close = text[open...].firstIndex(of: "]")
+        while let end = close {
+            if let list = try? JSONSerialization.jsonObject(with: Data(text[open...end].utf8)) as? [Any] {
+                return list
+            }
+            close = text[text.index(after: end)...].firstIndex(of: "]")
+        }
+        return nil
     }
 }

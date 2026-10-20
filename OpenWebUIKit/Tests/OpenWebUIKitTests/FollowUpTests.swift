@@ -61,6 +61,21 @@ final class FollowUpTests: XCTestCase {
         XCTAssertEqual(Self.parse("", reasoning: #"thinking… {"follow_ups":["E agora?"]}"#), ["E agora?"])
     }
 
+    /// mimo-v2.5 behind Open WebUI 0.12 leaves the object open about one time
+    /// in five, `finish_reason` "stop": the list is whole, the `}` never comes.
+    /// Read from the first `{` to the last `}` there was nothing to parse, and
+    /// the reply showed no questions at all.
+    func testAnObjectTheModelForgotToClose() {
+        let real = #"{"follow_ups": ["Quais são as fases da fotossíntese?", "O que é a clorofila e qual é o seu papel?", "A fotossíntese depende de luz? O que é a fotossíntese no escuro?"]"#
+        XCTAssertEqual(Self.parse(real), ["Quais são as fases da fotossíntese?",
+                                          "O que é a clorofila e qual é o seu papel?",
+                                          "A fotossíntese depende de luz? O que é a fotossíntese no escuro?"])
+        let fenced = "```json\n{ \"follow_ups\": [\"Tem um exemplo?\", \"E o contrário? [raro]\"]\n```"
+        XCTAssertEqual(Self.parse(fenced), ["Tem um exemplo?", "E o contrário? [raro]"])
+        // A list cut off midway is still nothing: half a question is not one.
+        XCTAssertEqual(Self.parse(#"{"follow_ups": ["Por quê?", "Como fica o"#), [])
+    }
+
     func testBlankEntriesAreDroppedAndTheRestTrimmed() {
         XCTAssertEqual(Self.parse(#"{"follow_ups":["  Por quê?  ","", "   ", 3, "Onde?"]}"#),
                        ["Por quê?", "Onde?"])
@@ -79,6 +94,18 @@ final class FollowUpTests: XCTestCase {
     private func client() -> OpenWebUIClient {
         OpenWebUIClient(config: OWConfig(baseURL: URL(string: "https://followups.test")!),
                         tokens: store, protocolClasses: [StubTransport.self])
+    }
+
+    /// The server's task model answers in 6–18 s most of the time, and was
+    /// measured at 45 s and 119 s (Open WebUI 0.12.2, mimo-v2.5). On the
+    /// 30-second session those calls were cut, `try?` swallowed the timeout and
+    /// the reply showed no questions.
+    func testASlowTaskModelIsWaitedFor() async throws {
+        StubTransport.route(taskPath, Reply.json(String(decoding: Self.completion(
+            content: #"{"follow_ups":["Next?"]}"#), as: UTF8.self)))
+        _ = try await client().generateFollowUps(model: "gemma", messages: [OWChatMessageInput(role: "user", text: "oi")],
+                                                 chatID: nil)
+        XCTAssertGreaterThanOrEqual(try XCTUnwrap(StubTransport.sentTimeouts[taskPath]), 120)
     }
 
     /// The default template reads the last six messages, as plain text: an

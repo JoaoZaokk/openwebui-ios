@@ -61,6 +61,8 @@ final class StubTransport: URLProtocol {
     nonisolated(unsafe) private(set) static var sentBodies: [String: Data] = [:]
     /// The headers the app sent, by path.
     nonisolated(unsafe) private(set) static var sentHeaders: [String: [String: String]] = [:]
+    /// The request's own `timeoutInterval`, by path.
+    nonisolated(unsafe) private(set) static var sentTimeouts: [String: TimeInterval] = [:]
     private static let lock = NSLock()
 
     static func route(_ path: String, _ reply: Reply) {
@@ -82,7 +84,7 @@ final class StubTransport: URLProtocol {
 
     static func reset() {
         lock.lock(); defer { lock.unlock() }
-        routes = [:]; seen = []; sentBodies = [:]; sentHeaders = [:]; queued = [:]; allBodies = [:]
+        routes = [:]; seen = []; sentBodies = [:]; sentHeaders = [:]; sentTimeouts = [:]; queued = [:]; allBodies = [:]
     }
 
     static func requested(_ path: String) -> Bool {
@@ -106,6 +108,7 @@ final class StubTransport: URLProtocol {
         Self.lock.lock()
         Self.seen.append(path)
         Self.sentHeaders[path] = request.allHTTPHeaderFields ?? [:]
+        Self.sentTimeouts[path] = request.timeoutInterval
         // `httpBody` is nil for a body set through a stream (multipart uploads),
         // so fall back to draining the stream.
         if let b = request.httpBody { Self.sentBodies[path] = b }
