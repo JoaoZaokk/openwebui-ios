@@ -109,7 +109,7 @@ targets:
         # 1.11 (19): follow-up suggestions under the answer (issue #15), the
         # reading column on iPad, and the chat following a streaming reply.
         MARKETING_VERSION: "1.11"
-        CURRENT_PROJECT_VERSION: "20"
+        CURRENT_PROJECT_VERSION: "21"
         TARGETED_DEVICE_FAMILY: "1,2"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
