@@ -62,6 +62,21 @@ final class ChatViewModel: ObservableObject {
     private var followUpTask: Task<Void, Never>?
     /// Set by `failTurn`, so `closeTurn` knows the reply is an error, not an answer.
     private var turnFailed = false
+
+    /// The app went to the background while a reply was streaming.
+    ///
+    /// iOS suspends the app about 30 s later and the stream to the server dies
+    /// with it. The server is not asked to keep the reply — the app saves the
+    /// conversation itself — so a reply cut off that way was gone for good: the
+    /// bubble read "⚠️ The connection dropped partway through." and that was
+    /// what got saved (App Store review, 1.10: "Replies don't come through").
+    private var leftMidReply = false
+    private var appActive = true
+    /// A reply cut off because the app was away, asked again once it is back.
+    private var resumeTurn: (assistantID: String, model: String, files: [OWAttachment], query: String)?
+    /// Replies already asked again — once each, so a server that is really
+    /// down still ends in the usual error instead of a loop.
+    private var resumedReplies: Set<String> = []
     private var historyLoaded = false
     /// Guards send() while a save is in flight (prevents duplicate createChat).
     private var isPersisting = false
@@ -371,6 +386,7 @@ final class ChatViewModel: ObservableObject {
         isStreaming = true
         awaitingWebSearch = webSearch
         turnFailed = false
+        leftMidReply = !appActive
         followUpTask?.cancel()   // questions for a reply that is no longer the last
         beginBackgroundHold()   // let the reply finish if the user backgrounds the app
 
@@ -429,6 +445,7 @@ final class ChatViewModel: ObservableObject {
             // Already searched for this turn (or the server's search just
             // failed): a call the model writes anyway is only cut.
             let search = OWReplySearch(offer: false, mayRun: !webSearch && serverSearches())
+            var finished = false
             for try await update in completions.streamReply(model: model, messages: convo, files: streamFiles,
                                                             options: options, search: search) {
                 awaitingWebSearch = false
@@ -455,19 +472,64 @@ final class ChatViewModel: ObservableObject {
                 case .error(let msg):
                     failTurn(assistantID, msg)
                 case .done:
-                    break
+                    finished = true
                 }
+            }
+            // A suspended app's stream can also just stop, with no error and no
+            // `[DONE]`: half a reply that would be saved as if it were whole.
+            if !finished, !turnFailed, leftMidReply, !Task.isCancelled,
+               !resumedReplies.contains(assistantID) {
+                resumeTurn = (assistantID, model, files, query)
             }
         } catch is CancellationError {
             // user stopped — keep whatever streamed so far
+        } catch let e as URLError where leftMidReply && e.code != .cancelled
+                                        && !resumedReplies.contains(assistantID) {
+            // Cut off by the trip to the background, not by the server: asked
+            // again when the app is back (`closeTurn` holds it until then).
+            resumeTurn = (assistantID, model, files, query)
         } catch {
             failTurn(assistantID, OWFailure.msg(error))
         }
     }
 
+    // MARK: - Leaving the app mid-reply
+
+    func appWentToBackground() {
+        appActive = false
+        if isStreaming { leftMidReply = true }
+    }
+
+    func appBecameActive() {
+        appActive = true
+        if resumeTurn != nil, !isStreaming { resumeCutOffReply() }
+    }
+
+    /// Asks the cut-off question again, into the same reply. Whatever had
+    /// streamed before the cut is replaced by the whole answer.
+    private func resumeCutOffReply() {
+        guard let r = resumeTurn else { return }
+        resumeTurn = nil
+        resumedReplies.insert(r.assistantID)
+        guard let i = index(of: r.assistantID), i == messages.count - 1 else { return }
+        messages[i].content = ""
+        messages[i].reasoning = ""
+        messages[i].sources = []
+        startAssistantTurn(model: r.model, assistantID: r.assistantID, files: r.files, query: r.query)
+    }
+
     /// The one way a turn ends, whatever ended it. Runs from `runStream`'s
     /// `defer`, so no exit path can skip it.
     private func closeTurn(_ assistantID: String, sawText: Bool) {
+        // Cut off while the app was away: nothing is stamped and nothing is
+        // saved — the reply is asked again (now, or when the app is back).
+        if resumeTurn?.assistantID == assistantID {
+            awaitingWebSearch = false
+            isStreaming = false
+            endBackgroundHold()
+            if appActive { Task { @MainActor [weak self] in self?.resumeCutOffReply() } }
+            return
+        }
         // A reply that is only reasoning still said something — the disclosure
         // shows it, so don't stamp it "(no response)" (which would then be
         // persisted over a real turn).

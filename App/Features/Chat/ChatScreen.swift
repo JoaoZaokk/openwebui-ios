@@ -97,6 +97,10 @@ struct ChatScreen: View {
         // Coming back from the background: re-fetch so messages/images created
         // meanwhile on the web UI show up (unless we're mid-stream).
         .onChange(of: scenePhase) { _, phase in
+            // First, so a reply cut off while away is asked again before the
+            // reload below decides whether a stream is running.
+            if phase == .background { vm.appWentToBackground() }
+            if phase == .active { vm.appBecameActive() }
             if phase == .active, !vm.isStreaming, vm.chatID != nil {
                 Task { await vm.reloadHistory() }
             }
