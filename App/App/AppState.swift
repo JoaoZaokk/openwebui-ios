@@ -37,6 +37,13 @@ final class AppState: ObservableObject {
         #endif
         let cfg = ServerConfig.load()
         self.serverConfig = cfg
+        // The Keychain outlives the app; UserDefaults does not. After the app is
+        // deleted and installed again the old token is still here while the
+        // server it belongs to is gone, so the app skipped the login and talked
+        // to the placeholder host — "Couldn't find that server", with the user
+        // never asked for a server at all (App Review, 1.11, iPad). No saved
+        // server means no session.
+        if !ServerConfig.isConfigured { keychain.clear() }
         let c = OpenWebUIClient(config: cfg.owConfig, tokens: keychain)
         self.client = c
         self.completions = ChatCompletionsClient(client: c)

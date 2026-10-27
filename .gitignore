@@ -25,5 +25,8 @@ Models/
 # deliver pack, not here.
 prints*/
 
+# Owner-authored simulator fixture (server / email / senha). Never commit.
+.ow-test-login
+
 # macOS
 .DS_Store
