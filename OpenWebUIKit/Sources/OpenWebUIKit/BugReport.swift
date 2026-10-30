@@ -62,7 +62,7 @@ public enum BugReport {
         ]
         let json = (try? JSONSerialization.data(withJSONObject: env, options: [.prettyPrinted, .sortedKeys])) ?? Data()
 
-        let subject = "Bug report \(appName) \(version) (\(build)) · \(osLabel) · \(deviceModel)"
+        let subject = "Bug report \(appName) \(version) (\(build)) · \(osLabel) · \(deviceLabel)"
         var counts: [String: Int] = [:]
         for e in events { counts[e.name, default: 0] += 1 }
         let top = counts.sorted { $0.value == $1.value ? $0.key < $1.key : $0.value > $1.value }
@@ -70,7 +70,7 @@ public enum BugReport {
         var lines: [String] = []
         if !desc.isEmpty { lines.append(desc); lines.append("") }
         lines.append("—")
-        lines.append("\(appName) \(version) (\(build)) · \(osLabel) · \(deviceModel) · \(Locale.current.identifier)")
+        lines.append("\(appName) \(version) (\(build)) · \(osLabel) · \(deviceLabel) · \(Locale.current.identifier)")
         lines.append(L("Memória disponível: %@ · Física: %@ · Disco livre: %@",
                        MemoryBudget.human(MemoryBudget.availableBytes),
                        MemoryBudget.human(MemoryBudget.physicalBytes),
@@ -104,6 +104,34 @@ public enum BugReport {
         return "iOS \(n)"
         #endif
     }
+
+    /// "iPhone 15 Pro Max (iPhone16,2)": the phone by name, its code beside it.
+    /// A report from 1.10 read "iPhone16,2" and took it for the wrong phone.
+    public static var deviceLabel: String { deviceLabel(for: deviceModel) }
+
+    public static func deviceLabel(for code: String) -> String {
+        marketingNames[code].map { "\($0) (\(code))" } ?? code
+    }
+
+    /// iPhones from the oldest that runs iOS 17 on. Anything else keeps its code.
+    static let marketingNames: [String: String] = [
+        "iPhone11,2": "iPhone XS", "iPhone11,4": "iPhone XS Max", "iPhone11,6": "iPhone XS Max",
+        "iPhone11,8": "iPhone XR",
+        "iPhone12,1": "iPhone 11", "iPhone12,3": "iPhone 11 Pro", "iPhone12,5": "iPhone 11 Pro Max",
+        "iPhone12,8": "iPhone SE (2nd generation)",
+        "iPhone13,1": "iPhone 12 mini", "iPhone13,2": "iPhone 12", "iPhone13,3": "iPhone 12 Pro",
+        "iPhone13,4": "iPhone 12 Pro Max",
+        "iPhone14,4": "iPhone 13 mini", "iPhone14,5": "iPhone 13", "iPhone14,2": "iPhone 13 Pro",
+        "iPhone14,3": "iPhone 13 Pro Max", "iPhone14,6": "iPhone SE (3rd generation)",
+        "iPhone14,7": "iPhone 14", "iPhone14,8": "iPhone 14 Plus",
+        "iPhone15,2": "iPhone 14 Pro", "iPhone15,3": "iPhone 14 Pro Max",
+        "iPhone15,4": "iPhone 15", "iPhone15,5": "iPhone 15 Plus",
+        "iPhone16,1": "iPhone 15 Pro", "iPhone16,2": "iPhone 15 Pro Max",
+        "iPhone17,1": "iPhone 16 Pro", "iPhone17,2": "iPhone 16 Pro Max",
+        "iPhone17,3": "iPhone 16", "iPhone17,4": "iPhone 16 Plus", "iPhone17,5": "iPhone 16e",
+        "iPhone18,1": "iPhone 17 Pro", "iPhone18,2": "iPhone 17 Pro Max",
+        "iPhone18,3": "iPhone 17", "iPhone18,4": "iPhone Air",
+    ]
 
     /// "iPhone16,2" on iOS; "Mac15,6" on the Mac (utsname says only "arm64" there).
     public static var deviceModel: String {

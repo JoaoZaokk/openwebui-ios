@@ -49,6 +49,9 @@ struct SettingsView: View {
                             icon: { Image(systemName: "paintpalette").foregroundStyle(theme.accent) }
                         }
                         .listRowBackground(theme.panel)
+                        ChatWallpaperRow()
+                        ReplyStylePicker()
+                            .listRowBackground(theme.panel)
                     }
 
                     section("MODELOS") {

@@ -5,7 +5,7 @@ import OpenWebUIKit
 import UIKit
 #endif
 
-struct MessageBubble: View {
+struct MessageBubble: View, Equatable {
     let message: OWMessage
     var isStreaming: Bool = false
     /// Local status shown instead of the typing dots while the bubble is still
@@ -27,8 +27,21 @@ struct MessageBubble: View {
     @State private var viewer: ViewerImage?
     @State private var editing = false
     @State private var draft = ""
+    @State private var selecting = false
 
     struct ViewerImage: Identifiable { let id = UUID(); let url: String }
+
+    /// What the bubble draws. The callbacks are left out: they are rebuilt with
+    /// every pass of the chat screen and act on the message by its id. Without
+    /// this, each key typed in the composer rebuilt every bubble in the chat
+    /// (the text lives on the same view model), and a send tapped on a long
+    /// chat was lost while that ran.
+    static func == (a: MessageBubble, b: MessageBubble) -> Bool {
+        a.message == b.message && a.isStreaming == b.isStreaming && a.statusText == b.statusText
+            && a.branch?.index == b.branch?.index && a.branch?.total == b.branch?.total
+            && a.models == b.models && (a.client == nil) == (b.client == nil)
+            && (a.onEdit == nil) == (b.onEdit == nil) && (a.onRegenerate == nil) == (b.onRegenerate == nil)
+    }
 
     private var isUser: Bool { message.role == .user }
 
@@ -58,7 +71,7 @@ struct MessageBubble: View {
                 if !editing, !isStreaming { actionBar }
                 if !isStreaming { timeLabel }
             }
-            if !isUser { Spacer(minLength: 36) }
+            if !isUser, replyStyle == .bubble || replyStyle == .glass { Spacer(minLength: 36) }
         }
         // `.contain` (not `.combine`): VoiceOver treats the whole message as one
         // navigable group while keeping the interactive children — the speaker
@@ -66,6 +79,7 @@ struct MessageBubble: View {
         // flattens interactive children out of existence.
         .accessibilityElement(children: .contain)
         .fullScreenCover(item: $viewer) { v in ImageViewerView(url: v.url, client: client) }
+        .sheet(isPresented: $selecting) { SelectableTextSheet(text: message.content) }
     }
 
     /// Inline actions under a settled message: branch switcher plus, on a reply,
@@ -130,6 +144,11 @@ struct MessageBubble: View {
                 UIPasteboard.general.string = message.content
                 #endif
             } label: { Label(L("Copiar"), systemImage: "doc.on.doc") }
+            // `.textSelection` on a SwiftUI Text offers only "copy all" on
+            // iPhone; a part of an answer could not be copied (report from 1.10).
+            Button { selecting = true } label: {
+                Label(L("Selecionar texto"), systemImage: "selection.pin.in.out")
+            }
         }
         if isUser, onEdit != nil {
             Button { draft = message.content; editing = true } label: {
@@ -150,7 +169,7 @@ struct MessageBubble: View {
                 .font(.ody(.body))
                 .foregroundStyle(theme.fg)
                 .padding(.horizontal, 14).padding(.vertical, 10)
-                .background(theme.userBubble, in: RoundedRectangle(cornerRadius: 14))
+                .background(theme.userBubble, in: RoundedRectangle(cornerRadius: Radius.card))
             HStack(spacing: 12) {
                 Button(L("Cancelar")) { editing = false }
                     .buttonStyle(.plain).foregroundStyle(theme.secondaryText)
@@ -172,7 +191,7 @@ struct MessageBubble: View {
         if let t = message.timestamp {
             Text(OWDates.time(Date(timeIntervalSince1970: t)))
                 .font(.ody(size: 10))
-                .foregroundStyle(theme.secondaryText.opacity(0.7))
+                .foregroundStyle(theme.secondaryText)
                 .padding(.horizontal, 2)
         }
     }
@@ -231,7 +250,7 @@ struct MessageBubble: View {
             ForEach(Array(message.imageURLs.enumerated()), id: \.offset) { _, url in
                 Button { viewer = ViewerImage(url: url) } label: {
                     AttachmentThumb(url: url, size: 120, client: client)
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.border.opacity(0.4), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: Radius.thumb).stroke(theme.hairline, lineWidth: 1))
                 }
                 .buttonStyle(.plain)
             }
@@ -250,7 +269,7 @@ struct MessageBubble: View {
                     let path = client.fileContentURL(id).absoluteString
                     Button { viewer = ViewerImage(url: path) } label: {
                         AttachmentThumb(url: path, size: 120, client: client)
-                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.border.opacity(0.4), lineWidth: 1))
+                            .overlay(RoundedRectangle(cornerRadius: Radius.thumb).stroke(theme.hairline, lineWidth: 1))
                     }
                     .buttonStyle(.plain)
                 }
@@ -269,7 +288,7 @@ struct MessageBubble: View {
                 }
                 .padding(.horizontal, 10).padding(.vertical, 7)
                 .background(theme.panel, in: Capsule())
-                .overlay(Capsule().stroke(theme.border.opacity(0.5), lineWidth: 1))
+                .overlay(Capsule().stroke(theme.hairline, lineWidth: 1))
             }
         }
     }
@@ -284,6 +303,20 @@ struct MessageBubble: View {
                           sources: message.sources.map {
                               OWSource(title: $0.name, url: $0.url ?? "")
                           })]
+    }
+
+    @AppStorage(ReplyStyle.key) private var replyStyleRaw = ReplyStyle.auto.rawValue
+    private var replyStyle: ReplyStyle { (ReplyStyle(rawValue: replyStyleRaw) ?? .auto).resolved(for: theme) }
+    /// Whether this bubble draws a box: always for the user's own message, and
+    /// for a reply only in the boxed and glass styles.
+    private var replyBoxed: Bool { isUser || replyStyle == .bubble || replyStyle == .glass }
+    private var replyFill: Color {
+        if isUser { return theme.userBubble }
+        switch replyStyle {
+        case .bubble: return theme.aiBubble
+        case .glass: return theme.aiBubble.opacity(0.45)
+        case .plain, .lane, .auto: return .clear
+        }
     }
 
     @ViewBuilder
@@ -307,7 +340,10 @@ struct MessageBubble: View {
                     .foregroundStyle(theme.fg)
                     .textSelection(.enabled)
             } else {
-                Markdown(message.content)
+                Markdown(ReplyMarkup.clean(message.content))
+                    // One line per newline, as on the web: options a model writes
+                    // one per line were joined into a single paragraph.
+                    .markdownSoftBreakMode(.lineBreak)
                     .markdownTextStyle { ForegroundColor(theme.fg) }
                     .markdownTextStyle(\.code) {
                         FontFamilyVariant(.monospaced)
@@ -319,10 +355,15 @@ struct MessageBubble: View {
                     .textSelection(.enabled)
             }
         }
-        .padding(.horizontal, 14).padding(.vertical, 10)
-        .background(isUser ? theme.userBubble : theme.aiBubble,
-                    in: RoundedRectangle(cornerRadius: 14))
-        .overlay(RoundedRectangle(cornerRadius: 14).stroke(theme.border.opacity(0.35), lineWidth: isUser ? 0 : 1))
+        // Markdown leaves no margin after its last block (a list, a code block),
+        // so with even padding the last line sat on the bubble's bottom edge.
+        .padding(.horizontal, isUser || replyStyle == .bubble || replyStyle == .glass ? 14 : 2)
+        .padding(.top, isUser ? 10 : 12)
+        .padding(.bottom, isUser ? 10 : 15)
+        .background(replyFill, in: RoundedRectangle(cornerRadius: Radius.card))
+        .overlay(RoundedRectangle(cornerRadius: Radius.card)
+            .stroke(theme.hairline, lineWidth: isUser || !replyBoxed ? 0 : 1))
+        .modifier(BubbleEffectIf(on: isUser || replyBoxed, theme: theme))
         .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
     }
 }
@@ -336,7 +377,20 @@ struct CodeBlockView: View {
     /// Bumped per tap so `.sensoryFeedback` fires even on rapid re-copies.
     @State private var copyTap = 0
 
+    /// Mermaid, SVG and HTML are drawn the way the web draws them; anything
+    /// else (and a diagram that fails to parse) is the code itself.
     var body: some View {
+        switch RichBlock(language: configuration.language) {
+        case .mermaid?, .svg?:
+            RichBlockView(kind: RichBlock(language: configuration.language)!, code: configuration.content) { codeCard }
+        case .html?:
+            HTMLBlockView(html: configuration.content) { codeCard }
+        case nil:
+            codeCard
+        }
+    }
+
+    private var codeCard: some View {
         ZStack(alignment: .topTrailing) {
             ScrollView(.horizontal, showsIndicators: false) {
                 configuration.label
@@ -356,8 +410,8 @@ struct CodeBlockView: View {
             }
             .padding(.horizontal, 4)
         }
-        .background(theme.panel, in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.border.opacity(0.4), lineWidth: 1))
+        .background(theme.panel, in: RoundedRectangle(cornerRadius: Radius.control))
+        .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.hairline, lineWidth: 1))
     }
 
     /// Copy-to-clipboard glyph: light haptic + a transient checkmark (~1.2s).
@@ -399,31 +453,45 @@ struct ReasoningDisclosure: View {
     var streaming: Bool = false
     @Environment(\.theme) private var theme
     @State private var expanded = false
-    @State private var userToggled = false
-
-    private var isOpen: Bool { userToggled ? expanded : streaming }
+    @State private var startedAt: Date?
+    @State private var seconds: Int?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Button {
-                userToggled = true
                 withAnimation(.easeInOut(duration: 0.2)) { expanded.toggle() }
             } label: {
-                HStack(spacing: 5) {
-                    Image(systemName: "brain")
-                        .font(.ody(size: 11))
-                    Text(L("Raciocínio"))
-                        .font(.ody(size: 11))
-                    if streaming && text.isEmpty { ProgressView().controlSize(.mini) }
+                HStack(spacing: 6) {
+                    if streaming {
+                        ProgressView().controlSize(.mini).tint(theme.secondaryText)
+                        Text(L("Pensando"))
+                            .font(.ody(size: 12).weight(.semibold))
+                        let line = Self.currentLine(text)
+                        if !line.isEmpty {
+                            Text(verbatim: "· " + line)
+                                .font(.ody(size: 12))
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .contentTransition(.opacity)
+                                .animation(.easeOut(duration: 0.25), value: line)
+                        }
+                    } else {
+                        Image(systemName: "brain").font(.ody(size: 11))
+                        Text(seconds.map { L("Pensou por %@ s", String($0)) } ?? L("Raciocínio"))
+                            .font(.ody(size: 12))
+                    }
                     Image(systemName: "chevron.right")
                         .font(.ody(size: 9))
-                        .rotationEffect(.degrees(isOpen ? 90 : 0))
+                        .rotationEffect(.degrees(expanded ? 90 : 0))
                 }
                 .foregroundStyle(theme.secondaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .accessibilityIdentifier("message.reasoning")
 
-            if isOpen && !text.isEmpty {
+            if expanded && !text.isEmpty {
                 Text(text)
                     .font(.ody(size: 12))
                     .foregroundStyle(theme.secondaryText)
@@ -436,6 +504,39 @@ struct ReasoningDisclosure: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        // Timed on screen: the server keeps no duration for a reply's thinking,
+        // so a reopened chat says "Raciocínio" rather than a made-up number.
+        .onAppear { if streaming { startedAt = Date() } }
+        .onChange(of: streaming) { _, now in
+            if now { startedAt = Date() }
+            else if let s = startedAt { seconds = max(1, Int(Date().timeIntervalSince(s).rounded())) }
+        }
+    }
+
+    /// The line shown while the model thinks: the latest finished sentence of
+    /// its last paragraph (or what there is of it so far), without Markdown,
+    /// cut at 90 characters.
+    static func currentLine(_ text: String) -> String {
+        let lastLine = text.split(whereSeparator: \.isNewline)
+            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .last { !$0.isEmpty } ?? ""
+        var line = lastLine
+            .replacingOccurrences(of: "**", with: "")
+            .replacingOccurrences(of: "__", with: "")
+        while let f = line.first, "-*#>• ".contains(f) { line.removeFirst() }
+        // Sentences that have ended; the unfinished tail is still being written.
+        var sentences: [String] = []
+        var current = ""
+        for ch in line {
+            current.append(ch)
+            if ".!?…".contains(ch) {
+                let t = current.trimmingCharacters(in: .whitespaces)
+                if !t.isEmpty { sentences.append(t) }
+                current = ""
+            }
+        }
+        let pick = sentences.last ?? current.trimmingCharacters(in: .whitespaces)
+        return pick.count > 90 ? String(pick.prefix(89)) + "…" : pick
     }
 }
 
@@ -490,8 +591,8 @@ struct ToolUseCard: View {
         }
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(theme.panel.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.border.opacity(0.4), lineWidth: 1))
+        .background(theme.panel.opacity(0.5), in: RoundedRectangle(cornerRadius: Radius.control))
+        .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.hairline, lineWidth: 1))
     }
 }
 
@@ -512,5 +613,13 @@ struct TypingDots: View {
         }
         .onAppear { animating = true }
         .frame(height: 14)
+    }
+}
+
+private struct BubbleEffectIf: ViewModifier {
+    let on: Bool
+    let theme: Theme
+    func body(content: Content) -> some View {
+        if on { content.bubbleEffect(theme) } else { content }
     }
 }

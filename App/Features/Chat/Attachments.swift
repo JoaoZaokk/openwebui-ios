@@ -98,7 +98,7 @@ struct AttachmentThumb: View {
             }
         }
         .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .clipShape(RoundedRectangle(cornerRadius: Radius.thumb))
     }
 }
 

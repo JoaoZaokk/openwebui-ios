@@ -27,6 +27,7 @@ struct ChatScreen: View {
     /// Whether the user is at (or near) the end of the transcript. Streaming only
     /// auto-scrolls while pinned, so scrolling up to re-read mid-reply sticks.
     @State private var pinnedToBottom = true
+    @AppStorage(ReplyStyle.key) private var replyStyleRaw = ReplyStyle.auto.rawValue
     /// Set by the user's own drag, cleared when they are back at the end or
     /// send. Measuring the position alone was not enough: a reply that grows by
     /// a whole list item at once pushes the end past the threshold before the
@@ -52,7 +53,9 @@ struct ChatScreen: View {
 
     var body: some View {
         ZStack {
-            theme.bg.ignoresSafeArea()
+            ThemeCanvas()
+            if (ReplyStyle(rawValue: replyStyleRaw) ?? .auto).resolved(for: theme) == .lane { ReadingLane() }
+            ChatWallpaperLayer()
             VStack(spacing: 0) {
                 messages
                 composer
@@ -208,7 +211,25 @@ struct ChatScreen: View {
                                 onRetryModel: msg.role == .assistant ? { vm.regenerate(messageID: msg.id, model: $0) } : nil,
                                 onBranch: { vm.switchBranch(messageID: msg.id, delta: $0) }
                             )
+                            .equatable()
                             .id(msg.id)
+                        }
+                    }
+                    .padding(.horizontal, 14).padding(.vertical, 16)
+                    .readableColumn()
+                    // Outside the lazy stack on purpose: these appear when a reply
+                    // ends, and on iOS 18 a child coming or going inside a
+                    // LazyVStack re-placed every row by its estimated height — a
+                    // long chat leapt back dozens of messages the moment a reply
+                    // finished.
+                    if !replyOptions.isEmpty || (followUpsOn && !vm.followUps.isEmpty) {
+                    VStack(spacing: 16) {
+                        if !replyOptions.isEmpty {
+                            ReplyOptionsList(options: replyOptions) { option in
+                                sendFeedback += 1
+                                vm.sendFollowUp(option)
+                            }
+                            .transition(.opacity)
                         }
                         if followUpsOn, !vm.followUps.isEmpty {
                             FollowUpList(questions: vm.followUps) { q in
@@ -219,8 +240,9 @@ struct ChatScreen: View {
                         }
                     }
                     .animation(.easeOut(duration: 0.2), value: vm.followUps)
-                    .padding(.horizontal, 14).padding(.vertical, 16)
+                    .padding(.horizontal, 14).padding(.bottom, 16)
                     .readableColumn()
+                    }
                     // Bottom sentinel: its position inside the viewport tells us
                     // whether the user is pinned to the end of the transcript.
                     Color.clear.frame(height: 1).id("bottom")
@@ -239,11 +261,23 @@ struct ChatScreen: View {
                     userScrolledAway = true
                 })
                 .scrollDismissesKeyboard(.interactively)
+                .scrollEdgeFade()
                 .refreshable { await vm.reloadHistory() }
                 // Per-token updates: follow the stream only while pinned, and
                 // without animation — animated per-token scrolls rubber-band.
                 .onChange(of: vm.messages.last?.content) { _, _ in
+                    // Token by token: the sentinel under the transcript. The rows
+                    // near the end are measured by now, so it sits right; aiming at
+                    // the growing last message instead made iOS 18 re-place the
+                    // whole lazy stack and leap back dozens of messages.
                     if followsEnd { proxy.scrollTo("bottom", anchor: .bottom) }
+                }
+                // When a reply ends, iOS 18 re-places a long lazy stack by its
+                // estimated heights and the screen leapt back dozens of messages
+                // (the same place every time). Settle back at the end, unless the
+                // user had scrolled away while it streamed.
+                .onChange(of: vm.isStreaming) { _, streaming in
+                    if !streaming, !userScrolledAway { settleAtEnd(proxy) }
                 }
                 // The questions land a moment after the reply; keep them in view.
                 .onChange(of: vm.followUps) { _, _ in
@@ -251,10 +285,12 @@ struct ChatScreen: View {
                 }
                 // A new message (send/regenerate) is user-initiated — scroll
                 // gently and re-pin. Same when the keyboard opens.
-                .onChange(of: vm.messages.count) { _, _ in
+                .onChange(of: vm.messages.count) { old, new in
                     pinnedToBottom = true
                     userScrolledAway = false
-                    scrollToBottom(proxy)
+                    // A whole history arriving at once is not a send: no
+                    // animation, which is what left the screen blank.
+                    if new - old > 2 { jumpToEnd(proxy) } else { settleAtEnd(proxy) }
                 }
                 .onChange(of: inputFocused) { _, focused in
                     if focused {
@@ -291,7 +327,40 @@ struct ChatScreen: View {
     }
 
     private func scrollToBottom(_ proxy: ScrollViewProxy) {
-        withAnimation(.easeOut(duration: 0.15)) { proxy.scrollTo("bottom", anchor: .bottom) }
+        withAnimation(.easeOut(duration: 0.15)) { followEnd(proxy) }
+    }
+
+    /// To the end of the transcript by the last message, which sits inside the
+    /// lazy stack and is laid out for real, then the sentinel under it. The
+    /// sentinel alone is placed by the rows' estimated heights: on iOS 18 a
+    /// streaming reply grew below the screen while the scroll stopped short.
+    /// After a send: the new rows have no measured height yet, and on iOS 18
+    /// one jump landed short — above the question just sent. It is repeated
+    /// while the rows are laid out.
+    private func settleAtEnd(_ proxy: ScrollViewProxy) {
+        followEnd(proxy)
+        for delay in [0.15, 0.4, 0.8] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { followEnd(proxy) }
+        }
+    }
+
+    private func followEnd(_ proxy: ScrollViewProxy) {
+        guard let last = vm.messages.last?.id else { return }
+        proxy.scrollTo(last, anchor: .bottom)
+    }
+
+    /// To the end of a history that just arrived. A long chat (report from
+    /// 1.10, zh_CN) opened with its end above the screen and the screen blank:
+    /// the jump aimed at a sentinel placed by the lazy rows' estimated heights.
+    /// It aims at the last message, which the jump lays out for real, and once
+    /// more after that layout settles. (A managed `scrollPosition` did this on
+    /// iOS 27 but held the screen on the opening message on iOS 18.)
+    private func jumpToEnd(_ proxy: ScrollViewProxy) {
+        guard let last = vm.messages.last?.id else { return }
+        proxy.scrollTo(last, anchor: .bottom)
+        for delay in [0.15, 0.4] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { proxy.scrollTo(last, anchor: .bottom) }
+        }
     }
 
     /// A centered "Hoje / Ontem / date" pill, shown above a message when the
@@ -330,11 +399,45 @@ struct ChatScreen: View {
         .frame(maxWidth: .infinity)
     }
 
+    /// Options the model wrote out under its last, finished reply.
+    private var replyOptions: [String] {
+        guard !vm.isStreaming, let last = vm.messages.last, last.role == .assistant else { return [] }
+        return ReplyOptions.parse(last.content)
+    }
+
     // MARK: - Composer
+
+    /// Offered when the last turn failed for a conversation longer than the
+    /// model's context (report from 1.10, zh_CN: the web could compress it, the
+    /// app only showed the error).
+    private var summarizeBar: some View {
+        Button {
+            Task { await vm.summarizeAndRetry() }
+        } label: {
+            HStack(spacing: 8) {
+                if vm.summarizing {
+                    ProgressView().controlSize(.small).tint(theme.onAccent)
+                    Text("Resumindo a conversa…")
+                } else {
+                    Image(systemName: "text.badge.minus")
+                    Text("Resumir conversa e continuar")
+                }
+            }
+            .font(.ody(size: 14, weight: .semibold))
+            .foregroundStyle(theme.onAccent)
+            .padding(.horizontal, 16).padding(.vertical, 9)
+            .background(theme.accent, in: Capsule())
+        }
+        .buttonStyle(.plain)
+        .disabled(vm.summarizing)
+        .accessibilityIdentifier("chat.summarize")
+        .transition(.opacity)
+    }
 
     private var composer: some View {
         VStack(spacing: 8) {
             if vm.isStreaming { Divider().overlay(theme.border) }
+            if vm.contextOverflow || vm.summarizing { summarizeBar }
             HStack(spacing: 8) {
                 toggleChip(system: "globe", label: "Buscar na web", on: $vm.webSearch)
                 // 0.11 only registers workspace tools when the server has plugins
@@ -361,14 +464,16 @@ struct ChatScreen: View {
                     .focused($inputFocused)
                     .lineLimit(1...6)
                     .padding(.horizontal, 14).padding(.vertical, 10)
-                    .background(theme.panel, in: RoundedRectangle(cornerRadius: 18))
-                    .overlay(RoundedRectangle(cornerRadius: 18).stroke(theme.border, lineWidth: 1))
+                    .background(theme.panel, in: RoundedRectangle(cornerRadius: Radius.card))
+                    .overlay(RoundedRectangle(cornerRadius: Radius.card).stroke(theme.border, lineWidth: 1))
                 sendButton
             }
             .padding(.horizontal, 12).padding(.bottom, 8)
         }
         .readableColumn()
-        .background(theme.bg)
+        // No fill of its own: a solid band here cut the engraving and the
+        // corner light off at the composer (a green slab on Hermes Teal, black
+        // on Noir). The transcript already fades out before it.
         .photosPicker(isPresented: $showPhotos, selection: $photoItems, maxSelectionCount: 4, matching: .images)
         .onChange(of: photoItems) { _, items in loadPhotos(items) }
         #if os(iOS)
@@ -478,7 +583,7 @@ struct ChatScreen: View {
                 }
                 if vm.uploading {
                     ProgressView().frame(width: 56, height: 56)
-                        .background(theme.panel, in: RoundedRectangle(cornerRadius: 8))
+                        .background(theme.panel, in: RoundedRectangle(cornerRadius: Radius.thumb))
                 }
             }
             .padding(.horizontal, 12)

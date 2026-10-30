@@ -142,9 +142,9 @@ struct ThemePickerView: View {
         } label: {
             VStack(spacing: 7) {
                 preview(t)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .clipShape(RoundedRectangle(cornerRadius: Radius.control))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 12)
+                        RoundedRectangle(cornerRadius: Radius.control)
                             .stroke(active ? theme.accent : theme.border,
                                     lineWidth: active ? 2.5 : 1)
                     )

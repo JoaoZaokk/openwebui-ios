@@ -109,7 +109,6 @@ struct RootView: View {
             }
         }
         .overlay {
-            if theme.backdrop { ThemeBackdrop(theme: theme) }
             if themes.background != .none {
                 AnimatedBackground(pattern: themes.background, tint: theme.accent)
             }

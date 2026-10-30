@@ -155,7 +155,7 @@ struct ImageGenView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                theme.bg.ignoresSafeArea()
+                ThemeCanvas()
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         helperSection
@@ -252,8 +252,8 @@ struct ImageGenView: View {
                 .focused($ideaFocused)
                 .lineLimit(1...4)
                 .padding(10)
-                .background(theme.bg.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.border, lineWidth: 1))
+                .background(theme.bg.opacity(0.5), in: RoundedRectangle(cornerRadius: Radius.control))
+                .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.border, lineWidth: 1))
 
             Button {
                 promptFocused = false
@@ -267,7 +267,7 @@ struct ImageGenView: View {
                 }
                 .frame(maxWidth: .infinity).padding(.vertical, 10)
                 .foregroundStyle(theme.accent)
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.accent, lineWidth: 1))
+                .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.accent, lineWidth: 1))
             }
             .disabled(store.helping || store.helperIdea.trimmingCharacters(in: .whitespaces).isEmpty)
 
@@ -284,13 +284,13 @@ struct ImageGenView: View {
                     .accessibilityLabel(Text("Usar prompt"))
                 }
                 .padding(10)
-                .background(theme.bg.opacity(0.5), in: RoundedRectangle(cornerRadius: 10))
-                .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.accent.opacity(0.4), lineWidth: 1))
+                .background(theme.bg.opacity(0.5), in: RoundedRectangle(cornerRadius: Radius.control))
+                .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.accent.opacity(0.4), lineWidth: 1))
             }
         }
         .padding(14)
-        .background(theme.panel.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(theme.border, lineWidth: 1))
+        .background(theme.panel.opacity(0.4), in: RoundedRectangle(cornerRadius: Radius.control))
+        .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.border, lineWidth: 1))
     }
 
     private var promptField: some View {
@@ -300,8 +300,8 @@ struct ImageGenView: View {
                 .font(.ody(.body)).foregroundStyle(theme.fg)
                 .focused($promptFocused).lineLimit(2...6)
                 .padding(12)
-                .background(theme.panel, in: RoundedRectangle(cornerRadius: 12))
-                .overlay(RoundedRectangle(cornerRadius: 12).stroke(theme.border, lineWidth: 1))
+                .background(theme.panel, in: RoundedRectangle(cornerRadius: Radius.control))
+                .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.border, lineWidth: 1))
         }
     }
 
@@ -348,8 +348,8 @@ struct ImageGenView: View {
             }
         }
         .padding(14)
-        .background(theme.panel.opacity(0.4), in: RoundedRectangle(cornerRadius: 12))
-        .overlay(RoundedRectangle(cornerRadius: 12).stroke(theme.border, lineWidth: 1))
+        .background(theme.panel.opacity(0.4), in: RoundedRectangle(cornerRadius: Radius.control))
+        .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.border, lineWidth: 1))
     }
 
     private var generateButton: some View {
@@ -364,7 +364,7 @@ struct ImageGenView: View {
                 Image(systemName: "sparkles")
             }
             .frame(maxWidth: .infinity).padding(.vertical, 14)
-            .background(theme.accent, in: RoundedRectangle(cornerRadius: 12)).foregroundStyle(theme.onAccent)
+            .background(theme.accent, in: RoundedRectangle(cornerRadius: Radius.control)).foregroundStyle(theme.onAccent)
         }
         .disabled(store.generating || store.prompt.trimmingCharacters(in: .whitespaces).isEmpty)
         .opacity(store.generating || store.prompt.trimmingCharacters(in: .whitespaces).isEmpty ? 0.6 : 1)
@@ -379,8 +379,8 @@ struct ImageGenView: View {
                 } label: {
                     Image(platformImage: img).resizable().scaledToFit()
                         .frame(maxWidth: .infinity)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                        .overlay(RoundedRectangle(cornerRadius: 12).stroke(theme.border.opacity(0.4), lineWidth: 1))
+                        .clipShape(RoundedRectangle(cornerRadius: Radius.control))
+                        .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.hairline, lineWidth: 1))
                 }
                 .buttonStyle(.plain)
                 Button {
@@ -406,7 +406,7 @@ struct GenHistorySheet: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                theme.bg.ignoresSafeArea()
+                ThemeCanvas()
                 if store.history.isEmpty {
                     Text("Nenhuma imagem gerada ainda.")
                         .font(.ody(.subheadline))

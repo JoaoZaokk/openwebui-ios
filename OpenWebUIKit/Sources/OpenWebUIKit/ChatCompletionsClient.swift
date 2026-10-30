@@ -78,6 +78,13 @@ public enum OWStreamUpdate: Sendable {
     case done
 }
 
+public extension OWStreamUpdate {
+    /// The provider closed the reply for length before writing a word: the
+    /// conversation alone fills the model's context. Some providers (MiMo)
+    /// say so this way instead of with an error.
+    static let contextFull = "The conversation fills the model's context window: the reply stopped before it began (finish_reason: length)."
+}
+
 /// Streams a reply from POST /api/chat/completions. Open WebUI exposes an
 /// OpenAI-compatible endpoint: newline-delimited `data: {json}` frames whose
 /// `choices[0].delta.content` carries the tokens, terminated by `data: [DONE]`.
@@ -217,6 +224,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                     // keyed by `index`. Yielded whole, once the stream ends.
                     var pendingCalls: [Int: (name: String, args: String)] = [:]
                     var sawDone = false
+                    var produced = false
                     for try await rawLine in bytes.lines {
                         if Task.isCancelled { break }
                         let line = rawLine.trimmingCharacters(in: .whitespaces)
@@ -236,11 +244,14 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                             }
                             if let delta = chunk.choices?.first?.delta {
                                 if let r = delta.reasoning ?? delta.reasoning_content, !r.isEmpty {
+                                    produced = true
                                     continuation.yield(.reasoningDelta(r))
                                 }
                                 if let t = delta.content, !t.isEmpty {
+                                    produced = true
                                     continuation.yield(.textDelta(t))
                                 }
+                                if !(delta.tool_calls ?? []).isEmpty { produced = true }
                                 for (n, call) in (delta.tool_calls ?? []).enumerated() {
                                     let key = call.index ?? n
                                     var c = pendingCalls[key] ?? (name: "", args: "")
@@ -249,6 +260,9 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                                     if let a = call.function?.arguments { c.args += a }
                                     pendingCalls[key] = c
                                 }
+                            }
+                            if chunk.choices?.first?.finish_reason == "length", !produced {
+                                continuation.yield(.error(OWStreamUpdate.contextFull)); break
                             }
                             // Not a chunk/error: maybe the prepended web-search
                             // sources frame ({"sources": [...]}, no choices key).
@@ -414,6 +428,7 @@ struct OWCompletionChunk: Decodable {
             }
         }
         var delta: Delta?
+        var finish_reason: String?
     }
 
     var choices: [Choice]?

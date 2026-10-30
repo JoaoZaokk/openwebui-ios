@@ -120,7 +120,7 @@ struct SSOWebLoginView: View {
                     .font(.ody(.headline))
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 13)
-                    .background(theme.accent, in: RoundedRectangle(cornerRadius: 12))
+                    .background(theme.accent, in: RoundedRectangle(cornerRadius: Radius.control))
                     .foregroundStyle(theme.onAccent)
             }
             .buttonStyle(.plain)

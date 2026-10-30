@@ -6,7 +6,8 @@ import UIKit
 /// system alert on each change (unavoidable) — it lands right after the user
 /// picks a theme, which is an intentional action.
 enum AppIconManager {
-    /// Alternate icon name for a theme, or nil for the primary (Hermes blue).
+    /// Alternate icon name for a theme, or nil for the primary (the black
+    /// Open WebUI "OI"). Hermes has no blue icon of its own any more and shares it.
     /// Every theme family maps to a distinct icon so the home-screen icon always
     /// matches the active skin — the non-brand Odysseus themes share the original
     /// Odysseus sail icon (instead of silently inheriting the Hermes-blue primary).
@@ -15,8 +16,7 @@ enum AppIconManager {
         case "claude", "claude_code": return "AppIcon-claude"
         case "gpt", "codex":          return "AppIcon-openai"
         case "gemini":                return "AppIcon-gemini"
-        case "openwebui":             return "AppIcon-openwebui"
-        case "hermes":                return nil   // primary asset-catalog icon (Hermes blue)
+        case "openwebui", "hermes":   return nil   // primary asset-catalog icon (OI)
         case "hermes_teal":           return "AppIcon-hermesteal"
         case "hermes_noir":           return "AppIcon-hermesnoir"
         default:                      return "AppIcon-odysseus"  // Midnight, Ocean, …
@@ -30,6 +30,9 @@ enum AppIconManager {
         guard app.supportsAlternateIcons else { return }
         let target = iconName(for: themeID)
         guard app.alternateIconName != target else { return }
+        // Open WebUI used to be an alternate with the same picture as the
+        // primary; moving those users back would only cost them the alert.
+        if target == nil, app.alternateIconName == "AppIcon-openwebui" { return }
         app.setAlternateIconName(target)
         #endif
     }

@@ -40,7 +40,7 @@ struct LoginView: View {
 
     var body: some View {
         ZStack {
-            theme.bg.ignoresSafeArea()
+            ThemeCanvas()
             BackgroundDots().opacity(0.5)
 
             VStack(spacing: 22) {
@@ -90,7 +90,7 @@ struct LoginView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 14)
-                        .background(theme.accent, in: RoundedRectangle(cornerRadius: 12))
+                        .background(theme.accent, in: RoundedRectangle(cornerRadius: Radius.control))
                         .foregroundStyle(theme.onAccent)
                     }
                     .disabled(!canSubmit)
@@ -202,8 +202,8 @@ struct LoginView: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 13)
-            .background(theme.panel, in: RoundedRectangle(cornerRadius: 12))
-            .overlay(RoundedRectangle(cornerRadius: 12).stroke(theme.border, lineWidth: 1))
+            .background(theme.panel, in: RoundedRectangle(cornerRadius: Radius.control))
+            .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.border, lineWidth: 1))
             .foregroundStyle(theme.fg)
         }
         .buttonStyle(.plain)
@@ -239,8 +239,8 @@ private extension View {
             .font(.ody(.body))
             .foregroundStyle(theme.fg)
             .padding(.horizontal, 14).padding(.vertical, 12)
-            .background(theme.panel, in: RoundedRectangle(cornerRadius: 10))
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.border, lineWidth: 1))
+            .background(theme.panel, in: RoundedRectangle(cornerRadius: Radius.control))
+            .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.border, lineWidth: 1))
     }
 }
 

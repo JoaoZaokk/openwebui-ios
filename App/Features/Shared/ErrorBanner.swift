@@ -31,8 +31,8 @@ struct ErrorBanner: View {
         }
         .foregroundStyle(theme.danger)
         .padding(.horizontal, 12).padding(.vertical, 8)
-        .background(theme.danger.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
-        .overlay(RoundedRectangle(cornerRadius: 10).stroke(theme.danger.opacity(0.35), lineWidth: 1))
+        .background(theme.danger.opacity(0.12), in: RoundedRectangle(cornerRadius: Radius.control))
+        .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.danger.opacity(0.35), lineWidth: 1))
         .padding(.horizontal, 12)
     }
 }

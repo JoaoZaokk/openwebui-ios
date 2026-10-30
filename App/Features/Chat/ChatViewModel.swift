@@ -63,6 +63,26 @@ final class ChatViewModel: ObservableObject {
     /// Set by `failTurn`, so `closeTurn` knows the reply is an error, not an answer.
     private var turnFailed = false
 
+    /// The last turn failed because the conversation no longer fits the model's
+    /// context. The chat offers to summarize it (`summarizeAndRetry`).
+    @Published private(set) var contextOverflow = false
+    @Published private(set) var summarizing = false
+    /// Stands in, toward the model, for every message up to `through`. The
+    /// screen keeps them; only what is sent gets shorter.
+    struct ContextSummary: Codable, Equatable { var text: String; var through: String }
+    private(set) var contextSummary: ContextSummary? {
+        didSet {
+            guard let id = chatID else { return }
+            let key = Self.summaryKey(id)
+            if let c = contextSummary, let d = try? JSONEncoder().encode(c) {
+                UserDefaults.standard.set(d, forKey: key)
+            } else {
+                UserDefaults.standard.removeObject(forKey: key)
+            }
+        }
+    }
+    private static func summaryKey(_ chatID: String) -> String { "chat.contextSummary." + chatID }
+
     /// The app went to the background while a reply was streaming.
     ///
     /// iOS suspends the app about 30 s later and the stream to the server dies
@@ -102,6 +122,9 @@ final class ChatViewModel: ObservableObject {
         self.models = models
         self.temporary = temporary
         self.chatID = chat?.id
+        if let id = chat?.id, let d = UserDefaults.standard.data(forKey: Self.summaryKey(id)) {
+            contextSummary = try? JSONDecoder().decode(ContextSummary.self, from: d)
+        }
         self.title = chat?.title ?? (temporary ? L("Conversa temporária") : L("Nova conversa"))
         self.selectedModel = defaultModel
     }
@@ -351,6 +374,7 @@ final class ChatViewModel: ObservableObject {
         let docs = pendingDocuments
         guard (!text.isEmpty || !images.isEmpty || !docs.isEmpty),
               !isStreaming, !isPersisting, let model = selectedModel else { return }
+        contextOverflow = false
         input = ""; pendingImageURLs = []; pendingDocuments = []
         submit(text, images: images, docs: docs, model: model)
     }
@@ -390,8 +414,9 @@ final class ChatViewModel: ObservableObject {
         followUpTask?.cancel()   // questions for a reply that is no longer the last
         beginBackgroundHold()   // let the reply finish if the user backgrounds the app
 
-        // Context = the active branch except the empty assistant we stream into.
-        var convo = messages.dropLast().map { OWChatMessageInput($0) }
+        // Context = the active branch except the empty assistant we stream into,
+        // with a summary in place of the turns it covers.
+        var convo = Self.withSummary(contextSummary, Array(messages.dropLast()))
         // Only the CURRENT (last) message keeps its images. Re-sending historical
         // images on every turn breaks non-vision models with "No endpoints found
         // that support image input" (the web client doesn't re-send them either).
@@ -546,6 +571,11 @@ final class ChatViewModel: ObservableObject {
                 messages[i].content = L("_(sem resposta)_")
             }
         }
+        // The reply streamed into `messages`; the tree only learned it in
+        // `persist()`, which a temporary chat skips. Its next send, regenerate
+        // or branch switch rebuilt the screen from the tree and blanked every
+        // earlier answer.
+        syncBranchIntoTree()
         awaitingWebSearch = false
         isStreaming = false
         notifyReplyIfBackgrounded(assistantID)
@@ -616,6 +646,10 @@ final class ChatViewModel: ObservableObject {
     /// arrived is the user's: an error never overwrites it.
     private func failTurn(_ assistantID: String, _ raw: String) {
         turnFailed = true
+        // Offered only with something before the question to summarize: a
+        // first message past the context is too long by itself.
+        contextOverflow = Self.isContextOverflow(raw)
+            && (messages.lastIndex(where: { $0.role == .user }) ?? 0) > 0
         let msg = friendlyError(raw)
         if let i = index(of: assistantID), messages[i].content.isEmpty {
             messages[i].content = "⚠️ \(msg)"
@@ -624,9 +658,117 @@ final class ChatViewModel: ObservableObject {
         }
     }
 
+    // MARK: - Context summary
+
+    /// The wording providers use for a request longer than the model's context
+    /// (OpenAI, Anthropic, Gemini, llama.cpp, Ollama, LM Studio, vLLM; GLM's
+    /// "Prompt exceeds max length", seen for real on 2026-10-28; and the kit's
+    /// `OWStreamUpdate.contextFull` for a reply closed before it began).
+    static func isContextOverflow(_ raw: String) -> Bool {
+        let l = raw.lowercased()
+        return ["context length", "context_length", "context window", "maximum context",
+                "prompt is too long", "input is too long", "too many tokens", "exceeds the context",
+                "exceed context", "reduce the length", "token limit", "n_ctx", "num_ctx",
+                "exceeds max length", "exceeds maximum length", "exceeds the maximum length"]
+            .contains { l.contains($0) }
+    }
+
+    /// The turns sent to the model: the summary, when there is one and its last
+    /// message is still on this branch, replaces everything up to it and rides
+    /// on the first question after it. Not a turn of its own: several chat
+    /// templates (Gemma's among them) reject two user turns in a row or a
+    /// system turn anywhere but first.
+    static func withSummary(_ summary: ContextSummary?, _ msgs: [OWMessage]) -> [OWChatMessageInput] {
+        guard let summary, let cut = msgs.firstIndex(where: { $0.id == summary.through }),
+              cut + 1 < msgs.count else { return msgs.map { OWChatMessageInput($0) } }
+        var rest = msgs[(cut + 1)...].map { OWChatMessageInput($0) }
+        let note = "(Summary of the earlier part of this conversation:\n\(summary.text))\n\n"
+        if rest[0].role == "user" { rest[0].text = note + rest[0].text }
+        else { rest.insert(OWChatMessageInput(role: "user", text: note), at: 0) }
+        return rest
+    }
+
+    /// Characters per summary request — about 3–4k tokens, which every model
+    /// that can chat at all takes.
+    static let summaryPieceLimit = 12_000
+
+    /// The turns as a transcript, cut into pieces of at most `summaryPieceLimit`.
+    /// A message longer than a piece keeps its start and its end.
+    static func summaryPieces(_ turns: [OWChatMessageInput]) -> [String] {
+        let room = summaryPieceLimit - 40
+        var pieces: [String] = [], current = ""
+        for t in turns {
+            var body = t.text
+            if body.count > room {
+                body = String(body.prefix(room / 2 - 10)) + "\n[…]\n" + String(body.suffix(room / 2 - 10))
+            }
+            let line = (t.role == "user" ? "User: " : "Assistant: ") + body + "\n\n"
+            if !current.isEmpty, current.count + line.count > summaryPieceLimit {
+                pieces.append(current); current = ""
+            }
+            current += line
+        }
+        if !current.isEmpty { pieces.append(current) }
+        return pieces
+    }
+
+    /// Summarizes the turns before the question that overflowed — on top of an
+    /// earlier summary, piece by piece so no request overflows in turn — then
+    /// asks that question again.
+    func summarizeAndRetry() async {
+        guard contextOverflow, !summarizing, !isStreaming,
+              let failed = messages.last, failed.role == .assistant,
+              let qi = messages.lastIndex(where: { $0.role == .user }), qi > 0,
+              let model = failed.model ?? selectedModel else { return }
+        let through = messages[qi - 1].id
+        var older = Array(messages[..<qi])
+        var running = ""
+        if let s = contextSummary, let cut = older.firstIndex(where: { $0.id == s.through }) {
+            running = s.text
+            older = Array(older[(cut + 1)...])
+        }
+        summarizing = true
+        defer { summarizing = false }
+        error = nil
+        do {
+            for piece in Self.summaryPieces(older.map { OWChatMessageInput(role: $0.role.rawValue, text: $0.content) }) {
+                running = try await summarize(piece, onTopOf: running, model: model)
+            }
+        } catch {
+            self.error = L("Não foi possível resumir a conversa.")
+            return
+        }
+        guard !running.isEmpty else { self.error = L("Não foi possível resumir a conversa."); return }
+        contextSummary = ContextSummary(text: running, through: through)
+        contextOverflow = false
+        // The failed turn was being saved; `regenerate` does nothing while a
+        // save runs, and the question was silently not asked again.
+        await persistTask?.value
+        regenerate(messageID: failed.id)
+    }
+
+    private func summarize(_ transcript: String, onTopOf earlier: String, model: String) async throws -> String {
+        var ask = "Summarize the conversation below so that it can be continued without it. Keep names, numbers, decisions, open questions and what the user asked for or prefers. Write in the language of the conversation, in at most 300 words, and nothing but the summary."
+        if !earlier.isEmpty { ask += "\n\nSummary of what came before it:\n" + earlier }
+        ask += "\n\nConversation:\n" + transcript
+        var out = ""
+        for try await u in completions.streamReply(model: model, messages: [OWChatMessageInput(role: "user", text: ask)],
+                                                   search: .off) {
+            switch u {
+            case .textDelta(let t): out += t
+            case .error(let e): throw OWError.decoding(e)
+            default: break
+            }
+        }
+        return out.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
     /// Map raw server errors to clearer pt-BR messages.
     private func friendlyError(_ msg: String) -> String {
         let l = msg.lowercased()
+        if Self.isContextOverflow(msg) {
+            return L("Esta conversa passou do limite de contexto do modelo. Resuma a conversa para continuar.")
+        }
         if l.contains("image input") || l.contains("support image") || l.contains("no endpoints found that support image") {
             return L("Este modelo não tem visão (não aceita imagens). Escolha um modelo com visão para enviar imagens.")
         }

@@ -82,7 +82,7 @@ struct ChatListView: View {
     var body: some View {
         NavigationStack(path: $path) {
             ZStack {
-                theme.bg.ignoresSafeArea()
+                ThemeCanvas()
                 VStack(spacing: 0) {
                     if app.pendingChatCount > 0 { resendRow }
                     content.errorBanner(store.error ?? app.modelsError) {
@@ -351,7 +351,7 @@ struct ArchivedChatsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                theme.bg.ignoresSafeArea()
+                ThemeCanvas()
                 if loading {
                     ProgressView().tint(theme.accent)
                 } else if chats.isEmpty && loaded {

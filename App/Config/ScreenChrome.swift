@@ -98,8 +98,8 @@ struct MacSearchField: View {
             }
         }
         .padding(.horizontal, 10).padding(.vertical, 7)
-        .background(theme.panel, in: RoundedRectangle(cornerRadius: 8))
-        .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.border, lineWidth: 1))
+        .background(theme.panel, in: RoundedRectangle(cornerRadius: Radius.control))
+        .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.border, lineWidth: 1))
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
     }

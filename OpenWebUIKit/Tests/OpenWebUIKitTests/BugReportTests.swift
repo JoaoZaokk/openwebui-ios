@@ -64,4 +64,13 @@ final class BugReportTests: XCTestCase {
         let j = try json(p)
         XCTAssertEqual(((j["lastAbnormalExit"] as? [String: Any])?["props"] as? [String: String])?["span"], "stt.load")
     }
+
+    /// Report from 1.10 (zh_CN): "the phone is a 15 Pro Max, it was identified
+    /// wrong". It was right — iPhone16,2 is that phone — but nobody reads model
+    /// codes; the report names the phone and keeps the code beside it.
+    func testTheReportNamesThePhoneAndKeepsItsCode() {
+        XCTAssertEqual(BugReport.deviceLabel(for: "iPhone16,2"), "iPhone 15 Pro Max (iPhone16,2)")
+        XCTAssertEqual(BugReport.deviceLabel(for: "iPhone17,1"), "iPhone 16 Pro (iPhone17,1)")
+        XCTAssertEqual(BugReport.deviceLabel(for: "iPhone99,9"), "iPhone99,9", "an unknown code stays as it is")
+    }
 }

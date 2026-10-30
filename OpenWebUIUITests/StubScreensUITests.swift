@@ -53,6 +53,124 @@ final class StubScreensUITests: XCTestCase {
         XCTAssertEqual(missed, [], "the press on the question did not open the message menu")
     }
 
+    /// Report from 1.10 (zh_CN, iPhone 15 Pro Max): a long chat opened stopped
+    /// halfway down, and after sending the screen stayed blank until scrolled
+    /// back and forth. Needs the stub started with `STUB_LONG_CHAT=1`.
+    func testALongChatOpensAtItsEndAndAReplyIsOnScreen() throws {
+        let app = try launch("chat:c-longa")
+        let window = app.windows.firstMatch
+        func onScreen(_ marker: String) -> Bool {
+            let e = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", marker)).firstMatch
+            return e.exists && window.frame.intersects(e.frame) && e.frame.height > 0
+        }
+        func shot(_ name: String) {
+            let image = app.screenshot()
+            let a = XCTAttachment(screenshot: image); a.name = name; a.lifetime = .keepAlways; add(a)
+            // The result bundle is written only when xcodebuild exits, and on
+            // Xcode 27 it does not exit after UI tests; OW_SHOTS gets them now.
+            if let dir = ProcessInfo.processInfo.environment["OW_SHOTS"] {
+                try? image.pngRepresentation.write(to: URL(fileURLWithPath: dir).appendingPathComponent(name + ".png"))
+            }
+        }
+        XCTAssertTrue(app.buttons["Conversa por voz"].waitForExistence(timeout: 30))
+        let end = NSPredicate { _, _ in onScreen("FIM-DA-CONVERSA") }
+        let opened = XCTWaiter().wait(for: [expectation(for: end, evaluatedWith: nil)], timeout: 30) == .completed
+        if opened { sleep(3) }
+        let stays = onScreen("FIM-DA-CONVERSA")
+        shot("aberta")
+        XCTAssertTrue(opened, "the chat did not open at its last message")
+        XCTAssertTrue(stays, "the last message left the screen after the chat opened")
+
+        let field = app.descendants(matching: .any)["composer.field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("Teste de rolagem: responda")
+        app.buttons["composer.send"].tap()
+        let sentShown = XCTWaiter().wait(for: [expectation(for: NSPredicate { _, _ in onScreen("Teste de rolagem") },
+                                                           evaluatedWith: nil)], timeout: 10) == .completed
+        shot("enviada")
+        XCTAssertTrue(sentShown, "the question just sent is not on screen")
+        let replied = XCTWaiter().wait(for: [expectation(for: NSPredicate { _, _ in onScreen("FIM-DA-RESPOSTA-NOVA") },
+                                                         evaluatedWith: nil)], timeout: 90) == .completed
+        shot("respondida")
+        XCTAssertTrue(replied, "the reply did not end on screen")
+    }
+
+    /// Same report: past the model's context the web could compress the
+    /// conversation, the app only showed the error. The stub answers with the
+    /// provider's error until the earlier turns arrive as a summary.
+    func testAConversationPastTheContextIsSummarizedAndGoesOn() throws {
+        // A new chat each run: a summary is kept per chat, and one left by an
+        // earlier run would already stand in for the turns.
+        let app = try launch("ask:Oi")
+        let field = app.descendants(matching: .any)["composer.field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 30))
+        XCTAssertTrue(app.buttons["message.speak"].waitForExistence(timeout: 30), "no first reply")
+        XCTAssertTrue(app.buttons["composer.send"].waitForExistence(timeout: 30))
+        field.tap()
+        field.typeText("Estouro de contexto: continue")
+        app.buttons["composer.send"].tap()
+        let offer = app.buttons["chat.summarize"]
+        XCTAssertTrue(offer.waitForExistence(timeout: 20), "no summary offered after the context error")
+        func save(_ n: String) {
+            if let dir = ProcessInfo.processInfo.environment["OW_SHOTS"] {
+                try? app.screenshot().pngRepresentation.write(to: URL(fileURLWithPath: dir).appendingPathComponent(n + ".png"))
+            }
+        }
+        save("oferta-0"); sleep(2); save("oferta-2")
+        XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "limite de contexto")).firstMatch.exists)
+        offer.tap()
+        let goesOn = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Continuando depois do resumo")).firstMatch
+        XCTAssertTrue(goesOn.waitForExistence(timeout: 30), "the question was not asked again with the summary")
+        XCTAssertFalse(offer.exists, "the offer stays after it worked")
+        let a = XCTAttachment(screenshot: app.screenshot()); a.name = "resumida"; a.lifetime = .keepAlways; add(a)
+        if let dir = ProcessInfo.processInfo.environment["OW_SHOTS"] {
+            try? app.screenshot().pngRepresentation.write(to: URL(fileURLWithPath: dir).appendingPathComponent("resumida.png"))
+        }
+    }
+
+    /// Options a model writes as a question to answer (🔘 lines) are offered
+    /// as buttons, and a tap sends the option. Needs the stub started with
+    /// `STUB_EXTRA_CHATS` holding the `r-botoes` chat.
+    func testOptionsTheModelWroteAreButtonsThatAnswer() throws {
+        let app = try launch("chat:r-botoes")
+        let option = app.buttons.matching(identifier: "chat.replyOption").firstMatch
+        guard option.waitForExistence(timeout: 30) else {
+            throw XCTSkip("stub has no r-botoes chat (STUB_EXTRA_CHATS not set)")
+        }
+        XCTAssertEqual(app.buttons.matching(identifier: "chat.replyOption").count, 5)
+        let label = option.label
+        XCTAssertTrue(label.hasPrefix("Dia 1"), label)
+        option.tap()
+        let sent = app.staticTexts.matching(NSPredicate(format: "label == %@", label)).firstMatch
+        XCTAssertTrue(sent.waitForExistence(timeout: 15), "the option was not sent as the next message")
+    }
+
+    /// Same report: an answer could only be copied whole. The message menu
+    /// opens it in a view that selects by range.
+    func testAPartOfAnAnswerCanBeSelected() throws {
+        let app = try launch("chat:c-lisboa")
+        XCTAssertTrue(app.buttons["Conversa por voz"].waitForExistence(timeout: 30))
+        let answer = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "Castelo de São Jorge")).firstMatch
+        XCTAssertTrue(answer.waitForExistence(timeout: 10))
+        // Earlier tests in the suite add turns to this chat; bring the answer
+        // out from under the navigation bar before pressing it.
+        for _ in 0..<4 where !answer.isHittable || answer.frame.minY < 150 { app.swipeDown(); sleep(1) }
+        answer.press(forDuration: 1.3)
+        let item = app.buttons["Selecionar texto"]
+        XCTAssertTrue(item.waitForExistence(timeout: 5), "no Selecionar texto in the message menu")
+        item.tap()
+        let view = app.textViews["message.selectableText"]
+        XCTAssertTrue(view.waitForExistence(timeout: 5))
+        XCTAssertTrue((view.value as? String ?? "").contains("Castelo de São Jorge"))
+        view.press(forDuration: 1.0)
+        let a = XCTAttachment(screenshot: app.screenshot()); a.name = "selecao"; a.lifetime = .keepAlways; add(a)
+        XCTAssertTrue(app.menuItems.firstMatch.waitForExistence(timeout: 5)
+                      || app.buttons["Copiar"].waitForExistence(timeout: 2)
+                      || app.staticTexts["Copiar"].exists,
+                      "a press in the text did not start a selection")
+    }
+
     /// Voice mode resumes a chat with its history, and the replies there are
     /// markdown. They were shown as typed: "### Dia 1 — Alfama e Baixa",
     /// "- Manhã no **Castelo de São Jorge**".
@@ -129,7 +247,7 @@ final class StubScreensUITests: XCTestCase {
         let card = app.buttons.matching(NSPredicate(format: "label BEGINSWITH 'Busca na web'")).firstMatch
         XCTAssertTrue(card.waitForExistence(timeout: 10), "no web-search card under the reply")
         card.tap()
-        XCTAssertTrue(app.links.matching(NSPredicate(format: "label CONTAINS 'ge.globo.com'")).firstMatch
+        XCTAssertTrue(app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'ge.globo.com'")).firstMatch
                         .waitForExistence(timeout: 5), "the card does not list the sites")
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = "chat-com-busca"; shot.lifetime = .keepAlways
@@ -151,8 +269,12 @@ final class StubScreensUITests: XCTestCase {
         XCTAssertTrue(card.waitForExistence(timeout: 60), "no web-search card under the reply")
         XCTAssertTrue(app.buttons["composer.send"].waitForExistence(timeout: 60))
         card.tap()
-        XCTAssertTrue(app.links.matching(NSPredicate(format: "label CONTAINS 'ge.globo.com'")).firstMatch
-                        .waitForExistence(timeout: 5), "the card does not list the sites")
+        let listed = app.descendants(matching: .any).matching(NSPredicate(format: "label CONTAINS 'ge.globo.com'")).firstMatch
+                        .waitForExistence(timeout: 5)
+        if let dir = ProcessInfo.processInfo.environment["OW_SHOTS"] {
+            try? app.screenshot().pngRepresentation.write(to: URL(fileURLWithPath: dir).appendingPathComponent("busca-card.png"))
+        }
+        XCTAssertTrue(listed, "the card does not list the sites")
         let shot = XCTAttachment(screenshot: app.screenshot())
         shot.name = "chat-busca-ligada"; shot.lifetime = .keepAlways
         add(shot)

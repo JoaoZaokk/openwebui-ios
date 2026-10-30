@@ -28,8 +28,8 @@ struct BugReportSheet: View {
                     TextField("O que aconteceu?", text: $description, axis: .vertical)
                         .lineLimit(3...8)
                         .textFieldStyle(.plain).font(.ody(.body)).foregroundStyle(theme.fg)
-                        .padding(10).background(theme.panel, in: RoundedRectangle(cornerRadius: 8))
-                        .overlay(RoundedRectangle(cornerRadius: 8).stroke(theme.border, lineWidth: 1))
+                        .padding(10).background(theme.panel, in: RoundedRectangle(cornerRadius: Radius.control))
+                        .overlay(RoundedRectangle(cornerRadius: Radius.control).stroke(theme.border, lineWidth: 1))
                     #if os(iOS)
                     if MailComposer.canSend {
                         Button {

@@ -52,7 +52,7 @@ struct NotesView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                theme.bg.ignoresSafeArea()
+                ThemeCanvas()
                 VStack(spacing: 0) {
                     if !store.notes.isEmpty {
                         list
@@ -128,7 +128,7 @@ struct NotesView: View {
             Spacer()
             if let ts = note.updatedAt {
                 Text(RelativeDate.string(ts)).font(.ody(size: 9))
-                    .foregroundStyle(theme.secondaryText.opacity(0.7))
+                    .foregroundStyle(theme.secondaryText)
             }
         }
         .padding(.vertical, 4)
@@ -212,7 +212,7 @@ struct NoteEditorView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                theme.bg.ignoresSafeArea()
+                ThemeCanvas()
                 VStack(spacing: 0) {
                     if ready {
                         fields

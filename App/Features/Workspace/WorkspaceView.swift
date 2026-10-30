@@ -58,7 +58,7 @@ struct WorkspaceView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                theme.bg.ignoresSafeArea()
+                ThemeCanvas()
                 List {
                     // One section per kind of model: a Gemini or OpenAI key lists
                     // speech, image, video and embedding models next to the chat

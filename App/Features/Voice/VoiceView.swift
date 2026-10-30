@@ -144,8 +144,8 @@ struct VoiceView: View {
             }
                 .padding(.horizontal, 12).padding(.vertical, 8)
                 .background(isUser ? theme.userBubble : theme.aiBubble,
-                            in: RoundedRectangle(cornerRadius: 14))
-                .overlay(RoundedRectangle(cornerRadius: 14).stroke(theme.border, lineWidth: 1))
+                            in: RoundedRectangle(cornerRadius: Radius.card))
+                .overlay(RoundedRectangle(cornerRadius: Radius.card).stroke(theme.border, lineWidth: 1))
             if !isUser { Spacer(minLength: 40) }
         }
     }
@@ -268,9 +268,9 @@ struct VoiceView: View {
             }
             .frame(maxWidth: .infinity).padding(.vertical, 15)
             .background(convo.active ? theme.panel : theme.accent,
-                        in: RoundedRectangle(cornerRadius: 14))
+                        in: RoundedRectangle(cornerRadius: Radius.control))
             .foregroundStyle(convo.active ? theme.accent : theme.onAccent)
-            .overlay(RoundedRectangle(cornerRadius: 14)
+            .overlay(RoundedRectangle(cornerRadius: Radius.control)
                 .stroke(convo.active ? theme.accent : .clear, lineWidth: 1))
         }
     }

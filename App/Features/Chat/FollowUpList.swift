@@ -15,7 +15,7 @@ struct FollowUpList: View {
                 .foregroundStyle(theme.secondaryText)
                 .padding(.bottom, 4)
             ForEach(Array(questions.enumerated()), id: \.offset) { i, q in
-                if i > 0 { Divider().overlay(theme.border.opacity(0.4)) }
+                if i > 0 { Divider().overlay(theme.hairline) }
                 Button { onPick(q) } label: {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Image(systemName: "arrow.turn.down.right")
@@ -38,6 +38,15 @@ struct FollowUpList: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 4)
+        .padding(.horizontal, theme.backdrop ? 14 : 4)
+        .padding(.vertical, theme.backdrop ? 8 : 0)
+        // Over an engraved backdrop (the Hermes themes) bare rows got lost in
+        // the lines behind them; there they sit on the panel, like a message.
+        .background {
+            if theme.backdrop {
+                RoundedRectangle(cornerRadius: Radius.card).fill(theme.aiBubble)
+                    .overlay(RoundedRectangle(cornerRadius: Radius.card).stroke(theme.hairline, lineWidth: 1))
+            }
+        }
     }
 }

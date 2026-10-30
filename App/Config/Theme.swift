@@ -17,6 +17,15 @@ struct Theme: Equatable, Identifiable {
     let isDark: Bool
     let font: AppFontFamily     // each brand theme carries its own typeface
     let backdrop: Bool          // faint engraving/glow texture behind the UI (Hermes-style)
+    /// Strength of the corner light behind the chat (`ThemeVignette`); 0 = none.
+    /// Dark themes tint it with `glow`, light ones with white. Tuned per theme
+    /// by eye: it should be felt, not seen.
+    let vignette: Double
+    let glow: Color
+    /// The base colours as hex, for content drawn outside SwiftUI (charts in a
+    /// web view take CSS colours).
+    let hex: Hex
+    struct Hex: Equatable { let bg, fg, panel, accent: String }
 
     var bg: Color
     var fg: Color
@@ -35,22 +44,31 @@ struct Theme: Equatable, Identifiable {
     init(id: String, name: String,
          bg: String, fg: String, panel: String, border: String, red: String,
          font: AppFontFamily = .mono, backdrop: Bool = false,
-         userBubbleBg: String? = nil, aiBubbleBg: String? = nil) {
+         userBubbleBg: String? = nil, aiBubbleBg: String? = nil,
+         vignette: Double? = nil, glowHex: String? = nil) {
         let dark = Theme.isDarkHex(bg)
         self.id = id
         self.name = name
         self.isDark = dark
         self.font = font
         self.backdrop = backdrop
+        self.vignette = vignette ?? (dark ? 0.09 : 0.42)
+        self.glow = Color(hex: glowHex ?? red)
+        self.hex = Hex(bg: bg, fg: fg, panel: panel, accent: red)
         self.bg = Color(hex: bg)
         self.fg = Color(hex: fg)
         self.panel = Color(hex: panel)
         self.border = Color(hex: border)
         self.accent = Color(hex: red)
         // Web defaults: userBubble→bg, aiBubble→panel (advanced overrides win).
-        self.userBubble = Color(hex: userBubbleBg ?? bg)
-        self.aiBubble = Color(hex: aiBubbleBg ?? panel)
-        self.secondaryText = Color(hex: fg).opacity(0.55)
+        let userHex = userBubbleBg ?? bg
+        let aiHex = aiBubbleBg ?? panel
+        self.userBubble = Color(hex: userHex)
+        self.aiBubble = Color(hex: aiHex)
+        // Secondary text was a flat 55% of fg, which landed between 1.9:1 and 4.3:1
+        // on 11 of the 17 themes. The alpha is now the lowest one that keeps 4.6:1
+        // on every surface text can sit on, so it still reads as "quieter than fg".
+        self.secondaryText = Color(hex: fg).opacity(Theme.secondaryAlpha(fg: fg, over: [bg, panel, userHex, aiHex]))
         // The web has no per-theme status colours. These two are chosen by the
         // theme's lightness and were measured, not picked: against every theme in
         // `all` (bg, panel, and the 12% tint the error banner paints over them)
@@ -61,9 +79,10 @@ struct Theme: Equatable, Identifiable {
         // meanings, and on `terminal` it *is* the text colour.
         self.green = Color(hex: dark ? "5fd97a" : "20713f")
         self.danger = Color(hex: dark ? "ffa39a" : "a32b1f")
-        // Foreground on accent fills: white on darker accents, near-black on the
-        // light ones (mint/gold/neon/pink), decided by the accent's luma.
-        self.onAccent = Theme.luma(red) < 0.6 ? .white : Color(hex: "1a1a1a")
+        // Foreground on accent fills: whichever of white / near-black has the higher
+        // contrast. The old luma < 0.6 cut-off picked white on coral, teal, blue and
+        // red accents at 3.1-3.7:1 (and 1.9:1 on Codex's mint).
+        self.onAccent = Theme.contrast(red, "ffffff") >= Theme.contrast(red, "1a1a1a") ? .white : Color(hex: "1a1a1a")
     }
 
     // Equality is the synthesized memberwise one, on purpose. It used to compare
@@ -87,60 +106,104 @@ struct Theme: Equatable, Identifiable {
         return t
     }
 
+    /// Quiet frame for content embedded in a message or surface (code blocks, tool
+    /// cards, thumbnails, attachment chips). Half of `border`, so it stays a hint
+    /// on every theme; controls and panels keep the full `border`.
+    var hairline: Color { border.opacity(0.5) }
+
     // MARK: - Catalog (the web's 16 built-in themes, in the same order)
 
     static let all: [Theme] = [
         // ── Brand skins — each carries the company's typeface ──
-        // Claude (claude.ai): warm cream, clay/coral accent, serif.
-        Theme(id: "claude", name: "Claude", bg: "f0eee6", fg: "3d3a34", panel: "ffffff", border: "e4ded2", red: "d97757",
-              font: .serif, userBubbleBg: "ebe7dc", aiBubbleBg: "ffffff"),
+        // Claude (claude.ai): warm cream, terracotta accent (deepened from coral so white on it passes AA), serif.
+        Theme(id: "claude", name: "Claude", bg: "f0eee6", fg: "3d3a34", panel: "ffffff", border: "d6cfbe", red: "ba5937",
+              font: .serif, userBubbleBg: "e3ddce", aiBubbleBg: "ffffff"),
         // Claude Code (CLI): near-black warm terminal, coral, mono.
         Theme(id: "claude_code", name: "Claude Code", bg: "1a1916", fg: "e8e4d8", panel: "232019", border: "3a352b", red: "d97757",
               font: .mono, userBubbleBg: "2a2620", aiBubbleBg: "1f1d18"),
         // ChatGPT: charcoal, classic teal, Inter-style grotesque sans.
         Theme(id: "gpt", name: "ChatGPT", bg: "212121", fg: "ececec", panel: "171717", border: "3a3a3a", red: "10a37f",
-              font: .anthropic, userBubbleBg: "2f2f2f", aiBubbleBg: "171717"),
+              font: .anthropic, userBubbleBg: "2f2f2f", aiBubbleBg: "171717", vignette: 0.06),
         // Codex: deep black coding surface, neon green, mono.
         Theme(id: "codex", name: "Codex", bg: "0d0d0d", fg: "d4d4d4", panel: "161616", border: "2a2a2a", red: "00d68f",
-              font: .mono, userBubbleBg: "1e1e1e", aiBubbleBg: "121212"),
+              font: .mono, userBubbleBg: "1e1e1e", aiBubbleBg: "121212", vignette: 0.075),
         // Gemini: light Google surface, Google blue, rounded (Product-Sans-ish).
         Theme(id: "gemini", name: "Gemini", bg: "f0f4f9", fg: "1f1f1f", panel: "ffffff", border: "d6e0ee", red: "1a73e8",
-              font: .rounded, userBubbleBg: "e8f0fe", aiBubbleBg: "ffffff"),
+              font: .rounded, userBubbleBg: "dbe7fc", aiBubbleBg: "ffffff"),
         // Open WebUI (traditional): clean neutral dark, blue accent, sans.
         Theme(id: "openwebui", name: "Open WebUI", bg: "0f0f0f", fg: "ececec", panel: "1a1a1a", border: "2c2c2c", red: "4d7cff",
               font: .sans, userBubbleBg: "1f1f1f", aiBubbleBg: "141414"),
-        // Hermes (Nous Portal): the real #0000F2 electric blue, near-white, editorial serif + engraving backdrop.
-        Theme(id: "hermes", name: "Hermes", bg: "0000f2", fg: "f5f2ea", panel: "0000c4", border: "3a3aff", red: "8a8aff",
-              font: .serif, backdrop: true, userBubbleBg: "1a1aff", aiBubbleBg: "0000c0"),
+        // Hermes (Nous Portal blue), toned from the raw #0000F2 — tiring as a whole
+        // screen — to a Klein blue leaning indigo; near-white, editorial serif + engraving backdrop.
+        Theme(id: "hermes", name: "Hermes", bg: "1220a2", fg: "f5f2ea", panel: "0d1880", border: "3240c8", red: "c2c6ff",
+              font: .serif, backdrop: true, userBubbleBg: "1a2cc0", aiBubbleBg: "0d1880"),
         // Hermes Teal: dark teal config surface, mint, serif.
         Theme(id: "hermes_teal", name: "Hermes Teal", bg: "0d2018", fg: "d8e8d8", panel: "122a1e", border: "2a5540", red: "4fd99a",
-              font: .serif, backdrop: true, userBubbleBg: "16352a", aiBubbleBg: "0f2519"),
+              font: .serif, backdrop: true, userBubbleBg: "1d4234", aiBubbleBg: "15302a"),
         // Hermes Noir: pure black, warm gold, serif.
         Theme(id: "hermes_noir", name: "Hermes Noir", bg: "000000", fg: "f0f0ee", panel: "0d0d0d", border: "262626", red: "b8a17a",
-              font: .serif, backdrop: true, userBubbleBg: "141414", aiBubbleBg: "0a0a0a"),
+              font: .serif, backdrop: true, userBubbleBg: "222222", aiBubbleBg: "161616"),
 
         // ── Extras ──
-        Theme(id: "midnight",  name: "Midnight",  bg: "0d1117", fg: "c9d1d9", panel: "161b22", border: "30363d", red: "f85149", font: .mono),
-        Theme(id: "ocean",     name: "Ocean",     bg: "0b1a2c", fg: "64d2ff", panel: "091422", border: "1e5074", red: "4facfe", font: .mono),
-        Theme(id: "forest",    name: "Forest",    bg: "1b2a1b", fg: "a8d5a2", panel: "142414", border: "3d6b3d", red: "7cb871", font: .mono),
-        Theme(id: "cyberpunk", name: "Cyberpunk", bg: "0a0a0f", fg: "0ff0fc", panel: "12101a", border: "9b30ff", red: "e040fb", font: .mono),
-        Theme(id: "paper",     name: "Paper",     bg: "faf8f5", fg: "3b3836", panel: "ffffff", border: "d5d0c8", red: "c5ac4a", font: .serif),
-        Theme(id: "terminal",  name: "Terminal",  bg: "000000", fg: "00ff41", panel: "0a0a0a", border: "003b00", red: "00ff41", font: .mono),
-        Theme(id: "lavender",  name: "Lavender",  bg: "f3eef8", fg: "3d3551", panel: "faf7ff", border: "cec3de", red: "9b6dcc", font: .rounded),
-        Theme(id: "cute",      name: "Cute",      bg: "fff0f5", fg: "d4608a", panel: "fff8fa", border: "f0c0d0", red: "ff6b9d", font: .rounded),
+        Theme(id: "midnight",  name: "Midnight",  bg: "0d1117", fg: "c9d1d9", panel: "161b22", border: "30363d", red: "f85149", font: .mono, userBubbleBg: "1c2430"),
+        Theme(id: "ocean",     name: "Ocean",     bg: "0b1a2c", fg: "eef6fb", panel: "091422", border: "1e5074", red: "4facfe", font: .mono, userBubbleBg: "12304c"),
+        Theme(id: "forest",    name: "Forest",    bg: "1b2a1b", fg: "eef4ec", panel: "142414", border: "355c35", red: "7cb871", font: .mono, userBubbleBg: "263c26", glowHex: "c8f0b8"),
+        Theme(id: "cyberpunk", name: "Cyberpunk", bg: "0a0a0f", fg: "0ff0fc", panel: "12101a", border: "6a22b0", red: "e040fb", font: .mono, userBubbleBg: "1d1232"),
+        Theme(id: "paper",     name: "Paper",     bg: "faf8f5", fg: "3b3836", panel: "ffffff", border: "d5d0c8", red: "9c8420", font: .serif, userBubbleBg: "efe9de"),
+        Theme(id: "terminal",  name: "Terminal",  bg: "000000", fg: "00ff41", panel: "0a0a0a", border: "003b00", red: "00ff41", font: .mono, userBubbleBg: "001c08", vignette: 0),
+        Theme(id: "lavender",  name: "Lavender",  bg: "f3eef8", fg: "3d3551", panel: "faf7ff", border: "cec3de", red: "8254c0", font: .rounded, userBubbleBg: "e6dcf2"),
+        Theme(id: "cute",      name: "Cute",      bg: "fff0f5", fg: "a0305a", panel: "fff8fa", border: "f0c0d0", red: "d6336c", font: .rounded, userBubbleBg: "ffe4ed"),
     ]
 
     static func named(_ id: String) -> Theme { all.first { $0.id == id } ?? all[0] }
 
-    /// Default for a clean install = Hermes, so it matches the primary
-    /// (asset-catalog) Hermes-blue app icon out of the box — no icon-change alert.
-    static let defaultID = "hermes"
+    /// Default for a clean install = Open WebUI, the skin of the primary
+    /// (asset-catalog) "OI" icon — so a first launch changes no icon and shows
+    /// no alert. It was Hermes' electric blue while the icon was already the OI.
+    static let defaultID = "openwebui"
     static let odysseus = named(defaultID)
 
     // MARK: - Helpers
 
     /// Relative luminance of a hex color (perceptual), to decide light vs dark.
     static func isDarkHex(_ hex: String) -> Bool { luma(hex) < 0.5 }
+
+    /// WCAG 2.x contrast ratio between two hex colors (1...21).
+    static func contrast(_ a: String, _ b: String) -> Double { ratio(channels(a), channels(b)) }
+
+    /// Lowest fg alpha (0.55...0.9) whose blend keeps 4.6:1 (AA plus a little
+    /// margin for rounding) on every surface in `surfaces`. Capped at 0.9 so
+    /// secondary text never collapses into primary.
+    static func secondaryAlpha(fg: String, over surfaces: [String]) -> Double {
+        let f = channels(fg)
+        var a = 0.55
+        while a < 0.9 {
+            let ok = surfaces.allSatisfy { hex in
+                let s = channels(hex)
+                let mixed: RGB = (f.r * a + s.r * (1 - a), f.g * a + s.g * (1 - a), f.b * a + s.b * (1 - a))
+                return ratio(mixed, s) >= 4.6
+            }
+            if ok { return a }
+            a += 0.01
+        }
+        return 0.9
+    }
+
+    private typealias RGB = (r: Double, g: Double, b: Double)
+
+    private static func channels(_ hex: String) -> RGB {
+        let s = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        var v: UInt64 = 0
+        Scanner(string: s).scanHexInt64(&v)
+        return (Double((v >> 16) & 0xFF) / 255, Double((v >> 8) & 0xFF) / 255, Double(v & 0xFF) / 255)
+    }
+
+    private static func ratio(_ a: RGB, _ b: RGB) -> Double {
+        func linear(_ c: Double) -> Double { c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4) }
+        func lum(_ c: RGB) -> Double { 0.2126 * linear(c.r) + 0.7152 * linear(c.g) + 0.0722 * linear(c.b) }
+        let la = lum(a), lb = lum(b)
+        return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+    }
 
     /// sRGB luma of a hex color (0 = black, 1 = white).
     static func luma(_ hex: String) -> Double {
@@ -152,6 +215,20 @@ struct Theme: Equatable, Identifiable {
         let b = Double(v & 0xFF) / 255
         return 0.299 * r + 0.587 * g + 0.114 * b
     }
+}
+
+// MARK: - Corner radii
+
+/// The three corner radii the UI uses, so one kind of surface is rounded the same
+/// everywhere. Chips and pills are `Capsule()`; the colour-swatch miniature in the
+/// theme picker is scaled-down art and keeps its own size.
+enum Radius {
+    /// Thumbnails and image tiles.
+    static let thumb: CGFloat = 8
+    /// Fields, buttons, code blocks, banners, tool cards, secondary panels.
+    static let control: CGFloat = 12
+    /// Message bubbles and the composer.
+    static let card: CGFloat = 16
 }
 
 // MARK: - Appearance options (font / transparency / background)
