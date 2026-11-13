@@ -143,6 +143,15 @@ final class BargeInMonitor {
         do {
             try input.setVoiceProcessingEnabled(true)
             VoiceLog.log("barge.aec", "ativado")
+            // Voice processing turns the whole session into a call as far as the
+            // system is concerned, and ducks every other sound by default —
+            // including the assistant's own voice, which `AVAudioPlayer` plays
+            // outside this engine. Report from 1.12 (iPad, server voice): the
+            // volume dropped sharply and the volume HUD showed a call. Minimum
+            // ducking keeps the echo canceller and stops the drop. (iOS 17+.)
+            input.voiceProcessingOtherAudioDuckingConfiguration =
+                AVAudioVoiceProcessingOtherAudioDuckingConfiguration(
+                    enableAdvancedDucking: false, duckingLevel: .min)
         } catch {
             VoiceLog.log("barge.aec", "FALHOU: \(error.localizedDescription) — não armando")
             return .echoCancellation

@@ -2,6 +2,7 @@ import Foundation
 import Combine
 #if os(iOS)
 import UIKit
+import AVFoundation
 #endif
 import OpenWebUIKit
 
@@ -62,10 +63,10 @@ final class VoiceConversation: ObservableObject {
     private var silenceTimer: Timer?
     private var lastPartial = ""
     private var lastChange = Date()
-    // Energy-based endpointing (for engines with no live transcript).
-    private var heardSpeech = false
-    private var lastLoud = Date()
-    private let speechLevel: Float = 0.04
+    // Energy-based endpointing (for engines with no live transcript). The gates
+    // follow the room's own level — a fixed number (it was 0.04) is never
+    // crossed on a device whose mic reads a voice at 0.006–0.023.
+    private var endpointer = EnergyEndpointer()
     private var sttIsNative: Bool { STTEngine.current.hasLivePartials }
     private var streamTask: Task<Void, Never>?
     private var speakingTurnID = ""
@@ -222,7 +223,7 @@ final class VoiceConversation: ObservableObject {
     /// Tap the orb mid-turn: end listening early, or skip the spoken reply.
     func tapOrb() {
         switch phase {
-        case .listening: endTurn()
+        case .listening: endTurn(by: "tap")
         case .speaking:  bargeIn()
         case .thinking, .idle, .finishing: break
         }
@@ -241,7 +242,7 @@ final class VoiceConversation: ObservableObject {
         if scripted { stop(); return }
         #endif
         reply = ""; liveText = ""; lastPartial = ""
-        heardSpeech = false
+        endpointer = EnergyEndpointer(silence: endpointSilence)
         // Release a recorder left running by an interrupted turn — a no-op on the
         // normal path, since cancel() returns at once when nothing is recording.
         // Without it a single stuck engine made every later start() return false,
@@ -262,7 +263,7 @@ final class VoiceConversation: ObservableObject {
         // turns the microphone off, since by now it really is recording.
         guard active else { voice.cancel(); phase = .idle; return }
         phase = .listening           // the turn handoff is complete
-        lastChange = Date(); lastLoud = Date()
+        lastChange = Date()
         silenceTimer?.invalidate()
         silenceTimer = Timer.scheduledTimer(withTimeInterval: 0.3, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.checkSilence() }
@@ -277,7 +278,7 @@ final class VoiceConversation: ObservableObject {
 
     private func levelChanged(_ lvl: Float) {
         guard phase == .listening else { return }
-        if lvl > speechLevel { heardSpeech = true; lastLoud = Date() }
+        endpointer.feed(lvl, at: ProcessInfo.processInfo.systemUptime)
     }
 
     private func checkSilence() {
@@ -285,16 +286,26 @@ final class VoiceConversation: ObservableObject {
         if sttIsNative {
             // Native has a live transcript — end on a pause after real words.
             guard !lastPartial.isEmpty else { return }
-            if Date().timeIntervalSince(lastChange) > endpointSilence { endTurn() }
+            if Date().timeIntervalSince(lastChange) > endpointSilence { endTurn(by: "silence") }
         } else {
             // Server/Whisper: no live transcript → end on a pause after hearing speech.
-            guard heardSpeech else { return }
-            if Date().timeIntervalSince(lastLoud) > endpointSilence { endTurn() }
+            if endpointer.shouldEnd(at: ProcessInfo.processInfo.systemUptime) { endTurn(by: "silence") }
         }
     }
 
-    private func endTurn() {
+    /// `by` is "silence" when the endpointer closed the turn and "tap" when the
+    /// person did. The event carries what the endpointer saw, so a report from a
+    /// device where hands-free mode "keeps listening" says whether speech was
+    /// ever heard (`heard=0` with a `peak` is a gate set too high) — the earlier
+    /// reports could only say that a tap had been needed.
+    private func endTurn(by: String) {
         guard phase == .listening else { return }
+        DiagnosticsStore.shared.event("vad.turn", [
+            "by": by, "engine": STTEngine.current.rawValue,
+            "heard": endpointer.heardSpeech ? "1" : "0",
+            "floor": String(format: "%.4f", endpointer.floor ?? 0),
+            "peak": String(format: "%.4f", endpointer.peak),
+        ])
         silenceTimer?.invalidate(); silenceTimer = nil
         phase = .thinking          // freeze the silence watcher; stop() finalizes STT
         Task {
@@ -525,7 +536,7 @@ final class VoiceConversation: ObservableObject {
 
     private func armBargeIn() {
         let on = UserDefaults.standard.object(forKey: "voice.bargein.enabled") as? Bool ?? true
-        guard on else { return }
+        guard on else { recordSpeakingSession(barge: "off"); return }
         // Without working echo cancellation the monitor hears the assistant's own
         // voice through the speaker and cuts it off mid-sentence, every time. No
         // barge-in is far better than that, so a failed AEC simply doesn't arm.
@@ -533,10 +544,29 @@ final class VoiceConversation: ObservableObject {
         // nothing read, so barge-in could be dead with its setting still on and
         // no way to find out. A model that is merely still loading says nothing,
         // because the next sentence will arm normally.
-        if let why = bargeMonitor.start(onSpeech: { [weak self] in self?.bargeIn() }),
-           let message = why.message {
-            error = message
-        }
+        let why = bargeMonitor.start(onSpeech: { [weak self] in self?.bargeIn() })
+        if let message = why?.message { error = message }
+        recordSpeakingSession(barge: why.map { String(describing: $0) } ?? "armed")
+    }
+
+    /// What the audio session looked like as a reply began to be spoken. Report
+    /// from 1.12 (iPad Pro M4): the volume dropped sharply and the system showed
+    /// a call, only with the server's voices — and a screen recording brought
+    /// it back. Nothing in the bug report said which mode, route or volume the
+    /// session was in, nor whether echo cancellation had been switched on, so
+    /// the engines could not be told apart from a report.
+    private func recordSpeakingSession(barge: String) {
+        #if os(iOS)
+        let s = AVAudioSession.sharedInstance()
+        DiagnosticsStore.shared.event("voice.speak", [
+            "tts": UserDefaults.standard.string(forKey: "voice.tts.engine") ?? "native",
+            "stt": STTEngine.current.rawValue,
+            "mode": s.mode.rawValue,
+            "route": s.currentRoute.outputs.map(\.portType.rawValue).joined(separator: "+"),
+            "vol": String(format: "%.2f", s.outputVolume),
+            "barge": barge,
+        ])
+        #endif
     }
 
     /// User started talking over the reply → drop whatever it was doing and

@@ -34,6 +34,8 @@ struct ChatScreen: View {
     /// scroll that follows it lands, the transcript stopped following on its
     /// own, and the suggestions under the reply arrived off screen.
     @State private var userScrolledAway = false
+    /// When a hardware Return was last handled by the composer.
+    @State private var hardwareReturnAt = Date.distantPast
     private var followsEnd: Bool { pinnedToBottom || !userScrolledAway }
     /// Bumped on each send so `.sensoryFeedback` fires a light tap.
     @State private var sendFeedback = 0
@@ -297,6 +299,10 @@ struct ChatScreen: View {
                         pinnedToBottom = true
                         userScrolledAway = false
                         scrollToBottom(proxy)
+                    } else if Date().timeIntervalSince(hardwareReturnAt) < 1 {
+                        // The keyboard given up because of a hardware Return:
+                        // taken straight back (see `keepComposerFocused`).
+                        inputFocused = true
                     }
                 }
                 // "Jump to latest" pill, shown only while scrolled up.
@@ -463,6 +469,7 @@ struct ChatScreen: View {
                     .foregroundStyle(theme.fg)
                     .focused($inputFocused)
                     .lineLimit(1...6)
+                    .onKeyPress(.return, phases: .down) { press in returnKey(press) }
                     .padding(.horizontal, 14).padding(.vertical, 10)
                     .background(theme.panel, in: RoundedRectangle(cornerRadius: Radius.card))
                     .overlay(RoundedRectangle(cornerRadius: Radius.card).stroke(theme.border, lineWidth: 1))
@@ -515,6 +522,67 @@ struct ChatScreen: View {
 
     private func errorBanner(_ err: String) -> some View {
         ErrorBanner(message: err) { vm.error = nil; voice.error = nil }
+    }
+
+    /// Return on a hardware keyboard sends (report from 1.12, iPad); Shift+Return
+    /// is the newline. With a Chinese/Japanese/Korean keyboard enabled Return also
+    /// confirms the characters being composed, so there ⌘Return is the key that
+    /// sends — see `ReturnKey`. The on-screen keyboard never reaches this: its
+    /// Return inserts text and stays a newline.
+    private func returnKey(_ press: KeyPress) -> KeyPress.Result {
+        #if os(iOS)
+        let languages = UITextInputMode.activeInputModes.compactMap(\.primaryLanguage)
+        #else
+        let languages: [String] = []
+        #endif
+        var mods: ReturnKey.Modifiers = []
+        if press.modifiers.contains(.shift) { mods.insert(.shift) }
+        if press.modifiers.contains(.command) { mods.insert(.command) }
+        if press.modifiers.contains(.option) { mods.insert(.option) }
+        if press.modifiers.contains(.control) { mods.insert(.control) }
+        switch ReturnKey.action(modifiers: mods, enabledInputLanguages: languages) {
+        case .send:
+            // Nothing to send, or a reply still arriving: the key is swallowed
+            // all the same. Handed back, it made the field give up the keyboard.
+            if canSend, !vm.isStreaming, !voice.isRecording { submitComposer() }
+            keepComposerFocused()
+            return .handled
+        case .newline:
+            // Plain Return on a composing keyboard is the system's to handle.
+            guard !mods.isEmpty else { return .ignored }
+            // Shift+Return handed back to the system did not break the line:
+            // the field gave up the keyboard instead (measured in the
+            // simulator). The line break is typed where the cursor is.
+            #if os(iOS)
+            guard let input = UIResponder.firstResponder as? UIKeyInput else { return .ignored }
+            input.insertText("\n")
+            keepComposerFocused()
+            return .handled
+            #else
+            return .ignored
+            #endif
+        }
+    }
+
+    /// A hardware Return makes the multi-line field give up the keyboard, even
+    /// when the key was handled here (measured: the cursor is gone and the next
+    /// keys go nowhere). Someone typing on a keyboard would have to tap the
+    /// field before every message, so the field takes the keyboard back.
+    ///
+    /// When it lets go is not fixed — one delayed attempt worked in one run and
+    /// not in the next — so the loss itself is watched (`onChange` of the focus)
+    /// and the field is checked again a few times after the key.
+    private func keepComposerFocused() {
+        #if os(iOS)
+        hardwareReturnAt = Date()
+        let field = UIResponder.firstResponder
+        for delay in [0.05, 0.25, 0.6] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                if !inputFocused { inputFocused = true }
+                if let field, !field.isFirstResponder { field.becomeFirstResponder() }
+            }
+        }
+        #endif
     }
 
     private var inputPrompt: LocalizedStringKey {
@@ -723,3 +791,19 @@ private struct BottomEdgeKey: PreferenceKey {
     static var defaultValue: CGFloat = .infinity
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
 }
+
+#if os(iOS)
+extension UIResponder {
+    private weak static var found: UIResponder?
+
+    /// The view that has the keyboard, by the one public route there is: an
+    /// action sent to nobody in particular goes to the first responder.
+    static var firstResponder: UIResponder? {
+        found = nil
+        UIApplication.shared.sendAction(#selector(reportAsFirstResponder(_:)), to: nil, from: nil, for: nil)
+        return found
+    }
+
+    @objc private func reportAsFirstResponder(_ sender: Any?) { UIResponder.found = self }
+}
+#endif

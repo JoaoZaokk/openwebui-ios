@@ -129,6 +129,51 @@ final class StubScreensUITests: XCTestCase {
         }
     }
 
+    /// Report from 1.12 (iPad, hardware keyboard): Return should send. Shift+Return
+    /// stays the newline.
+    ///
+    /// The key is typed as "\n": on iOS `typeKey(.return)` and `typeKey(.enter)`
+    /// are synthesized but never reach the app (measured — letters arrive, those
+    /// two do not), while "\n" arrives as a hardware Return. `typeText("\n")` is
+    /// the on-screen keyboard's Return, which inserts a line and must not send.
+    func testReturnOnAHardwareKeyboardSendsAndShiftReturnIsANewLine() throws {
+        let app = try launch("ask:Oi")
+        let field = app.descendants(matching: .any)["composer.field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 30))
+        XCTAssertTrue(app.buttons["message.speak"].waitForExistence(timeout: 30), "no first reply")
+        let sentLabel = NSPredicate(format: "label CONTAINS %@", "Primeira linha")
+        field.tap()
+        field.typeText("Primeira linha")
+        app.typeKey("\n", modifierFlags: .shift)
+        // The first hardware key of a simulator session raises the system's
+        // "keyboard detected" notice for a moment; typing while XCTest tries
+        // to dismiss it fails the step, so it is waited out.
+        sleep(5)
+        XCTAssertFalse(app.staticTexts.matching(sentLabel).firstMatch.exists,
+                       "Shift+Return sent the message instead of breaking the line")
+        // Key by key: once a hardware key has arrived the on-screen keyboard
+        // goes away, and `typeText` then refuses for want of keyboard focus.
+        for ch in "segunda" { app.typeKey(String(ch), modifierFlags: []) }
+        let draft = ((field.value as? String) ?? "").lowercased()
+        XCTAssertTrue(draft.contains("primeira linha\nsegunda"), "Shift+Return did not break the line: \(draft.debugDescription)")
+        app.typeKey("\n", modifierFlags: [])
+        let sent = app.staticTexts.matching(sentLabel).firstMatch
+        XCTAssertTrue(sent.waitForExistence(timeout: 15), "Return did not send the message")
+        XCTAssertTrue(sent.label.lowercased().contains("segunda"), "the message lost its second line: \(sent.label)")
+        XCTAssertFalse(((field.value as? String) ?? "").contains("Primeira linha"), "the draft stayed in the composer")
+        // The field keeps the keyboard: the next message is typed and sent
+        // without touching the screen.
+        // A Return while the reply is still arriving is swallowed, and must
+        // not cost the keyboard either.
+        app.typeKey("\n", modifierFlags: [])
+        sleep(3)
+        XCTAssertTrue(app.buttons["composer.send"].waitForExistence(timeout: 30), "the reply never finished")
+        for ch in "terceira" { app.typeKey(String(ch), modifierFlags: []) }
+        app.typeKey("\n", modifierFlags: [])
+        let next = app.staticTexts.matching(NSPredicate(format: "label ==[c] %@", "terceira")).firstMatch
+        XCTAssertTrue(next.waitForExistence(timeout: 15), "after a Return the field had lost the keyboard")
+    }
+
     /// Options a model writes as a question to answer (🔘 lines) are offered
     /// as buttons, and a tap sends the option. Needs the stub started with
     /// `STUB_EXTRA_CHATS` holding the `r-botoes` chat.
