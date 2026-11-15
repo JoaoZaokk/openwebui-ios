@@ -8,6 +8,11 @@ public enum OWError: LocalizedError {
     case decoding(String)
     case transport(String)
     case notConfigured
+    /// The account needs a second factor (`signIn` and friends throw this;
+    /// `signInResult` returns it as a value instead).
+    case mfaRequired(OWMFAChallenge)
+    /// The account exists but an administrator has not approved it yet.
+    case pendingApproval
 
     public var errorDescription: String? {
         switch self {
@@ -16,6 +21,8 @@ public enum OWError: LocalizedError {
         case .decoding(let m):         return L("Resposta inesperada do servidor: %@", m)
         case .transport(let m):        return m
         case .notConfigured:           return L("Servidor não configurado.")
+        case .mfaRequired:             return L("Esta conta exige verificação em duas etapas.")
+        case .pendingApproval:         return L("Sua conta está aguardando aprovação do administrador.")
         }
     }
 }

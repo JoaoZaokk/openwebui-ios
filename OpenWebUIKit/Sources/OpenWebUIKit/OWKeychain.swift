@@ -17,6 +17,9 @@ public final class OWKeychainStore: OWTokenStore, @unchecked Sendable {
 
     public init(service: String = "com.example.openwebui") { self.service = service }
 
+    /// For the extensions in other files, which cannot see `service`.
+    var serviceName: String { service }
+
     // MARK: Token
     public func loadToken() -> String? { Self.get("session.token", service: service) }
     public func save(token: String?) { Self.set(token, key: "session.token", service: service) }
@@ -38,6 +41,7 @@ public final class OWKeychainStore: OWTokenStore, @unchecked Sendable {
 
     public func clear() {
         save(token: nil)
+        save(credentials: nil)
         saveCredentials(email: nil, password: nil)
         save(cacheOwner: nil)
     }
