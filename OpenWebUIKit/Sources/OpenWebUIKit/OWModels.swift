@@ -23,13 +23,43 @@ public struct OWSession: Decodable, Sendable {
     public var name: String?
     public var role: String?
     public var profileImageURL: String?
+    /// The group-merged permissions of this user (`get_permissions`, auths.py);
+    /// the sign-in answer carries them as `GET /api/v1/auths/` does.
+    public var permissions: OWUserPermissions?
 
     enum CodingKeys: String, CodingKey {
         case token
         case tokenType = "token_type"
-        case id, email, name, role
+        case id, email, name, role, permissions
         case profileImageURL = "profile_image_url"
     }
+
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        token = try c.decode(String.self, forKey: .token)
+        tokenType = try? c.decodeIfPresent(String.self, forKey: .tokenType)
+        id = try? c.decodeIfPresent(String.self, forKey: .id)
+        email = try? c.decodeIfPresent(String.self, forKey: .email)
+        name = try? c.decodeIfPresent(String.self, forKey: .name)
+        role = try? c.decodeIfPresent(String.self, forKey: .role)
+        profileImageURL = try? c.decodeIfPresent(String.self, forKey: .profileImageURL)
+        permissions = try? c.decodeIfPresent(OWUserPermissions.self, forKey: .permissions)
+    }
+}
+
+/// The slice of a user's permissions the app acts on. `GET /api/v1/auths/` and
+/// the sign-in answer both return the full, group-merged tree
+/// (`get_permissions`); `/api/config` only has the configured defaults, which is
+/// why this is read from the user and not from there.
+public struct OWUserPermissions: Decodable, Sendable, Equatable {
+    public var features: Features?
+    public struct Features: Decodable, Sendable, Equatable {
+        /// `features.notes` — `check_notes_access` answers 401 without it.
+        public var notes: Bool?
+        /// `features.memories` — gate of `add_memory_context` and of /api/v1/memories.
+        public var memories: Bool?
+    }
+    public init(features: Features? = nil) { self.features = features }
 }
 
 /// GET /api/v1/auths/ — the current user (used to validate a persisted token
@@ -40,16 +70,21 @@ public struct OWUser: Decodable, Sendable, Identifiable {
     public var name: String?
     public var role: String?
     public var profileImageURL: String?
+    /// Nil when the server's answer had none (a sign-in from an older server, or
+    /// the offline launch): what the user may do is then not known.
+    public var permissions: OWUserPermissions?
 
     enum CodingKeys: String, CodingKey {
-        case id, email, name, role
+        case id, email, name, role, permissions
         case profileImageURL = "profile_image_url"
     }
 
     public init(id: String, email: String? = nil, name: String? = nil,
-                role: String? = nil, profileImageURL: String? = nil) {
+                role: String? = nil, profileImageURL: String? = nil,
+                permissions: OWUserPermissions? = nil) {
         self.id = id; self.email = email; self.name = name
         self.role = role; self.profileImageURL = profileImageURL
+        self.permissions = permissions
     }
 
     public init(from decoder: Decoder) throws {
@@ -59,15 +94,23 @@ public struct OWUser: Decodable, Sendable, Identifiable {
         name = try? c.decodeIfPresent(String.self, forKey: .name)
         role = try? c.decodeIfPresent(String.self, forKey: .role)
         profileImageURL = try? c.decodeIfPresent(String.self, forKey: .profileImageURL)
+        permissions = try? c.decodeIfPresent(OWUserPermissions.self, forKey: .permissions)
     }
 
     /// Build a user from a signin response.
     public init(session s: OWSession) {
         self.init(id: s.id ?? s.email ?? "me", email: s.email, name: s.name,
-                  role: s.role, profileImageURL: s.profileImageURL)
+                  role: s.role, profileImageURL: s.profileImageURL, permissions: s.permissions)
     }
 
     public var isAdmin: Bool { role == "admin" }
+
+    /// What the server checks before it answers `/api/v1/notes/*` (an admin
+    /// passes, anyone else needs `features.notes`). Unknown counts as not
+    /// allowed: a refused call is a 401, and a 401 ends the session.
+    public var mayUseNotes: Bool { isAdmin || permissions?.features?.notes == true }
+    /// The same check `add_memory_context` makes before it appends the memories.
+    public var mayUseMemories: Bool { isAdmin || permissions?.features?.memories == true }
 }
 
 // MARK: - Models (LLMs)
@@ -241,6 +284,8 @@ public struct OWToolUse: Identifiable, Hashable, Sendable {
         // Named after the files themselves whenever the server said which; the
         // generic fallback is the same word the attachment list already uses.
         case "files":      return L("arquivo")
+        case "search_notes": return L("Busca nas notas")
+        case "view_note":    return L("Nota lida")
         default:           return action
         }
     }
@@ -249,6 +294,8 @@ public struct OWToolUse: Identifiable, Hashable, Sendable {
         case "web_search": return "magnifyingglass"
         case "weather":    return "cloud.sun"
         case "files":      return "doc.text.magnifyingglass"
+        case "search_notes": return "note.text"
+        case "view_note":    return "doc.text"
         default:           return "wrench.and.screwdriver"
         }
     }
@@ -729,6 +776,10 @@ public struct OWServerConfig: Decodable, Sendable {
         /// 0.13: the server has `/api/v1/auths/sessions`, so a native client can
         /// sign in through the system browser (main.py:2478, public).
         public var authSessions: Bool?
+        /// `notes.enable` — also only in the signed-in answer (main.py:2521).
+        public var enableNotes: Bool?
+        /// `memories.enable` — likewise (main.py:2548).
+        public var enableMemories: Bool?
         enum CodingKeys: String, CodingKey {
             case authSessions = "auth_sessions"
             case auth
@@ -738,6 +789,8 @@ public struct OWServerConfig: Decodable, Sendable {
             case authTrustedHeader = "auth_trusted_header"
             case enablePlugins = "enable_plugins"
             case enableWebSearch = "enable_web_search"
+            case enableNotes = "enable_notes"
+            case enableMemories = "enable_memories"
         }
     }
 
@@ -755,6 +808,11 @@ public struct OWServerConfig: Decodable, Sendable {
     /// public config, an older server) counts as available: a search that
     /// then fails is reported, and the reply still comes.
     public var webSearchAvailable: Bool { features?.enableWebSearch ?? true }
+    /// Unlike web search, unknown counts as OFF: the key is only in the answer to
+    /// a signed-in request, and what it unlocks — a `tools` key on every request,
+    /// calls to /api/v1/notes — is not something to do on a guess.
+    public var notesAvailable: Bool { features?.enableNotes ?? false }
+    public var memoriesAvailable: Bool { features?.enableMemories ?? false }
 }
 
 /// Which model a new conversation opens with.

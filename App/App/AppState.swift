@@ -114,7 +114,35 @@ final class AppState: ObservableObject {
         // that server's login methods on this one's login screen.
         let asked = serverConfig.baseURL
         let cfg = try? await client.serverConfig()
-        if serverConfig.baseURL == asked { serverFeatures = cfg }
+        // A failed read keeps what was known. It used to blank it, and since 1.13
+        // what is known includes what only a signed-in answer says (notes and
+        // memory on or off): a hiccup on a refresh must not switch them off.
+        if serverConfig.baseURL == asked, let cfg { serverFeatures = cfg }
+    }
+
+    /// 1.13 — what the model may see of the user's own data on the server.
+    /// The rules are `OWPersonalContext`'s; this supplies what only the app
+    /// knows: the signed-in config, the user, and the two switches in Ajustes.
+    func sendsMemory() -> Bool {
+        OWPersonalContext.sendsMemory(config: serverFeatures, user: user,
+                                      setting: OWPersonalContext.setting(OWPersonalContext.memorySettingKey))
+    }
+
+    func offersNotes(toolIDs: [String] = [], serverWebSearch: Bool = false) -> Bool {
+        OWPersonalContext.offersNotes(config: serverFeatures, user: user,
+                                      setting: OWPersonalContext.setting(OWPersonalContext.notesSettingKey),
+                                      toolIDs: toolIDs, serverWebSearch: serverWebSearch)
+    }
+
+    /// The two switches in Ajustes only make sense when the server has the
+    /// feature and this user may use it.
+    var memoryAvailable: Bool { (serverFeatures?.memoriesAvailable ?? false) && (user?.mayUseMemories ?? false) }
+    var notesAvailable: Bool { (serverFeatures?.notesAvailable ?? false) && (user?.mayUseNotes ?? false) }
+
+    /// `/api/config` read before sign-in lacks `enable_notes` / `enable_memories`
+    /// (signed-in answer only); read it again now that there is a token.
+    private func refreshFeaturesAfterSignIn() {
+        Task { await loadServerFeatures() }
     }
 
     /// Pre-fill the login field with the last email used.
@@ -266,6 +294,7 @@ final class AppState: ObservableObject {
         mfaPrompt = nil
         await loadModels()
         phase = .main
+        refreshFeaturesAfterSignIn()
         await flushPendingChats()
     }
 
@@ -478,6 +507,10 @@ final class AppState: ObservableObject {
         let vm = ChatViewModel(client: client, completions: completions, chat: chat,
                                models: chatModels, defaultModel: defaultModel, temporary: temporary, cache: cache)
         vm.serverSearches = { [weak self] in self?.serverFeatures?.webSearchAvailable ?? true }
+        vm.sendsMemory = { [weak self] in self?.sendsMemory() ?? false }
+        vm.offersNotes = { [weak self] ids, serverSearch in
+            self?.offersNotes(toolIDs: ids, serverWebSearch: serverSearch) ?? false
+        }
         return vm
     }
 }

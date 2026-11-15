@@ -53,10 +53,22 @@ public struct OWStreamOptions: Sendable {
     /// ask for a search. Running it is `streamReply`'s job — the server runs
     /// nothing for a request that is not from a browser tab.
     public var offerWebSearch: Bool
+    /// Ask the server to put the user's Personalization > Memory in front of the
+    /// model: `features.memory: true`, which `add_memory_context` (utils/memory.py)
+    /// answers by appending a `<memory_context>` block to the last user turn.
+    /// The web UI sends it for every chat; without it the model "has no
+    /// information" about the user (1.12 report, iPad). Whether the server will
+    /// act on it (feature on, permission) is decided by the server — the caller
+    /// only sets it when both are known to hold (`OWPersonalContext`).
+    public var memory: Bool
+    /// Declare `OWNotesTools` (`search_notes`, `view_note`) in the request's own
+    /// `tools`. Like `search_web`, the server would only run its builtin versions
+    /// for a request with a `session_id`; `streamReply` runs these.
+    public var offerNotes: Bool
     public init(temperature: Double? = nil, webSearch: Bool = false, toolIDs: [String] = [],
-                offerWebSearch: Bool = false) {
+                offerWebSearch: Bool = false, memory: Bool = false, offerNotes: Bool = false) {
         self.temperature = temperature; self.webSearch = webSearch; self.toolIDs = toolIDs
-        self.offerWebSearch = offerWebSearch
+        self.offerWebSearch = offerWebSearch; self.memory = memory; self.offerNotes = offerNotes
     }
 }
 
@@ -74,6 +86,13 @@ public enum OWStreamUpdate: Sendable {
     case searching([String])
     /// That search failed; the reply continues without it. The text says why.
     case searchFailed(String)
+    /// `streamReply` is running an app-side tool the model asked for
+    /// (`search_notes`, `view_note`); the name is the tool's. The chat turns it
+    /// into a status line while the bubble is still empty.
+    case toolRunning(String)
+    /// That tool finished: the card for the reply (which notes were read). A
+    /// lookup that failed still produces one, saying so.
+    case toolUsed(OWToolUse)
     case error(String)
     case done
 }
@@ -321,19 +340,33 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         // a socket.io session we don't have, so the call would silently do
         // nothing. Harmless on older servers.
         let needsLegacy = options.webSearch || !options.toolIDs.isEmpty
+        // `memory` shares the object with `web_search`: the server reads each key
+        // on its own (`features.get('web_search')`, `features['memory']`). It adds
+        // nothing to `needsLegacy` — the memory branch of the middleware does not
+        // look at `function_calling`.
+        let features = (options.webSearch || options.memory)
+            ? Body.Features(web_search: options.webSearch ? true : nil,
+                            memory: options.memory ? true : nil)
+            : nil
         var body = try JSONEncoder().encode(
             Body(model: model, messages: messages, stream: true,
                  temperature: options.temperature, files: files.isEmpty ? nil : files,
                  tool_ids: options.toolIDs.isEmpty ? nil : options.toolIDs,
-                 features: options.webSearch ? Body.Features(web_search: true) : nil,
+                 features: features,
                  params: needsLegacy ? Body.Params(function_calling: "legacy") : nil)
         )
         // A `tools` key makes the server skip its own tool resolution and pass
         // these through to the provider unchanged — which is the point: it is
-        // the one tool list a request from outside a browser tab can carry.
-        if options.offerWebSearch,
+        // the one tool list a request from outside a browser tab can carry. The
+        // same skip is why nothing here is declared next to `tool_ids` or the
+        // server's own web search: they would stop working (the callers hold the
+        // app's tools back, see `OWPersonalContext.offersNotes`).
+        var tools: [[String: Any]] = []
+        if options.offerWebSearch { tools.append(OWWebSearchTool.spec) }
+        if options.offerNotes { tools += OWNotesTools.specs }
+        if !tools.isEmpty,
            var obj = try JSONSerialization.jsonObject(with: body) as? [String: Any] {
-            obj["tools"] = [OWWebSearchTool.spec]
+            obj["tools"] = tools
             body = try JSONSerialization.data(withJSONObject: obj)
         }
         req.httpBody = body
@@ -349,7 +382,8 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         var tool_ids: [String]?
         var features: Features?
         var params: Params?
-        struct Features: Encodable { var web_search: Bool }
+        /// Optionals, so a key that is not set is not written at all.
+        struct Features: Encodable { var web_search: Bool?; var memory: Bool? }
         struct Params: Encodable { var function_calling: String }
     }
 
