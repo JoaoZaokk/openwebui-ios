@@ -33,6 +33,10 @@ struct VoiceView: View {
                                                              defaultModel: app.defaultModel,
                                                              serverSearches: { [weak app] in
             app?.serverFeatures?.webSearchAvailable ?? true
+        }, sendsMemory: { [weak app] in
+            app?.sendsMemory() ?? false
+        }, offersNotes: { [weak app] in
+            app?.offersNotes() ?? false
         }))
     }
 

@@ -12,6 +12,8 @@ struct SettingsView: View {
     @State private var showServer = false
     @State private var showBugReport = false
     @AppStorage(ChatViewModel.followUpsKey) private var followUps = true
+    @AppStorage(OWPersonalContext.memorySettingKey) private var useMemory = true
+    @AppStorage(OWPersonalContext.notesSettingKey) private var useNotes = true
 
     var body: some View {
         NavigationStack {
@@ -72,6 +74,33 @@ struct SettingsView: View {
                         .tint(theme.accent)
                         .accessibilityIdentifier("settings.followUps")
                         .listRowBackground(theme.panel)
+                        // 1.13 — shown only when the server has the feature and this
+                        // account may use it; otherwise the switch would promise
+                        // something the app cannot do.
+                        if app.memoryAvailable {
+                            Toggle(isOn: $useMemory) {
+                                Label { Text("Usar memória").font(.ody(.body)).foregroundStyle(theme.fg) }
+                                icon: { Image(systemName: "brain.head.profile").foregroundStyle(theme.accent) }
+                            }
+                            .tint(theme.accent)
+                            .accessibilityIdentifier("settings.memory")
+                            .listRowBackground(theme.panel)
+                        }
+                        if app.notesAvailable {
+                            Toggle(isOn: $useNotes) {
+                                Label { Text("Consultar notas").font(.ody(.body)).foregroundStyle(theme.fg) }
+                                icon: { Image(systemName: "note.text").foregroundStyle(theme.accent) }
+                            }
+                            .tint(theme.accent)
+                            .accessibilityIdentifier("settings.notes")
+                            .listRowBackground(theme.panel)
+                        }
+                    } footer: {
+                        if app.memoryAvailable || app.notesAvailable {
+                            Text("O modelo pode usar o que você guardou no servidor (memória e notas) para responder, como na versão web. Desligue para conversar sem isso.")
+                                .font(.ody(size: 10)).foregroundStyle(theme.secondaryText)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
 
                     section("VOZ") {
@@ -141,6 +170,18 @@ struct SettingsView: View {
             content()
         } header: {
             Text(LocalizedStringKey(title)).font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
+        }
+    }
+
+    /// `section` with a footer (the explanation under a switch).
+    @ViewBuilder private func section<C: View, F: View>(_ title: String, @ViewBuilder _ content: () -> C,
+                                                       @ViewBuilder footer: () -> F) -> some View {
+        Section {
+            content()
+        } header: {
+            Text(LocalizedStringKey(title)).font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
+        } footer: {
+            footer()
         }
     }
 

@@ -26,6 +26,9 @@ final class ChatViewModel: ObservableObject {
     /// the server searches before the first token and emits no progress events
     /// over plain SSE, so we show a local "Pesquisando na web…" status.
     @Published var awaitingWebSearch = false
+    /// What an app-run tool is doing right now ("Consultando suas notas…"), shown
+    /// where the bubble would otherwise show the typing dots; nil when nothing is.
+    @Published var toolStatus: String?
 
     /// Workspace tools (`/api/v1/tools/`) the server may call for the next
     /// reply. Empty = none, which is what every version before this shipped.
@@ -136,6 +139,15 @@ final class ChatViewModel: ObservableObject {
     /// search call anyway (Gemma does, with no tool and no answer) gets the
     /// search instead of having the call shown as its reply.
     var serverSearches: () -> Bool = { true }
+
+    /// 1.13 — whether this reply asks the server for the user's Memory
+    /// (`features.memory`), and whether the model may read their Notes
+    /// (`search_notes` / `view_note`, run by the app). Both are decided per turn
+    /// by `AppState` (server feature × user permission × the switch in Ajustes);
+    /// the notes tools also give way to workspace tools and the server's own web
+    /// search, which a request with a `tools` key would switch off.
+    var sendsMemory: () -> Bool = { false }
+    var offersNotes: (_ toolIDs: [String], _ serverWebSearch: Bool) -> Bool = { _, _ in false }
 
     /// Ajustes › Conversa › "Sugestões de continuação". On by default, as
     /// `autoFollowUps` is on the web.
@@ -466,19 +478,28 @@ final class ChatViewModel: ObservableObject {
         }
         do {
             let options = OWStreamOptions(webSearch: legacyFallback,
-                                          toolIDs: Array(selectedToolIDs))
+                                          toolIDs: Array(selectedToolIDs),
+                                          memory: sendsMemory())
+            let notes = offersNotes(options.toolIDs, options.webSearch)
             // Already searched for this turn (or the server's search just
             // failed): a call the model writes anyway is only cut.
             let search = OWReplySearch(offer: false, mayRun: !webSearch && serverSearches())
             var finished = false
             for try await update in completions.streamReply(model: model, messages: convo, files: streamFiles,
-                                                            options: options, search: search) {
+                                                            options: options, search: search, notes: notes) {
                 awaitingWebSearch = false
+                toolStatus = nil
                 switch update {
                 case .searching:
                     awaitingWebSearch = true
                 case .searchFailed(let why):
                     self.error = why
+                case .toolRunning:
+                    toolStatus = L("Consultando suas notas…")
+                case .toolUsed(let use):
+                    // The card of which notes were read — kept on the reply, so it
+                    // shows under it and is saved with it.
+                    if let i = index(of: assistantID) { messages[i].toolUses.append(use) }
                 case .toolCall:
                     break
                 case .textDelta(let d):
@@ -540,6 +561,7 @@ final class ChatViewModel: ObservableObject {
         messages[i].content = ""
         messages[i].reasoning = ""
         messages[i].sources = []
+        messages[i].toolUses = []
         startAssistantTurn(model: r.model, assistantID: r.assistantID, files: r.files, query: r.query)
     }
 
@@ -550,6 +572,7 @@ final class ChatViewModel: ObservableObject {
         // saved — the reply is asked again (now, or when the app is back).
         if resumeTurn?.assistantID == assistantID {
             awaitingWebSearch = false
+            toolStatus = nil
             isStreaming = false
             endBackgroundHold()
             if appActive { Task { @MainActor [weak self] in self?.resumeCutOffReply() } }
@@ -577,6 +600,7 @@ final class ChatViewModel: ObservableObject {
         // earlier answer.
         syncBranchIntoTree()
         awaitingWebSearch = false
+        toolStatus = nil
         isStreaming = false
         notifyReplyIfBackgrounded(assistantID)
         endBackgroundHold()
@@ -892,6 +916,7 @@ final class ChatViewModel: ObservableObject {
         streamTask?.cancel()
         isStreaming = false
         awaitingWebSearch = false
+        toolStatus = nil
     }
 
     // MARK: - Mutation helpers

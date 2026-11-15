@@ -57,6 +57,8 @@ final class StreamReaderTests: XCTestCase {
             case .toolCall(let c):       return "tool(\(c.name),\(c.arguments))"
             case .searching(let q):      return "searching(\(q.joined(separator: ",")))"
             case .searchFailed(let e):   return "searchFailed(\(e))"
+            case .toolRunning(let n):    return "toolRunning(\(n))"
+            case .toolUsed(let u):       return "toolUsed(\(u.action))"
             case .error(let e):          return "error(\(e))"
             case .done:                  return "done"
             }

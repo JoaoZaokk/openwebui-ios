@@ -447,14 +447,33 @@ public final class OpenWebUIClient: @unchecked Sendable {
         clearCookies()
     }
 
-    /// GET /api/config — public, no `Authorization`. Reports what this server
-    /// actually offers (login form, LDAP, OAuth providers, signup), which is how
-    /// the login screen decides what to draw instead of assuming email+password.
+    /// GET /api/config. Reports what this server actually offers (login form,
+    /// LDAP, OAuth providers, signup), which is how the login screen decides what
+    /// to draw instead of assuming email+password.
+    ///
+    /// Public, but it answers more to a signed-in request: `enable_notes`,
+    /// `enable_memories` and `enable_web_search` are only in the `features` the
+    /// server builds `if user is not None` (main.py:2521). So the token goes
+    /// along when there is one. A server that refuses it (401 "Invalid token")
+    /// gets the same request without — the public answer is still the answer the
+    /// login screen needs — and the session is left to `me()`, which is the call
+    /// that decides whether the token is dead.
     public func serverConfig() async throws -> OWServerConfig {
         var req = URLRequest(url: config.url("/api/config"))
         req.setValue("application/json", forHTTPHeaderField: "Accept")
         let asked = configGeneration
-        let cfg = try decode(OWServerConfig.self, try await send(req))
+        var body: Data?
+        if let token {
+            var signedIn = req
+            signedIn.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            if let (data, resp) = try? await session.data(for: signedIn),
+               let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) {
+                body = data
+            }
+        }
+        let data: Data
+        if let body { data = body } else { data = try await send(req) }
+        let cfg = try decode(OWServerConfig.self, data)
         if asked == configGeneration {
             serverVersion = cfg.version
             serverInfoFetched = true

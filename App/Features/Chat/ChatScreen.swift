@@ -203,8 +203,8 @@ struct ChatScreen: View {
                             MessageBubble(
                                 message: msg,
                                 isStreaming: vm.isStreaming && idx == vm.messages.count - 1 && msg.role == .assistant,
-                                statusText: (vm.awaitingWebSearch && idx == vm.messages.count - 1 && msg.role == .assistant)
-                                    ? L("Pesquisando na web…") : nil,
+                                statusText: (idx == vm.messages.count - 1 && msg.role == .assistant)
+                                    ? (vm.awaitingWebSearch ? L("Pesquisando na web…") : vm.toolStatus) : nil,
                                 client: app.client,
                                 branch: vm.branchInfo(for: msg.id),
                                 models: msg.role == .assistant ? vm.models : [],

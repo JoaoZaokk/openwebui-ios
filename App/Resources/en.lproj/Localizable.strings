@@ -367,3 +367,11 @@
 "Pensou por %@ s" = "Thought for %@ s";
 "Visualizar" = "Preview";
 "Responder" = "Reply";
+
+/* 1.13: memory-notes */
+"Consultando suas notas…" = "Checking your notes…";
+"Busca nas notas" = "Notes search";
+"Nota lida" = "Note read";
+"Usar memória" = "Use memory";
+"Consultar notas" = "Use notes";
+"O modelo pode usar o que você guardou no servidor (memória e notas) para responder, como na versão web. Desligue para conversar sem isso." = "The model can use what you keep on the server (memory and notes) to answer, as on the web. Turn it off to chat without it.";

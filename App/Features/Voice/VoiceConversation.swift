@@ -51,6 +51,11 @@ final class VoiceConversation: ObservableObject {
     /// Whether the server has web search on — asked per turn, since the signed-in
     /// config can arrive after the screen opened.
     private let serverSearches: () -> Bool
+    /// 1.13 — the same two answers the chat asks `AppState` for: send the user's
+    /// Memory with each turn, and let the model read their Notes. Per turn, for
+    /// the same reason as `serverSearches`.
+    private let sendsMemory: () -> Bool
+    private let offersNotes: () -> Bool
     private let voice = VoiceInputManager()
     private let tts = SpeechManager.shared
     private let bargeMonitor = BargeInMonitor()
@@ -91,10 +96,14 @@ final class VoiceConversation: ObservableObject {
 
     init(client: OpenWebUIClient, completions: ChatCompletionsClient,
          models: [OWModel], defaultModel: String? = nil,
-         serverSearches: @escaping () -> Bool = { true }) {
+         serverSearches: @escaping () -> Bool = { true },
+         sendsMemory: @escaping () -> Bool = { false },
+         offersNotes: @escaping () -> Bool = { false }) {
         self.client = client
         self.completions = completions
         self.serverSearches = serverSearches
+        self.sendsMemory = sendsMemory
+        self.offersNotes = offersNotes
         self.models = models
         // Same remembered pick the chat screen opens with — voice was its own
         // `models.first`, so it reset on every session too.
@@ -330,6 +339,8 @@ final class VoiceConversation: ObservableObject {
         var msgs = [OWChatMessageInput(role: "system", text: Self.systemPrompt)]
         for t in turns { msgs.append(OWChatMessageInput(role: t.role, text: t.text)) }
         let allowed = (UserDefaults.standard.object(forKey: Self.webSearchKey) as? Bool ?? true) && serverSearches()
+        let memory = sendsMemory()
+        let notes = offersNotes()
         let replyTurn = Turn(role: "assistant", text: "")
         turns.append(replyTurn)
         speakingTurnID = replyTurn.id
@@ -343,8 +354,14 @@ final class VoiceConversation: ObservableObject {
             var firstDelta = true
             defer { self.searching = false }
             do {
+                // Memory and notes work in a call as in the chat: the model that
+                // knows the user's age and what they wrote down answers the
+                // question instead of saying it has no information. The status
+                // is not spoken — the reply simply takes a moment longer.
                 for try await u in self.completions.streamReply(model: model, messages: msgs,
-                                                                search: OWReplySearch(offer: allowed, mayRun: allowed)) {
+                                                                options: OWStreamOptions(memory: memory),
+                                                                search: OWReplySearch(offer: allowed, mayRun: allowed),
+                                                                notes: notes) {
                     if Task.isCancelled { return }
                     switch u {
                     case .searching(let q):

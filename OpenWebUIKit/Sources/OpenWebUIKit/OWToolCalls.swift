@@ -31,6 +31,23 @@ public struct OWToolCall: Sendable, Equatable {
         return Self.clean(OWToolCallText.quotedStrings(in: arguments))
     }
 
+    /// One named argument as a string, from whatever syntax the model used.
+    public func string(_ key: String) -> String? {
+        guard let v = OWToolCallText.object(fromArguments: arguments)?[key] else { return nil }
+        if let s = v as? String { return s }
+        if let n = v as? NSNumber { return n.stringValue }
+        return nil
+    }
+
+    /// One named argument as an integer. Models quote numbers often enough
+    /// (`"count": "7"`) that a string of digits counts.
+    public func int(_ key: String) -> Int? {
+        guard let v = OWToolCallText.object(fromArguments: arguments)?[key] else { return nil }
+        if let n = v as? NSNumber, CFGetTypeID(n) != CFBooleanGetTypeID() { return n.intValue }
+        if let s = v as? String { return Int(s.trimmingCharacters(in: .whitespaces)) }
+        return nil
+    }
+
     private static func clean(_ list: [String]) -> [String] {
         var seen = Set<String>()
         return list.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }

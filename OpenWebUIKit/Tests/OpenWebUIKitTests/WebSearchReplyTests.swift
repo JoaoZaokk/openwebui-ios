@@ -41,6 +41,7 @@ final class WebSearchReplyTests: XCTestCase {
             case .done: seen.done = true
             case .toolCall: XCTFail("a tool call must never reach the caller")
             case .reasoningDelta: break
+            case .toolRunning, .toolUsed: XCTFail("no notes tool was offered")
             }
         }
         return seen

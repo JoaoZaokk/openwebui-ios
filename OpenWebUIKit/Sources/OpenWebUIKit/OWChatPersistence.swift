@@ -98,6 +98,20 @@ extension OWChatPayload {
                      "metadata": [["source": s.url ?? s.name]]]
                 }
             }
+            // The cards of app-run tools (which notes were read) ride in
+            // `statusHistory`, the field the web UI keeps its own tool status in
+            // and the decoder reads them back from — a reload would otherwise
+            // show an answer that came from notes with no sign of it. Web-search
+            // cards are not written: they are rebuilt from `sources` above.
+            let cards = m.toolUses.filter { $0.action != "web_search" }
+            if !cards.isEmpty,
+               let data = try? JSONEncoder().encode(cards.map {
+                   OWStatusEntry(action: $0.action, query: $0.query, results: $0.results,
+                                 sources: $0.sources, description: $0.title, done: true)
+               }),
+               let array = try? JSONSerialization.jsonObject(with: data) {
+                dict["statusHistory"] = array
+            }
         }
         return dict
     }
