@@ -74,6 +74,10 @@ struct SettingsView: View {
                         .listRowBackground(theme.panel)
                     }
 
+                    #if os(iOS)
+                    AppLockSettingsSection()
+                    #endif
+
                     section("VOZ") {
                         NavigationLink {
                             VoiceSettingsView()

@@ -361,3 +361,17 @@
 "Pensou por %@ s" = "Pensou por %@ s";
 "Visualizar" = "Visualizar";
 "Responder" = "Responder";
+
+/* 1.13: app-lock */
+"PRIVACIDADE" = "PRIVACIDADE";
+"Bloquear com Face ID" = "Bloquear com Face ID";
+"Bloquear com Touch ID" = "Bloquear com Touch ID";
+"Bloquear com Optic ID" = "Bloquear com Optic ID";
+"Bloquear com o código do aparelho" = "Bloquear com o código do aparelho";
+"Pede para desbloquear ao abrir o app e ao voltar para ele, e esconde as conversas no seletor de apps." = "Pede para desbloquear ao abrir o app e ao voltar para ele, e esconde as conversas no seletor de apps.";
+"Para usar o bloqueio, defina um código de acesso nos Ajustes do aparelho." = "Para usar o bloqueio, defina um código de acesso nos Ajustes do aparelho.";
+"Não foi possível confirmar sua identidade. O bloqueio continua desativado." = "Não foi possível confirmar sua identidade. O bloqueio continua desativado.";
+"Bloqueado" = "Bloqueado";
+"Desbloqueie para ver suas conversas e notas." = "Desbloqueie para ver suas conversas e notas.";
+"Desbloquear" = "Desbloquear";
+"Confirme para ativar o bloqueio do app." = "Confirme para ativar o bloqueio do app.";
