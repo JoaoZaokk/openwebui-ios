@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "པར་བླངས་ནས་གྲོས་མོལ་ལ་ཟུར་སྦྱར་བྱེད་པར་སྤྱོད།";
 "NSPhotoLibraryAddUsageDescription" = "གྲོས་མོལ་གྱི་པར་རིས་ཁྱེད་ཀྱི་པར་མཛོད་དུ་ཉར་བར་སྤྱོད།";
 "NSLocalNetworkUsageDescription" = "ཉེར་སྤྱོད་འདིས་ས་གནས་དྲ་རྒྱའི་སྟེང་གི་ Open WebUI སར་བར་ལ་འབྲེལ་མཐུད་དགོས།";
+"NSFaceIDUsageDescription" = "__NSFaceIDUsageDescription__ཟྭ་ཁ་ཕྱེ་སྐབས་Face ID ཡིས་ཉེར་སྤྱོད་ཀྱི་ཟྭ་འབྱེད་ཆེད།";

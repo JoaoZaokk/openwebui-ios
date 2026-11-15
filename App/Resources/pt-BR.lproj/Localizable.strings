@@ -416,3 +416,7 @@
 "Desbloqueie para ver suas conversas e notas." = "Desbloqueie para ver suas conversas e notas.";
 "Desbloquear" = "Desbloquear";
 "Confirme para ativar o bloqueio do app." = "Confirme para ativar o bloqueio do app.";
+
+/* 1.13: review fixes (Lock) */
+"Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo.";
+"O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo.";

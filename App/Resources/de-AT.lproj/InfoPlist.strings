@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Um Fotos aufzunehmen und an Unterhaltungen anzuhängen.";
 "NSPhotoLibraryAddUsageDescription" = "Um Bilder aus Unterhaltungen in deiner Fotomediathek zu sichern.";
 "NSLocalNetworkUsageDescription" = "Die App muss deinen Open WebUI-Server im lokalen Netzwerk erreichen.";
+"NSFaceIDUsageDescription" = "Um die App mit Face ID zu entsperren, wenn die Sperre aktiviert ist.";

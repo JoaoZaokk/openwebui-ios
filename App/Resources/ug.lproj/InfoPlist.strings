@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "رەسىمگە تارتىپ سۆھبەتكە قوشۇش ئۈچۈن.";
 "NSPhotoLibraryAddUsageDescription" = "سۆھبەتتىكى رەسىملەرنى گالېرىيەگە ساقلاش ئۈچۈن.";
 "NSLocalNetworkUsageDescription" = "ئەپ يەرلىك تورىڭىزدىكى Open WebUI مۇلازىمېتىرىغا ئۇلىنىشى كېرەك.";
+"NSFaceIDUsageDescription" = "قۇلۇپ قوزغىتىلغاندا Face ID بىلەن ئەپنىڭ قۇلۇپىنى ئېچىش ئۈچۈن.";

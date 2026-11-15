@@ -33,8 +33,14 @@ public enum OWNotesTools {
     /// pages long; the rest is announced, not silently dropped, so the model can
     /// say so or ask for one page.
     public static let maxBodyCharacters = 12_000
-    /// What the saved card keeps of what the model read.
-    static let maxCardCharacters = 4_000
+    /// What the saved card keeps of what the model read: a short excerpt, not
+    /// the note. The card is written into the chat record on the server
+    /// (`statusHistory`), and a chat can be shared or exported where the note's
+    /// own access grants do not apply (review finding 18).
+    static let maxCardCharacters = 280
+    /// Where the server cuts each hit's body in `GET /notes/search`
+    /// (`_truncate_note_data`, routers/notes.py:65-75).
+    static let serverSnippetCut = 1_000
 
     static let specs: [[String: Any]] = [
         [
@@ -249,6 +255,12 @@ extension OpenWebUIClient {
             let end = md.index(r.upperBound, offsetBy: 100, limitedBy: md.endIndex) ?? md.endIndex
             return (start > md.startIndex ? "..." : "") + String(md[start..<end]) + (end < md.endIndex ? "..." : "")
         }
+        // No query word in the text the server sent. When the server cut the body
+        // the match may lie past the cut, so this is the start of the note and
+        // must not look like context around a match (review finding 15).
+        if md.count >= OWNotesTools.serverSnippetCut {
+            return String(md.prefix(150)) + "... [start of the note only: the match is further down; open it with view_note]"
+        }
         return String(md.prefix(150)) + (md.count > 150 ? "..." : "")
     }
 
@@ -278,13 +290,15 @@ extension OpenWebUIClient {
                      "page_id": h.pageID ?? NSNull(), "page_title": h.pageTitle ?? NSNull(),
                      "updated_at": Self.iso(h.updatedAt) ?? NSNull()]
                 }
+                // Titles only: the snippets are the notes' own text (finding 18).
                 let card = hits.isEmpty ? "—" : hits.map { h in
-                    "• \(h.title.isEmpty ? "—" : h.title)" + (h.snippet.isEmpty ? "" : "\n\(h.snippet)")
-                }.joined(separator: "\n\n")
+                    "• \(h.title.isEmpty ? "—" : h.title)"
+                }.joined(separator: "\n")
                 return OWNotesToolResult(
                     text: Self.jsonText(rows),
                     use: OWToolUse(action: call.name, query: query,
-                                   results: String(card.prefix(OWNotesTools.maxCardCharacters)), sources: []))
+                                   results: String(card.prefix(OWNotesTools.maxCardCharacters)), sources: [],
+                                   callID: UUID().uuidString))
 
             case OWNotesTools.viewName:
                 guard let id = (call.string("note_id") ?? call.string("id"))?
@@ -310,7 +324,8 @@ extension OpenWebUIClient {
                 return OWNotesToolResult(
                     text: Self.jsonText(obj),
                     use: OWToolUse(action: call.name, query: note.title.isEmpty ? id : note.title,
-                                   results: String(note.content.prefix(OWNotesTools.maxCardCharacters)), sources: []))
+                                   results: String(note.content.prefix(OWNotesTools.maxCardCharacters)), sources: [],
+                                   callID: UUID().uuidString))
 
             default:
                 throw OWNotesToolError.unknownTool(call.name)
@@ -323,7 +338,8 @@ extension OpenWebUIClient {
             let why = OWFailure.msg(error)
             return OWNotesToolResult(
                 text: Self.jsonText(["error": why]),
-                use: OWToolUse(action: call.name, query: subject, results: why, sources: []))
+                use: OWToolUse(action: call.name, query: subject, results: why, sources: [],
+                               callID: UUID().uuidString))
         }
     }
 
@@ -332,10 +348,19 @@ extension OpenWebUIClient {
         return ISO8601DateFormatter().string(from: Date(timeIntervalSince1970: seconds))
     }
 
-    private static func jsonText(_ value: Any) -> String {
+    /// The JSON the model reads between `<notes_tool_result>` tags. A note is
+    /// whatever its author wrote — and for a note shared with the user, that is
+    /// someone else — so a body holding `</notes_tool_result>` would close the
+    /// fence and leave what follows outside it (review finding 13). JSON allows
+    /// `\u003c` and `\u003e` for any character inside a string, and `<`/`>` never
+    /// occur outside strings, so escaping them removes every way to write a tag
+    /// while the model still reads the same text back.
+    static func jsonText(_ value: Any) -> String {
         guard JSONSerialization.isValidJSONObject(value),
               let d = try? JSONSerialization.data(withJSONObject: value,
                                                    options: [.sortedKeys, .withoutEscapingSlashes]) else { return "{}" }
         return String(decoding: d, as: UTF8.self)
+            .replacingOccurrences(of: "<", with: "\\u003c")
+            .replacingOccurrences(of: ">", with: "\\u003e")
     }
 }

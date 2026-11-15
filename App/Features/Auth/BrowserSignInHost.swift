@@ -45,6 +45,9 @@ final class LoopbackBrowserHost: OWBrowserSignInHost, @unchecked Sendable {
     private let lock = NSLock()
     private var listener: NWListener?
     private var connections: [ObjectIdentifier: NWConnection] = [:]
+    /// Oldest first, so a full table can make room by dropping the longest-idle
+    /// connection rather than turning the newest one away.
+    private var connectionOrder: [ObjectIdentifier] = []
     private var expectedState = ""
     private var waiter: Waiter?
     private var session: ASWebAuthenticationSession?
@@ -88,10 +91,21 @@ final class LoopbackBrowserHost: OWBrowserSignInHost, @unchecked Sendable {
 
     private func accept(_ c: NWConnection) {
         lock.lock()
-        guard connections.count < Self.maxConnections else { lock.unlock(); c.cancel(); return }
+        // The newest connection wins: with the table full, the oldest is evicted.
+        // Rejecting the newcomer let anything on this machine that holds eight
+        // idle sockets keep the real browser callback out for the whole sign-in
+        // (Auth review #6) — and the page does not retry.
+        var evicted: NWConnection?
+        if connections.count >= Self.maxConnections, let oldest = connectionOrder.first {
+            evicted = connections[oldest]
+            connections[oldest] = nil
+            connectionOrder.removeFirst()
+        }
         let id = ObjectIdentifier(c)
         connections[id] = c
+        connectionOrder.append(id)
         lock.unlock()
+        evicted?.cancel()
 
         c.stateUpdateHandler = { [weak self] state in
             if case .cancelled = state { self?.forget(id) }
@@ -103,7 +117,7 @@ final class LoopbackBrowserHost: OWBrowserSignInHost, @unchecked Sendable {
     }
 
     private func forget(_ id: ObjectIdentifier) {
-        lock.lock(); connections[id] = nil; lock.unlock()
+        lock.lock(); connections[id] = nil; connectionOrder.removeAll { $0 == id }; lock.unlock()
     }
 
     /// Reads until the request line is complete, answers it, closes. Nothing
@@ -182,7 +196,7 @@ final class LoopbackBrowserHost: OWBrowserSignInHost, @unchecked Sendable {
     func stop() async {
         let (l, conns, s, w) = lock.withLock { () -> (NWListener?, [NWConnection], ASWebAuthenticationSession?, Waiter?) in
             let taken = (listener, Array(connections.values), session, waiter)
-            listener = nil; connections = [:]; session = nil; presentation = nil; waiter = nil
+            listener = nil; connections = [:]; connectionOrder = []; session = nil; presentation = nil; waiter = nil
             return taken
         }
         timeout?.cancel(); timeout = nil

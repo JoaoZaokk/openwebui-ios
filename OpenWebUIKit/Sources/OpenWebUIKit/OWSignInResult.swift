@@ -95,7 +95,13 @@ public enum OWMFAFailure: Equatable, Sendable {
         let d = (detail ?? "").lowercased()
         switch status {
         case 401:
-            return d.contains("expired") || d.contains("start again") ? .expired : .invalidCode
+            if d.contains("expired") || d.contains("start again") { return .expired }
+            // `get_auth` (utils/mfa.py) answers a challenge whose account was
+            // deleted or deactivated since it was issued. No code can fix that,
+            // and showing 'wrong code' on every retry kept the person on a dead
+            // challenge (Auth review #9).
+            if d.contains("invalid authentication request") { return .authenticationChanged }
+            return .invalidCode
         case 403:
             if d.contains("awaiting approval") { return .awaitingApproval }
             if d.contains("disabled") { return .mfaDisabled }

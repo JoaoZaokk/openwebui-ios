@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Fényképek készítéséhez és csatolásához a beszélgetésekhez.";
 "NSPhotoLibraryAddUsageDescription" = "A beszélgetések képeinek mentéséhez a galériádba.";
 "NSLocalNetworkUsageDescription" = "Az alkalmazásnak el kell érnie az Open WebUI kiszolgálót a helyi hálózaton.";
+"NSFaceIDUsageDescription" = "Az app Face ID-val való feloldásához, ha a zárolás be van kapcsolva.";

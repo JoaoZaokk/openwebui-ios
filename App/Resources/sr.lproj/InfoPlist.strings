@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "За снимање и прилагање фотографија разговорима.";
 "NSPhotoLibraryAddUsageDescription" = "За чување слика из разговора у вашој галерији.";
 "NSLocalNetworkUsageDescription" = "Апликацији је потребан приступ вашем серверу Open WebUI на локалној мрежи.";
+"NSFaceIDUsageDescription" = "За откључавање апликације помоћу Face ID када је закључавање укључено.";

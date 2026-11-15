@@ -422,3 +422,7 @@
 "Desbloqueie para ver suas conversas e notas." = "Unlock to see your chats and notes.";
 "Desbloquear" = "Unlock";
 "Confirme para ativar o bloqueio do app." = "Confirm to turn on the app lock.";
+
+/* 1.13: review fixes (Lock) */
+"Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Couldn't confirm your identity. Tap Unlock to try again.";
+"O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "The lock was turned off because this device no longer has a passcode. Set one in your device's Settings to use it again.";

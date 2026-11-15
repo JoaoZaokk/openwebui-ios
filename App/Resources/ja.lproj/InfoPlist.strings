@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "写真を撮影して会話に添付するために使用します。";
 "NSPhotoLibraryAddUsageDescription" = "会話の画像をギャラリーに保存するために使用します。";
 "NSLocalNetworkUsageDescription" = "ローカルネットワーク上の Open WebUI サーバーに接続するために使用します。";
+"NSFaceIDUsageDescription" = "__NSFaceIDUsageDescription__ロックが有効なときに、Face IDでアプリのロックを解除するために使用します。";

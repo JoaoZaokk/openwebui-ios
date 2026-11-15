@@ -27,6 +27,7 @@ extension OpenWebUIClient {
     /// failure is thrown. A refresh the server answers with 401 means the session
     /// is gone, and that is thrown (after the sign-out path has run) either way.
     public func freshToken() async throws -> String? {
+        persistUnsavedCredentials()
         let held = snapshotCredentials()
         guard let held else { return authToken() }
         guard held.expires(within: OWAuthSessionCredentials.refreshLeeway, now: now()) else { return held.token }
@@ -83,9 +84,12 @@ extension OpenWebUIClient {
     private func refreshSingleFlight() async throws -> OWAuthSessionCredentials {
         let task: Task<OWAuthSessionCredentials, Error> = authLock.withLock {
             if let running = refreshTask { return running }
+            let generation = sessionGeneration
             let started = Task<OWAuthSessionCredentials, Error> { [self] in
-                defer { authLock.withLock { refreshTask = nil } }
-                return try await performRefresh()
+                // Releases the slot only if it is still this refresh's: forgetting
+                // the session already emptied it, and a newer refresh may sit there.
+                defer { authLock.withLock { if sessionGeneration == generation { refreshTask = nil } } }
+                return try await performRefresh(generation: generation)
             }
             refreshTask = started
             return started
@@ -95,44 +99,95 @@ extension OpenWebUIClient {
         return try await task.value
     }
 
-    private func performRefresh() async throws -> OWAuthSessionCredentials {
-        guard let held = snapshotCredentials() else { throw OWError.notAuthenticated }
-        let requestID: UUID = authLock.withLock {
-            if let p = pendingRefresh, p.refreshToken == held.refreshToken { return p.requestID }
-            let id = UUID()
-            pendingRefresh = (held.refreshToken, id)
-            return id
+    /// What a refresh the server answers with one of these ends: the refresh
+    /// token is never going to work again. 401 is the session gone (revoked, idle
+    /// past its expiry, spent); 403 is `verify_proof`'s 'Account approval is
+    /// required.' for a user deactivated or set back to pending; 400/422 are a
+    /// request the server will not accept for this token. Anything else — 429,
+    /// 5xx, the network — is the server being busy, not the session being over.
+    static func refreshEndsSession(status: Int) -> Bool { [400, 401, 403, 422].contains(status) }
+
+    /// - Parameter generation: the `sessionGeneration` the refresh was started
+    ///   for. Everything this does to the client's state is conditional on it:
+    ///   when the session was signed out, switched away from or replaced while
+    ///   the request was in the air, the answer is thrown away (as
+    ///   `CancellationError`) — no credentials written, no session dropped, and
+    ///   the old server's tokens never go to a new one (Auth review #2/#5).
+    private func performRefresh(generation: Int) async throws -> OWAuthSessionCredentials {
+        // One critical section for everything the request is built from: the
+        // pair, the server it belongs to, and the id of this rotation.
+        struct Plan { var held: OWAuthSessionCredentials; var url: URL; var requestID: UUID }
+        let (planned, stale): (Plan?, Bool) = authLock.withLock {
+            guard sessionGeneration == generation else { return (nil, true) }
+            guard let held = credentials else { return (nil, false) }
+            let id: UUID
+            if let p = pendingRefresh, p.refreshToken == held.refreshToken {
+                id = p.requestID
+            } else {
+                id = UUID()
+                pendingRefresh = (held.refreshToken, id)
+                // On disk BEFORE the request: killed between the server rotating
+                // and this process reading the answer, the next launch must retry
+                // THIS rotation (same token, same id) instead of presenting a
+                // spent token under a new id and being signed out (Auth review #1).
+                tokens.save(pendingRefresh: OWPendingRefresh(refreshToken: held.refreshToken,
+                                                             requestID: id.uuidString))
+            }
+            return (Plan(held: held, url: config.url("/api/v1/auths/sessions/refresh"), requestID: id), false)
         }
+        if stale { throw CancellationError() }
+        guard let plan = planned else { throw OWError.notAuthenticated }
 
         struct Form: Encodable { var refresh_token: String; var request_id: String }
-        var req = URLRequest(url: config.url("/api/v1/auths/sessions/refresh"))
+        var req = URLRequest(url: plan.url)
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Accept")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        req.httpBody = try JSONEncoder().encode(Form(refresh_token: held.refreshToken,
-                                                     request_id: requestID.uuidString))
+        req.httpBody = try JSONEncoder().encode(Form(refresh_token: plan.held.refreshToken,
+                                                     request_id: plan.requestID.uuidString))
         let data: Data
         do {
             data = try await post(req)
-        } catch OWError.http(401, _) {
-            // The server says this session is over: revoked, idle past its
-            // expiry, or the refresh token already spent. The only answer that
-            // signs anyone out.
-            dropSession()
-            throw OWError.notAuthenticated
+        } catch OWError.http(let status, _) where Self.refreshEndsSession(status: status) {
+            // The only answers that sign anyone out — and only the session this
+            // refresh was for.
+            if dropSession(ifGeneration: generation) { throw OWError.notAuthenticated }
+            throw CancellationError()
         }
         let fresh = try decode(OWAuthSessionCredentials.self, data)
         // The server has spent the old refresh token by now. The new pair goes to
         // the Keychain BEFORE anything uses it: killed between the two, the next
-        // launch must find the pair that works.
-        tokens.save(credentials: fresh)
-        authLock.withLock {
+        // launch must find the pair that works. Checked and committed in one
+        // step, so a sign-out cannot slip between the check and the write.
+        let committed: Bool = authLock.withLock {
+            guard sessionGeneration == generation else { return false }
+            // A write the Keychain refuses is tried once more at once; if it still
+            // fails the pair is used from memory, the old pair stays on disk WITH
+            // its request id (a cold launch can still recover this rotation from
+            // the server's retry window), and the next request persists again.
+            let saved = tokens.save(credentials: fresh) || tokens.save(credentials: fresh)
             credentials = fresh
             token = fresh.token
             credentialsReceivedAt = now()
             pendingRefresh = nil
+            credentialsUnsaved = !saved
+            if saved { tokens.save(pendingRefresh: nil) }
+            return true
         }
+        guard committed else { throw CancellationError() }
         return fresh
+    }
+
+    /// Writes a pair the Keychain refused earlier, now that it may accept it
+    /// (Auth review #4). Cheap when there is nothing to do.
+    private func persistUnsavedCredentials() {
+        authLock.withLock {
+            guard credentialsUnsaved, let c = credentials else { return }
+            if tokens.save(credentials: c) {
+                credentialsUnsaved = false
+                tokens.save(pendingRefresh: nil)
+            }
+        }
     }
 
     // MARK: - Small shared pieces
@@ -229,15 +284,37 @@ extension OpenWebUIClient {
         var req = URLRequest(url: config.url("/api/v1/auths/"))
         req.setValue("application/json", forHTTPHeaderField: "Accept")
         req.setValue("Bearer \(candidate.token)", forHTTPHeaderField: "Authorization")
+        let origin = currentOriginGeneration()
         let user = try decode(OWUser.self, try await post(req))
-        tokens.save(credentials: candidate)
-        authLock.withLock {
+        // A candidate the old server issued, confirmed after the client was
+        // pointed at another, is not this server's session (Auth review #11).
+        let adopted: Bool = authLock.withLock {
+            guard origin == originGeneration else { return false }
+            clearSessionLocked()   // a new session: whatever refresh was running is for the old one
+            let saved = tokens.save(credentials: candidate) || tokens.save(credentials: candidate)
+            tokens.save(pendingRefresh: nil)
             credentials = candidate
             token = candidate.token
             credentialsReceivedAt = now()
-            pendingRefresh = nil
+            credentialsUnsaved = !saved
+            return true
         }
+        guard adopted else { throw CancellationError() }
         return user
+    }
+
+    /// DELETE /api/v1/auths/sessions/{id} for a session that was created but not
+    /// taken on. Runs to completion even if the sign-in's own task was cancelled
+    /// (an unstructured task is not), and never throws.
+    private func revokeUnadopted(_ c: OWAuthSessionCredentials, on base: OWConfig) async {
+        var req = URLRequest(url: base.url("/api/v1/auths/sessions/\(encPathSegment(c.sessionID))"))
+        req.httpMethod = "DELETE"
+        req.timeoutInterval = 10
+        req.setValue("application/json", forHTTPHeaderField: "Accept")
+        req.setValue("Bearer \(c.token)", forHTTPHeaderField: "Authorization")
+        let session = self.session
+        let request = req
+        await Task { _ = try? await session.data(for: request) }.value
     }
 
     /// The whole browser sign-in; see `OWBrowserSignInHost`.
@@ -254,6 +331,9 @@ extension OpenWebUIClient {
     public func signInThroughBrowser(host: OWBrowserSignInHost, deviceName: String,
                                      provider: String?) async throws -> OWUser {
         var stopped = false
+        // The server this sign-in belongs to, however the client is repointed
+        // while the person is in the browser.
+        let base = config
         do {
             let port = try await host.startListener()
             let redirectURI = OWBrowserSignIn.redirectURI(port: port)
@@ -268,7 +348,16 @@ extension OpenWebUIClient {
             stopped = true
             let credentials = try await exchangeBrowserSession(
                 sessionID: sessionID, code: code, codeVerifier: pkce.verifier, redirectURI: redirectURI)
-            return try await adopt(credentials: credentials)
+            do {
+                return try await adopt(credentials: credentials)
+            } catch {
+                // The exchange already spent the one-time code and made a live
+                // session on the server; the client declined to keep it. Revoke
+                // it instead of leaving a stray 'Open WebUI · device' in the
+                // user's session list (Auth review #3). Best effort.
+                await revokeUnadopted(credentials, on: base)
+                throw error
+            }
         } catch {
             if !stopped { await host.stop() }
             throw error
@@ -289,13 +378,16 @@ extension OpenWebUIClient {
         let req = try jsonPOST("/api/v1/auths/mfa/verify", Form(
             challenge_token: challenge.challengeToken,
             code: OWMFAChallenge.normalizedCode(code, recovery: recovery), recovery: recovery))
+        let origin = currentOriginGeneration()
         let data: Data
         do { data = try await post(req) }
         catch OWError.http(let status, let detail) {
             throw OWMFAError(failure: OWMFAFailure.classify(status: status, detail: detail))
         }
         let s = try decode(OWSession.self, data)
-        adoptLegacyToken(s.token)
+        // The person may have changed the server while the code was in the air;
+        // the token that came back belongs to the one they left (Auth review #11).
+        guard adoptLegacyToken(s.token, ifOrigin: origin) else { throw CancellationError() }
         return OWUser(session: s)
     }
 }

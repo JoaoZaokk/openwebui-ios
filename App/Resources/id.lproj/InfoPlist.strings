@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Untuk mengambil dan melampirkan foto ke percakapan.";
 "NSPhotoLibraryAddUsageDescription" = "Untuk menyimpan gambar dari percakapan ke galeri Anda.";
 "NSLocalNetworkUsageDescription" = "Aplikasi perlu mengakses server Open WebUI Anda di jaringan lokal.";
+"NSFaceIDUsageDescription" = "Untuk membuka kunci app dengan Face ID saat kunci diaktifkan.";

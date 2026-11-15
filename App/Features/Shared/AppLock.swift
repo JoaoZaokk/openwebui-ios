@@ -60,15 +60,9 @@ enum AppLockMethod: Equatable {
     }
 }
 
-/// Outcome of one LocalAuthentication round.
-enum AppLockAuthResult: Equatable {
-    case success
-    /// The person dismissed the sheet, or the system did (app switched away).
-    case cancelled
-    /// No passcode on the device (or nothing to authenticate with).
-    case unavailable
-    case failed
-}
+/// Outcome of one LocalAuthentication round. Lives in the kit because what each
+/// ending means for the lock (`.unavailable` turns it off) is decided there.
+typealias AppLockAuthResult = AppLockPolicy.AuthOutcome
 
 @MainActor
 final class AppLock: ObservableObject {
@@ -79,6 +73,10 @@ final class AppLock: ObservableObject {
         didSet { if policy != oldValue { applyWindows() } }
     }
     @Published private(set) var method: AppLockMethod = .passcode
+    /// Set when the lock switched itself off because the device can no longer
+    /// authenticate (passcode removed), so Settings can say why it is off.
+    /// Review finding #19: nobody may be locked out of their own chats.
+    @Published private(set) var turnedOffByUnavailability = false
 
     var isEnabled: Bool { policy.isEnabled }
 
@@ -159,7 +157,9 @@ final class AppLock: ObservableObject {
     }
 
     /// With several windows (iPad) the app counts as in the foreground while any
-    /// scene is active, and in the background only when all of them are.
+    /// scene is active, and in the background only when all of them are. This
+    /// aggregate drives locking and the grace; the COVER is per scene
+    /// (`applyWindows`), so a scene that is not active is hidden regardless.
     private func pushAggregatePhase() {
         let phases = scenePhases.values
         let aggregate: AppLockPolicy.Phase =
@@ -176,11 +176,19 @@ final class AppLock: ObservableObject {
         guard policy.isEnabled, policy.isLocked, !policy.isAuthenticating, policy.phase == .active else { return }
         policy.beginAuthentication()
         let result = await Self.authenticate(reason: L("Desbloqueie para ver suas conversas e notas."))
-        // Unlock first, then end the sheet: the other way round the scene is
+        // Settle first, then end the sheet: the other way round the scene is
         // still `.inactive` for a moment with nothing marked as authenticating,
         // and the cover would blink back over the app that was just opened.
-        if result == .success { policy.didUnlock(at: Date()) }
+        // `.unavailable` (no passcode any more) turns the lock off inside the
+        // policy, and `.failed` leaves its reason for the cover to show; in
+        // both cases the button stays usable because `endAuthentication` always
+        // runs (finding #19).
+        policy.authenticationFinished(result, at: Date())
         policy.endAuthentication()
+        if result == .unavailable, !policy.isEnabled {
+            UserDefaults.standard.set(false, forKey: Self.enabledKey)
+            turnedOffByUnavailability = true
+        }
     }
 
     /// Turns the lock on. Only after an authentication that just succeeded, so a
@@ -188,9 +196,12 @@ final class AppLock: ObservableObject {
     /// chats. Returns the reason it stayed off, if it did.
     func enable() async -> AppLockAuthResult {
         guard !policy.isEnabled else { return .success }
+        turnedOffByUnavailability = false
         policy.beginAuthentication()
         let result = await Self.authenticate(reason: L("Confirme para ativar o bloqueio do app."))
         if result == .success {
+            // If the scene went to the background while the sheet was up, the
+            // policy enables the lock already engaged (finding #21).
             policy.setEnabled(true, authenticatedAt: Date())
             UserDefaults.standard.set(true, forKey: Self.enabledKey)
         }
@@ -200,6 +211,7 @@ final class AppLock: ObservableObject {
 
     func disable() {
         guard policy.isEnabled else { return }
+        turnedOffByUnavailability = false
         policy.setEnabled(false, authenticatedAt: Date())
         UserDefaults.standard.set(false, forKey: Self.enabledKey)
     }
@@ -216,7 +228,7 @@ final class AppLock: ObservableObject {
         } catch let e as LAError {
             switch e.code {
             case .userCancel, .systemCancel, .appCancel: return .cancelled
-            case .passcodeNotSet, .biometryNotAvailable: return .unavailable
+            case .passcodeNotSet, .biometryNotAvailable, .biometryNotEnrolled: return .unavailable
             default: return .failed
             }
         } catch {
@@ -235,9 +247,13 @@ final class AppLock: ObservableObject {
         windows[id] = w
     }
 
+    /// One decision per window, from that scene's OWN phase: on iPad a scene in
+    /// the app switcher or Slide Over is covered while another one is active
+    /// (finding #20). A scene we have no phase for yet counts as the aggregate.
     private func applyWindows() {
-        let show = policy.coverVisible
-        for w in windows.values where w.isHidden == show {
+        for (id, w) in windows {
+            let show = policy.coverVisible(forScene: scenePhases[id] ?? policy.phase)
+            guard w.isHidden == show else { continue }
             if show {
                 // A new store each time: the theme and font may have changed
                 // since the window was built, and the cover must match them.
@@ -296,6 +312,14 @@ struct AppLockView: View {
                     Text("Desbloqueie para ver suas conversas e notas.")
                         .font(.ody(.subheadline)).foregroundStyle(theme.secondaryText)
                         .multilineTextAlignment(.center)
+                    // Why the last attempt did not open the app: without it the
+                    // button seems to do nothing (finding #19).
+                    if lock.policy.lastFailure == .failed {
+                        Text("Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo.")
+                            .font(.ody(.footnote)).foregroundStyle(theme.danger)
+                            .multilineTextAlignment(.center)
+                            .accessibilityIdentifier("appLock.failure")
+                    }
                     Button {
                         Task { await lock.unlock() }
                     } label: {
@@ -338,7 +362,10 @@ struct AppLockSettingsSection: View {
         } footer: {
             VStack(alignment: .leading, spacing: 6) {
                 Text("Pede para desbloquear ao abrir o app e ao voltar para ele, e esconde as conversas no seletor de apps.")
-                if notice == .unavailable {
+                if lock.turnedOffByUnavailability && !lock.isEnabled {
+                    Text("O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo.")
+                        .foregroundStyle(theme.danger)
+                } else if notice == .unavailable {
                     Text("Para usar o bloqueio, defina um código de acesso nos Ajustes do aparelho.")
                         .foregroundStyle(theme.danger)
                 } else if notice == .failed {

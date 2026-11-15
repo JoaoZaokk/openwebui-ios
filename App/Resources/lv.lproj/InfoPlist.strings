@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Lai uzņemtu un pievienotu fotoattēlus sarunām.";
 "NSPhotoLibraryAddUsageDescription" = "Lai saglabātu sarunu attēlus jūsu galerijā.";
 "NSLocalNetworkUsageDescription" = "Lietotnei nepieciešama piekļuve jūsu Open WebUI serverim lokālajā tīklā.";
+"NSFaceIDUsageDescription" = "Lai atbloķētu lietotni ar Face ID, kad bloķēšana ir ieslēgta.";

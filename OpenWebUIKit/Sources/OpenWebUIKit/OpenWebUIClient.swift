@@ -30,6 +30,23 @@ public final class OpenWebUIClient: @unchecked Sendable {
     /// When the current credentials arrived in this process; nil if they were
     /// loaded from the Keychain.
     var credentialsReceivedAt: Date?
+    /// Identifies the session the client holds. Bumped, under `authLock`, every
+    /// time that session is forgotten, dropped or replaced. A refresh captures it
+    /// before it goes to the network and commits only if it is unchanged, so an
+    /// answer that arrives after a sign-out, a server switch or a new sign-in
+    /// can neither write its pair back nor end the session that replaced it
+    /// (Auth review #2/#5).
+    var sessionGeneration = 0
+    /// Bumped, under `authLock`, when the client is pointed at a different
+    /// origin. A sign-in whose answer arrives after that came from the old
+    /// server and must not be adopted as the new server's session (Auth #11).
+    /// Separate from `sessionGeneration` on purpose: an unrelated 401 dropping
+    /// the session while the user types a password is not a reason to discard
+    /// that password's sign-in.
+    var originGeneration = 0
+    /// True when the newest pair is in memory but the Keychain refused it, twice.
+    /// The next request tries to persist it again (Auth review #4).
+    var credentialsUnsaved = false
     /// True while `signOut` runs, so the 401 its own refresh may meet is not
     /// announced as a session that ended on the user.
     var signingOut = false
@@ -53,6 +70,13 @@ public final class OpenWebUIClient: @unchecked Sendable {
         let stored = tokens.loadCredentials()
         self.credentials = stored
         self.token = stored?.token ?? tokens.loadToken()
+        // A refresh whose answer may have been lost with the previous process
+        // is retried with the SAME request id (Auth review #1); only meaningful
+        // for the refresh token it was sent with.
+        if let stored, let p = tokens.loadPendingRefresh(), p.refreshToken == stored.refreshToken,
+           let id = UUID(uuidString: p.requestID) {
+            self.pendingRefresh = (p.refreshToken, id)
+        }
         let cfg = Self.sessionConfiguration(protocolClasses: protocolClasses)
         cfg.timeoutIntervalForRequest = 30
         cfg.timeoutIntervalForResource = 30   // cap the whole request — never hang forever
@@ -102,28 +126,38 @@ public final class OpenWebUIClient: @unchecked Sendable {
     private var configGeneration = 0
 
     public func updateConfig(_ config: OWConfig) {
+        // Read before the origin branch below, which adopts the new URL itself.
+        let baseChanged = config.baseURL != self.config.baseURL
         // A token is a credential for the host that issued it. Pointing the client
         // at a different origin while holding it means the very next request —
         // including the unauthenticated-looking ones — replays the user's JWT to a
         // machine that never saw it. Same host, different path, is the same server.
         if Self.origin(config.baseURL) != Self.origin(self.config.baseURL) {
-            forgetSessionInMemory()
-            tokens.clear()
             // Before the new URL is adopted, so this clears the OLD host's jar:
             // the Keychain is not the only place a session lives.
             clearCookies()
+            // Forgetting the session and adopting the new URL are ONE step. A
+            // refresh snapshots its credentials and the URL under this same lock
+            // (`performRefresh`); with the two apart it could read the old pair
+            // and the new server and send one to the other (Auth review #5).
+            authLock.lock()
+            clearSessionLocked()
+            originGeneration &+= 1
+            self.config = config
+            authLock.unlock()
+            tokens.clear()
         }
         // What the *previous* server said about itself is not an answer about this
         // one. `ensureServerInfo` sets its flag before its await, so a version left
         // behind here would never be asked for again — and the merge gate would go
         // on answering for the old server. On a 0.10 server that answer omits a
         // node from a write, and omitting a node there deletes the message.
-        if config.baseURL != self.config.baseURL {
+        if baseChanged {
             serverVersion = nil
             serverInfoFetched = false
             configGeneration &+= 1
         }
-        self.config = config
+        authLock.withLock { self.config = config }
     }
 
     /// Forgets the cookies the configured server set.
@@ -168,11 +202,25 @@ public final class OpenWebUIClient: @unchecked Sendable {
     /// directly and never passes through `send`, so it has to run this hop
     /// itself. Deliberately NOT called from the image loader — a 401 on one
     /// picture must not log anyone out.
-    func dropSession() {
-        let quiet = forgetSessionInMemory()
+    ///
+    /// - Parameter generation: when given, the drop happens only if the session
+    ///   is still the one the caller saw. A refresh that learns, late, that the
+    ///   OLD session is dead must not wipe the one that replaced it. Returns
+    ///   whether it acted.
+    @discardableResult
+    func dropSession(ifGeneration generation: Int? = nil) -> Bool {
+        authLock.lock()
+        if let generation, generation != sessionGeneration { authLock.unlock(); return false }
+        let quiet = signingOut
+        clearSessionLocked()
+        // Inside the lock: a session adopted right after must not find its
+        // Keychain items deleted by the drop of the one before it.
         tokens.save(token: nil)
         tokens.save(credentials: nil)
+        tokens.save(pendingRefresh: nil)
+        authLock.unlock()
         if !quiet { NotificationCenter.default.post(name: Self.sessionEndedNotification, object: nil) }
+        return true
     }
 
     /// Clears what the process holds for the session; returns whether a sign-out
@@ -180,27 +228,47 @@ public final class OpenWebUIClient: @unchecked Sendable {
     @discardableResult
     func forgetSessionInMemory() -> Bool {
         authLock.lock(); defer { authLock.unlock() }
+        clearSessionLocked()
+        return signingOut
+    }
+
+    /// The one place the session is forgotten. The caller holds `authLock`.
+    /// Cancelling and releasing the refresh in flight is what keeps it from being
+    /// joined by whoever signs in next (it would hand them the old session's
+    /// token) — and, with `sessionGeneration`, from writing anything back.
+    func clearSessionLocked() {
         token = nil
         credentials = nil
         credentialsReceivedAt = nil
         pendingRefresh = nil
-        return signingOut
+        credentialsUnsaved = false
+        sessionGeneration &+= 1
+        refreshTask?.cancel()
+        refreshTask = nil
     }
 
     /// Takes on a session that has no refresh token — the JWT a password, LDAP,
     /// OAuth-exchange or MFA sign-in returned, or one adopted from the web view.
     /// A browser session's pair, if there was one, goes: a refresh token left
     /// behind a token that is no longer its own would renew the wrong session.
-    func adoptLegacyToken(_ t: String) {
+    ///
+    /// - Parameter origin: the `originGeneration` the sign-in began under. If the
+    ///   client was pointed at another server since, the token belongs to the
+    ///   old one and is not adopted (returns false) — Auth review #11.
+    @discardableResult
+    func adoptLegacyToken(_ t: String, ifOrigin origin: Int? = nil) -> Bool {
         authLock.lock()
+        if let origin, origin != originGeneration { authLock.unlock(); return false }
+        clearSessionLocked()
         token = t
-        credentials = nil
-        credentialsReceivedAt = nil
-        pendingRefresh = nil
-        authLock.unlock()
         tokens.save(credentials: nil)
+        tokens.save(pendingRefresh: nil)
         tokens.save(token: t)
+        authLock.unlock()
+        return true
     }
+
+    func currentOriginGeneration() -> Int { authLock.withLock { originGeneration } }
 
     public var isAuthenticated: Bool { token != nil }
 
@@ -260,6 +328,16 @@ public final class OpenWebUIClient: @unchecked Sendable {
                 // other is a 404 wearing the wrong number, and is reported as one.
                 let detail = Self.detail(from: data)
                 if detail == Self.serverNotFoundSentence { throw OWError.http(404, detail) }
+                // `check_notes_access` (routers/notes.py) answers 401 with
+                // ERROR_MESSAGES.UNAUTHORIZED when the admin took the notes
+                // permission away mid-session: a 403 wearing the wrong number.
+                // A dead token never says that — it says 'Not authenticated' or
+                // 'Invalid token' — so on the notes routes this sentence is a
+                // permission refusal: no rotation spent, nobody signed out
+                // (Auth review #12). The notes tool reports it to the model.
+                if Self.isNotesPermissionRefusal(path: req.url?.path, detail: detail) {
+                    throw OWError.http(403, detail)
+                }
                 // A browser session's access token lives minutes, so a 401 is
                 // usually just its age: renew and ask again, once. (Nil for every
                 // other kind of session, which falls through exactly as before.)
@@ -354,10 +432,28 @@ public final class OpenWebUIClient: @unchecked Sendable {
     /// it is the only thing that tells this 401 from a real one.
     static let serverNotFoundSentence = "We could not find what you're looking for :/"
 
+    /// `ERROR_MESSAGES.UNAUTHORIZED` in constants.py.
+    static let serverUnauthorizedSentence = "401 Unauthorized"
+
+    static func isNotesPermissionRefusal(path: String?, detail: String?) -> Bool {
+        guard let path, path == "/api/v1/notes" || path.hasPrefix("/api/v1/notes/") else { return false }
+        return detail?.trimmingCharacters(in: .whitespacesAndNewlines) == serverUnauthorizedSentence
+    }
+
+    /// What of a non-JSON body may be shown as the server's sentence. An HTML
+    /// page — a captive portal, a proxy's error page — is not one, and neither is
+    /// anything long: it would land verbatim in the login and MFA screens
+    /// (Auth review #7). A short plain-text line such as '502 Bad Gateway' is
+    /// still more useful than 'Erro 502'.
+    static let plainDetailLimit = 200
+
     static func detail(from data: Data) -> String? {
         guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             if let s = OWErrorSentence.sentence(data) { return s }
-            return String(data: data, encoding: .utf8).flatMap { $0.isEmpty ? nil : $0 }
+            guard let text = String(data: data, encoding: .utf8) else { return nil }
+            let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if trimmed.isEmpty || trimmed.hasPrefix("<") { return nil }
+            return trimmed.count > plainDetailLimit ? String(trimmed.prefix(plainDetailLimit)) + "…" : text
         }
         // FastAPI validation errors: detail = [{ loc, msg, … }]
         if let arr = obj["detail"] as? [[String: Any]] {
@@ -391,17 +487,24 @@ public final class OpenWebUIClient: @unchecked Sendable {
         var req = request("/api/v1/auths/signin", method: "POST")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(OWSignInForm(email: email, password: password))
+        let origin = currentOriginGeneration()
         let (data, resp) = try await session.data(for: req)
         if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw OWError.http(http.statusCode, Self.detail(from: data))
         }
-        return accept(try OWSignInResult.decode(data))
+        return try accept(try OWSignInResult.decode(data), origin: origin)
     }
 
     /// A session is taken on (token stored); a step is returned untouched, with
     /// nothing stored — a challenge is not a session.
-    private func accept(_ result: OWSignInResult) -> OWSignInResult {
-        if case .session(let s) = result { adoptLegacyToken(s.token) }
+    ///
+    /// `origin` is what `currentOriginGeneration()` said before the request went
+    /// out: an answer from a server the client no longer points at is dropped
+    /// (as a cancellation) instead of becoming the new server's session.
+    private func accept(_ result: OWSignInResult, origin: Int) throws -> OWSignInResult {
+        if case .session(let s) = result {
+            guard adoptLegacyToken(s.token, ifOrigin: origin) else { throw CancellationError() }
+        }
         return result
     }
 
@@ -471,13 +574,14 @@ public final class OpenWebUIClient: @unchecked Sendable {
         var req = URLRequest(url: config.url("/api/v1/auths/"))
         req.setValue("application/json", forHTTPHeaderField: "Accept")
         req.setValue("Bearer \(candidate)", forHTTPHeaderField: "Authorization")
+        let origin = currentOriginGeneration()
         let (data, resp) = try await session.data(for: req)
         guard let http = resp as? HTTPURLResponse else { throw OWError.transport("no response") }
         guard (200..<300).contains(http.statusCode) else {
             throw OWError.http(http.statusCode, Self.detail(from: data))
         }
         let user = try decode(OWUser.self, data)
-        adoptLegacyToken(candidate)
+        guard adoptLegacyToken(candidate, ifOrigin: origin) else { throw CancellationError() }
         return user
     }
 
@@ -510,11 +614,12 @@ public final class OpenWebUIClient: @unchecked Sendable {
                           method: "POST")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(Form(token: providerToken))
+        let origin = currentOriginGeneration()
         let (data, resp) = try await session.data(for: req)
         if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw OWError.http(http.statusCode, Self.detail(from: data))
         }
-        return accept(try OWSignInResult.decode(data))
+        return try accept(try OWSignInResult.decode(data), origin: origin)
     }
 
     /// POST /api/v1/auths/ldap — same session response as `signin`, different
@@ -529,11 +634,12 @@ public final class OpenWebUIClient: @unchecked Sendable {
         var req = request("/api/v1/auths/ldap", method: "POST")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(Form(user: name, password: password))
+        let origin = currentOriginGeneration()
         let (data, resp) = try await session.data(for: req)
         if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw OWError.http(http.statusCode, Self.detail(from: data))
         }
-        return accept(try OWSignInResult.decode(data))
+        return try accept(try OWSignInResult.decode(data), origin: origin)
     }
 
     public func signOut() async {
@@ -563,9 +669,16 @@ public final class OpenWebUIClient: @unchecked Sendable {
         req.setValue("application/json", forHTTPHeaderField: "Accept")
         let asked = configGeneration
         var body: Data?
-        if let token {
+        // `freshToken`, not `token`: a browser session's access token lives 15
+        // minutes, and a cold launch is the moment it is most likely to be dead.
+        // This answer is the one that carries `enable_notes`/`enable_memories`;
+        // sent with an expired token the server answers as for nobody, the
+        // public config is used, and the two features stayed off until the next
+        // launch (Auth review #8). A refresh the server refuses has already
+        // ended the session by now; the public answer is still the right one.
+        if authLock.withLock({ token }) != nil, let live = try? await freshToken() {
             var signedIn = req
-            signedIn.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            signedIn.setValue("Bearer \(live)", forHTTPHeaderField: "Authorization")
             if let (data, resp) = try? await session.data(for: signedIn),
                let http = resp as? HTTPURLResponse, (200..<300).contains(http.statusCode) {
                 body = data

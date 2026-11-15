@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Za snimanje i prilaganje fotografija razgovorima.";
 "NSPhotoLibraryAddUsageDescription" = "Za spremanje slika iz razgovora u vašu biblioteku fotografija.";
 "NSLocalNetworkUsageDescription" = "Aplikacija treba pristup vašem Open WebUI poslužitelju na lokalnoj mreži.";
+"NSFaceIDUsageDescription" = "Za otključavanje aplikacije pomoću funkcije Face ID kad je zaključavanje uključeno.";

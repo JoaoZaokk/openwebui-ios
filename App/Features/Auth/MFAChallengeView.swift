@@ -48,6 +48,9 @@ struct MFAChallengeView: View {
             }
 
             Button("Cancelar") { app.cancelMFA() }
+                // The code already sent is spent whether or not the person
+                // stays; leaving mid-flight used to sign them in anyway.
+                .disabled(app.loggingIn)
                 .font(.ody(.subheadline))
                 .foregroundStyle(theme.secondaryText)
                 .buttonStyle(.plain)

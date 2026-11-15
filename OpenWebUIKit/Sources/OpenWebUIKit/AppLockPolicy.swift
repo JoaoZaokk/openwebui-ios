@@ -27,6 +27,17 @@ public struct AppLockPolicy: Equatable, Sendable {
     /// kit does not depend on either.
     public enum Phase: Equatable, Sendable { case active, inactive, background }
 
+    /// How one LocalAuthentication round ended. Mirrored here so what each
+    /// ending means for the lock is decided (and tested) in the kit.
+    public enum AuthOutcome: Equatable, Sendable {
+        case success
+        /// The person dismissed the sheet, or the system did (app switched away).
+        case cancelled
+        /// Nothing to authenticate with: no passcode set, biometrics gone.
+        case unavailable
+        case failed
+    }
+
     public private(set) var isEnabled: Bool
     public private(set) var isLocked: Bool
     public private(set) var phase: Phase
@@ -39,6 +50,10 @@ public struct AppLockPolicy: Equatable, Sendable {
     /// A system authentication sheet is up (the unlock itself, or the one that
     /// confirms turning the setting on). The scene goes `.inactive` under it.
     public private(set) var isAuthenticating = false
+    /// Why the last unlock attempt did not open the app, for the cover to show
+    /// (review finding #19: a button that does nothing and says nothing). Only
+    /// `.failed`; a cancel is the person's own choice and needs no explanation.
+    public private(set) var lastFailure: AuthOutcome?
 
     /// - Parameter phase: where the scene is when the policy is created. A cold
     ///   launch begins `.inactive`, and the lock starts engaged when enabled.
@@ -79,17 +94,52 @@ public struct AppLockPolicy: Equatable, Sendable {
     }
 
     /// The setting changed. Turning it on is only done after an authentication
-    /// that just succeeded, so the session that enabled it stays open and the
-    /// lock guards every later return. Turning it off opens whatever was locked.
+    /// that just succeeded, so the session that enabled it stays open (unless
+    /// the app is already in the background, see below) and the lock guards
+    /// every later return. Turning it off opens whatever was locked.
     public mutating func setEnabled(_ enabled: Bool, authenticatedAt now: Date) {
         guard enabled != isEnabled else { return }
         isEnabled = enabled
         isLocked = false
         backgroundedAt = nil
         lastUnlock = enabled ? now : nil
+        lastFailure = nil
+        // The confirmation sheet can lose the race with the scene: the success
+        // arrives after the app went to the background. While the lock was off
+        // that trip recorded nothing and the snapshot was uncovered, so the
+        // session must not be left open behind the person's back; start the
+        // absence now so the next return asks (review finding #21).
+        if enabled, phase == .background {
+            isLocked = true
+            backgroundedAt = now
+        }
     }
 
-    public mutating func beginAuthentication() { isAuthenticating = true }
+    /// Settles an unlock attempt, `.success` included.
+    ///
+    /// `.unavailable` turns the lock off: with no passcode the cover could never
+    /// be opened again, and the switch that turns the lock off is in Settings,
+    /// behind that same cover. A lock nobody can open is not a lock, it is a
+    /// reason to delete the app (review finding #19). The caller persists the
+    /// setting when `isEnabled` went from true to false here.
+    public mutating func authenticationFinished(_ outcome: AuthOutcome, at now: Date) {
+        switch outcome {
+        case .success:
+            lastFailure = nil
+            didUnlock(at: now)
+        case .cancelled:
+            lastFailure = nil
+        case .failed:
+            lastFailure = .failed
+        case .unavailable:
+            if isEnabled { setEnabled(false, authenticatedAt: now) }
+        }
+    }
+
+    public mutating func beginAuthentication() {
+        isAuthenticating = true
+        lastFailure = nil
+    }
     public mutating func endAuthentication() { isAuthenticating = false }
 
     // MARK: - Derived
@@ -97,9 +147,16 @@ public struct AppLockPolicy: Equatable, Sendable {
     /// The full-screen cover must be up: locked, or the scene is not active (so
     /// the app switcher snapshot is blank). Not while a system sheet is the
     /// reason the scene is inactive and nothing is locked — Settings would blink.
-    public var coverVisible: Bool {
+    public var coverVisible: Bool { coverVisible(forScene: phase) }
+
+    /// The same rule for one scene, given that scene's OWN phase. `phase` is the
+    /// aggregate (active while any scene is), which is right for locking but
+    /// wrong for covering: on iPad scene B goes to the app switcher or Slide
+    /// Over while scene A stays active, and B's snapshot must be blank too
+    /// (review finding #20).
+    public func coverVisible(forScene scenePhase: Phase) -> Bool {
         guard isEnabled else { return false }
-        return isLocked || (phase != .active && !isAuthenticating)
+        return isLocked || (scenePhase != .active && !isAuthenticating)
     }
 
     /// Present the system prompt now: locked, in the foreground, none up yet.

@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Каб рабіць здымкі і дадаваць іх да размоў.";
 "NSPhotoLibraryAddUsageDescription" = "Каб захоўваць выявы з размоў у вашу галерэю.";
 "NSLocalNetworkUsageDescription" = "Праграме патрэбны доступ да вашага сервера Open WebUI у лакальнай сетцы.";
+"NSFaceIDUsageDescription" = "Каб разблакіраваць праграму з дапамогай Face ID, калі блакіроўка ўключана.";

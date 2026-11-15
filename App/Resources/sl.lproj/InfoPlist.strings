@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Za fotografiranje in pripenjanje fotografij k pogovorom.";
 "NSPhotoLibraryAddUsageDescription" = "Za shranjevanje slik iz pogovorov v vašo knjižnico fotografij.";
 "NSLocalNetworkUsageDescription" = "Aplikacija mora dostopati do vašega strežnika Open WebUI v krajevnem omrežju.";
+"NSFaceIDUsageDescription" = "Za odklepanje aplikacije s Face ID, ko je zaklep vklopljen.";

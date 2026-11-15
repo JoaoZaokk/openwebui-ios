@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "เพื่อถ่ายและแนบรูปภาพในการสนทนา";
 "NSPhotoLibraryAddUsageDescription" = "เพื่อบันทึกรูปภาพจากการสนทนาลงแกลเลอรีของคุณ";
 "NSLocalNetworkUsageDescription" = "แอปต้องเข้าถึงเซิร์ฟเวอร์ Open WebUI ของคุณในเครือข่ายท้องถิ่น";
+"NSFaceIDUsageDescription" = "__NSFaceIDUsageDescription__เพื่อปลดล็อกแอปด้วย Face ID เมื่อเปิดใช้การล็อก";

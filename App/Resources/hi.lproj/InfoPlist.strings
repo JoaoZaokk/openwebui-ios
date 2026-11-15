@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "फ़ोटो लेकर बातचीत में जोड़ने के लिए।";
 "NSPhotoLibraryAddUsageDescription" = "बातचीत की छवियाँ आपकी गैलरी में सहेजने के लिए।";
 "NSLocalNetworkUsageDescription" = "ऐप को आपके लोकल नेटवर्क पर Open WebUI सर्वर तक पहुँच चाहिए।";
+"NSFaceIDUsageDescription" = "__NSFaceIDUsageDescription__लॉक चालू होने पर Face ID से ऐप अनलॉक करने के लिए।";

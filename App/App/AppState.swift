@@ -16,7 +16,13 @@ final class AppState: ObservableObject {
     @Published var loggingIn = false
     /// Set while a sign-in the server stopped at a second-factor step waits for the
     /// person. The login screen swaps its form for the step.
-    @Published var mfaPrompt: MFAPrompt?
+    @Published var mfaPrompt: MFAPrompt? {
+        // Every change of what the person is looking at is a new epoch: a verify
+        // that was answered for a challenge they have since left (cancelled, or
+        // the server changed) knows it by this number (Auth review #10/#11).
+        didSet { mfaEpoch &+= 1 }
+    }
+    private var mfaEpoch = 0
 
     /// A sign-in that did not end in a session: the server wants a second factor
     /// (Open WebUI 0.13 `next_step`) before it will issue one.
@@ -302,12 +308,27 @@ final class AppState: ObservableObject {
     /// recovery code.
     func verifyMFA(code: String, recovery: Bool) async {
         guard let prompt = mfaPrompt, prompt.challenge.kind == .verify else { return }
+        let epoch = mfaEpoch
         loginError = nil; loggingIn = true
         defer { loggingIn = false }
         do {
-            user = try await client.verifyMFA(challenge: prompt.challenge, code: code, recovery: recovery)
+            let verified = try await client.verifyMFA(challenge: prompt.challenge, code: code, recovery: recovery)
+            guard epoch == mfaEpoch else {
+                // The person backed out of this challenge while the code was in
+                // the air, and the server accepted it anyway. They are not
+                // signed in as far as they know — make that true, instead of
+                // jumping to the main screen over a Cancelar (Auth review #10).
+                // (A server switch never gets here: the client discards that
+                // answer itself.)
+                await client.signOut()
+                return
+            }
+            user = verified
             await finishSignIn(account: prompt.account)
         } catch let e as OWMFAError {
+            // An answer for a challenge that is no longer on screen has nothing
+            // to say to the screen that is (Auth review #10/#11).
+            guard epoch == mfaEpoch else { return }
             if e.failure.endsChallenge {
                 // The challenge is spent or gone: a new one needs a new sign-in.
                 mfaPrompt = nil
@@ -317,6 +338,7 @@ final class AppState: ObservableObject {
             }
         } catch is CancellationError {
         } catch {
+            guard epoch == mfaEpoch else { return }
             mfaPrompt?.message = OWFailure.msg(error)
         }
     }

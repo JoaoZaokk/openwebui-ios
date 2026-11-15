@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Fotoğraf çekip sohbetlere eklemek için.";
 "NSPhotoLibraryAddUsageDescription" = "Sohbetlerdeki görselleri galerinize kaydetmek için.";
 "NSLocalNetworkUsageDescription" = "Uygulamanın yerel ağdaki Open WebUI sunucunuza erişmesi gerekiyor.";
+"NSFaceIDUsageDescription" = "Kilit açıkken uygulamanın kilidini Face ID ile açmak için.";

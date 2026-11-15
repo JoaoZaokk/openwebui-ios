@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "لالتقاط صور وإرفاقها بالمحادثات.";
 "NSPhotoLibraryAddUsageDescription" = "لحفظ صور المحادثات في المعرض.";
 "NSLocalNetworkUsageDescription" = "يحتاج التطبيق إلى الوصول إلى الخادم Open WebUI على شبكتك المحلية.";
+"NSFaceIDUsageDescription" = "لإلغاء قفل التطبيق باستخدام Face ID عند تفعيل القفل.";

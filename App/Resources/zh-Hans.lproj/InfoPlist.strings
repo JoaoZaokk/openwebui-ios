@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "用于拍摄照片并添加到会话中。";
 "NSPhotoLibraryAddUsageDescription" = "用于将会话中的图像保存到相册。";
 "NSLocalNetworkUsageDescription" = "应用需要访问本地网络中的 Open WebUI 服务器。";
+"NSFaceIDUsageDescription" = "__NSFaceIDUsageDescription__在锁定开启时,使用 Face ID 解锁 App。";

@@ -372,8 +372,41 @@ extension OWKeychainStore {
               let raw = String(data: data, encoding: .utf8) else {
             return Self.delete(Self.credentialsKey, service: serviceName)
         }
-        let ok = Self.set(raw, key: Self.credentialsKey, service: serviceName)
+        let ok = write(raw, key: Self.credentialsKey)
         save(token: credentials.token)
         return ok
     }
+
+    // MARK: Pending refresh
+
+    static let pendingRefreshKey = "session.pendingRefresh"
+
+    /// The refresh in flight, if the process died with one: which refresh token
+    /// it was spent on, and the `request_id` sent with it.
+    func loadPendingRefresh() -> OWPendingRefresh? {
+        guard let raw = Self.get(Self.pendingRefreshKey, service: serviceName),
+              let data = raw.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(OWPendingRefresh.self, from: data)
+    }
+
+    @discardableResult
+    func save(pendingRefresh: OWPendingRefresh?) -> Bool {
+        guard let pendingRefresh, let data = try? JSONEncoder().encode(pendingRefresh),
+              let raw = String(data: data, encoding: .utf8) else {
+            return Self.delete(Self.pendingRefreshKey, service: serviceName)
+        }
+        return write(raw, key: Self.pendingRefreshKey)
+    }
+}
+
+/// A rotation the server may have performed whose answer this process may never
+/// have read (Auth review #1). `POST /refresh` is idempotent only for the same
+/// `(refresh_token, request_id)` pair — the server's `refresh_retry` — so the id
+/// has to live as long as the token does, across a kill, not just in memory.
+/// It is a second copy of a secret the Keychain already holds in
+/// `session.credentials`, in the same accessibility class, and is deleted with
+/// it.
+struct OWPendingRefresh: Codable, Equatable, Sendable {
+    var refreshToken: String
+    var requestID: String
 }

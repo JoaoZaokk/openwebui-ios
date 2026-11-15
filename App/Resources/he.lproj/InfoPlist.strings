@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "כדי לצלם ולצרף תמונות לשיחות.";
 "NSPhotoLibraryAddUsageDescription" = "כדי לשמור תמונות מהשיחות בגלריה שלך.";
 "NSLocalNetworkUsageDescription" = "האפליקציה צריכה גישה לשרת Open WebUI ברשת המקומית שלך.";
+"NSFaceIDUsageDescription" = "כדי לבטל את נעילת האפליקציה באמצעות Face ID כשהנעילה פעילה.";

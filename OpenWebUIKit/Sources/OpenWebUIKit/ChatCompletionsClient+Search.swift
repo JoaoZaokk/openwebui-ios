@@ -32,11 +32,26 @@ extension ChatCompletionsClient {
         if refused { refusesTools.insert(model) } else { refusesTools.remove(model) }
     }
 
+    /// Whether a failed first request says the provider will not take `tools`
+    /// (Ollama: 400 "does not support tools"; others answer 422), as opposed to
+    /// being briefly down: only this may be remembered per model. A 429, a 5xx,
+    /// a gateway timeout or an SSE error frame says nothing about tools, and
+    /// treating it so switched notes and web search off for the model until the
+    /// app restarted (review finding 14). `status` is nil for an error frame.
+    static func refusesTools(status: Int?, message: String?) -> Bool {
+        if let status, status == 400 || status == 422 { return true }
+        let m = (message ?? "").lowercased()
+        return m.contains("tool") || m.contains("function")
+    }
+
     /// Tool rounds one reply may take before it is asked for its answer with
     /// nothing offered. A lookup that needs `search_notes` and then `view_note`
     /// is two; the third is slack for a second look. The cap is what keeps a model
     /// that never stops asking from looping.
     static let maxToolRounds = 3
+    /// Notes calls run in one round; the rest get an error result.
+    static let maxNotesCallsPerRound = 3
+    static let skippedCallMessage = "Call not run: at most \(maxNotesCallsPerRound) notes calls are run per round. Call it again if you still need it."
 
     /// `stream`, plus everything a tool call needs on a request that does not
     /// come from a browser tab (where the server would run it):
@@ -89,8 +104,8 @@ extension ChatCompletionsClient {
                           into c: AsyncThrowingStream<OWStreamUpdate, Error>.Continuation) async throws {
         let notesOn = notes && options.toolIDs.isEmpty && !options.webSearch
         let toolsAllowed = !Self.toolsRefused(by: model)
-        let offerSearch = search.offer && search.mayRun && toolsAllowed
-        let offerNotes = notesOn && toolsAllowed
+        var offerSearch = search.offer && search.mayRun && toolsAllowed
+        var offerNotes = notesOn && toolsAllowed
         var plain = options
         plain.offerWebSearch = false
         plain.offerNotes = false
@@ -105,6 +120,12 @@ extension ChatCompletionsClient {
             // Remembered only once the same request without `tools` went through:
             // a server that is simply down fails both ways.
             if end != .failed { Self.rememberToolsRefused(by: model) }
+            // The provider just said no to `tools`: the rounds that follow must
+            // not offer them again (a plain retry that wrote a call out as text
+            // would otherwise get a follow-up sent with `tools` and refused once
+            // more — review finding 17).
+            offerSearch = false
+            offerNotes = false
         }
 
         var followUp = messages
@@ -160,12 +181,18 @@ extension ChatCompletionsClient {
             let more = round < Self.maxToolRounds && (offerNotes || offerSearchNext)
 
             var blocks: [String] = []
-            for call in notesCalls.prefix(3) {
+            for call in notesCalls.prefix(Self.maxNotesCallsPerRound) {
                 c.yield(.toolRunning(call.name))
                 let result = try await client.runNotesTool(call)
                 try Task.checkCancellation()
                 c.yield(.toolUsed(result.use))
                 blocks.append("<notes_tool_result tool=\"\(call.name)\">\n\(result.text)\n</notes_tool_result>")
+            }
+            // A call beyond the cap is answered, not dropped: with no block the
+            // model could answer as if it had read the note, or invent it
+            // (review finding 16).
+            for call in notesCalls.dropFirst(Self.maxNotesCallsPerRound) {
+                blocks.append("<notes_tool_result tool=\"\(call.name)\">\n\(OpenWebUIClient.jsonText(["error": Self.skippedCallMessage]))\n</notes_tool_result>")
             }
             if !blocks.isEmpty {
                 followUp = Self.noting(blocks.joined(separator: "\n") + "\n" + (more ? Self.notesResultNote : Self.notesFinalNote),
@@ -220,7 +247,7 @@ extension ChatCompletionsClient {
                     show(filter.feed(d))
                 case .toolCall(let call):
                     structured.append(call)
-                case .error where toolsOffered && !shown:
+                case .error(let why) where toolsOffered && !shown && Self.refusesTools(status: nil, message: why):
                     return (.refusedTools, false)
                 case .error:
                     failed = true
@@ -233,13 +260,14 @@ extension ChatCompletionsClient {
                     c.yield(u)
                 }
             }
-        } catch let e as OWError where toolsOffered && !shown {
-            if case .notAuthenticated = e { throw e }
-            return (.refusedTools, false)
         } catch let e as OWError {
-            // Reported by the caller as it always was; recorded here only so a
-            // retry that failed too is not taken for a provider without tools.
-            if !toolsOffered { failed = true }
+            // Only a refusal that is about tools asks again without them; any
+            // other failure (429, 5xx, a dead network, a dead session) is the
+            // caller's, as it always was.
+            if toolsOffered && !shown, case .http(let code, let why) = e,
+               Self.refusesTools(status: code, message: why) {
+                return (.refusedTools, false)
+            }
             throw e
         }
         try Task.checkCancellation()

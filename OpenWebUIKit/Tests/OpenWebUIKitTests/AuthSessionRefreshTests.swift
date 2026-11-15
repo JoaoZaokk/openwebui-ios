@@ -333,15 +333,18 @@ final class AuthSessionRefreshTests: XCTestCase {
         }
     }
 
-    /// A 403 is "account approval is required" (`verify_proof`): the role
-    /// changed, the session did not die.
-    func testAnApprovalRefusalOnRefreshIsReportedNotASignOut() async {
+    /// A 403 is "account approval is required" (`verify_proof`): the user was
+    /// deactivated or set back to pending. The refresh token is never going to
+    /// work again, so the session ends (1.13 review, Auth #0) instead of leaving
+    /// the app "signed in" on a token that errors on every screen.
+    func testAnApprovalRefusalOnRefreshEndsTheSession() async {
         StubTransport.route(refreshPath, .json(#"{"detail":"Account approval is required."}"#, status: 403))
         routeMe()
         let c = client(credentials(accessLife: 10))
-        _ = try? await c.me()
-        XCTAssertEqual(endedCount, 0)
-        XCTAssertTrue(c.isAuthenticated)
+        let e = await owError { try await c.me() }
+        guard case .notAuthenticated? = e else { return XCTFail("\(String(describing: e))") }
+        XCTAssertEqual(endedCount, 1)
+        XCTAssertFalse(c.isAuthenticated)
     }
 
     // MARK: - Rotation

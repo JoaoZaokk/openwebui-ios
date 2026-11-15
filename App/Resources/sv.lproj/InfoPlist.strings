@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "För att ta och bifoga foton till konversationer.";
 "NSPhotoLibraryAddUsageDescription" = "För att spara bilder från konversationer i ditt bildbibliotek.";
 "NSLocalNetworkUsageDescription" = "Appen behöver nå din Open WebUI-server i det lokala nätverket.";
+"NSFaceIDUsageDescription" = "Så att du kan låsa upp appen med Face ID när låset är aktiverat.";

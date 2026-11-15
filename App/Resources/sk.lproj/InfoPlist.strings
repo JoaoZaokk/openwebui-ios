@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Na fotenie a prikladanie fotiek ku konverzáciám.";
 "NSPhotoLibraryAddUsageDescription" = "Na ukladanie obrázkov z konverzácií do vašej knižnice fotiek.";
 "NSLocalNetworkUsageDescription" = "Aplikácia potrebuje prístup k vášmu serveru Open WebUI v lokálnej sieti.";
+"NSFaceIDUsageDescription" = "Na odomknutie aplikácie pomocou Face ID, keď je zámok zapnutý.";

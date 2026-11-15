@@ -275,7 +275,15 @@ public struct OWToolUse: Identifiable, Hashable, Sendable {
     public var query: String
     public var results: String       // the raw text the model was given
     public var sources: [OWSource]
-    public var id: String { "\(action)|\(query)|\(sources.count)|\(results.count)" }
+    /// Set for a card an app-side tool made (review finding 18): the other
+    /// fields can be identical across two calls (same query, or two equal-titled
+    /// notes cut to the same length), and a `ForEach` over equal ids drops or
+    /// repeats cards. Not persisted; a card read back from the server has none.
+    public var callID: String?
+    public var id: String {
+        let base = "\(action)|\(query)|\(sources.count)|\(results.count)"
+        return callID.map { base + "|" + $0 } ?? base
+    }
     public var title: String {
         if !query.isEmpty { return query }
         switch action {
@@ -299,8 +307,9 @@ public struct OWToolUse: Identifiable, Hashable, Sendable {
         default:           return "wrench.and.screwdriver"
         }
     }
-    public init(action: String, query: String, results: String, sources: [OWSource]) {
+    public init(action: String, query: String, results: String, sources: [OWSource], callID: String? = nil) {
         self.action = action; self.query = query; self.results = results; self.sources = sources
+        self.callID = callID
     }
 }
 

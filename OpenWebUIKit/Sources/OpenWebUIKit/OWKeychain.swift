@@ -20,6 +20,25 @@ public final class OWKeychainStore: OWTokenStore, @unchecked Sendable {
     /// For the extensions in other files, which cannot see `service`.
     var serviceName: String { service }
 
+    /// Test seam (1.13 review, Auth #4): when set, a non-nil write for which it
+    /// answers true fails as if the Keychain had refused it (`errSecInteraction
+    /// NotAllowed`, a full disk). The real Keychain cannot be made to fail on
+    /// demand, and "the write failed" is exactly the case under test. Never set
+    /// outside tests.
+    var writeFault: (@Sendable (_ key: String) -> Bool)? {
+        get { faultLock.lock(); defer { faultLock.unlock() }; return _writeFault }
+        set { faultLock.lock(); _writeFault = newValue; faultLock.unlock() }
+    }
+    private let faultLock = NSLock()
+    private var _writeFault: (@Sendable (String) -> Bool)?
+
+    /// `set`, through the test seam.
+    @discardableResult
+    func write(_ value: String?, key: String) -> Bool {
+        if value != nil, let fault = writeFault, fault(key) { return false }
+        return Self.set(value, key: key, service: service)
+    }
+
     // MARK: Token
     public func loadToken() -> String? { Self.get("session.token", service: service) }
     public func save(token: String?) { Self.set(token, key: "session.token", service: service) }
@@ -42,6 +61,7 @@ public final class OWKeychainStore: OWTokenStore, @unchecked Sendable {
     public func clear() {
         save(token: nil)
         save(credentials: nil)
+        save(pendingRefresh: nil)
         saveCredentials(email: nil, password: nil)
         save(cacheOwner: nil)
     }
