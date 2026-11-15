@@ -103,6 +103,10 @@ struct SettingsView: View {
                         }
                     }
 
+                    #if os(iOS)
+                    AppLockSettingsSection()
+                    #endif
+
                     section("VOZ") {
                         NavigationLink {
                             VoiceSettingsView()

@@ -180,6 +180,7 @@ targets:
         NSPhotoLibraryUsageDescription: "Para anexar imagens às conversas."
         NSCameraUsageDescription: "Para capturar e anexar fotos às conversas."
         NSPhotoLibraryAddUsageDescription: "Para salvar imagens das conversas na sua galeria."
+        NSFaceIDUsageDescription: "Para desbloquear o app com Face ID quando o bloqueio estiver ativado."
         NSAppTransportSecurity:
           # LAN-scoped only: plain HTTP allowed to local/private hosts; public hosts
           # use HTTPS (enforced app-side by OWConfig.normalize). No arbitrary loads.

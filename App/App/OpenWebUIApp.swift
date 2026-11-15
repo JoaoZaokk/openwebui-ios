@@ -12,7 +12,14 @@ struct OpenWebUIApp: App {
     @AppStorage("design.phoneMode") private var phoneMode = false
     #endif
 
-    init() { FontLoader.registerBundledFonts() }
+    init() {
+        FontLoader.registerBundledFonts()
+        #if os(iOS)
+        // Before the first scene connects, so the cover window is up before the
+        // first frame of a cold launch with the lock on.
+        AppLock.shared.start()
+        #endif
+    }
 
     var body: some Scene {
         WindowGroup {

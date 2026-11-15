@@ -124,6 +124,8 @@
 	</dict>
 	<key>NSCameraUsageDescription</key>
 	<string>Para capturar e anexar fotos às conversas.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Para desbloquear o app com Face ID quando o bloqueio estiver ativado.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>O app precisa acessar o servidor Open WebUI na sua rede local.</string>
 	<key>NSMicrophoneUsageDescription</key>

@@ -4,3 +4,4 @@
 "NSCameraUsageDescription" = "Para capturar e anexar fotos às conversas.";
 "NSPhotoLibraryAddUsageDescription" = "Para salvar imagens das conversas na sua galeria.";
 "NSLocalNetworkUsageDescription" = "O app precisa acessar o servidor Open WebUI na sua rede local.";
+"NSFaceIDUsageDescription" = "Para desbloquear o app com Face ID quando o bloqueio estiver ativado.";
