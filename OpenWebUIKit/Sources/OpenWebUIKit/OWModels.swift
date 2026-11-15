@@ -726,7 +726,11 @@ public struct OWServerConfig: Decodable, Sendable {
         public var enablePlugins: Bool?
         /// Only in the signed-in answer; absent from the public one.
         public var enableWebSearch: Bool?
+        /// 0.13: the server has `/api/v1/auths/sessions`, so a native client can
+        /// sign in through the system browser (main.py:2478, public).
+        public var authSessions: Bool?
         enum CodingKeys: String, CodingKey {
+            case authSessions = "auth_sessions"
             case auth
             case enableLoginForm = "enable_login_form"
             case enableLdap = "enable_ldap"

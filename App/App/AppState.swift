@@ -14,6 +14,19 @@ final class AppState: ObservableObject {
     // Login flow
     @Published var loginError: String?
     @Published var loggingIn = false
+    /// Set while a sign-in the server stopped at a second-factor step waits for the
+    /// person. The login screen swaps its form for the step.
+    @Published var mfaPrompt: MFAPrompt?
+
+    /// A sign-in that did not end in a session: the server wants a second factor
+    /// (Open WebUI 0.13 `next_step`) before it will issue one.
+    struct MFAPrompt: Equatable {
+        var challenge: OWMFAChallenge
+        /// What was typed to get here, kept to remember the account on success.
+        var account: String?
+        /// Why the screen is showing it, when a try already failed.
+        var message: String?
+    }
 
     let client: OpenWebUIClient
     let completions: ChatCompletionsClient
@@ -212,13 +225,96 @@ final class AppState: ObservableObject {
         loginError = nil; loggingIn = true
         defer { loggingIn = false }
         do {
-            user = try await client.signIn(email: email, password: password)
-            adoptCacheOwner(claimingLegacy: false)
-            keychain.saveCredentials(email: email, password: nil)   // remember email only
-            await loadModels()
-            phase = .main
+            await conclude(try await client.signInResult(email: email, password: password), account: email)
         } catch {
-            loginError = OWFailure.msg(error)
+            loginError = Self.signInMessage(error)
+        }
+    }
+
+    /// What the sign-in screen says for a failure. A 409 from the server — the
+    /// password or the session stamp changed while the sign-in was under way —
+    /// has one meaning, and it is "start over".
+    static func signInMessage(_ error: Error) -> String {
+        if case OWError.http(409, let detail) = error {
+            return OWMFAFailure.classify(status: 409, detail: detail).message
+        }
+        return OWFailure.msg(error)
+    }
+
+    /// Takes the answer of any sign-in route to where it leads: a session becomes
+    /// the signed-in state; a second-factor step becomes a prompt; `pending` — an
+    /// account waiting for an administrator — becomes a sentence.
+    private func conclude(_ result: OWSignInResult, account: String?) async {
+        switch result {
+        case .session(let s):
+            user = OWUser(session: s)
+            await finishSignIn(account: account)
+        case .mfa(let challenge):
+            mfaPrompt = MFAPrompt(challenge: challenge, account: account, message: nil)
+        case .pending:
+            loginError = OWFailure.msg(OWError.pendingApproval)
+        }
+    }
+
+    /// What every sign-in does once the server has accepted it: scope the cache
+    /// to the account, remember who it was, load what the app opens on.
+    private func finishSignIn(account: String?) async {
+        adoptCacheOwner(claimingLegacy: false)
+        if let account = account ?? user?.email, !account.isEmpty {
+            keychain.saveCredentials(email: account, password: nil)   // remember the account only
+        }
+        mfaPrompt = nil
+        await loadModels()
+        phase = .main
+        await flushPendingChats()
+    }
+
+    /// Answers the second-factor step with an authenticator code, or with a
+    /// recovery code.
+    func verifyMFA(code: String, recovery: Bool) async {
+        guard let prompt = mfaPrompt, prompt.challenge.kind == .verify else { return }
+        loginError = nil; loggingIn = true
+        defer { loggingIn = false }
+        do {
+            user = try await client.verifyMFA(challenge: prompt.challenge, code: code, recovery: recovery)
+            await finishSignIn(account: prompt.account)
+        } catch let e as OWMFAError {
+            if e.failure.endsChallenge {
+                // The challenge is spent or gone: a new one needs a new sign-in.
+                mfaPrompt = nil
+                loginError = e.failure.message
+            } else {
+                mfaPrompt?.message = e.failure.message
+            }
+        } catch is CancellationError {
+        } catch {
+            mfaPrompt?.message = OWFailure.msg(error)
+        }
+    }
+
+    /// Leaves the second-factor step and goes back to the form.
+    func cancelMFA() {
+        mfaPrompt = nil
+        loginError = nil
+    }
+
+    /// Signs in through the system browser (`features.auth_sessions`): Safari's
+    /// own session, passkeys and password manager, which a web view has none of
+    /// (issue #13). `provider` is the key of the SSO button the person tapped, or
+    /// nil for the general "Entrar pelo navegador".
+    func loginWithBrowser(provider: String?) async {
+        loginError = nil; loggingIn = true
+        defer { loggingIn = false }
+        let host = LoopbackBrowserHost()
+        do {
+            user = try await client.signInThroughBrowser(
+                host: host, deviceName: OWBrowserSignIn.requestName(deviceLabel: BugReport.deviceLabel),
+                provider: provider)
+            await finishSignIn(account: nil)
+        } catch is CancellationError {
+            // The person closed the browser. Not a failure, and nothing to say.
+        } catch {
+            loginError = Self.signInMessage(error)
         }
     }
 
@@ -244,15 +340,11 @@ final class AppState: ObservableObject {
         defer { loggingIn = false }
         do {
             let providerToken = try await NativeSSO.signIn(provider: provider, anchor: anchor)
-            user = try await client.exchangeOAuthToken(provider: provider, providerToken: providerToken)
-            adoptCacheOwner(claimingLegacy: false)
-            if let email = user?.email, !email.isEmpty {
-                keychain.saveCredentials(email: email, password: nil)
-            }
-            await loadModels()
-            phase = .main
-            await flushPendingChats()
-            return .signedIn
+            let result = try await client.exchangeOAuthTokenResult(provider: provider, providerToken: providerToken)
+            await conclude(result, account: nil)
+            // A second-factor step or an unapproved account is not a failure, and
+            // is already on screen; only a session is "signed in".
+            return phase == .main ? .signedIn : .failed
         } catch is CancellationError {
             return .cancelled
         } catch let e as ASWebAuthenticationSessionError where e.code == .canceledLogin {
@@ -264,7 +356,7 @@ final class AppState: ObservableObject {
             // sheet's error would strand them; the web view gets them in.
             return .serverRefused
         } catch {
-            loginError = OWFailure.msg(error)
+            loginError = Self.signInMessage(error)
             return .failed
         }
     }
@@ -275,13 +367,7 @@ final class AppState: ObservableObject {
         defer { loggingIn = false }
         do {
             user = try await client.adopt(token: token)
-            adoptCacheOwner(claimingLegacy: false)
-            if let email = user?.email, !email.isEmpty {
-                keychain.saveCredentials(email: email, password: nil)
-            }
-            await loadModels()
-            phase = .main
-            await flushPendingChats()
+            await finishSignIn(account: nil)
         } catch {
             loginError = OWFailure.msg(error)
         }
@@ -291,14 +377,9 @@ final class AppState: ObservableObject {
         loginError = nil; loggingIn = true
         defer { loggingIn = false }
         do {
-            user = try await client.signInLDAP(user: name, password: password)
-            adoptCacheOwner(claimingLegacy: false)
-            keychain.saveCredentials(email: name, password: nil)
-            await loadModels()
-            phase = .main
-            await flushPendingChats()
+            await conclude(try await client.signInLDAPResult(user: name, password: password), account: name)
         } catch {
-            loginError = OWFailure.msg(error)
+            loginError = Self.signInMessage(error)
         }
     }
 
@@ -312,6 +393,7 @@ final class AppState: ObservableObject {
         models = []
         cache.forgetOwner()
         loginError = nil
+        mfaPrompt = nil
         phase = .login
     }
 
@@ -384,6 +466,7 @@ final class AppState: ObservableObject {
         // it happened, because the session on screen no longer has one.
         client.updateConfig(cfg.owConfig)
         serverFeatures = nil
+        mfaPrompt = nil   // a challenge belongs to the server that issued it
         if !client.isAuthenticated { endSession(reason: nil) }
         loginError = nil
         Task { await loadServerFeatures() }

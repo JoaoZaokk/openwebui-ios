@@ -56,11 +56,19 @@ extension OpenWebUIClient {
         var req = URLRequest(url: url)
         // Only our own server gets the session. A URL in a message is server- or
         // model-supplied and can point anywhere.
-        if let token, isSameOrigin(url) {
+        let ours = isSameOrigin(url)
+        if ours, let token = try await freshToken() {
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         req.timeoutInterval = 60
-        let (data, resp) = try await longSession.data(for: req)
+        var (data, resp) = try await longSession.data(for: req)
+        // A browser session's token may simply have aged. Renewed once — but only
+        // if the token is not brand new: a picture the server will not give is not
+        // a reason to spend a rotation on each one.
+        if ours, (resp as? HTTPURLResponse)?.statusCode == 401,
+           let retry = try await renewedRequest(after: req, minimumAge: 30) {
+            (data, resp) = try await longSession.data(for: retry)
+        }
         if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw OWError.http(http.statusCode, Self.detail(from: data))
         }

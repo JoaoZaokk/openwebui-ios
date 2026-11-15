@@ -77,6 +77,14 @@ final class StubTransport: URLProtocol {
     /// Every body sent to `path`, in order — `sentBodies` keeps only the last.
     nonisolated(unsafe) private(set) static var allBodies: [String: [Data]] = [:]
 
+    /// Every header set sent to `path`, in order — `sentHeaders` keeps only the
+    /// last, and a test about tokens needs to know which one each call carried.
+    nonisolated(unsafe) private(set) static var allHeaders: [String: [[String: String]]] = [:]
+    /// Called for every request, on the loading thread, after it is recorded and
+    /// before it is answered. For a test that has to look at the world *while* a
+    /// request is in flight — what was already persisted when it went out.
+    nonisolated(unsafe) static var onRequest: ((URLRequest) -> Void)?
+
     static func routeSequence(_ path: String, _ replies: [Reply]) {
         lock.lock(); defer { lock.unlock() }
         queued[path] = replies
@@ -84,7 +92,7 @@ final class StubTransport: URLProtocol {
 
     static func reset() {
         lock.lock(); defer { lock.unlock() }
-        routes = [:]; seen = []; sentBodies = [:]; sentHeaders = [:]; sentTimeouts = [:]; queued = [:]; allBodies = [:]
+        routes = [:]; seen = []; sentBodies = [:]; sentHeaders = [:]; sentTimeouts = [:]; queued = [:]; allBodies = [:]; allHeaders = [:]; onRequest = nil
     }
 
     static func requested(_ path: String) -> Bool {
@@ -108,6 +116,7 @@ final class StubTransport: URLProtocol {
         Self.lock.lock()
         Self.seen.append(path)
         Self.sentHeaders[path] = request.allHTTPHeaderFields ?? [:]
+        Self.allHeaders[path, default: []].append(request.allHTTPHeaderFields ?? [:])
         Self.sentTimeouts[path] = request.timeoutInterval
         // `httpBody` is nil for a body set through a stream (multipart uploads),
         // so fall back to draining the stream.
@@ -120,7 +129,9 @@ final class StubTransport: URLProtocol {
         } else {
             reply = Self.routes[path]
         }
+        let observer = Self.onRequest
         Self.lock.unlock()
+        observer?(request)
 
         guard let reply else {
             client?.urlProtocol(self, didFailWithError: URLError(

@@ -37,6 +37,11 @@ struct LoginView: View {
     private var ldapAvailable: Bool { app.serverFeatures?.ldapAvailable ?? false }
     /// A server can turn the password form off entirely and leave only SSO.
     private var passwordAvailable: Bool { app.serverFeatures?.passwordLoginAvailable ?? true }
+    /// 0.13 servers advertise `features.auth_sessions`: sign-in can run in the
+    /// system browser — Safari's session, passkeys, password manager — instead of
+    /// a web view that has none of them (issue #13). An older server says nothing
+    /// and keeps the web-view and native-Google paths exactly as they were.
+    private var browserSignIn: Bool { app.serverFeatures?.browserSignInAvailable ?? false }
 
     var body: some View {
         ZStack {
@@ -57,94 +62,111 @@ struct LoginView: View {
                         .accessibilityIdentifier("login.server")
                 }
 
-                if passwordAvailable || usingLDAP {
-                    VStack(spacing: 14) {
-                        field(title: usingLDAP ? "Usuário" : "Email", text: $email, field: .email)
-                            .textContentType(usingLDAP ? .username : .emailAddress)
-                            .keyboardType(usingLDAP ? .default : .emailAddress)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .submitLabel(.next)
-                            .onSubmit { focus = .pass }
+                if let prompt = app.mfaPrompt {
+                    MFAChallengeView(prompt: prompt, browserAvailable: browserSignIn)
+                } else {
+                    if passwordAvailable || usingLDAP {
+                        VStack(spacing: 14) {
+                            field(title: usingLDAP ? "Usuário" : "Email", text: $email, field: .email)
+                                .textContentType(usingLDAP ? .username : .emailAddress)
+                                .keyboardType(usingLDAP ? .default : .emailAddress)
+                                .textInputAutocapitalization(.never)
+                                .autocorrectionDisabled()
+                                .submitLabel(.next)
+                                .onSubmit { focus = .pass }
 
-                        secureField(title: "Senha", text: $password, field: .pass)
-                            .submitLabel(.go)
-                            .onSubmit(submit)
-                    }
-                    .padding(.horizontal, 4)
-                }
-
-                if let err = app.loginError {
-                    Text(err)
-                        .font(.ody(.footnote))
-                        .foregroundStyle(theme.danger)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-
-                if passwordAvailable || usingLDAP {
-                    Button(action: submit) {
-                        HStack {
-                            if app.loggingIn { ProgressView().tint(theme.onAccent) }
-                            Text("Entrar").font(.ody(.headline))
+                            secureField(title: "Senha", text: $password, field: .pass)
+                                .submitLabel(.go)
+                                .onSubmit(submit)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(theme.accent, in: RoundedRectangle(cornerRadius: Radius.control))
-                        .foregroundStyle(theme.onAccent)
+                        .padding(.horizontal, 4)
                     }
-                    .disabled(!canSubmit)
-                    .opacity(canSubmit ? 1 : 0.6)
-                    .accessibilityIdentifier("login.submit")
-                }
 
-                if app.loggingIn && !(passwordAvailable || usingLDAP) {
-                    // The only spinner on this screen lived inside the password
-                    // button, which a server that offers only SSO never draws — so
-                    // the token exchange ran with nothing on screen moving.
-                    ProgressView().tint(theme.accent)
-                }
+                    if let err = app.loginError {
+                        Text(err)
+                            .font(.ody(.footnote))
+                            .foregroundStyle(theme.danger)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
 
-                // Whatever else this server accepts. Drawn from `/api/config`, so a
-                // server with no SSO configured shows nothing and nothing changes.
-                VStack(spacing: 10) {
-                    ForEach(providers) { p in
-                        alternativeButton(L("Entrar com %@", p.label), icon: "person.badge.key") {
-                            focus = nil
-                            app.loginError = nil
-                            // The system sheet when this provider can use it —
-                            // it reuses Safari's session, so the account is
-                            // already there. The web view otherwise.
-                            explainBrowserStep = false
-                            if NativeSSO.isAvailable(provider: p.id) {
-                                Task {
-                                    // The web view is the fallback, not a dead
-                                    // end: a server that will not take the
-                                    // provider's token still signs people in
-                                    // through its own flow. But it is a second
-                                    // sign-in with nothing remembered, so say why
-                                    // rather than dropping the user into it.
-                                    if await app.loginWithNativeSSO(provider: p.id, anchor: nil) == .serverRefused {
-                                        explainBrowserStep = true
-                                        sso = p
+                    if passwordAvailable || usingLDAP {
+                        Button(action: submit) {
+                            HStack {
+                                if app.loggingIn { ProgressView().tint(theme.onAccent) }
+                                Text("Entrar").font(.ody(.headline))
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(theme.accent, in: RoundedRectangle(cornerRadius: Radius.control))
+                            .foregroundStyle(theme.onAccent)
+                        }
+                        .disabled(!canSubmit)
+                        .opacity(canSubmit ? 1 : 0.6)
+                        .accessibilityIdentifier("login.submit")
+                    }
+
+                    if app.loggingIn && !(passwordAvailable || usingLDAP) {
+                        // The only spinner on this screen lived inside the password
+                        // button, which a server that offers only SSO never draws — so
+                        // the token exchange ran with nothing on screen moving.
+                        ProgressView().tint(theme.accent)
+                    }
+
+                    // Whatever else this server accepts. Drawn from `/api/config`, so a
+                    // server with no SSO configured shows nothing and nothing changes.
+                    VStack(spacing: 10) {
+                        ForEach(providers) { p in
+                            alternativeButton(L("Entrar com %@", p.label), icon: "person.badge.key") {
+                                focus = nil
+                                app.loginError = nil
+                                // The system sheet when this provider can use it —
+                                // it reuses Safari's session, so the account is
+                                // already there. The web view otherwise.
+                                explainBrowserStep = false
+                                if browserSignIn {
+                                    // The server's own page, in the system browser, jumping
+                                    // straight to this provider.
+                                    Task { await app.loginWithBrowser(provider: p.id) }
+                                } else if NativeSSO.isAvailable(provider: p.id) {
+                                    Task {
+                                        // The web view is the fallback, not a dead
+                                        // end: a server that will not take the
+                                        // provider's token still signs people in
+                                        // through its own flow. But it is a second
+                                        // sign-in with nothing remembered, so say why
+                                        // rather than dropping the user into it.
+                                        if await app.loginWithNativeSSO(provider: p.id, anchor: nil) == .serverRefused {
+                                            explainBrowserStep = true
+                                            sso = p
+                                        }
                                     }
+                                } else {
+                                    sso = p
                                 }
-                            } else {
-                                sso = p
+                            }
+                        }
+                        if browserSignIn {
+                            // Whatever the web page offers: passkeys, the password form,
+                            // an SSO the admin added after the app last looked.
+                            alternativeButton(L("Entrar pelo navegador"), icon: "safari", id: "login.browser") {
+                                focus = nil
+                                app.loginError = nil
+                                Task { await app.loginWithBrowser(provider: nil) }
+                            }
+                        }
+                        if ldapAvailable && !usingLDAP {
+                            alternativeButton(L("Entrar com LDAP"), icon: "building.2") {
+                                focus = nil
+                                app.loginError = nil
+                                usingLDAP = true
+                                email = ""; password = ""
                             }
                         }
                     }
-                    if ldapAvailable && !usingLDAP {
-                        alternativeButton(L("Entrar com LDAP"), icon: "building.2") {
-                            focus = nil
-                            app.loginError = nil
-                            usingLDAP = true
-                            email = ""; password = ""
-                        }
-                    }
+                    .disabled(app.loggingIn || !ServerConfig.isConfigured)
+                    .opacity(app.loggingIn || !ServerConfig.isConfigured ? 0.6 : 1)
                 }
-                .disabled(app.loggingIn || !ServerConfig.isConfigured)
-                .opacity(app.loggingIn || !ServerConfig.isConfigured ? 0.6 : 1)
 
                 Spacer()
             }
@@ -194,7 +216,8 @@ struct LoginView: View {
 
     /// A sign-in route other than this server's password form.
     @ViewBuilder
-    private func alternativeButton(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
+    private func alternativeButton(_ title: String, icon: String, id: String? = nil,
+                                   action: @escaping () -> Void) -> some View {
         Button(action: action) {
             HStack(spacing: 8) {
                 Image(systemName: icon).font(.ody(size: 13))
@@ -207,6 +230,7 @@ struct LoginView: View {
             .foregroundStyle(theme.fg)
         }
         .buttonStyle(.plain)
+        .accessibilityIdentifier(id ?? "")
     }
 
     @ViewBuilder

@@ -181,8 +181,17 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         AsyncThrowingStream { continuation in
             let task = Task {
                 do {
-                    let req = try buildRequest(model: model, messages: messages, files: files, options: options)
-                    let (bytes, resp) = try await client.longSession.bytes(for: req)
+                    // `buildRequest` stamps the token held at that moment; a browser
+                    // session's token is minutes old at best, so it is renewed (if it
+                    // needs it) before the stream opens, and once more if the server
+                    // refuses it anyway.
+                    let req = try await client.withFreshToken(
+                        try buildRequest(model: model, messages: messages, files: files, options: options))
+                    var (bytes, resp) = try await client.longSession.bytes(for: req)
+                    if (resp as? HTTPURLResponse)?.statusCode == 401,
+                       let retry = try await client.renewedRequest(after: req) {
+                        (bytes, resp) = try await client.longSession.bytes(for: retry)
+                    }
 
                     if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
                         // Only 401 means the session is gone. A 403 here is the
