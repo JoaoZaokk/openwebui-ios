@@ -330,6 +330,86 @@ final class WalkthroughUITests: XCTestCase {
         snap(app, "sugestoes-reabertas")
     }
 
+    /// Report from 1.12 (iPad): on the web the model knew the person's age from
+    /// Personalization › Memory and answered from their Notes; the app said it had
+    /// no information. The test account holds one memory ("47 anos") and one note
+    /// (the test bench is a Raspberry Pi nicknamed "tartaruga"), put there for
+    /// this test.
+    func testMemoryAndNotesFromTheServerReachTheReply() throws {
+        let f = try fixture()
+        let app = launch()
+        signIn(app, f)
+        _ = converse(app, "Quantos anos eu tenho? Responda só com o número.")
+        snap(app, "memoria")
+        let age = app.staticTexts.matching(NSPredicate(format: "label CONTAINS %@", "47")).firstMatch
+        XCTAssertTrue(age.waitForExistence(timeout: 10), "the reply did not use the memory")
+
+        let field = app.descendants(matching: .any)["composer.field"]
+        field.tap()
+        field.typeText("Procure nas minhas notas: onde roda a bancada de teste do app?")
+        app.buttons["composer.send"].tap()
+        let found = NSPredicate { _, _ in
+            app.buttons["composer.send"].exists
+                && (app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "tartaruga")).count > 0
+                    || app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "Raspberry")).count > 0)
+        }
+        expectation(for: found, evaluatedWith: NSObject())
+        waitForExpectations(timeout: 240)
+        snap(app, "notas")
+    }
+
+    /// Issue #13: sign-in through the system browser, where passkeys, SSO and
+    /// two-step verification work. Signs out first, then types the fixture into
+    /// the server's own sign-in page inside the system sheet.
+    func testSignInThroughTheSystemBrowserAgainstTheServer() throws {
+        let f = try fixture()
+        let app = launch()
+        signIn(app, f)                       // reach a known state with the right server
+        app.tabBars.firstMatch.buttons.element(boundBy: 0).tap()
+        let gear = app.buttons["chats.settings"]
+        if gear.waitForExistence(timeout: 5) { gear.tap() } else { app.buttons["Ajustes"].firstMatch.tap() }
+        for _ in 0..<8 where !app.buttons["Sair"].exists { app.swipeUp() }
+        XCTAssertTrue(app.buttons["Sair"].waitForExistence(timeout: 5), "no Sair in Ajustes")
+        app.buttons["Sair"].tap()
+        if app.alerts.buttons["Sair"].waitForExistence(timeout: 3) { app.alerts.buttons["Sair"].tap() }
+
+        let browser = app.buttons["login.browser"]
+        XCTAssertTrue(browser.waitForExistence(timeout: 30), "the login screen does not offer the browser")
+        snap(app, "login-navegador")
+        browser.tap()
+
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        var accepted = false
+        let deadline = Date().addingTimeInterval(30)
+        while Date() < deadline, !accepted {
+            for label in ["Continuar", "Continue"] where springboard.alerts.buttons[label].exists {
+                springboard.alerts.buttons[label].tap(); accepted = true; break
+            }
+            if !accepted { usleep(300_000) }
+        }
+        XCTAssertTrue(accepted, "the system sign-in alert never appeared")
+
+        // The server's own sign-in page, inside the system sheet.
+        let sheet = XCUIApplication(bundleIdentifier: "com.apple.SafariViewService")
+        let email = sheet.webViews.textFields.firstMatch
+        XCTAssertTrue(email.waitForExistence(timeout: 60), "the server's sign-in page did not load in the sheet")
+        sleep(2)
+        snap(app, "pagina-do-servidor")
+        email.tap()
+        email.typeText(f.email)
+        let pass = sheet.webViews.secureTextFields.firstMatch
+        XCTAssertTrue(pass.waitForExistence(timeout: 5))
+        pass.tap()
+        pass.typeText(f.senha)
+        let submit = sheet.webViews.buttons.matching(NSPredicate(format: "label ==[c] %@ OR label ==[c] %@", "Entrar", "Sign in")).firstMatch
+        if submit.waitForExistence(timeout: 5) { submit.tap() } else { pass.typeText("\n") }
+
+        XCTAssertTrue(app.tabBars.firstMatch.waitForExistence(timeout: 120), "no tab bar after signing in on the server's page")
+        snap(app, "entrou-pelo-navegador")
+        // A request after sign-in works with the browser session's token.
+        _ = converse(app, "Responda só: ok")
+    }
+
     /// Ajustes › Conversa › "Sugestões de continuação" off: nothing is asked for.
     func testWithTheSwitchOffNoSuggestionsAreShown() throws {
         let f = try fixture()
