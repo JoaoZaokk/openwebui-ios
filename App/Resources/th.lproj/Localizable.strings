@@ -419,3 +419,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "ฉันเข้าใจความเสี่ยงและต้องการใช้ HTTP";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "ยังไม่ได้ยืนยันการเชื่อมต่อ HTTP สำหรับ %@ เปิดเซิร์ฟเวอร์และยืนยันการใช้ HTTP";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS บล็อกการเข้าถึงเครือข่ายในพื้นที่ ใน การตั้งค่า › OpenWebUI ให้เปิด เครือข่ายในพื้นที่";
+"Abrir Ajustes" = "เปิดการตั้งค่า";

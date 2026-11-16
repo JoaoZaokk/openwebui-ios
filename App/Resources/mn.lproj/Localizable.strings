@@ -419,3 +419,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "Эрсдлийг ойлгож байна, HTTP ашиглахыг хүсч байна";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@-д HTTP холболт баталгаажаагүй байна. Сервер-ийг нээж HTTP ашиглахыг баталгаажуулна уу.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS орон нутгийн сүлжээнд хандахыг хаасан. Тохиргоо › OpenWebUI хэсгээс Орон нутгийн сүлжээг асаана уу.";
+"Abrir Ajustes" = "Тохиргоог нээх";

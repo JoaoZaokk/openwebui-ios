@@ -422,3 +422,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "위험을 이해했으며 HTTP를 사용하겠습니다";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@에 대한 HTTP 연결이 확인되지 않았습니다. 서버를 열고 HTTP 사용을 확인하세요.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS가 로컬 네트워크 접근을 차단했습니다. 설정 › OpenWebUI에서 로컬 네트워크를 켜세요.";
+"Abrir Ajustes" = "설정 열기";

@@ -422,3 +422,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "Я усвідомлюю ризики й хочу використовувати HTTP";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Підключення за HTTP до %@ не підтверджено. Відкрийте Сервер і підтвердьте використання HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "Доступ до локальної мережі заблоковано iOS. У Налаштування › OpenWebUI увімкніть пункт Локальна мережа.";
+"Abrir Ajustes" = "Відкрити Налаштування";

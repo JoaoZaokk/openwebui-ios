@@ -419,3 +419,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "ཉེན་ཁ་རྣམས་ཤེས་ཀྱི་ཡོད། HTTP བེད་སྤྱོད་བྱེད་འདོད།";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@ ལ་ HTTP འབྲེལ་མཐུད་ངེས་པར་བྱས་མེད། སར་བར་ཁ་ཕྱེ་ནས་ HTTP བེད་སྤྱོད་ངེས་གཏན་བྱོས།";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS ཀྱིས་ས་གནས་དྲ་རྒྱར་འཇུག་པ་བཀག་ཡོད། སྒྲིག་འགོད། › OpenWebUI ནང་ས་གནས་དྲ་རྒྱ་ཁ་ཕྱེ་རོགས།";
+"Abrir Ajustes" = "སྒྲིག་འགོད་ཁ་ཕྱེ།";

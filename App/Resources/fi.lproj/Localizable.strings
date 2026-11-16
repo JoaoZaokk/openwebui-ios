@@ -419,3 +419,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "Tiedän riskit ja haluan käyttää HTTP:tä";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP-yhteyttä osoitteeseen %@ ei ole vahvistettu. Avaa Palvelin ja vahvista HTTP:n käyttö.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS esti pääsyn paikallisverkkoon. Ota Paikallisverkko käyttöön kohdassa Asetukset › OpenWebUI.";
+"Abrir Ajustes" = "Avaa Asetukset";

@@ -2,6 +2,7 @@ import SwiftUI
 import OpenWebUIKit
 
 struct LoginView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @EnvironmentObject private var app: AppState
     @Environment(\.theme) private var theme
 
@@ -67,6 +68,17 @@ struct LoginView: View {
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
                             .accessibilityIdentifier("login.serverProbeError")
+                        #if os(iOS)
+                        if app.serverProbeNeedsSettings {
+                            Button("Abrir Ajustes") {
+                                if let url = URL(string: UIApplication.openSettingsURLString) {
+                                    UIApplication.shared.open(url)
+                                }
+                            }
+                            .font(.ody(.footnote).weight(.semibold))
+                            .accessibilityIdentifier("login.openSettings")
+                        }
+                        #endif
                     }
                 }
 
@@ -182,6 +194,11 @@ struct LoginView: View {
             .padding(24)
         }
         .sheet(isPresented: $showServerSheet) { ServerSheet().environmentObject(app) }
+        // Back from Settings (or from anywhere) with the server unreadable: ask
+        // again, so a switch just turned on clears the message by itself.
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active, app.serverProbeError != nil { Task { await app.loadServerFeatures() } }
+        }
         .sheet(item: $sso) { p in
             SSOWebLoginView(provider: p.id, label: p.label,
                             start: app.client.oauthLoginURL(provider: p.id),

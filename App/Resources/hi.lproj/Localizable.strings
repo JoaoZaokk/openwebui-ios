@@ -422,3 +422,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "मुझे जोखिमों की जानकारी है और HTTP का उपयोग करना है";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@ के लिए HTTP कनेक्शन की पुष्टि नहीं हुई है। सर्वर खोलें और HTTP के उपयोग की पुष्टि करें।";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS ने लोकल नेटवर्क का एक्सेस ब्लॉक कर दिया है। सेटिंग्स › OpenWebUI में लोकल नेटवर्क चालू करें।";
+"Abrir Ajustes" = "सेटिंग्स खोलें";

@@ -419,3 +419,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "Ech kennen d'Risiken a wëll HTTP benotzen";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP-Verbindung zu %@ net confirméiert. Maach Server op a confirméier d'Benotzung vun HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS huet den Zougrëff op dat lokalt Netzwierk gespaart. Schalt an den Astellungen › OpenWebUI Lokalt Netzwierk un.";
+"Abrir Ajustes" = "Astellungen opmaachen";

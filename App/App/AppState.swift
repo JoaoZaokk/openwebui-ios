@@ -49,6 +49,12 @@ final class AppState: ObservableObject {
     /// not allowed, unreachable) — said under the server name, where the person
     /// looks, instead of only when the sign-in button fails. nil when it answered.
     @Published var serverProbeError: String?
+    /// The reason above is the Local Network switch: the login screen offers the
+    /// Settings button next to it, because there is no deep link to that switch
+    /// and "open Settings, find the app, find Local Network" is where people stop.
+    var serverProbeNeedsSettings: Bool {
+        serverProbeError == L("O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local.")
+    }
 
     private var sessionEnded: (any NSObjectProtocol)?
 

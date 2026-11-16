@@ -422,3 +422,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "Svjestan sam rizika i želim koristiti HTTP";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP veza prema %@ nije potvrđena. Otvori Poslužitelj i potvrdi korištenje HTTP-a.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS je blokirao pristup lokalnoj mreži. U Postavke › OpenWebUI uključi Lokalna mreža.";
+"Abrir Ajustes" = "Otvori Postavke";

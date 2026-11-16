@@ -422,3 +422,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "Znam ryzyko i chcę używać HTTP";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Połączenie HTTP z %@ nie zostało potwierdzone. Otwórz Serwer i potwierdź użycie HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS zablokował dostęp do sieci lokalnej. W Ustawienia › OpenWebUI włącz opcję Sieć lokalna.";
+"Abrir Ajustes" = "Otwórz Ustawienia";

@@ -422,3 +422,4 @@
 "Estou ciente dos riscos e quero usar HTTP" = "زه له خطرونو خبر یم او غواړم HTTP وکاروم";
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "د %@ سره د HTTP اړیکه نه ده تایید شوې. سرور پرانیزئ او د HTTP کارول تایید کړئ.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS د سیمه‌ییزې شبکې لاسرسی بند کړ. په تنظیمات › OpenWebUI کې سیمه‌ییزه شبکه روښانه کړئ.";
+"Abrir Ajustes" = "تنظیمات خلاصول";
