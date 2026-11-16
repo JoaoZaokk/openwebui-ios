@@ -206,6 +206,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                     // refuses it anyway.
                     let req = try await client.withFreshToken(
                         try buildRequest(model: model, messages: messages, files: files, options: options))
+                    try client.permit(req)
                     var (bytes, resp) = try await client.longSession.bytes(for: req)
                     if (resp as? HTTPURLResponse)?.statusCode == 401,
                        let retry = try await client.renewedRequest(after: req) {

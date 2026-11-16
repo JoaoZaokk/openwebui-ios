@@ -413,3 +413,9 @@
 "Confirme para ativar o bloqueio do app." = "ཉེར་སྤྱོད་ཀྱི་ཟྭ་ཁ་ཕྱེ་ཆེད་གཏན་འཁེལ་བྱེད།";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "ཁྱེད་ཀྱི་ཐོབ་དུས་ཁུངས་གཏན་འཁེལ་བྱེད་མ་ཐུབ། ཡང་བསྐྱར་ཚོད་ལྟ་བྱེད་པར་ «ཟྭ་ཕྱེ།» ལ་མནན་རོགས།";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "ཐབས་འཕྲུལ་འདིར་གསང་གྲངས་མེད་པས་ཟྭ་བརྒྱབ་པ་སྒོ་བརྒྱབ་ཟིན། ཡང་བསྐྱར་སྤྱོད་པར་ཐབས་འཕྲུལ་གྱི་སྒྲིག་འགོད་ནང་གསང་གྲངས་ཅིག་གཏན་འཁེལ་བྱེད་རོགས།";
+"Conexão sem criptografia" = "གསང་སྡོམ་མེད་པའི་འབྲེལ་མཐུད།";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "ཁ་བྱང་འདིས་ http:// བེད་སྤྱོད་བྱེད་ཀྱི་ཡོད། Tailscale ནང་དུ་གནས་ཚུལ་སྤེལ་འགྲུལ་སྔོན་ནས་གསང་སྡོམ་བྱས་ཡོད་ཀྱང་། iOS ཀྱིས་དེ་ར་སྤྲོད་མི་ཐུབ། ཁྱེད་རང་གི་དྲ་རྒྱ་ལ་ཡིད་ཆེས་ན་ཁོ་ན་མུ་མཐུད་རོགས།";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "ཁ་བྱང་འདིས་ཨིན་ཊར་ནེཊ་ཐོག་ http:// བེད་སྤྱོད་བྱེད་ཀྱི་ཡོད། ཁྱེད་ཀྱི་གསང་ཨང་དང་ཁ་བརྡ་རྣམས་གསང་སྡོམ་མེད་པར་བསྐུར་བ་དང་། ལམ་བར་གྱི་སུས་ཀྱང་ཀློག་ཐུབ། https:// འདེམས་རོགས།";
+"Estou ciente dos riscos e quero usar HTTP" = "ཉེན་ཁ་རྣམས་ཤེས་ཀྱི་ཡོད། HTTP བེད་སྤྱོད་བྱེད་འདོད།";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@ ལ་ HTTP འབྲེལ་མཐུད་ངེས་པར་བྱས་མེད། སར་བར་ཁ་ཕྱེ་ནས་ HTTP བེད་སྤྱོད་ངེས་གཏན་བྱོས།";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS ཀྱིས་ས་གནས་དྲ་རྒྱར་འཇུག་པ་བཀག་ཡོད། སྒྲིག་འགོད། › OpenWebUI ནང་ས་གནས་དྲ་རྒྱ་ཁ་ཕྱེ་རོགས།";

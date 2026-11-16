@@ -413,3 +413,9 @@
 "Confirme para ativar o bloqueio do app." = "Bestätege, fir d'App-Spär z'aktivéieren.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Är Identitéit konnt net bestätegt ginn. Tippt op „Entspären“, fir et nach eng Kéier ze probéieren.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "D’Spär gouf deaktivéiert, well den Apparat keen Code méi huet. Stellt an den Astellunge vum Apparat een Code a fir se erëm ze benotzen.";
+"Conexão sem criptografia" = "Onverschlësselt Verbindung";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Dës Adress benotzt http://. Bannent Tailscale ass den Trafic schonn verschlësselt, mee iOS kann dat net iwwerpréiwen. Maach nëmme weider, wann du dengem Netzwierk vertraus.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Dës Adress benotzt http:// iwwert den Internet. Däi Passwuert an deng Gespréicher ginn onverschlësselt geschéckt an jiddereen um Wee kann se liesen. Gëff https:// de Virrang.";
+"Estou ciente dos riscos e quero usar HTTP" = "Ech kennen d'Risiken a wëll HTTP benotzen";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP-Verbindung zu %@ net confirméiert. Maach Server op a confirméier d'Benotzung vun HTTP.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS huet den Zougrëff op dat lokalt Netzwierk gespaart. Schalt an den Astellungen › OpenWebUI Lokalt Netzwierk un.";

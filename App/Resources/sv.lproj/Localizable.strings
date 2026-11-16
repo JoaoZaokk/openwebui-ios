@@ -413,3 +413,9 @@
 "Confirme para ativar o bloqueio do app." = "Bekräfta för att aktivera applåset.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Din identitet kunde inte bekräftas. Tryck på Lås upp för att försöka igen.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "Låset har stängts av eftersom enheten inte längre har någon lösenkod. Ställ in en i enhetens Inställningar för att använda det igen.";
+"Conexão sem criptografia" = "Okrypterad anslutning";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Den här adressen använder http://. Inom Tailscale är trafiken redan krypterad, men iOS kan inte kontrollera det. Fortsätt bara om du litar på ditt nätverk.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Den här adressen använder http:// över internet. Ditt lösenord och dina konversationer skickas okrypterade och vem som helst på vägen kan läsa dem. Föredra https://.";
+"Estou ciente dos riscos e quero usar HTTP" = "Jag är medveten om riskerna och vill använda HTTP";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP-anslutning till %@ är inte bekräftad. Öppna Server och bekräfta användningen av HTTP.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS har blockerat åtkomsten till det lokala nätverket. Slå på Lokalt nätverk i Inställningar › OpenWebUI.";

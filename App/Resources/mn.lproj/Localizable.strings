@@ -413,3 +413,9 @@
 "Confirme para ativar o bloqueio do app." = "Аппын түгжээг асаахын тулд баталгаажуулна уу.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Таны биеийг баталгаажуулж чадсангүй. Дахин оролдохын тулд Түгжээ тайлах дээр товшино уу.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "Төхөөрөмжид нууц код байхгүй болсон тул түгжээг идэвхгүй болголоо. Дахин ашиглахын тулд төхөөрөмжийн Тохиргоонд нууц код тохируулна уу.";
+"Conexão sem criptografia" = "Шифрлэлгүй холболт";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Энэ хаяг http:// ашиглаж байна. Tailscale дотор трафик аль хэдийн шифрлэгдсэн байдаг ч iOS үүнийг шалгаж чадахгүй. Сүлжээндээ итгэж байгаа бол л үргэлжлүүлнэ үү.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Энэ хаяг интернетээр http:// ашиглаж байна. Таны нууц үг болон харилцан яриа шифрлэлтгүй дамжиж, замын дундах хэн ч уншиж чадна. https:// ашиглахыг илүүд үзнэ үү.";
+"Estou ciente dos riscos e quero usar HTTP" = "Эрсдлийг ойлгож байна, HTTP ашиглахыг хүсч байна";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@-д HTTP холболт баталгаажаагүй байна. Сервер-ийг нээж HTTP ашиглахыг баталгаажуулна уу.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS орон нутгийн сүлжээнд хандахыг хаасан. Тохиргоо › OpenWebUI хэсгээс Орон нутгийн сүлжээг асаана уу.";

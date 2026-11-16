@@ -61,6 +61,7 @@ extension OpenWebUIClient {
             req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
         req.timeoutInterval = 60
+        try permit(req)
         var (data, resp) = try await longSession.data(for: req)
         // A browser session's token may simply have aged. Renewed once — but only
         // if the token is not brand new: a picture the server will not give is not

@@ -182,9 +182,17 @@ targets:
         NSPhotoLibraryAddUsageDescription: "Para salvar imagens das conversas na sua galeria."
         NSFaceIDUsageDescription: "Para desbloquear o app com Face ID quando o bloqueio estiver ativado."
         NSAppTransportSecurity:
-          # LAN-scoped only: plain HTTP allowed to local/private hosts; public hosts
-          # use HTTPS (enforced app-side by OWConfig.normalize). No arbitrary loads.
-          NSAllowsLocalNetworking: true
+          # The person types the server address, so the system cannot know it
+          # ahead of time. Arbitrary loads is on so a Tailscale name or LAN domain
+          # can be reached over http:// — but ONLY after the person confirms it
+          # for that server on the Servidor screen. The app enforces it itself:
+          # OWConfig.permits + OpenWebUIClient.permit refuse cleartext to anything
+          # but a local address or the confirmed server (CleartextTests).
+          NSAllowsArbitraryLoads: true
+          # NSAllowsLocalNetworking is deliberately NOT here: on iOS 10+ its presence
+          # makes the system ignore NSAllowsArbitraryLoads (measured 15/11, -1022 on
+          # http://localtest.me with both set). Arbitrary loads already covers every
+          # local address; the app's own gate (OWConfig.permits) is the limit.
         # Primary icon stays in the asset catalog (AppIcon). Declaring CFBundleIcons
         # manually suppresses Xcode's auto-injected CFBundleIconName, so set it
         # explicitly — without it App Store Connect can't pull the marketing icon.
@@ -283,4 +291,5 @@ targets:
         NSSpeechRecognitionUsageDescription: "Para transcrever sua voz em texto no dispositivo."
         NSLocalNetworkUsageDescription: "O app precisa acessar o servidor Open WebUI na sua rede local."
         NSAppTransportSecurity:
-          NSAllowsLocalNetworking: true
+          NSAllowsArbitraryLoads: true      # see the iOS target: the app gates cleartext itself, and
+                                            # NSAllowsLocalNetworking must not sit next to it

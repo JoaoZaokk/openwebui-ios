@@ -413,3 +413,9 @@
 "Confirme para ativar o bloqueio do app." = "ئەپ قۇلۇپىنى قوزغىتىش ئۈچۈن جەزملەڭ.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "سىزنىڭ كىملىكىڭىز جەزملەنمىدى. قايتا سىناش ئۈچۈن «قۇلۇپ ئېچىش» نى چېكىڭ.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "ئۈسكۈنىدە ئىم قالمىغاچقا قۇلۇپ تاقالدى. قايتا ئىشلىتىش ئۈچۈن ئۈسكۈنىنىڭ «تەڭشەك» ىدە ئىم بەلگىلەڭ.";
+"Conexão sem criptografia" = "شىفىرلانمىغان باغلىنىش";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "بۇ ئادرېس http:// ئىشلىتىدۇ. Tailscale ئىچىدە ئېقىم ئاللىبۇرۇن شىفىرلانغان، لېكىن iOS بۇنى تەكشۈرەلمەيدۇ. پەقەت تورىڭىزغا ئىشەنسىڭىزلا داۋاملاشتۇرۇڭ.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "بۇ ئادرېس تور ئارقىلىق http:// ئىشلىتىدۇ. ئىمىڭىز ۋە سۆھبەتلىرىڭىز شىفىرسىز يوللىنىدۇ، يولدىكى ھەر قانداق كىشى ئۇلارنى ئوقۇيالايدۇ. https:// نى ئارتۇق كۆرۈڭ.";
+"Estou ciente dos riscos e quero usar HTTP" = "خەۋپلەرنى بىلىمەن ۋە HTTP نى ئىشلەتمەكچىمەن";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@ نىڭ HTTP باغلىنىشى جەزملەنمىدى. مۇلازىمېتىرنى ئېچىپ HTTP ئىشلىتىشنى جەزملەڭ.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS يەرلىك تورغا كىرىشنى توستى. تەڭشەكلەر › OpenWebUI دىن يەرلىك تورنى ئېچىڭ.";

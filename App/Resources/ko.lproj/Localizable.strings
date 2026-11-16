@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "앱 잠금을 켜려면 확인하세요.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "신원을 확인할 수 없습니다. 다시 시도하려면 ‘잠금 해제’를 탭하십시오.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "기기에 더 이상 암호가 없어서 잠금이 해제되었습니다. 다시 사용하려면 기기의 설정에서 암호를 설정하십시오.";
+"Conexão sem criptografia" = "암호화되지 않은 연결";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "이 주소는 http://를 사용합니다. Tailscale 내부에서는 트래픽이 이미 암호화되어 있지만 iOS는 이를 확인할 수 없습니다. 사용 중인 네트워크를 신뢰하는 경우에만 계속하세요.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "이 주소는 인터넷을 통해 http://를 사용합니다. 비밀번호와 대화가 암호화되지 않은 채 전송되며 경로상의 누구나 읽을 수 있습니다. https://를 사용하는 것이 좋습니다.";
+"Estou ciente dos riscos e quero usar HTTP" = "위험을 이해했으며 HTTP를 사용하겠습니다";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@에 대한 HTTP 연결이 확인되지 않았습니다. 서버를 열고 HTTP 사용을 확인하세요.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS가 로컬 네트워크 접근을 차단했습니다. 설정 › OpenWebUI에서 로컬 네트워크를 켜세요.";

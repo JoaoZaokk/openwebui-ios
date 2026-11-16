@@ -413,3 +413,9 @@
 "Confirme para ativar o bloqueio do app." = "Vahvista ottaaksesi appin lukituksen käyttöön.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Henkilöllisyyttäsi ei voitu vahvistaa. Yritä uudelleen napauttamalla Avaa lukitus.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "Lukitus poistettiin käytöstä, koska laitteessa ei ole enää pääsykoodia. Aseta pääsykoodi laitteen Asetuksissa, niin voit käyttää lukitusta uudelleen.";
+"Conexão sem criptografia" = "Salaamaton yhteys";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Tämä osoite käyttää http://-yhteyttä. Tailscalen sisällä liikenne on jo salattua, mutta iOS ei voi tarkistaa sitä. Jatka vain, jos luotat verkkoosi.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Tämä osoite käyttää http://-yhteyttä internetin kautta. Salasanasi ja keskustelusi lähetetään salaamattomina, ja kuka tahansa matkan varrella voi lukea ne. Käytä mieluummin https://-yhteyttä.";
+"Estou ciente dos riscos e quero usar HTTP" = "Tiedän riskit ja haluan käyttää HTTP:tä";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP-yhteyttä osoitteeseen %@ ei ole vahvistettu. Avaa Palvelin ja vahvista HTTP:n käyttö.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS esti pääsyn paikallisverkkoon. Ota Paikallisverkko käyttöön kohdassa Asetukset › OpenWebUI.";

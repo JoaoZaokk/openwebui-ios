@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "アプリのロックをオンにするには確認してください。";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "本人確認ができませんでした。「ロック解除」をタップして、もう一度お試しください。";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "デバイスにパスコードが設定されなくなったため、ロックが無効になりました。もう一度使うには、デバイスの「設定」でパスコードを設定してください。";
+"Conexão sem criptografia" = "暗号化されていない接続";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "このアドレスは http:// を使用します。Tailscale 内では通信はすでに暗号化されていますが、iOS ではそれを確認できません。ネットワークを信頼できる場合にのみ続けてください。";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "このアドレスはインターネット経由で http:// を使用します。パスワードや会話が暗号化されずに送信され、経路上の誰でも読み取れます。https:// を使うことをおすすめします。";
+"Estou ciente dos riscos e quero usar HTTP" = "リスクを理解したうえで HTTP を使用します";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@ への HTTP 接続が確認されていません。「サーバー」を開いて HTTP の使用を確認してください。";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS がローカルネットワークへのアクセスをブロックしました。「設定」›「OpenWebUI」で「ローカルネットワーク」をオンにしてください。";

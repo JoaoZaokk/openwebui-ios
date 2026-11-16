@@ -413,3 +413,9 @@
 "Confirme para ativar o bloqueio do app." = "אשרו כדי להפעיל את נעילת האפליקציה.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "לא ניתן היה לאמת את זהותך. הקש/י על ״ביטול נעילה״ כדי לנסות שוב.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "הנעילה כובתה מפני שבמכשיר אין יותר קוד גישה. הגדר/י קוד גישה בהגדרות המכשיר כדי להשתמש בנעילה שוב.";
+"Conexão sem criptografia" = "חיבור לא מוצפן";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "כתובת זו משתמשת ב-http://. בתוך Tailscale התעבורה כבר מוצפנת, אבל iOS לא יכול לוודא זאת. אפשר להמשיך רק אם אתם סומכים על הרשת שלכם.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "כתובת זו משתמשת ב-http:// דרך האינטרנט. הסיסמה והשיחות שלכם נשלחות ללא הצפנה וכל מי שנמצא בדרך יכול לקרוא אותן. עדיף להשתמש ב-https://.";
+"Estou ciente dos riscos e quero usar HTTP" = "הסיכונים ברורים לי ואני רוצה להשתמש ב-HTTP";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "חיבור HTTP אל %@ לא אושר. פתחו את שרת ואשרו את השימוש ב-HTTP.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS חסם את הגישה לרשת המקומית. בהגדרות › OpenWebUI, הפעילו את רשת מקומית.";

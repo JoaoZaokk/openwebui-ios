@@ -472,6 +472,10 @@ final class ChatViewModel: ObservableObject {
                 // so without saying it here the model just answers "I have no
                 // internet access" and the user blames the app.
                 self.error = L("Busca na web indisponível no servidor. Verifique o mecanismo de busca no Open WebUI.")
+                    // What the server said, not only that it failed: the review
+                    // that reported "search does not work" came with a server
+                    // where the browser's search did, and nothing here told why.
+                    + "\n" + OWFailure.msg(error)
                 awaitingWebSearch = false
                 legacyFallback = true
             }

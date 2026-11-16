@@ -30,7 +30,31 @@ struct ServerConfig: Equatable {
     }
 
     /// Bridge to the package's connection config.
-    var owConfig: OWConfig { OWConfig(baseURL: baseURL) }
+    var owConfig: OWConfig { OWConfig(baseURL: baseURL, allowsCleartext: Self.hasCleartextConsent(baseURL)) }
+
+    // MARK: Plain http:// to a named server
+    //
+    // The system's own check (ATS) is relaxed in Info.plist so that a person can
+    // reach `http://box.tail1234.ts.net:3000`; what replaces it is this: cleartext
+    // to anything but a local address goes out only for a server the person
+    // confirmed on the Servidor screen, one entry per host:port, and only to it
+    // (`OWConfig.permits`).
+
+    private static let consentKey = "security.cleartextServers"
+
+    private static func consentID(_ url: URL) -> String {
+        "\(url.host?.lowercased() ?? ""):\(url.port ?? 80)"
+    }
+
+    static func hasCleartextConsent(_ url: URL) -> Bool {
+        (UserDefaults.standard.stringArray(forKey: consentKey) ?? []).contains(consentID(url))
+    }
+
+    static func setCleartextConsent(_ granted: Bool, for url: URL) {
+        var all = Set(UserDefaults.standard.stringArray(forKey: consentKey) ?? [])
+        if granted { all.insert(consentID(url)) } else { all.remove(consentID(url)) }
+        UserDefaults.standard.set(Array(all).sorted(), forKey: consentKey)
+    }
 
     /// Normalizes free-form input ("openwebui.example.com", "http://10.0.0.5:8080").
     static func normalize(_ input: String) -> URL? { OWConfig.normalize(input) }

@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "Hãy xác nhận để bật khóa app.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Không thể xác nhận danh tính của bạn. Chạm vào Mở khóa để thử lại.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "Khóa đã bị tắt vì thiết bị không còn mật mã. Hãy đặt mật mã trong Cài đặt của thiết bị để dùng lại.";
+"Conexão sem criptografia" = "Kết nối không mã hóa";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Địa chỉ này dùng http://. Bên trong Tailscale, lưu lượng đã được mã hóa, nhưng iOS không thể kiểm tra điều đó. Chỉ tiếp tục nếu bạn tin tưởng mạng của mình.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Địa chỉ này dùng http:// qua internet. Mật khẩu và các cuộc trò chuyện của bạn được gửi không mã hóa và bất kỳ ai trên đường truyền đều có thể đọc được. Nên dùng https://.";
+"Estou ciente dos riscos e quero usar HTTP" = "Tôi hiểu rủi ro và muốn dùng HTTP";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Kết nối HTTP tới %@ chưa được xác nhận. Hãy mở Máy chủ và xác nhận việc dùng HTTP.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS đã chặn quyền truy cập mạng cục bộ. Trong Cài đặt › OpenWebUI, hãy bật Mạng cục bộ.";

@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "Подтвердите, чтобы включить блокировку приложения.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Не удалось подтвердить вашу личность. Нажмите «Разблокировать», чтобы повторить попытку.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "Блокировка отключена, так как на устройстве больше нет код-пароля. Задайте его в настройках устройства, чтобы снова использовать блокировку.";
+"Conexão sem criptografia" = "Соединение без шифрования";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Этот адрес использует http://. Внутри Tailscale трафик уже шифруется, но iOS не может это проверить. Продолжайте, только если доверяете своей сети.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Этот адрес использует http:// через интернет. Ваш пароль и разговоры передаются без шифрования, и любой на пути может их прочитать. Лучше используйте https://.";
+"Estou ciente dos riscos e quero usar HTTP" = "Я понимаю риски и хочу использовать HTTP";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Подключение по HTTP к %@ не подтверждено. Откройте Сервер и подтвердите использование HTTP.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "Доступ к локальной сети заблокирован iOS. В Настройки › OpenWebUI включите пункт Локальная сеть.";

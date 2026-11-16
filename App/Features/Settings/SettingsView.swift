@@ -212,6 +212,13 @@ struct ServerSheet: View {
     @Environment(\.theme) private var theme
     @Environment(\.dismiss) private var dismiss
     @State private var text = ""
+    /// "I understand the risk" for the address in the field, when it needs one.
+    @State private var acceptsCleartext = false
+
+    private var typedURL: URL? { ServerConfig.normalize(text) }
+    private var cleartext: OWConfig.Cleartext { typedURL.map(OWConfig.cleartext) ?? .none }
+    /// Save waits for the switch whenever the address asks for it.
+    private var canSave: Bool { typedURL != nil && (!cleartext.needsConsent || acceptsCleartext) }
 
     var body: some View {
         NavigationStack {
@@ -236,6 +243,28 @@ struct ServerSheet: View {
                             .font(.ody(size: 10)).foregroundStyle(theme.secondaryText)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+                    if cleartext.needsConsent {
+                        Section {
+                            Toggle(isOn: $acceptsCleartext) {
+                                Text("Estou ciente dos riscos e quero usar HTTP")
+                                    .font(.ody(.body)).foregroundStyle(theme.fg)
+                            }
+                            .accessibilityIdentifier("server.cleartext")
+                            .listRowBackground(theme.panel)
+                        } header: {
+                            Text("Conexão sem criptografia")
+                                .font(.ody(size: 11)).foregroundStyle(.red)
+                        } footer: {
+                            // LocalizedStringKey on purpose: a ternary of literals is a
+                            // String, and `Text(String)` is never looked up in the catalogue.
+                            Text(LocalizedStringKey(cleartext == .tailnet
+                                 ? "Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede."
+                                 : "Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://."))
+                                .font(.ody(size: 11))
+                                .foregroundStyle(cleartext == .open ? Color.red : theme.secondaryText)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
                 }
                 .scrollContentBackground(.hidden)
             }
@@ -245,17 +274,29 @@ struct ServerSheet: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Salvar") {
-                        if let url = ServerConfig.normalize(text) { app.updateServer(url) }
+                        if let url = typedURL {
+                            // Said for this address only; a Salvar without the switch
+                            // on takes the consent back.
+                            ServerConfig.setCleartextConsent(cleartext.needsConsent && acceptsCleartext, for: url)
+                            app.updateServer(url)
+                        }
                         dismiss()
                     }
-                    .disabled(ServerConfig.normalize(text) == nil)
+                    .disabled(!canSave)
                     .accessibilityIdentifier("server.save")
                 }
             }
         }
         .tint(theme.accent)
         // Start empty on first run (don't pre-fill the placeholder); keep the saved one otherwise.
-        .onAppear { text = ServerConfig.isConfigured ? app.serverConfig.baseURL.absoluteString : "" }
+        .onAppear {
+            text = ServerConfig.isConfigured ? app.serverConfig.baseURL.absoluteString : ""
+            acceptsCleartext = typedURL.map(ServerConfig.hasCleartextConsent) ?? false
+        }
+        // A switch answered for one address does not carry over to the next one typed.
+        .onChange(of: text) { _, _ in
+            acceptsCleartext = typedURL.map(ServerConfig.hasCleartextConsent) ?? false
+        }
         #if os(macOS)
         // The iOS-shaped sheet comes up cramped on the Mac — give it a comfortable
         // fixed floor (same idiom as the fullScreenCover shim in PlatformCompat).

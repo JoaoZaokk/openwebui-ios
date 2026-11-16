@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "Bevestig om de appvergrendeling in te schakelen.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Je identiteit kon niet worden bevestigd. Tik op Ontgrendel om het opnieuw te proberen.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "De vergrendeling is uitgeschakeld omdat het apparaat geen toegangscode meer heeft. Stel er een in via Instellingen op het apparaat om de vergrendeling weer te gebruiken.";
+"Conexão sem criptografia" = "Niet-versleutelde verbinding";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Dit adres gebruikt http://. Binnen Tailscale wordt het verkeer al versleuteld, maar iOS kan dat niet controleren. Ga alleen verder als je je netwerk vertrouwt.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Dit adres gebruikt http:// via internet. Je wachtwoord en je gesprekken worden onversleuteld verstuurd en iedereen onderweg kan ze lezen. Geef de voorkeur aan https://.";
+"Estou ciente dos riscos e quero usar HTTP" = "Ik ken de risico's en wil HTTP gebruiken";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP-verbinding naar %@ niet bevestigd. Open Server en bevestig het gebruik van HTTP.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS heeft de toegang tot het lokale netwerk geblokkeerd. Zet in Instellingen › OpenWebUI Lokaal netwerk aan.";

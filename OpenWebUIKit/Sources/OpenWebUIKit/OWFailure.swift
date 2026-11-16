@@ -33,6 +33,13 @@ public enum OWFailure {
     private static func network(_ e: URLError) -> String {
         switch e.code {
         case .notConnectedToInternet:
+            // iOS reports "no internet" when it is the Local Network permission
+            // that is off or still unanswered: Safari works, this app does not,
+            // and the sentence about the internet sends the person to the wrong
+            // place. The system's own log names it ("Local network prohibited").
+            if e.isLocalNetworkProhibited {
+                return L("O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local.")
+            }
             return L("Sem conexão com a internet.")
         case .timedOut:
             return L("O servidor demorou demais para responder.")
@@ -48,6 +55,17 @@ public enum OWFailure {
         default:
             return L("Falha de rede (%@).", "\(e.errorCode)")
         }
+    }
+}
+
+extension URLError {
+    /// The request never left because the Local Network permission is off or the
+    /// system prompt for it is still open. The code is the same
+    /// `notConnectedToInternet` an offline phone reports; only the path
+    /// description the system attaches (`_NSURLErrorNWPathKey`) tells them apart.
+    var isLocalNetworkProhibited: Bool {
+        guard code == .notConnectedToInternet else { return false }
+        return userInfo.values.contains { String(describing: $0).localizedCaseInsensitiveContains("local network prohibited") }
     }
 }
 

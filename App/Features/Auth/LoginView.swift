@@ -60,6 +60,14 @@ struct LoginView: View {
                         .foregroundStyle(ServerConfig.isConfigured ? theme.secondaryText : theme.accent)
                         .onTapGesture { showServerSheet = true }
                         .accessibilityIdentifier("login.server")
+                    if let why = app.serverProbeError, ServerConfig.isConfigured {
+                        Text(why)
+                            .font(.ody(.footnote))
+                            .foregroundStyle(.red)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+                            .accessibilityIdentifier("login.serverProbeError")
+                    }
                 }
 
                 if let prompt = app.mfaPrompt {

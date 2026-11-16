@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "Potvrďte zapnutie zámku aplikácie.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Vašu totožnosť sa nepodarilo potvrdiť. Klepnutím na Odomknúť to skúste znova.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "Zámok bol vypnutý, pretože zariadenie už nemá kód. Nastavte ho v Nastaveniach zariadenia, aby ste zámok mohli znova používať.";
+"Conexão sem criptografia" = "Nešifrované pripojenie";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Táto adresa používa http://. V rámci Tailscale je prenos už šifrovaný, ale iOS to nedokáže overiť. Pokračuj, len ak svojej sieti dôveruješ.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Táto adresa používa http:// cez internet. Tvoje heslo a konverzácie sa posielajú bez šifrovania a môže ich čítať ktokoľvek na ceste. Radšej použi https://.";
+"Estou ciente dos riscos e quero usar HTTP" = "Poznám riziká a chcem používať HTTP";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Pripojenie HTTP k %@ nie je potvrdené. Otvor Server a potvrď používanie HTTP.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS zablokoval prístup k lokálnej sieti. V Nastaveniach › OpenWebUI zapni Lokálna sieť.";

@@ -413,3 +413,9 @@
 "Confirme para ativar o bloqueio do app." = "Apstipriniet, lai ieslēgtu lietotnes bloķēšanu.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Neizdevās apstiprināt jūsu identitāti. Pieskarieties pie Atbloķēt, lai mēģinātu vēlreiz.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "Bloķēšana tika izslēgta, jo ierīcei vairs nav piekļuves koda. Iestatiet to ierīces iestatījumos, lai atkal lietotu bloķēšanu.";
+"Conexão sem criptografia" = "Nešifrēts savienojums";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Šī adrese izmanto http://. Tailscale iekšienē datplūsma jau ir šifrēta, taču iOS to nevar pārbaudīt. Turpini tikai tad, ja uzticies savam tīklam.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Šī adrese izmanto http:// internetā. Tava parole un sarunas tiek sūtītas nešifrētas, un tās var izlasīt ikviens ceļā. Dod priekšroku https://.";
+"Estou ciente dos riscos e quero usar HTTP" = "Apzinos riskus un vēlos izmantot HTTP";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP savienojums ar %@ nav apstiprināts. Atver Serveris un apstiprini HTTP izmantošanu.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS bloķēja piekļuvi lokālajam tīklam. Sadaļā Iestatījumi › OpenWebUI ieslēdz Lokālais tīkls.";

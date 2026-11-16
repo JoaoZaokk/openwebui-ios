@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "অ্যাপ লক চালু করতে নিশ্চিত করুন।";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "আপনার পরিচয় নিশ্চিত করা যায়নি। আবার চেষ্টা করতে আনলক-এ ট্যাপ করুন।";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "ডিভাইসে আর কোনো পাসকোড না থাকায় লক বন্ধ করে দেওয়া হয়েছে। আবার ব্যবহার করতে ডিভাইসের সেটিংসে একটি পাসকোড সেট করুন।";
+"Conexão sem criptografia" = "এনক্রিপশনহীন সংযোগ";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "এই ঠিকানা http:// ব্যবহার করে। Tailscale-এর ভেতরে ট্র্যাফিক ইতিমধ্যে এনক্রিপ্টেড থাকে, কিন্তু iOS তা যাচাই করতে পারে না। নিজের নেটওয়ার্কে আস্থা থাকলেই কেবল এগিয়ে যান।";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "এই ঠিকানা ইন্টারনেটে http:// ব্যবহার করে। আপনার পাসওয়ার্ড ও কথোপকথন এনক্রিপশন ছাড়াই যায় এবং পথের যে কেউ তা পড়তে পারে। https:// বেছে নিন।";
+"Estou ciente dos riscos e quero usar HTTP" = "আমি ঝুঁকিগুলো বুঝি এবং HTTP ব্যবহার করতে চাই";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@-এর জন্য HTTP সংযোগ নিশ্চিত করা হয়নি। সার্ভার খুলুন এবং HTTP ব্যবহার নিশ্চিত করুন।";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS লোকাল নেটওয়ার্কে অ্যাক্সেস ব্লক করেছে। সেটিংস › OpenWebUI-এ লোকাল নেটওয়ার্ক চালু করুন।";

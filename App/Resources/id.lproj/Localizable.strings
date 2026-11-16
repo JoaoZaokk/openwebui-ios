@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "Konfirmasi untuk mengaktifkan kunci app.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Identitas Anda tidak dapat dikonfirmasi. Ketuk Buka Kunci untuk mencoba lagi.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "Kunci dinonaktifkan karena perangkat tidak lagi memiliki kode sandi. Atur kode sandi di Pengaturan perangkat untuk menggunakannya lagi.";
+"Conexão sem criptografia" = "Koneksi Tanpa Enkripsi";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Alamat ini memakai http://. Di dalam Tailscale lalu lintas sudah terenkripsi, tetapi iOS tidak bisa memeriksanya. Lanjutkan hanya jika Anda memercayai jaringan Anda.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Alamat ini memakai http:// lewat internet. Kata sandi dan percakapan Anda dikirim tanpa enkripsi dan siapa pun di jalur itu bisa membacanya. Pilih https:// bila bisa.";
+"Estou ciente dos riscos e quero usar HTTP" = "Saya memahami risikonya dan ingin memakai HTTP";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Koneksi HTTP ke %@ belum dikonfirmasi. Buka Server dan konfirmasi penggunaan HTTP.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS memblokir akses ke jaringan lokal. Di Pengaturan › OpenWebUI, aktifkan Jaringan Lokal.";

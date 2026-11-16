@@ -1,4 +1,5 @@
 import Foundation
+import Network
 
 /// Talks to the Open WebUI REST API. Auth is a JWT bearer token: a successful
 /// `signIn` returns a long-lived token that we persist (Keychain) and replay on
@@ -300,17 +301,57 @@ public final class OpenWebUIClient: @unchecked Sendable {
         return req
     }
 
+    /// Plain `http://` leaves only for a local address or for the one server the
+    /// person confirmed (`OWConfig.permits`). The system's own check is relaxed so
+    /// that confirmation can exist at all; this is what stands in for it.
+    func permit(_ req: URLRequest) throws {
+        guard let url = req.url, !config.permits(url) else { return }
+        throw OWError.transport(L("Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP.",
+                                  url.host ?? ""))
+    }
+
+    /// Opens a connection to the host only to learn how the Local Network prompt
+    /// was answered: `true` once the path is usable, `false` if the permission was
+    /// refused (the path says so at once) or nothing was answered in `seconds`.
+    static func localNetworkAnswered(_ url: URL, within seconds: TimeInterval) async -> Bool {
+        guard let host = url.host,
+              let port = NWEndpoint.Port(rawValue: UInt16(url.port ?? (url.scheme == "https" ? 443 : 80)))
+        else { return false }
+        return await withCheckedContinuation { (cont: CheckedContinuation<Bool, Never>) in
+            let once = Once()
+            let conn = NWConnection(host: NWEndpoint.Host(host), port: port, using: .tcp)
+            let finish: @Sendable (Bool) -> Void = { answer in
+                guard once.first() else { return }
+                conn.cancel()
+                cont.resume(returning: answer)
+            }
+            conn.stateUpdateHandler = { state in
+                switch state {
+                case .ready: finish(true)
+                case .failed: finish(false)
+                case .waiting:
+                    if conn.currentPath?.unsatisfiedReason == .localNetworkDenied { finish(false) }
+                default: break
+                }
+            }
+            conn.start(queue: .global())
+            DispatchQueue.global().asyncAfter(deadline: .now() + seconds) { finish(false) }
+        }
+    }
+
     @discardableResult
     func send(_ req: URLRequest, long: Bool = false) async throws -> Data {
-        try await send(req, long: long, mayRenew: true)
+        try await send(req, long: long, mayRenew: true, mayWaitForLocalNetwork: true)
     }
 
     /// `mayRenew` is the retry budget: a 401 for a session made through the
     /// browser is answered with one refresh and one more try, never a loop.
-    private func send(_ original: URLRequest, long: Bool, mayRenew: Bool) async throws -> Data {
+    private func send(_ original: URLRequest, long: Bool, mayRenew: Bool,
+                      mayWaitForLocalNetwork: Bool) async throws -> Data {
         do {
             // Whatever token the request was built with, it leaves with a live one.
             let req = try await withFreshToken(original)
+            try permit(req)
             let (data, resp) = try await (long ? longSession : session).data(for: req)
             guard let http = resp as? HTTPURLResponse else { return data }
             // 401 is "this token is dead"; 403 is "this account may not do that"
@@ -342,7 +383,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
                 // usually just its age: renew and ask again, once. (Nil for every
                 // other kind of session, which falls through exactly as before.)
                 if mayRenew, let retry = try await renewedRequest(after: req) {
-                    return try await send(retry, long: long, mayRenew: false)
+                    return try await send(retry, long: long, mayRenew: false, mayWaitForLocalNetwork: mayWaitForLocalNetwork)
                 }
                 dropSession()
                 throw OWError.notAuthenticated
@@ -356,6 +397,15 @@ public final class OpenWebUIClient: @unchecked Sendable {
         } catch {
             if error.isCancellation {
                 throw CancellationError()
+            }
+            // First contact with a local server: iOS fails the request while its
+            // "find devices on your local network" prompt is still on screen, and
+            // the person's answer arrives a moment too late for it. Wait for the
+            // answer once and ask again; if it was "Don't Allow" the wait ends at
+            // once and the message below says where the switch is.
+            if mayWaitForLocalNetwork, (error as? URLError)?.isLocalNetworkProhibited == true,
+               let url = original.url, await Self.localNetworkAnswered(url, within: 20) {
+                return try await send(original, long: long, mayRenew: mayRenew, mayWaitForLocalNetwork: false)
             }
             // `OWFailure.msg`, not `localizedDescription`: the sentence chosen
             // here is the one the banner shows, and Foundation writes its own in
@@ -488,6 +538,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(OWSignInForm(email: email, password: password))
         let origin = currentOriginGeneration()
+        try permit(req)
         let (data, resp) = try await session.data(for: req)
         if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw OWError.http(http.statusCode, Self.detail(from: data))
@@ -575,6 +626,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
         req.setValue("application/json", forHTTPHeaderField: "Accept")
         req.setValue("Bearer \(candidate)", forHTTPHeaderField: "Authorization")
         let origin = currentOriginGeneration()
+        try permit(req)
         let (data, resp) = try await session.data(for: req)
         guard let http = resp as? HTTPURLResponse else { throw OWError.transport("no response") }
         guard (200..<300).contains(http.statusCode) else {
@@ -615,6 +667,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(Form(token: providerToken))
         let origin = currentOriginGeneration()
+        try permit(req)
         let (data, resp) = try await session.data(for: req)
         if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw OWError.http(http.statusCode, Self.detail(from: data))
@@ -635,6 +688,7 @@ public final class OpenWebUIClient: @unchecked Sendable {
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(Form(user: name, password: password))
         let origin = currentOriginGeneration()
+        try permit(req)
         let (data, resp) = try await session.data(for: req)
         if let http = resp as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
             throw OWError.http(http.statusCode, Self.detail(from: data))
@@ -775,4 +829,17 @@ struct AnyEncodable: Encodable {
     private let encodeFunc: (Encoder) throws -> Void
     init(_ wrapped: Encodable) { encodeFunc = wrapped.encode }
     func encode(to encoder: Encoder) throws { try encodeFunc(encoder) }
+}
+
+/// True exactly once: the guard that lets several callbacks race to resume one
+/// continuation.
+private final class Once: @unchecked Sendable {
+    private let lock = NSLock()
+    private var fired = false
+    func first() -> Bool {
+        lock.lock(); defer { lock.unlock() }
+        if fired { return false }
+        fired = true
+        return true
+    }
 }

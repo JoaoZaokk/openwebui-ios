@@ -45,6 +45,10 @@ final class AppState: ObservableObject {
     @Published var serverFeatures: OWServerConfig?
     /// Why the model list is stale or empty, surfaced on the chat list.
     @Published var modelsError: String?
+    /// Why the login screen could not read the server (blocked by the system,
+    /// not allowed, unreachable) — said under the server name, where the person
+    /// looks, instead of only when the sign-in button fails. nil when it answered.
+    @Published var serverProbeError: String?
 
     private var sessionEnded: (any NSObjectProtocol)?
 
@@ -119,7 +123,12 @@ final class AppState: ObservableObject {
         // the previous server landing after the switch would otherwise describe
         // that server's login methods on this one's login screen.
         let asked = serverConfig.baseURL
-        let cfg = try? await client.serverConfig()
+        var cfg: OWServerConfig?
+        var why: String?
+        do { cfg = try await client.serverConfig() }
+        catch is CancellationError { return }
+        catch { why = OWFailure.msg(error) }
+        if serverConfig.baseURL == asked { serverProbeError = why }
         // A failed read keeps what was known. It used to blank it, and since 1.13
         // what is known includes what only a signed-in answer says (notes and
         // memory on or off): a hiccup on a refresh must not switch them off.

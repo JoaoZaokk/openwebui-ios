@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "請確認以開啟 App 鎖定。";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "無法確認你的身分。輕點「解鎖」以重試。";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "由於裝置不再設有密碼，鎖定已關閉。請在裝置的「設定」中設定密碼以再次使用。";
+"Conexão sem criptografia" = "未加密的連線";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "此位址使用 http://。在 Tailscale 內部，流量已經過加密，但 iOS 無法確認這一點。只有在你信任自己的網路時才繼續。";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "此位址透過網際網路使用 http://。你的密碼和對話將以未加密方式傳輸，路徑上的任何人都可以讀取。請優先使用 https://。";
+"Estou ciente dos riscos e quero usar HTTP" = "我了解風險，並希望使用 HTTP";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "尚未確認對 %@ 的 HTTP 連線。請打開「伺服器」並確認使用 HTTP。";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS 已阻擋存取本地網路。請在「設定」›「OpenWebUI」中打開「本地網路」。";

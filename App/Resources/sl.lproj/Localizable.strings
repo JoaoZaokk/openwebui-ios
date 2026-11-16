@@ -416,3 +416,9 @@
 "Confirme para ativar o bloqueio do app." = "Potrdite za vklop zaklepa aplikacije.";
 "Não foi possível confirmar sua identidade. Toque em Desbloquear para tentar de novo." = "Vaše identitete ni bilo mogoče potrditi. Tapnite Odkleni, če želite poskusiti znova.";
 "O bloqueio foi desativado porque o aparelho não tem mais um código de acesso. Defina um nos Ajustes do aparelho para usá-lo de novo." = "Zaklep je bil izklopljen, ker naprava nima več kode. Nastavite jo v Nastavitvah naprave, da ga boste lahko znova uporabljali.";
+"Conexão sem criptografia" = "Nešifrirana povezava";
+"Este endereço usa http://. Dentro do Tailscale o tráfego já viaja criptografado, mas o iOS não consegue conferir isso. Continue só se você confia na sua rede." = "Ta naslov uporablja http://. Znotraj Tailscala je promet že šifriran, vendar iOS tega ne more preveriti. Nadaljuj le, če zaupaš svojemu omrežju.";
+"Este endereço usa http:// pela internet. Sua senha e suas conversas vão sem criptografia e qualquer pessoa no caminho pode lê-las. Prefira https://." = "Ta naslov uporablja http:// prek interneta. Tvoje geslo in pogovori se pošiljajo nešifrirani, prebere pa jih lahko vsak na poti. Raje uporabi https://.";
+"Estou ciente dos riscos e quero usar HTTP" = "Zavedam se tveganj in želim uporabljati HTTP";
+"Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Povezava HTTP do %@ ni potrjena. Odpri Strežnik in potrdi uporabo HTTP.";
+"O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS je blokiral dostop do lokalnega omrežja. V Nastavitve › OpenWebUI vklopi Lokalno omrežje.";
