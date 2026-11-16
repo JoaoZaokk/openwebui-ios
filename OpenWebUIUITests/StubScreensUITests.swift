@@ -2,7 +2,7 @@ import XCTest
 
 /// Screens checked against the stub server of the App Store captures, whose
 /// chats are fixed, for what the real server can't be made to say on demand
-/// (`openwebui-appstore-deliver/screenshots-2026-10/stub/server.py`).
+/// (`testing/stub/server.py` in the private companion repository).
 ///
 /// Runs only with `TEST_RUNNER_OW_STUB` set to the stub's address. The Debug
 /// launch arguments sign in without the login screen, with a token kept apart
