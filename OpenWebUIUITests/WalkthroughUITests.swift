@@ -416,7 +416,9 @@ final class WalkthroughUITests: XCTestCase {
         // Back to the list: the chat is inside the folder, not at the top level.
         app.navigationBars.buttons.firstMatch.tap()
         XCTAssertTrue(row.waitForExistence(timeout: 20))
-        let chat = app.staticTexts["Qual a capital da França?"]
+        // The app titles the chat from its first answer once it exists on the server,
+        // so the row may read either way.
+        let chat = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "capital da França")).firstMatch
         XCTAssertTrue(chat.waitForExistence(timeout: 20), "the chat is not listed under its folder")
         snap(app, "pasta-com-conversa")
 
