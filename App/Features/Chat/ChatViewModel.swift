@@ -50,6 +50,10 @@ final class ChatViewModel: ObservableObject {
     /// A temporary chat is never saved to the server (ephemeral).
     let temporary: Bool
 
+    /// The folder this conversation belongs to. Sent with every reply so the server
+    /// puts the folder's instruction in front of it, and used to file a NEW chat
+    /// there once it exists on the server.
+    private(set) var folderID: String?
     /// nil until the conversation is persisted server-side (new chat).
     private(set) var chatID: String?
     /// Fired after a turn finishes so the list can refresh.
@@ -118,8 +122,9 @@ final class ChatViewModel: ObservableObject {
 
     init(client: OpenWebUIClient, completions: ChatCompletionsClient,
          chat: OWChatSummary?, models: [OWModel], defaultModel: String?,
-         temporary: Bool = false, cache: ServerChatCache? = nil) {
+         temporary: Bool = false, cache: ServerChatCache? = nil, folderID: String? = nil) {
         self.client = client
+        self.folderID = folderID ?? chat?.folderID
         self.completions = completions
         self.cache = cache
         self.models = models
@@ -483,7 +488,8 @@ final class ChatViewModel: ObservableObject {
         do {
             let options = OWStreamOptions(webSearch: legacyFallback,
                                           toolIDs: Array(selectedToolIDs),
-                                          memory: sendsMemory())
+                                          memory: sendsMemory(),
+                                          folderID: folderID)
             let notes = offersNotes(options.toolIDs, options.webSearch)
             // Already searched for this turn (or the server's search just
             // failed): a call the model writes anyway is only cut.
@@ -832,6 +838,10 @@ final class ChatViewModel: ObservableObject {
                                                          tree: Array(tree.values), currentId: currentLeafId)
                 cache?.deleteCached(id: PendingChat.idForNew(localDraftID))
                 chatID = id
+                // A chat started inside a folder is filed there now that it exists.
+                // Best-effort: if it fails the chat is simply at the top level, and
+                // `folder_id` still went with every reply.
+                if let folderID { try? await client.moveChat(id, toFolder: folderID) }
                 self.title = title
                 onChanged?()
                 await autoTitle(id: id, model: model)   // replace the first-message stub

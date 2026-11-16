@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Kết nối HTTP tới %@ chưa được xác nhận. Hãy mở Máy chủ và xác nhận việc dùng HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS đã chặn quyền truy cập mạng cục bộ. Trong Cài đặt › OpenWebUI, hãy bật Mạng cục bộ.";
 "Abrir Ajustes" = "Mở Cài đặt";
+"Pastas" = "Thư mục";
+"Nova pasta" = "Thư mục mới";
+"Nome da pasta" = "Tên thư mục";
+"Mover para pasta" = "Chuyển vào thư mục";
+"Tirar da pasta" = "Bỏ khỏi thư mục";
+"Nova conversa nesta pasta" = "Cuộc trò chuyện mới trong thư mục này";
+"Instruções da pasta" = "Hướng dẫn của thư mục";
+"Toda conversa desta pasta começa com estas instruções." = "Mọi cuộc trò chuyện trong thư mục này đều bắt đầu với các hướng dẫn này.";
+"Excluir pasta" = "Xóa thư mục";
+"As conversas voltam para a lista principal." = "Các cuộc trò chuyện quay về danh sách chính.";
+"Pasta vazia" = "Thư mục trống";
+"Pasta" = "Thư mục";

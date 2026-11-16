@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "尚未確認對 %@ 的 HTTP 連線。請打開「伺服器」並確認使用 HTTP。";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS 已阻擋存取本地網路。請在「設定」›「OpenWebUI」中打開「本地網路」。";
 "Abrir Ajustes" = "打開設定";
+"Pastas" = "資料夾";
+"Nova pasta" = "新增資料夾";
+"Nome da pasta" = "資料夾名稱";
+"Mover para pasta" = "移至資料夾";
+"Tirar da pasta" = "從資料夾移除";
+"Nova conversa nesta pasta" = "在此資料夾中新增對話";
+"Instruções da pasta" = "資料夾指令";
+"Toda conversa desta pasta começa com estas instruções." = "此資料夾中的每個對話都以這些指令開始。";
+"Excluir pasta" = "刪除資料夾";
+"As conversas voltam para a lista principal." = "對話會回到主列表。";
+"Pasta vazia" = "空資料夾";
+"Pasta" = "資料夾";

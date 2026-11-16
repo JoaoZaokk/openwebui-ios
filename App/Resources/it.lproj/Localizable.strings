@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Connessione HTTP non confermata per %@. Apri Server e conferma l'uso di HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS ha bloccato l'accesso alla rete locale. In Impostazioni › OpenWebUI, attiva Rete locale.";
 "Abrir Ajustes" = "Apri Impostazioni";
+"Pastas" = "Cartelle";
+"Nova pasta" = "Nuova cartella";
+"Nome da pasta" = "Nome della cartella";
+"Mover para pasta" = "Sposta in cartella";
+"Tirar da pasta" = "Rimuovi dalla cartella";
+"Nova conversa nesta pasta" = "Nuova chat in questa cartella";
+"Instruções da pasta" = "Istruzioni della cartella";
+"Toda conversa desta pasta começa com estas instruções." = "Ogni chat di questa cartella inizia con queste istruzioni.";
+"Excluir pasta" = "Elimina cartella";
+"As conversas voltam para a lista principal." = "Le chat tornano nell'elenco principale.";
+"Pasta vazia" = "Cartella vuota";
+"Pasta" = "Cartella";

@@ -420,3 +420,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "חיבור HTTP אל %@ לא אושר. פתחו את שרת ואשרו את השימוש ב-HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS חסם את הגישה לרשת המקומית. בהגדרות › OpenWebUI, הפעילו את רשת מקומית.";
 "Abrir Ajustes" = "פתח הגדרות";
+"Pastas" = "תיקיות";
+"Nova pasta" = "תיקייה חדשה";
+"Nome da pasta" = "שם התיקייה";
+"Mover para pasta" = "העבר לתיקייה";
+"Tirar da pasta" = "הסר מהתיקייה";
+"Nova conversa nesta pasta" = "שיחה חדשה בתיקייה זו";
+"Instruções da pasta" = "הוראות התיקייה";
+"Toda conversa desta pasta começa com estas instruções." = "כל שיחה בתיקייה זו מתחילה עם ההוראות האלה.";
+"Excluir pasta" = "מחק תיקייה";
+"As conversas voltam para a lista principal." = "השיחות חוזרות לרשימה הראשית.";
+"Pasta vazia" = "תיקייה ריקה";
+"Pasta" = "תיקייה";

@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP-Verbindung zu %@ nicht bestätigt. Öffne Server und bestätige die Verwendung von HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS hat den Zugriff auf das lokale Netzwerk blockiert. Aktiviere unter Einstellungen › OpenWebUI die Option Lokales Netzwerk.";
 "Abrir Ajustes" = "Einstellungen öffnen";
+"Pastas" = "Ordner";
+"Nova pasta" = "Neuer Ordner";
+"Nome da pasta" = "Ordnername";
+"Mover para pasta" = "In Ordner bewegen";
+"Tirar da pasta" = "Aus Ordner entfernen";
+"Nova conversa nesta pasta" = "Neues Gespräch in diesem Ordner";
+"Instruções da pasta" = "Ordneranweisungen";
+"Toda conversa desta pasta começa com estas instruções." = "Jedes Gespräch in diesem Ordner beginnt mit diesen Anweisungen.";
+"Excluir pasta" = "Ordner löschen";
+"As conversas voltam para a lista principal." = "Die Gespräche kehren in die Hauptliste zurück.";
+"Pasta vazia" = "Leerer Ordner";
+"Pasta" = "Ordner";

@@ -51,6 +51,10 @@ struct ChatListView: View {
     @State private var renameText = ""
     @State private var shareItem: ShareableURL?
     @State private var searchTask: Task<Void, Never>?
+    @State private var creatingFolder = false
+    @State private var newFolderName = ""
+    @State private var editingFolder: OWFolder?
+    @State private var deletingFolder: OWFolder?
 
     init(app: AppState) {
         self.app = app
@@ -60,6 +64,7 @@ struct ChatListView: View {
     enum ChatRoute: Hashable {
         case existing(OWChatSummary)
         case new(temporary: Bool)
+        case newIn(folderID: String)
     }
 
     private var searching: Bool { !search.trimmingCharacters(in: .whitespaces).isEmpty }
@@ -107,6 +112,10 @@ struct ChatListView: View {
                         Button { path.append(.new(temporary: true)) } label: {
                             Label("Conversa temporária", systemImage: "clock.badge.xmark")
                         }
+                        Button { newFolderName = ""; creatingFolder = true } label: {
+                            Label("Nova pasta", systemImage: "folder.badge.plus")
+                        }
+                        .accessibilityIdentifier("chats.newFolder")
                         Divider()
                         Button { showArchived = true } label: {
                             Label("Arquivadas", systemImage: "archivebox")
@@ -124,6 +133,8 @@ struct ChatListView: View {
                     ChatScreen(app: app, chat: c, onChanged: { Task { await store.load() } })
                 case .new(let temp):
                     ChatScreen(app: app, chat: nil, temporary: temp, onChanged: { Task { await store.load() } })
+                case .newIn(let folderID):
+                    ChatScreen(app: app, chat: nil, folderID: folderID, onChanged: { Task { await store.load() } })
                 }
             }
             .task {
@@ -142,6 +153,21 @@ struct ChatListView: View {
             ArchivedChatsView(app: app).environment(\.theme, theme)
         }
         .sheet(item: $shareItem) { item in ShareSheet(items: [item.url]) }
+        .sheet(item: $editingFolder) { f in
+            FolderEditorView(folder: f, store: store).environment(\.theme, theme)
+        }
+        .alert("Nova pasta", isPresented: $creatingFolder) {
+            TextField("Nome da pasta", text: $newFolderName)
+            Button("Cancelar", role: .cancel) {}
+            Button("Salvar") { Task { await store.createFolder(name: newFolderName) } }
+        }
+        .confirmationDialog("Excluir pasta", isPresented: Binding(
+            get: { deletingFolder != nil }, set: { if !$0 { deletingFolder = nil } }
+        ), titleVisibility: .visible, presenting: deletingFolder) { f in
+            Button("Excluir pasta", role: .destructive) { Task { await store.deleteFolder(f.id) } }
+        } message: { _ in
+            Text("As conversas voltam para a lista principal.")
+        }
         .alert("Renomear conversa", isPresented: Binding(
             get: { renaming != nil },
             set: { if !$0 { renaming = nil } }
@@ -211,25 +237,8 @@ struct ChatListView: View {
 
     private var list: some View {
         List {
-            ForEach(filtered) { chat in
-                Button { path.append(.existing(chat)) } label: { row(chat) }
-                    .buttonStyle(.plain)
-                    .listRowBackground(theme.bg)
-                    .swipeActions(edge: .trailing) {
-                        Button(role: .destructive) { Task { await store.delete(chat) } } label: {
-                            Label("Apagar", systemImage: "trash")
-                        }
-                        Button { startRename(chat) } label: {
-                            Label("Renomear", systemImage: "pencil")
-                        }.tint(theme.accent)
-                    }
-                    .swipeActions(edge: .leading) {
-                        Button { Task { await store.pin(chat) } } label: {
-                            Label(LocalizedStringKey(chat.pinned ? "Desafixar" : "Fixar"), systemImage: "pin")
-                        }.tint(.orange)
-                    }
-                    .contextMenu { chatActions(chat) }
-            }
+            if !searching && !store.folders.isEmpty { foldersSection }
+            ForEach(filtered) { chat in chatRow(chat) }
             // A row of its own, not `onAppear` on the last chat: List recycles its
             // rows, so that callback also fires on the way back up. This one exists
             // only while there is another page, so it is both the trigger and the
@@ -261,6 +270,79 @@ struct ChatListView: View {
         }
     }
 
+    /// One conversation row with its swipe actions and long-press menu — used by
+    /// the main list and by the chats inside an opened folder.
+    @ViewBuilder private func chatRow(_ chat: OWChatSummary) -> some View {
+        Button { path.append(.existing(chat)) } label: { row(chat) }
+            .buttonStyle(.plain)
+            .listRowBackground(theme.bg)
+            .swipeActions(edge: .trailing) {
+                Button(role: .destructive) { Task { await store.delete(chat) } } label: {
+                    Label("Apagar", systemImage: "trash")
+                }
+                Button { startRename(chat) } label: {
+                    Label("Renomear", systemImage: "pencil")
+                }.tint(theme.accent)
+            }
+            .swipeActions(edge: .leading) {
+                Button { Task { await store.pin(chat) } } label: {
+                    Label(LocalizedStringKey(chat.pinned ? "Desafixar" : "Fixar"), systemImage: "pin")
+                }.tint(.orange)
+            }
+            .contextMenu { chatActions(chat) }
+    }
+
+    private var foldersSection: some View {
+        Section {
+            ForEach(store.folderRows, id: \.folder.id) { entry in
+                let f = entry.folder
+                let open = store.expandedFolders.contains(f.id)
+                Button { Task { await store.toggleFolder(f.id) } } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: open ? "folder.fill" : "folder")
+                            .foregroundStyle(theme.accent)
+                        Text(f.name).font(.ody(.subheadline)).foregroundStyle(theme.fg).lineLimit(1)
+                        Spacer()
+                        Image(systemName: open ? "chevron.down" : "chevron.right")
+                            .font(.caption2).foregroundStyle(theme.secondaryText.opacity(0.5))
+                    }
+                    .padding(.leading, CGFloat(entry.depth) * 18)
+                    .padding(.vertical, 4)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .listRowBackground(theme.bg)
+                .accessibilityIdentifier("folder.row.\(f.name)")
+                .contextMenu {
+                    Button { path.append(.newIn(folderID: f.id)) } label: {
+                        Label("Nova conversa nesta pasta", systemImage: "square.and.pencil")
+                    }
+                    Button { editingFolder = f } label: {
+                        Label("Instruções da pasta", systemImage: "text.alignleft")
+                    }
+                    Divider()
+                    Button(role: .destructive) { deletingFolder = f } label: {
+                        Label("Excluir pasta", systemImage: "trash")
+                    }
+                }
+                if open {
+                    let inside = store.folderChats[f.id] ?? []
+                    ForEach(inside) { chat in
+                        chatRow(chat).padding(.leading, CGFloat(entry.depth + 1) * 18)
+                    }
+                    if inside.isEmpty && store.folderChats[f.id] != nil {
+                        Text("Pasta vazia")
+                            .font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
+                            .padding(.leading, CGFloat(entry.depth + 1) * 18)
+                            .listRowBackground(theme.bg)
+                    }
+                }
+            }
+        } header: {
+            Text("Pastas").font(.ody(size: 11)).foregroundStyle(theme.secondaryText)
+        }
+    }
+
     private func row(_ chat: OWChatSummary) -> some View {
         HStack(spacing: 10) {
             if chat.pinned { Image(systemName: "pin.fill").font(.caption2).foregroundStyle(theme.accent) }
@@ -289,6 +371,21 @@ struct ChatListView: View {
             Label(LocalizedStringKey(chat.pinned ? "Desafixar" : "Fixar"), systemImage: chat.pinned ? "pin.slash" : "pin")
         }
         Button { startRename(chat) } label: { Label("Renomear", systemImage: "pencil") }
+        if !store.folders.isEmpty || chat.folderID != nil {
+            Menu {
+                ForEach(store.folderRows, id: \.folder.id) { entry in
+                    Button { Task { await store.move(chat, to: entry.folder.id) } } label: {
+                        Label(entry.folder.name, systemImage: chat.folderID == entry.folder.id ? "checkmark" : "folder")
+                    }
+                }
+                if chat.folderID != nil {
+                    Divider()
+                    Button { Task { await store.move(chat, to: nil) } } label: {
+                        Label("Tirar da pasta", systemImage: "folder.badge.minus")
+                    }
+                }
+            } label: { Label("Mover para pasta", systemImage: "folder") }
+        }
         Button { Task { await store.clone(chat) } } label: { Label("Clonar", systemImage: "doc.on.doc") }
         Button {
             Task { if let u = await store.shareLink(chat) { shareItem = ShareableURL(url: u) } }

@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@-এর জন্য HTTP সংযোগ নিশ্চিত করা হয়নি। সার্ভার খুলুন এবং HTTP ব্যবহার নিশ্চিত করুন।";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS লোকাল নেটওয়ার্কে অ্যাক্সেস ব্লক করেছে। সেটিংস › OpenWebUI-এ লোকাল নেটওয়ার্ক চালু করুন।";
 "Abrir Ajustes" = "সেটিংস খুলুন";
+"Pastas" = "ফোল্ডার";
+"Nova pasta" = "নতুন ফোল্ডার";
+"Nome da pasta" = "ফোল্ডারের নাম";
+"Mover para pasta" = "ফোল্ডারে সরান";
+"Tirar da pasta" = "ফোল্ডার থেকে সরান";
+"Nova conversa nesta pasta" = "এই ফোল্ডারে নতুন চ্যাট";
+"Instruções da pasta" = "ফোল্ডারের নির্দেশনা";
+"Toda conversa desta pasta começa com estas instruções." = "এই ফোল্ডারের প্রতিটি চ্যাট এই নির্দেশনা দিয়ে শুরু হয়।";
+"Excluir pasta" = "ফোল্ডার মুছুন";
+"As conversas voltam para a lista principal." = "চ্যাটগুলো মূল তালিকায় ফিরে যায়।";
+"Pasta vazia" = "ফোল্ডার খালি";
+"Pasta" = "ফোল্ডার";

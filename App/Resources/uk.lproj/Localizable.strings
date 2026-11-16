@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Підключення за HTTP до %@ не підтверджено. Відкрийте Сервер і підтвердьте використання HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "Доступ до локальної мережі заблоковано iOS. У Налаштування › OpenWebUI увімкніть пункт Локальна мережа.";
 "Abrir Ajustes" = "Відкрити Налаштування";
+"Pastas" = "Папки";
+"Nova pasta" = "Нова папка";
+"Nome da pasta" = "Назва папки";
+"Mover para pasta" = "Перемістити до папки";
+"Tirar da pasta" = "Вилучити з папки";
+"Nova conversa nesta pasta" = "Новий чат у цій папці";
+"Instruções da pasta" = "Інструкції папки";
+"Toda conversa desta pasta começa com estas instruções." = "Кожен чат у цій папці починається з цих інструкцій.";
+"Excluir pasta" = "Видалити папку";
+"As conversas voltam para a lista principal." = "Чати повертаються до основного списку.";
+"Pasta vazia" = "Порожня папка";
+"Pasta" = "Папка";

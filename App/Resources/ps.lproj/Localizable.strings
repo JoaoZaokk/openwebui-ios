@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "د %@ سره د HTTP اړیکه نه ده تایید شوې. سرور پرانیزئ او د HTTP کارول تایید کړئ.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS د سیمه‌ییزې شبکې لاسرسی بند کړ. په تنظیمات › OpenWebUI کې سیمه‌ییزه شبکه روښانه کړئ.";
 "Abrir Ajustes" = "تنظیمات خلاصول";
+"Pastas" = "فولډرونه";
+"Nova pasta" = "نوی فولډر";
+"Nome da pasta" = "د فولډر نوم";
+"Mover para pasta" = "فولډر ته لیږدول";
+"Tirar da pasta" = "له فولډر څخه ایستل";
+"Nova conversa nesta pasta" = "په دې فولډر کې نوې خبرې اترې";
+"Instruções da pasta" = "د فولډر لارښوونې";
+"Toda conversa desta pasta começa com estas instruções." = "په دې فولډر کې هره خبرې اترې له دې لارښوونو سره پیلیږي.";
+"Excluir pasta" = "فولډر ړنګول";
+"As conversas voltam para a lista principal." = "خبرې اترې اصلي لیست ته بیرته ځي.";
+"Pasta vazia" = "تش فولډر";
+"Pasta" = "فولډر";

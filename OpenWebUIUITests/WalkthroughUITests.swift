@@ -78,7 +78,8 @@ final class WalkthroughUITests: XCTestCase {
         pass.tap()
         pass.typeText(f.senha)
         app.buttons["login.submit"].tap()
-        XCTAssertTrue(tabBar.waitForExistence(timeout: 90), "no tab bar after Entrar")
+        if !tabBar.waitForExistence(timeout: 90) { snap(app, "sem-tabbar") }
+        XCTAssertTrue(tabBar.exists, "no tab bar after Entrar")
         // iOS offers to save the password after a sign-in, sometimes ten
         // seconds later; it sits over the list and swallows the next tap.
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
@@ -356,6 +357,85 @@ final class WalkthroughUITests: XCTestCase {
         expectation(for: found, evaluatedWith: NSObject())
         waitForExpectations(timeout: 240)
         snap(app, "notas")
+    }
+
+    /// Folders against the real server: create one, give it an instruction, start a
+    /// chat inside it (the reply must follow the instruction — the server applies it
+    /// because the request carries `folder_id`), then delete the folder and see the
+    /// conversation survive at the top level. Cleans up after itself.
+    func testFoldersCreateInstructChatAndDeleteAgainstTheServer() throws {
+        let f = try fixture()
+        // The simulator keeps the server of the previous run in UserDefaults:
+        // this test is about the account's server, so it says which.
+        let app = launch(["-openwebui.baseURL", f.server])
+        signIn(app, f)
+        app.tabBars.firstMatch.buttons.element(boundBy: 0).tap()
+
+        let name = "zz-ui-\(Int(Date().timeIntervalSince1970) % 100000)"
+        open(app, menu: "chats.newMenu", item: "chats.newFolder")
+        app.buttons["chats.newFolder"].tap()
+        let alert = app.alerts.firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+        alert.textFields.firstMatch.typeText(name)
+        alert.buttons["Salvar"].tap()
+        let row = app.buttons["folder.row.\(name)"]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), "the new folder never showed in the list")
+        snap(app, "pasta-criada")
+
+        row.tap()
+        XCTAssertTrue(app.staticTexts["Pasta vazia"].waitForExistence(timeout: 10))
+
+        // The instruction.
+        row.press(forDuration: 1.2)
+        XCTAssertTrue(app.buttons["Instruções da pasta"].waitForExistence(timeout: 5))
+        app.buttons["Instruções da pasta"].tap()
+        let editor = app.textViews["folder.instructions"]
+        XCTAssertTrue(editor.waitForExistence(timeout: 10))
+        editor.tap()
+        editor.typeText("Responda sempre em UMA palavra: banana.")
+        snap(app, "pasta-instrucoes")
+        app.buttons["folder.save"].tap()
+
+        // A chat started inside the folder.
+        row.press(forDuration: 1.2)
+        XCTAssertTrue(app.buttons["Nova conversa nesta pasta"].waitForExistence(timeout: 5))
+        app.buttons["Nova conversa nesta pasta"].tap()
+        let field = app.descendants(matching: .any)["composer.field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 20))
+        field.tap()
+        field.typeText("Qual a capital da França?")
+        app.buttons["composer.send"].tap()
+        let settled = NSPredicate { _, _ in
+            app.buttons["composer.send"].exists
+                && app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "banana")).count > 0
+        }
+        expectation(for: settled, evaluatedWith: NSObject())
+        waitForExpectations(timeout: 180)
+        snap(app, "pasta-resposta")
+
+        // Back to the list: the chat is inside the folder, not at the top level.
+        app.navigationBars.buttons.firstMatch.tap()
+        XCTAssertTrue(row.waitForExistence(timeout: 20))
+        let chat = app.staticTexts["Qual a capital da França?"]
+        XCTAssertTrue(chat.waitForExistence(timeout: 20), "the chat is not listed under its folder")
+        snap(app, "pasta-com-conversa")
+
+        // Deleting the folder keeps the chat.
+        row.press(forDuration: 1.2)
+        XCTAssertTrue(app.buttons["Excluir pasta"].waitForExistence(timeout: 5))
+        app.buttons["Excluir pasta"].tap()
+        let confirm = app.sheets.buttons["Excluir pasta"].exists ? app.sheets.buttons["Excluir pasta"]
+            : app.buttons.matching(identifier: "Excluir pasta").allElementsBoundByIndex.last!
+        confirm.tap()
+        let gone = NSPredicate { _, _ in !row.exists }
+        expectation(for: gone, evaluatedWith: NSObject())
+        waitForExpectations(timeout: 30)
+        XCTAssertTrue(chat.waitForExistence(timeout: 20), "the conversation was lost with its folder")
+        snap(app, "pasta-excluida")
+
+        // Cleanup: the conversation this test made.
+        chat.press(forDuration: 1.2)
+        if app.buttons["Excluir"].waitForExistence(timeout: 5) { app.buttons["Excluir"].tap() }
     }
 
     /// Issue #13: sign-in through the system browser, where passkeys, SSO and

@@ -540,9 +540,10 @@ final class AppState: ObservableObject {
 
     // Factories
     func makeChatStore() -> ChatStore { ChatStore(client: client, cache: cache) }
-    func makeChatViewModel(chat: OWChatSummary?, temporary: Bool = false) -> ChatViewModel {
+    func makeChatViewModel(chat: OWChatSummary?, temporary: Bool = false, folderID: String? = nil) -> ChatViewModel {
         let vm = ChatViewModel(client: client, completions: completions, chat: chat,
-                               models: chatModels, defaultModel: defaultModel, temporary: temporary, cache: cache)
+                               models: chatModels, defaultModel: defaultModel, temporary: temporary, cache: cache,
+                               folderID: folderID)
         vm.serverSearches = { [weak self] in self?.serverFeatures?.webSearchAvailable ?? true }
         vm.sendsMemory = { [weak self] in self?.sendsMemory() ?? false }
         vm.offersNotes = { [weak self] ids, serverSearch in

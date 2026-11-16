@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@에 대한 HTTP 연결이 확인되지 않았습니다. 서버를 열고 HTTP 사용을 확인하세요.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS가 로컬 네트워크 접근을 차단했습니다. 설정 › OpenWebUI에서 로컬 네트워크를 켜세요.";
 "Abrir Ajustes" = "설정 열기";
+"Pastas" = "폴더";
+"Nova pasta" = "새로운 폴더";
+"Nome da pasta" = "폴더 이름";
+"Mover para pasta" = "폴더로 이동";
+"Tirar da pasta" = "폴더에서 빼기";
+"Nova conversa nesta pasta" = "이 폴더에 새 대화";
+"Instruções da pasta" = "폴더 지침";
+"Toda conversa desta pasta começa com estas instruções." = "이 폴더의 모든 대화는 이 지침으로 시작됩니다.";
+"Excluir pasta" = "폴더 삭제";
+"As conversas voltam para a lista principal." = "대화는 기본 목록으로 돌아갑니다.";
+"Pasta vazia" = "빈 폴더";
+"Pasta" = "폴더";

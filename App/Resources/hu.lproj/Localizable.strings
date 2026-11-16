@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "A(z) %@ HTTP-kapcsolata nincs megerősítve. Nyisd meg a Szerver részt, és erősítsd meg a HTTP használatát.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "Az iOS letiltotta a helyi hálózathoz való hozzáférést. A Beállítások › OpenWebUI menüben kapcsold be a Helyi hálózat opciót.";
 "Abrir Ajustes" = "Beállítások megnyitása";
+"Pastas" = "Mappák";
+"Nova pasta" = "Új mappa";
+"Nome da pasta" = "Mappa neve";
+"Mover para pasta" = "Áthelyezés mappába";
+"Tirar da pasta" = "Kivétel a mappából";
+"Nova conversa nesta pasta" = "Új csevegés ebben a mappában";
+"Instruções da pasta" = "Mappa utasításai";
+"Toda conversa desta pasta começa com estas instruções." = "Ebben a mappában minden csevegés ezekkel az utasításokkal indul.";
+"Excluir pasta" = "Mappa törlése";
+"As conversas voltam para a lista principal." = "A csevegések visszakerülnek a főlistába.";
+"Pasta vazia" = "Üres mappa";
+"Pasta" = "Mappa";

@@ -47,8 +47,9 @@ struct ChatScreen: View {
     private var capturing: Bool { false }
     #endif
 
-    init(app: AppState, chat: OWChatSummary?, temporary: Bool = false, onChanged: @escaping () -> Void) {
-        let model = app.makeChatViewModel(chat: chat, temporary: temporary)
+    init(app: AppState, chat: OWChatSummary?, temporary: Bool = false, folderID: String? = nil,
+         onChanged: @escaping () -> Void) {
+        let model = app.makeChatViewModel(chat: chat, temporary: temporary, folderID: folderID)
         model.onChanged = onChanged
         _vm = StateObject(wrappedValue: model)
     }

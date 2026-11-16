@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "اتصال HTTP به %@ تأیید نشده است. سرور را باز کنید و استفاده از HTTP را تأیید کنید.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS دسترسی به شبکهٔ محلی را مسدود کرده است. در تنظیمات › OpenWebUI، شبکهٔ محلی را روشن کنید.";
 "Abrir Ajustes" = "باز کردن تنظیمات";
+"Pastas" = "پوشه‌ها";
+"Nova pasta" = "پوشه جدید";
+"Nome da pasta" = "نام پوشه";
+"Mover para pasta" = "انتقال به پوشه";
+"Tirar da pasta" = "خارج کردن از پوشه";
+"Nova conversa nesta pasta" = "گفتگوی جدید در این پوشه";
+"Instruções da pasta" = "دستورالعمل‌های پوشه";
+"Toda conversa desta pasta começa com estas instruções." = "هر گفتگو در این پوشه با این دستورالعمل‌ها شروع می‌شود.";
+"Excluir pasta" = "حذف پوشه";
+"As conversas voltam para a lista principal." = "گفتگوها به فهرست اصلی برمی‌گردند.";
+"Pasta vazia" = "پوشه خالی";
+"Pasta" = "پوشه";

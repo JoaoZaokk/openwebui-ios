@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP врската кон %@ не е потврдена. Отворете Сервер и потврдете користење на HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS го блокираше пристапот до локалната мрежа. Во Поставки › OpenWebUI вклучете Локална мрежа.";
 "Abrir Ajustes" = "Отвори Поставки";
+"Pastas" = "Папки";
+"Nova pasta" = "Нова папка";
+"Nome da pasta" = "Име на папката";
+"Mover para pasta" = "Премести во папка";
+"Tirar da pasta" = "Извади од папката";
+"Nova conversa nesta pasta" = "Нов разговор во оваа папка";
+"Instruções da pasta" = "Инструкции за папката";
+"Toda conversa desta pasta começa com estas instruções." = "Секој разговор во оваа папка започнува со овие инструкции.";
+"Excluir pasta" = "Избриши папка";
+"As conversas voltam para a lista principal." = "Разговорите се враќаат во главната листа.";
+"Pasta vazia" = "Празна папка";
+"Pasta" = "Папка";

@@ -420,3 +420,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP savienojums ar %@ nav apstiprināts. Atver Serveris un apstiprini HTTP izmantošanu.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS bloķēja piekļuvi lokālajam tīklam. Sadaļā Iestatījumi › OpenWebUI ieslēdz Lokālais tīkls.";
 "Abrir Ajustes" = "Atvērt iestatījumus";
+"Pastas" = "Mapes";
+"Nova pasta" = "Jauna mape";
+"Nome da pasta" = "Mapes nosaukums";
+"Mover para pasta" = "Pārvietot uz mapi";
+"Tirar da pasta" = "Izņemt no mapes";
+"Nova conversa nesta pasta" = "Jauna saruna šajā mapē";
+"Instruções da pasta" = "Mapes norādījumi";
+"Toda conversa desta pasta começa com estas instruções." = "Katra šīs mapes saruna sākas ar šiem norādījumiem.";
+"Excluir pasta" = "Izdzēst mapi";
+"As conversas voltam para a lista principal." = "Sarunas atgriežas galvenajā sarakstā.";
+"Pasta vazia" = "Tukša mape";
+"Pasta" = "Mape";

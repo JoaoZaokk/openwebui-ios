@@ -420,3 +420,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "HTTP-Verbindung zu %@ net confirméiert. Maach Server op a confirméier d'Benotzung vun HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS huet den Zougrëff op dat lokalt Netzwierk gespaart. Schalt an den Astellungen › OpenWebUI Lokalt Netzwierk un.";
 "Abrir Ajustes" = "Astellungen opmaachen";
+"Pastas" = "Dossieren";
+"Nova pasta" = "Neien Dossier";
+"Nome da pasta" = "Numm vum Dossier";
+"Mover para pasta" = "An en Dossier réckelen";
+"Tirar da pasta" = "Aus dem Dossier huelen";
+"Nova conversa nesta pasta" = "Neit Gespréich an dësem Dossier";
+"Instruções da pasta" = "Instruktioune vum Dossier";
+"Toda conversa desta pasta começa com estas instruções." = "All Gespréich an dësem Dossier fänkt mat dësen Instruktioune un.";
+"Excluir pasta" = "Dossier läschen";
+"As conversas voltam para a lista principal." = "D'Gespréicher ginn zréck op d'Haaptlëscht.";
+"Pasta vazia" = "Eidelen Dossier";
+"Pasta" = "Dossier";

@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "Koneksi HTTP ke %@ belum dikonfirmasi. Buka Server dan konfirmasi penggunaan HTTP.";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS memblokir akses ke jaringan lokal. Di Pengaturan › OpenWebUI, aktifkan Jaringan Lokal.";
 "Abrir Ajustes" = "Buka Pengaturan";
+"Pastas" = "Folder";
+"Nova pasta" = "Folder baru";
+"Nome da pasta" = "Nama folder";
+"Mover para pasta" = "Pindahkan ke folder";
+"Tirar da pasta" = "Keluarkan dari folder";
+"Nova conversa nesta pasta" = "Percakapan baru di folder ini";
+"Instruções da pasta" = "Instruksi folder";
+"Toda conversa desta pasta começa com estas instruções." = "Setiap percakapan di folder ini dimulai dengan instruksi ini.";
+"Excluir pasta" = "Hapus folder";
+"As conversas voltam para a lista principal." = "Percakapan kembali ke daftar utama.";
+"Pasta vazia" = "Folder kosong";
+"Pasta" = "Folder";

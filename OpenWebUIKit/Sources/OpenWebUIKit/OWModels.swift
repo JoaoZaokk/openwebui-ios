@@ -605,6 +605,11 @@ public struct OWChatSummary: Decodable, Identifiable, Hashable, Sendable {
     public var archived: Bool
     /// A matching excerpt for full-text search results (not part of the API).
     public var snippet: String? = nil
+    /// The folder this row was listed under. Not read from the main list (the
+    /// server leaves foldered chats out of it): `chats(inFolder:)` stamps it, and a
+    /// chat opened from there sends it back as `folder_id` so the folder's
+    /// instruction applies.
+    public var folderID: String? = nil
 
     enum CodingKeys: String, CodingKey {
         case id, title, updated_at, created_at, pinned, archived

@@ -423,3 +423,15 @@
 "Conexão HTTP sem confirmação para %@. Abra Servidor e confirme o uso de HTTP." = "%@ के लिए HTTP कनेक्शन की पुष्टि नहीं हुई है। सर्वर खोलें और HTTP के उपयोग की पुष्टि करें।";
 "O iOS bloqueou o acesso à rede local. Em Ajustes › OpenWebUI, ligue Rede Local." = "iOS ने लोकल नेटवर्क का एक्सेस ब्लॉक कर दिया है। सेटिंग्स › OpenWebUI में लोकल नेटवर्क चालू करें।";
 "Abrir Ajustes" = "सेटिंग्स खोलें";
+"Pastas" = "फ़ोल्डर";
+"Nova pasta" = "नया फ़ोल्डर";
+"Nome da pasta" = "फ़ोल्डर का नाम";
+"Mover para pasta" = "फ़ोल्डर में ले जाएँ";
+"Tirar da pasta" = "फ़ोल्डर से हटाएँ";
+"Nova conversa nesta pasta" = "इस फ़ोल्डर में नई चैट";
+"Instruções da pasta" = "फ़ोल्डर के निर्देश";
+"Toda conversa desta pasta começa com estas instruções." = "इस फ़ोल्डर की हर चैट इन निर्देशों से शुरू होती है।";
+"Excluir pasta" = "फ़ोल्डर हटाएँ";
+"As conversas voltam para a lista principal." = "चैट मुख्य सूची में लौट आती हैं।";
+"Pasta vazia" = "खाली फ़ोल्डर";
+"Pasta" = "फ़ोल्डर";

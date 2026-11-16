@@ -65,10 +65,15 @@ public struct OWStreamOptions: Sendable {
     /// `tools`. Like `search_web`, the server would only run its builtin versions
     /// for a request with a `session_id`; `streamReply` runs these.
     public var offerNotes: Bool
+    /// The folder the chat lives in. Sent as `folder_id`: the server then puts the
+    /// folder's instruction in front of the conversation (OWFolder).
+    public var folderID: String?
     public init(temperature: Double? = nil, webSearch: Bool = false, toolIDs: [String] = [],
-                offerWebSearch: Bool = false, memory: Bool = false, offerNotes: Bool = false) {
+                offerWebSearch: Bool = false, memory: Bool = false, offerNotes: Bool = false,
+                folderID: String? = nil) {
         self.temperature = temperature; self.webSearch = webSearch; self.toolIDs = toolIDs
         self.offerWebSearch = offerWebSearch; self.memory = memory; self.offerNotes = offerNotes
+        self.folderID = folderID
     }
 }
 
@@ -354,7 +359,8 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                  temperature: options.temperature, files: files.isEmpty ? nil : files,
                  tool_ids: options.toolIDs.isEmpty ? nil : options.toolIDs,
                  features: features,
-                 params: needsLegacy ? Body.Params(function_calling: "legacy") : nil)
+                 params: needsLegacy ? Body.Params(function_calling: "legacy") : nil,
+                 folder_id: options.folderID)
         )
         // A `tools` key makes the server skip its own tool resolution and pass
         // these through to the provider unchanged — which is the point: it is
@@ -383,6 +389,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         var tool_ids: [String]?
         var features: Features?
         var params: Params?
+        var folder_id: String?
         /// Optionals, so a key that is not set is not written at all.
         struct Features: Encodable { var web_search: Bool?; var memory: Bool? }
         struct Params: Encodable { var function_calling: String }

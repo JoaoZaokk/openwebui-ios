@@ -8,6 +8,11 @@ final class ChatStore: ObservableObject {
     @Published var chats: [OWChatSummary] = []
     @Published var loading = false
     @Published var error: String?
+    /// The account's folders, and the chats of those that have been opened. A
+    /// server without folders leaves both empty and the section does not draw.
+    @Published private(set) var folders: [OWFolder] = []
+    @Published private(set) var folderChats: [String: [OWChatSummary]] = [:]
+    @Published var expandedFolders: Set<String> = []
     /// Full-text search results (title + cached message bodies). Populated by `search`.
     @Published var searchResults: [OWChatSummary] = []
     /// The query behind `searchResults`, so a mutation can refresh them.
@@ -69,6 +74,7 @@ final class ChatStore: ObservableObject {
             error = nil
             loaded = true
             await refreshSearch()
+            await loadFolders()
         } catch is CancellationError {
         } catch {
             // Server unreachable: fall back to the chats we've cached so past
@@ -77,6 +83,81 @@ final class ChatStore: ObservableObject {
             if !cached.isEmpty { chats = sorted(cached); offline = true }
             self.error = OWFailure.msg(error)
         }
+    }
+
+    // MARK: Folders
+
+    /// Best-effort, like the pinned list: folders failing must not blank the chats.
+    func loadFolders() async {
+        guard let list = try? await client.folders() else { return }
+        folders = list
+        let live = Set(list.map(\.id))
+        folderChats = folderChats.filter { live.contains($0.key) }
+        expandedFolders = expandedFolders.filter { live.contains($0) }
+        for id in expandedFolders { await loadFolderChats(id) }
+    }
+
+    func loadFolderChats(_ id: String) async {
+        guard let rows = try? await client.chats(inFolder: id) else { return }
+        folderChats[id] = rows.filter { !$0.archived }
+            .sorted { ($0.updatedAt ?? 0) > ($1.updatedAt ?? 0) }
+    }
+
+    func toggleFolder(_ id: String) async {
+        if expandedFolders.contains(id) { expandedFolders.remove(id); return }
+        expandedFolders.insert(id)
+        await loadFolderChats(id)
+    }
+
+    @discardableResult
+    func createFolder(name: String) async -> OWFolder? {
+        let n = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !n.isEmpty else { return nil }
+        do {
+            let made = try await client.createFolder(name: n)
+            await loadFolders()
+            return made
+        } catch { report(error); return nil }
+    }
+
+    /// The instruction lives only on the by-id route, so the editor asks for it
+    /// when it opens rather than the list carrying it for every folder.
+    func folderDetail(_ id: String) async -> OWFolder? {
+        do { return try await client.folder(id) } catch { report(error); return nil }
+    }
+
+    func updateFolder(_ id: String, name: String, systemPrompt: String) async {
+        let n = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !n.isEmpty else { return }
+        do { _ = try await client.updateFolder(id, name: n, systemPrompt: systemPrompt); await loadFolders() }
+        catch { report(error) }
+    }
+
+    /// Deleting a folder never deletes its conversations: they go back to the top
+    /// level. (The server's default would delete them with it.)
+    func deleteFolder(_ id: String) async {
+        do {
+            // Asked of the server, not read from `folderChats`: that one leaves out
+            // archived chats, and one left behind would go with the folder.
+            for chat in try await client.chats(inFolder: id) {
+                try await client.moveChat(chat.id, toFolder: nil)
+            }
+            try await client.deleteFolder(id)
+            folderChats[id] = nil
+            expandedFolders.remove(id)
+            await load()
+        } catch { report(error) }
+    }
+
+    /// Files a chat in a folder, or takes it out (`nil`).
+    func move(_ chat: OWChatSummary, to folderID: String?) async {
+        do {
+            try await client.moveChat(chat.id, toFolder: folderID)
+            forget(chat.id)
+            if let old = chat.folderID { folderChats[old]?.removeAll { $0.id == chat.id } }
+            if let folderID { await loadFolderChats(folderID) }
+            await load()
+        } catch { report(error) }
     }
 
     /// The server's page size for `GET /api/v1/chats/`, hardcoded there — there is
