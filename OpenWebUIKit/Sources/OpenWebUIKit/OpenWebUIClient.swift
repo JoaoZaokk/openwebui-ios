@@ -789,17 +789,16 @@ public final class OpenWebUIClient: @unchecked Sendable {
 
     /// GET /api/v1/chats/?page=N — the user's chat list (most-recent first).
     ///
-    /// Two server defaults hide conversations from this list, and both have to be
-    /// answered or the chat is simply unreachable from the app. `include_pinned`
-    /// is false, which is why `pinnedChats()` exists and gets merged in.
-    /// `include_folders` is false too (`get_chat_title_id_list_by_user_id` filters
-    /// `folder_id=None`), so filing a chat into a folder in the web UI made it
-    /// vanish from the phone entirely — same failure as the pinned one, and this
-    /// client has no folder UI to put it back behind, so it asks for them flat.
+    /// `include_pinned` is false by server default, which is why `pinnedChats()`
+    /// exists and gets merged in. `include_folders` stays at its default too:
+    /// chats filed in a folder belong to the folder section (`chats(inFolder:)`),
+    /// exactly as on the web. Until 1.13 this asked for them flat because the app
+    /// had no folder UI to put them behind; with one, asking for them made every
+    /// moved chat show up twice (report from 1.14).
     ///
     /// Still one page of 60. There is no "load more" yet.
     public func chats(page: Int = 1) async throws -> [OWChatSummary] {
-        let data = try await send(request("/api/v1/chats/?page=\(page)&include_folders=true"))
+        let data = try await send(request("/api/v1/chats/?page=\(page)"))
         return try decodeList(OWChatSummary.self, data)
     }
 

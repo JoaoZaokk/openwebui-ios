@@ -432,3 +432,12 @@
 "As conversas voltam para a lista principal." = "השיחות חוזרות לרשימה הראשית.";
 "Pasta vazia" = "תיקייה ריקה";
 "Pasta" = "תיקייה";
+"Baixados no aparelho" = "הורדו למכשיר";
+"Nada baixado." = "לא הורד דבר.";
+"Modelos de reconhecimento" = "מודלי זיהוי";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "הברק (⚡) מוריד קובץ נוסף שמאיץ את המודל ב-Neural Engine (Core ML). הטעינה הראשונה לאחר ההפעלה אורכת כמה דקות.";
+"Buscar na conversa" = "חיפוש בשיחה";
+"Resultado anterior" = "התוצאה הקודמת";
+"Próximo resultado" = "התוצאה הבאה";
+"Buscar notas" = "חיפוש פתקים";
+"Buscar na nota" = "חיפוש בפתק";

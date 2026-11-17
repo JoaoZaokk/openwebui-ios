@@ -28,6 +28,17 @@ public struct OWNote: Decodable, Identifiable, Hashable, Sendable {
     /// back — see `updateNote`.
     public var accessGrants: [OWAccessGrant]?
 
+    /// True when `query` appears in the title or the body, ignoring case and
+    /// accents. A blank query matches everything. The list route truncates the
+    /// body (see `_truncate_note_data`), so this reaches the first ~1000
+    /// characters of a long note — the editor's own find covers the rest.
+    public func matches(_ query: String) -> Bool {
+        let q = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !q.isEmpty else { return true }
+        let opts: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
+        return title.range(of: q, options: opts) != nil || markdown.range(of: q, options: opts) != nil
+    }
+
     enum CodingKeys: String, CodingKey {
         case id, title, data, is_pinned, updated_at, created_at, access_grants
     }

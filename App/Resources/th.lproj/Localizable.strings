@@ -432,3 +432,12 @@
 "As conversas voltam para a lista principal." = "การสนทนาจะกลับไปที่รายการหลัก";
 "Pasta vazia" = "โฟลเดอร์ว่าง";
 "Pasta" = "โฟลเดอร์";
+"Baixados no aparelho" = "ดาวน์โหลดในเครื่องแล้ว";
+"Nada baixado." = "ยังไม่มีสิ่งที่ดาวน์โหลด";
+"Modelos de reconhecimento" = "โมเดลการรู้จำเสียง";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "ไอคอนสายฟ้า (⚡) จะดาวน์โหลดไฟล์เพิ่มเติมที่ช่วยให้โมเดลทำงานเร็วขึ้นบน Neural Engine (Core ML) การโหลดครั้งแรกหลังเปิดใช้งานใช้เวลาไม่กี่นาที";
+"Buscar na conversa" = "ค้นหาในการสนทนา";
+"Resultado anterior" = "ผลลัพธ์ก่อนหน้า";
+"Próximo resultado" = "ผลลัพธ์ถัดไป";
+"Buscar notas" = "ค้นหาโน้ต";
+"Buscar na nota" = "ค้นหาในโน้ต";

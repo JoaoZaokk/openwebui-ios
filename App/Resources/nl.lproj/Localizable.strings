@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "De gesprekken gaan terug naar de hoofdlijst.";
 "Pasta vazia" = "Lege map";
 "Pasta" = "Map";
+"Baixados no aparelho" = "Gedownload op dit apparaat";
+"Nada baixado." = "Niets gedownload.";
+"Modelos de reconhecimento" = "Herkenningsmodellen";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "De bliksem (⚡) downloadt een extra bestand dat het model versnelt op de Neural Engine (Core ML). Het eerste laden na het inschakelen duurt enkele minuten.";
+"Buscar na conversa" = "Zoeken in gesprek";
+"Resultado anterior" = "Vorig resultaat";
+"Próximo resultado" = "Volgend resultaat";
+"Buscar notas" = "Notities zoeken";
+"Buscar na nota" = "Zoeken in notitie";

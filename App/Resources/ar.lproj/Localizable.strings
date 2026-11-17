@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "تعود المحادثات إلى القائمة الرئيسية.";
 "Pasta vazia" = "مجلد فارغ";
 "Pasta" = "مجلد";
+"Baixados no aparelho" = "التي تم تنزيلها على الجهاز";
+"Nada baixado." = "لا شيء تم تنزيله.";
+"Modelos de reconhecimento" = "نماذج التعرّف";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "يقوم البرق (⚡) بتنزيل ملف إضافي يُسرّع النموذج على Neural Engine (Core ML). يستغرق التحميل الأول بعد التفعيل بضع دقائق.";
+"Buscar na conversa" = "البحث في المحادثة";
+"Resultado anterior" = "النتيجة السابقة";
+"Próximo resultado" = "النتيجة التالية";
+"Buscar notas" = "البحث في الملاحظات";
+"Buscar na nota" = "البحث في الملاحظة";

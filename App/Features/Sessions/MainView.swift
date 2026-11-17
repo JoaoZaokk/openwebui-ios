@@ -47,6 +47,17 @@ struct ChatListView: View {
     @State private var showSettings = false
     @State private var showArchived = false
     @State private var search = ""
+    /// Whether the search field is up. Held here so the app can put it away:
+    /// on an unfolded iPhone Duo (regular width, the field sits in the bar) the
+    /// ✕ only cleared the text and kept the keyboard, which then came back on
+    /// returning from a chat or Settings (report from 1.14).
+    @State private var searchPresented = false
+    /// Bumped when the window changes shape, to rebuild the toolbar buttons: on
+    /// the same device, folding and unfolding left the Settings and New chat
+    /// buttons as empty circles until a rotation (report from 1.14).
+    @State private var toolbarEpoch = 0
+    @Environment(\.horizontalSizeClass) private var sizeClass
+    @Environment(\.scenePhase) private var scenePhase
     @State private var renaming: OWChatSummary?
     @State private var renameText = ""
     @State private var shareItem: ShareableURL?
@@ -100,7 +111,7 @@ struct ChatListView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button { showSettings = true } label: { Image(systemName: "gearshape") }
+                    Button { showSettings = true } label: { Image(systemName: "gearshape").id(toolbarEpoch) }
                         .accessibilityLabel(Text("Ajustes"))
                 }
                 ToolbarItem(placement: .topBarTrailing) {
@@ -121,7 +132,7 @@ struct ChatListView: View {
                             Label("Arquivadas", systemImage: "archivebox")
                         }
                     } label: {
-                        Image(systemName: "square.and.pencil")
+                        Image(systemName: "square.and.pencil").id(toolbarEpoch)
                     }
                     .accessibilityLabel(Text("Nova conversa"))
                     .accessibilityIdentifier("chats.newMenu")
@@ -254,8 +265,21 @@ struct ChatListView: View {
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
         .readableColumn()
-        .searchable(text: $search, prompt: "Buscar conversas")
-        .onChange(of: search) { _, new in runSearch(new) }
+        .searchable(text: $search, isPresented: $searchPresented, prompt: "Buscar conversas")
+        .onChange(of: search) { old, new in
+            runSearch(new)
+            // ✕ on the field: empty it AND put the field away, as Cancel does on a
+            // phone held upright.
+            if !old.isEmpty && new.isEmpty { searchPresented = false }
+        }
+        .onChange(of: path) { _, p in if !p.isEmpty { searchPresented = false } }
+        .onChange(of: sizeClass) { _, _ in toolbarEpoch &+= 1 }
+        .onChange(of: scenePhase) { _, phase in if phase == .active { toolbarEpoch &+= 1 } }
+        #if os(iOS)
+        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+            toolbarEpoch &+= 1
+        }
+        #endif
         // An overlay on the List rather than another branch of `content`:
         // swapping the List out would unmount `.searchable` and cancel the query.
         // The sentence names the scope, because the search is local (titles plus

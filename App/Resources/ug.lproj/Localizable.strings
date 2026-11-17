@@ -432,3 +432,12 @@
 "As conversas voltam para a lista principal." = "سۆھبەتلەر ئاساسىي تىزىملىككە قايتىدۇ.";
 "Pasta vazia" = "قۇرۇق ھۆججەت قىسقۇچ";
 "Pasta" = "ھۆججەت قىسقۇچ";
+"Baixados no aparelho" = "ئۈسكۈنىگە چۈشۈرۈلگەن";
+"Nada baixado." = "ھېچنېمە چۈشۈرۈلمىگەن.";
+"Modelos de reconhecimento" = "تونۇش مودېللىرى";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "چاقماق (⚡) قوشۇمچە ھۆججەت چۈشۈرىدۇ، بۇ ھۆججەت Neural Engine (Core ML) دا مودېلنى تېزلىتىدۇ. قوزغاتقاندىن كېيىنكى بىرىنچى قېتىملىق يۈكلەش بىر نەچچە مىنۇت ئالىدۇ.";
+"Buscar na conversa" = "سۆھبەتتە ئىزدەش";
+"Resultado anterior" = "ئالدىنقى نەتىجە";
+"Próximo resultado" = "كېيىنكى نەتىجە";
+"Buscar notas" = "خاتىرە ئىزدەش";
+"Buscar na nota" = "خاتىرىدە ئىزدەش";

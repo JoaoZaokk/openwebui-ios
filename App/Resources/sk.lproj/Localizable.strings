@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Konverzácie sa vrátia do hlavného zoznamu.";
 "Pasta vazia" = "Prázdny priečinok";
 "Pasta" = "Priečinok";
+"Baixados no aparelho" = "Stiahnuté v zariadení";
+"Nada baixado." = "Nič nebolo stiahnuté.";
+"Modelos de reconhecimento" = "Modely rozpoznávania";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Blesk (⚡) stiahne ďalší súbor, ktorý zrýchli model na Neural Engine (Core ML). Prvé načítanie po aktivácii trvá niekoľko minút.";
+"Buscar na conversa" = "Hľadať v konverzácii";
+"Resultado anterior" = "Predchádzajúci výsledok";
+"Próximo resultado" = "Ďalší výsledok";
+"Buscar notas" = "Hľadať v poznámkach";
+"Buscar na nota" = "Hľadať v poznámke";

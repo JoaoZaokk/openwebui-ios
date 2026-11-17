@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "对话将回到主列表。";
 "Pasta vazia" = "空文件夹";
 "Pasta" = "文件夹";
+"Baixados no aparelho" = "本机已下载";
+"Nada baixado." = "尚未下载任何内容。";
+"Modelos de reconhecimento" = "识别模型";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "闪电图标（⚡）会下载一个额外文件，用于在 Neural Engine（Core ML）上加速模型。启用后首次加载需要几分钟。";
+"Buscar na conversa" = "在对话中搜索";
+"Resultado anterior" = "上一个结果";
+"Próximo resultado" = "下一个结果";
+"Buscar notas" = "搜索笔记";
+"Buscar na nota" = "在笔记中搜索";

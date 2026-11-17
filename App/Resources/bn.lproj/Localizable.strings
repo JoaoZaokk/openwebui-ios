@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "চ্যাটগুলো মূল তালিকায় ফিরে যায়।";
 "Pasta vazia" = "ফোল্ডার খালি";
 "Pasta" = "ফোল্ডার";
+"Baixados no aparelho" = "ডিভাইসে ডাউনলোড করা";
+"Nada baixado." = "কিছু ডাউনলোড করা নেই।";
+"Modelos de reconhecimento" = "শনাক্তকরণ মডেল";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "বিদ্যুতের চিহ্ন (⚡) একটি অতিরিক্ত ফাইল ডাউনলোড করে, যা Neural Engine (Core ML)-এ মডেলটিকে দ্রুত করে। চালু করার পর প্রথমবার লোড হতে কয়েক মিনিট লাগে।";
+"Buscar na conversa" = "কথোপকথনে খুঁজুন";
+"Resultado anterior" = "আগের ফলাফল";
+"Próximo resultado" = "পরের ফলাফল";
+"Buscar notas" = "নোট খুঁজুন";
+"Buscar na nota" = "নোটে খুঁজুন";

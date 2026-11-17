@@ -359,6 +359,124 @@ final class WalkthroughUITests: XCTestCase {
         snap(app, "notas")
     }
 
+    /// Build 27 (Scott's report): everything downloaded in one list with its size
+    /// and a way out, and the active model is a picker among the ones on the device.
+    /// Needs two empty files in the app's `Application Support/Models`, named
+    /// `w-tiny-ggml-tiny.bin` and `w-base-ggml-base.bin` (the catalogue's ids), so
+    /// the app believes it has downloaded Whisper Tiny and Whisper Base.
+    func testDownloadedModelsAreListedAndTheActiveModelIsAPicker() throws {
+        let f = try fixture()
+        let app = launch(["-openwebui.baseURL", f.server, "-voice.stt.engine", "model",
+                          "-voice.stt.model", "w-base"])
+        signIn(app, f)
+        app.buttons["Ajustes"].tap()
+        let link = app.buttons["Voz e modelos"]
+        XCTAssertTrue(link.waitForExistence(timeout: 10))
+        link.tap()
+        // The active model is a picker with both models on the device.
+        let picker = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Modelo ativo")).firstMatch
+        XCTAssertTrue(picker.waitForExistence(timeout: 10), "no active-model picker")
+        snap(app, "modelo-ativo")
+        picker.tap()
+        XCTAssertTrue(app.buttons["Whisper Tiny"].waitForExistence(timeout: 5), "the other downloaded model is not offered")
+        app.buttons["Whisper Tiny"].tap()
+        // The size line opens the list of everything downloaded.
+        let used = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Espaço usado")).firstMatch
+        for _ in 0..<6 where !used.exists { app.swipeUp() }
+        XCTAssertTrue(used.exists, "no Espaço usado row")
+        used.tap()
+        XCTAssertTrue(app.staticTexts["Whisper Tiny"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.staticTexts["Whisper Base"].exists)
+        snap(app, "baixados")
+        // Deleting one asks first, names it, and the other stays.
+        app.buttons.matching(identifier: "Apagar modelo").element(boundBy: 0).tap()
+        let confirm = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Apagar Whisper")).firstMatch
+        XCTAssertTrue(confirm.waitForExistence(timeout: 5))
+        snap(app, "baixados-apagar")
+        confirm.tap()
+        let gone = NSPredicate { _, _ in !app.staticTexts["Whisper Base"].exists || !app.staticTexts["Whisper Tiny"].exists }
+        expectation(for: gone, evaluatedWith: NSObject())
+        waitForExpectations(timeout: 10)
+        snap(app, "baixados-depois")
+    }
+
+    /// Build 27 (Scott's report, iPhone Duo unfolded = regular width): tapping the ✕
+    /// of the chat search emptied the text but kept the keyboard, and it came back
+    /// after visiting a chat. Run it on an iPad: the clear button must put the
+    /// keyboard away, and so must leaving for a conversation.
+    func testClearingTheChatSearchPutsTheKeyboardAway() throws {
+        let f = try fixture()
+        let app = launch(["-openwebui.baseURL", f.server])
+        // On an iPad the tab bar floats at the top and is not a UITabBar: the
+        // session saved by the earlier tests is what gets us to the list.
+        let search = app.searchFields.firstMatch
+        let deadline = Date().addingTimeInterval(60)
+        while Date() < deadline, !search.exists, !app.buttons["Conversas"].exists { usleep(300_000) }
+        if !search.exists {
+            // Regular width folds the search into a toolbar button.
+            let button = app.navigationBars.buttons.matching(NSPredicate(
+                format: "label CONTAINS[c] 'busc' OR label CONTAINS[c] 'search' OR label CONTAINS[c] 'pesquis'")).firstMatch
+            XCTAssertTrue(button.waitForExistence(timeout: 20), "no search control: \(app.navigationBars.debugDescription)")
+            button.tap()
+        }
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        if !app.keyboards.firstMatch.exists { search.tap() }
+        search.typeText("capital")
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        snap(app, "busca-teclado")
+        let clear = search.buttons["Clear text"].exists ? search.buttons["Clear text"] : search.buttons.firstMatch
+        XCTAssertTrue(clear.exists, "no clear button on the search field")
+        clear.tap()
+        let down = NSPredicate { _, _ in !app.keyboards.firstMatch.exists }
+        expectation(for: down, evaluatedWith: NSObject())
+        waitForExpectations(timeout: 8)
+        snap(app, "busca-limpa-sem-teclado")
+    }
+
+    /// Build 27 (Scott's report on build 26), against the server: search inside a
+    /// chat, the notes search field, and the Workspace listing only what was made
+    /// there (the account owns one workspace model; the server lists more).
+    func testSearchInAChatNotesSearchAndTheWorkspaceListAgainstTheServer() throws {
+        let f = try fixture()
+        let app = launch(["-openwebui.baseURL", f.server])
+        signIn(app, f)
+        _ = converse(app, "Qual a capital da França? Responda só com o nome da cidade.")
+
+        // Find in the conversation: accents and case are ignored.
+        app.buttons["chat.find"].tap()
+        let field = app.textFields["chat.find.field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.typeText("FRANCA")
+        let counter = app.staticTexts.matching(NSPredicate(format: "label MATCHES %@", "[0-9]+/[0-9]+")).firstMatch
+        XCTAssertTrue(counter.waitForExistence(timeout: 5), "no n/total counter after typing a word that is in the chat")
+        snap(app, "busca-na-conversa")
+        app.buttons["Próximo resultado"].tap()
+        snap(app, "busca-na-conversa-proximo")
+        app.buttons["Fechar"].tap()
+        XCTAssertFalse(field.exists, "closing the bar left the field up")
+        app.navigationBars.buttons.firstMatch.tap()
+
+        // Notes: the list has a search field.
+        app.tabBars.firstMatch.buttons.element(boundBy: 1).tap()
+        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 10), "Notas has no search field")
+        snap(app, "notas-busca")
+
+        // Workspace: the model made there, and none of the connection's own.
+        app.tabBars.firstMatch.buttons.element(boundBy: 4).tap()
+        // The two names are the account's: `OW_WORKSPACE_MODEL` is a model made in its
+        // Workspace, `OW_CONNECTION_MODEL` one the connection lists that was not.
+        let env = ProcessInfo.processInfo.environment
+        if let made = env["OW_WORKSPACE_MODEL"], let notMade = env["OW_CONNECTION_MODEL"] {
+            XCTAssertTrue(app.staticTexts[made].waitForExistence(timeout: 30), "the workspace model is not listed")
+            XCTAssertFalse(app.staticTexts[notMade].exists, "a connection model leaked into Workspace")
+        } else {
+            XCTAssertTrue(app.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'MODELOS'")).firstMatch
+                .waitForExistence(timeout: 30))
+        }
+        snap(app, "workspace-so-os-seus")
+    }
+
+
     /// Folders against the real server: create one, give it an instruction, start a
     /// chat inside it (the reply must follow the instruction — the server applies it
     /// because the request carries `folder_id`), then delete the folder and see the
@@ -395,15 +513,23 @@ final class WalkthroughUITests: XCTestCase {
         editor.typeText("Responda sempre em UMA palavra: banana.")
         snap(app, "pasta-instrucoes")
         app.buttons["folder.save"].tap()
+        // The sheet closes when the save has gone through; a long press while it is
+        // still going away is swallowed (the menu never opens).
+        let sheetGone = NSPredicate { _, _ in !editor.exists }
+        expectation(for: sheetGone, evaluatedWith: NSObject())
+        waitForExpectations(timeout: 30)
 
         // A chat started inside the folder.
-        row.press(forDuration: 1.2)
-        XCTAssertTrue(app.buttons["Nova conversa nesta pasta"].waitForExistence(timeout: 5))
+        for _ in 0..<3 {
+            row.press(forDuration: 1.2)
+            if app.buttons["Nova conversa nesta pasta"].waitForExistence(timeout: 4) { break }
+        }
+        XCTAssertTrue(app.buttons["Nova conversa nesta pasta"].exists)
         app.buttons["Nova conversa nesta pasta"].tap()
         let field = app.descendants(matching: .any)["composer.field"]
         XCTAssertTrue(field.waitForExistence(timeout: 20))
         field.tap()
-        field.typeText("Qual a capital da França?")
+        field.typeText("Qual a capital da Noruega?")
         app.buttons["composer.send"].tap()
         let settled = NSPredicate { _, _ in
             app.buttons["composer.send"].exists
@@ -418,8 +544,11 @@ final class WalkthroughUITests: XCTestCase {
         XCTAssertTrue(row.waitForExistence(timeout: 20))
         // The app titles the chat from its first answer once it exists on the server,
         // so the row may read either way.
-        let chat = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@", "capital da França")).firstMatch
+        let chatRows = app.staticTexts.matching(NSPredicate(format: "label CONTAINS[c] %@ OR label CONTAINS[c] %@", "noruega", "norway"))
+        let chat = chatRows.firstMatch
         XCTAssertTrue(chat.waitForExistence(timeout: 20), "the chat is not listed under its folder")
+        // Report from 1.14: a moved chat showed in its folder AND in the main list.
+        XCTAssertEqual(chatRows.count, 1, "the chat is listed twice: in its folder and at the top level")
         snap(app, "pasta-com-conversa")
 
         // Deleting the folder keeps the chat.

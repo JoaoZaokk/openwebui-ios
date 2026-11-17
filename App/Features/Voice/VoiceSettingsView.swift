@@ -29,7 +29,9 @@ struct VoiceSettingsView: View {
     /// the choice that shortens the list was buried under the list it shortens.
     /// Now the catalogue stays folded until the user opens the menu.
     private static let noLanguage = ""
-    @State private var langFilter = VoiceSettingsView.noLanguage
+    /// Remembered between visits (report from 1.14: it asked for English every
+    /// time the screen opened).
+    @AppStorage("voice.catalog.langFilter") private var langFilter = VoiceSettingsView.noLanguage
     /// Which size groups are open, keyed `engine|bucket`. Empty at launch: every
     /// group starts closed, so picking a language costs four rows, not forty.
     @State private var openBuckets: Set<String> = []
@@ -59,9 +61,7 @@ struct VoiceSettingsView: View {
                         Text(verbatim: engine.label).tag(engine.rawValue)
                     }
                 }
-                if stt == .model {
-                    LabeledContent("Modelo ativo", value: modelName(sttModelID) ?? L("nenhum"))
-                }
+                if stt == .model { activeModelPicker }
                 // Only the native engine has the choice: the Whisper engines are
                 // on-device by construction, and the server one never is.
                 if stt == .native {
@@ -198,14 +198,19 @@ struct VoiceSettingsView: View {
             // Two engines, two headers: a Parakeet row under "Whisper" told the
             // user it was something it is not. The brand name needs no catalogue.
             modelSection(title: L("Modelos STT · Whisper"), task: .stt, engine: .whisper,
+                         footer: L("O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos."),
                          selectedID: sttModelID) { id in sttModelID = id; sttEngine = STTEngine.model.rawValue }
             modelSection(title: "NVIDIA Parakeet", task: .stt, engine: .parakeet,
                          selectedID: sttModelID) { id in sttModelID = id; sttEngine = STTEngine.model.rawValue }
 
             if totalOnDisk > 0 {
                 Section {
-                    LabeledContent("Espaço usado",
-                                   value: ByteCountFormatter.string(fromByteCount: totalOnDisk, countStyle: .file))
+                    NavigationLink {
+                        DownloadedModelsView()
+                    } label: {
+                        LabeledContent("Espaço usado",
+                                       value: ByteCountFormatter.string(fromByteCount: totalOnDisk, countStyle: .file))
+                    }
                 }
             }
         }
@@ -257,6 +262,29 @@ struct VoiceSettingsView: View {
             // without first reading the one that is selected.
             ForEach(AppLanguage.allCases) { l in
                 Text(verbatim: l.endonym).tag(l.rawValue)
+            }
+        }
+    }
+
+    /// The models already on the device, to switch between without hunting for
+    /// them in the catalogue (report from 1.14: the active model was greyed out
+    /// and the only way to change it was to filter by language and expand every
+    /// group). A model that would not fit in memory is offered only while it is
+    /// the one already selected — picking it would kill the app, not fail.
+    @ViewBuilder
+    private var activeModelPicker: some View {
+        let ready = VoiceCatalog.all.filter { m in
+            downloads.isInstalled(m)
+                && ((STTRunner.fits(m, coreMLBytes: downloads.coreMLBytes(m)) ?? true) || m.id == sttModelID)
+        }
+        if ready.isEmpty {
+            LabeledContent("Modelo ativo", value: L("nenhum"))
+        } else {
+            Picker("Modelo ativo", selection: $sttModelID) {
+                if !ready.contains(where: { $0.id == sttModelID }) {
+                    Text("nenhum").tag(sttModelID)
+                }
+                ForEach(ready) { m in Text(m.name).tag(m.id) }
             }
         }
     }
@@ -391,7 +419,7 @@ struct VoiceSettingsView: View {
     /// group. The catalogue is 65 speech-to-text models; drawn flat, as it was,
     /// the screen opened on a scroll no one reads to the end of.
     @ViewBuilder
-    private func modelSection(title: String, task: VoiceTask, engine: STTModelEngine, selectedID: String, select: @escaping (String) -> Void) -> some View {
+    private func modelSection(title: String, task: VoiceTask, engine: STTModelEngine, footer: String? = nil, selectedID: String, select: @escaping (String) -> Void) -> some View {
         if languageChosen {
             let models = VoiceCatalog.filtered(task: task, lang: lang).filter { $0.engine == engine }
             if !models.isEmpty {
@@ -419,6 +447,8 @@ struct VoiceSettingsView: View {
                     }
                 } header: {
                     Text(verbatim: title)
+                } footer: {
+                    if let footer { Text(verbatim: footer) }
                 }
             }
         }

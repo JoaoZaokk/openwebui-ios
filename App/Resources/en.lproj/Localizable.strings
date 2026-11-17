@@ -445,3 +445,12 @@
 "As conversas voltam para a lista principal." = "Chats return to the main list.";
 "Pasta vazia" = "Empty folder";
 "Pasta" = "Folder";
+"Baixados no aparelho" = "Downloaded on this device";
+"Nada baixado." = "Nothing downloaded.";
+"Modelos de reconhecimento" = "Recognition models";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "The lightning bolt (⚡) downloads an extra file that speeds up the model on the Neural Engine (Core ML). The first load after enabling takes a few minutes.";
+"Buscar na conversa" = "Search in conversation";
+"Resultado anterior" = "Previous result";
+"Próximo resultado" = "Next result";
+"Buscar notas" = "Search notes";
+"Buscar na nota" = "Search in note";

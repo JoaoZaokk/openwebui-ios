@@ -40,6 +40,7 @@ struct NotesView: View {
     @Environment(\.theme) private var theme
     @StateObject private var store: NotesStore
     @State private var editing: NoteEdit?
+    @State private var query = ""
 
     init(app: AppState) {
         self.app = app
@@ -87,6 +88,7 @@ struct NotesView: View {
                 #endif
             }
             .refreshable { await store.load() }
+            .searchable(text: $query, prompt: "Buscar notas")
             .sheet(item: $editing, onDismiss: { Task { await store.load() } }) { e in
                 NoteEditorView(client: app.client, note: e.note)
             }
@@ -96,7 +98,7 @@ struct NotesView: View {
 
     private var list: some View {
         List {
-            ForEach(store.notes) { note in
+            ForEach(store.notes.filter { $0.matches(query) }) { note in
                 Button { editing = NoteEdit(note: note) } label: { row(note) }
                     .buttonStyle(.plain)
                     .listRowBackground(theme.bg)
@@ -181,6 +183,9 @@ struct NoteEditorView: View {
 
     @State private var title: String
     @State private var markdown = ""
+    /// The system find bar over the body (report from 1.14: no way to search
+    /// inside the note that is open).
+    @State private var showFind = false
     /// The note as `GET /api/v1/notes/{id}` returns it: the whole body, and the
     /// `access_grants` the list strips. This — never the list's copy — is what
     /// goes to `updateNote`, which hands those grants straight back so saving
@@ -234,6 +239,12 @@ struct NoteEditorView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } }
+                #if os(iOS)
+                ToolbarItem(placement: .primaryAction) {
+                    Button { showFind.toggle() } label: { Image(systemName: "magnifyingglass") }
+                        .accessibilityLabel(Text("Buscar na nota"))
+                }
+                #endif
                 ToolbarItem(placement: .confirmationAction) {
                     Button(LocalizedStringKey(saving ? "Salvando…" : "Salvar")) { Task { await save() } }
                         .disabled(!canSave || saving)
@@ -258,6 +269,9 @@ struct NoteEditorView: View {
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 12)
                 .focused($bodyFocused)
+                #if os(iOS)
+                .findNavigator(isPresented: $showFind)
+                #endif
                 .overlay(alignment: .topLeading) {
                     if markdown.isEmpty {
                         Text("Escreva em markdown…")

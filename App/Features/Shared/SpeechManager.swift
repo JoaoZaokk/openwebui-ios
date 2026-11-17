@@ -256,7 +256,7 @@ final class SpeechManager: NSObject, ObservableObject {
                     let data = try await p.task.value
                     // The turn can end while this is awaited (barge-in, stop).
                     guard self.isCurrent(generation) else { return }
-                    self.play(data, id: id)
+                    self.play(data, id: id, text: next)
                 } catch is CancellationError {
                     if self.isCurrent(generation) { self.preparingID = nil }
                 } catch {
@@ -363,7 +363,7 @@ final class SpeechManager: NSObject, ObservableObject {
 
     /// Common tail of both buffered engines: claim the session, hand the bytes
     /// to a player, start it.
-    private func play(_ data: Data, id: String) {
+    private func play(_ data: Data, id: String, text: String) {
         // The refusal has to abandon the chunk *before* a player exists. It used
         // to report the failure and then play anyway — and in the hands-free
         // loop the report is what reopens the microphone, so the assistant sang
@@ -378,7 +378,27 @@ final class SpeechManager: NSObject, ObservableObject {
             VoiceLog.log("tts.áudio", String(format: "%.1f s", p.duration))
             p.play()
         } catch {
-            chunkFailed(id, OWFailure.msg(error))
+            // Report from 1.14: "OSStatus error -39" in the middle of long,
+            // formatted replies, with a self-hosted speech server. -39 is
+            // end-of-file: the server answered 200 with a body that is not a
+            // whole audio file. What is in it is the one thing nobody could tell
+            // from the report, so the first bytes go to the diagnostic log.
+            let head = data.prefix(12).map { String(format: "%02x", $0) }.joined()
+            DiagnosticsStore.shared.event("tts.badAudio", [
+                "bytes": String(data.count), "head": head,
+                "chars": String(text.count),
+                "code": String((error as NSError).code),
+                "engine": engineName,
+            ])
+            VoiceLog.log("tts.áudio.inválido", "\(data.count) bytes head=\(head) chars=\(text.count) — \(error)")
+            // One unreadable sentence must not take the whole reply with it: the
+            // queue used to be abandoned and the raw error shown. The device
+            // voice reads that sentence and the next ones go back to the engine.
+            if chunkID == id, !text.isEmpty {
+                speakNative(text, id: id)
+            } else {
+                chunkFailed(id, L("Não foi possível reproduzir o áudio."), fallback: text)
+            }
         }
     }
 
@@ -424,7 +444,7 @@ final class SpeechManager: NSObject, ObservableObject {
         do {
             if duplexSession {
                 try s.setCategory(.playAndRecord, mode: .voiceChat,
-                                  options: [.duckOthers, .allowBluetoothA2DP])
+                                  options: [.duckOthers, .allowBluetoothHFP, .allowBluetoothA2DP])
                 try s.setActive(true)
                 applyProximityRoute()
             } else {
@@ -448,10 +468,55 @@ final class SpeechManager: NSObject, ObservableObject {
     func applyProximityRoute() {
         #if os(iOS)
         guard duplexSession else { return }
-        let near = UIDevice.current.proximityState
-        try? AVAudioSession.sharedInstance().overrideOutputAudioPort(near ? .none : .speaker)
+        let session = AVAudioSession.sharedInstance()
+        // `.speaker` forces the built-in loudspeaker even with AirPods on: the
+        // report from 1.14 was "the call will not use any Bluetooth speaker or
+        // headset". Only override when the route is the phone itself.
+        guard !Self.routeIsExternal(session.currentRoute) else {
+            try? session.overrideOutputAudioPort(.none)
+            return
+        }
+        let device = UIDevice.current
+        if !device.isGeneratingDeviceOrientationNotifications {
+            device.beginGeneratingDeviceOrientationNotifications()
+        }
+        let ear = Self.earpieceWanted(near: device.proximityState, orientation: device.orientation)
+        DiagnosticsStore.shared.event("voice.route", [
+            "near": device.proximityState ? "1" : "0",
+            "orientation": String(device.orientation.rawValue),
+            "earpiece": ear ? "1" : "0",
+        ])
+        try? session.overrideOutputAudioPort(ear ? .none : .speaker)
         #endif
     }
+
+    /// True when audio is leaving through something the user plugged in or
+    /// paired — Bluetooth, wired headphones, a car, AirPlay, USB — rather than
+    /// the phone's own earpiece or loudspeaker.
+    #if os(iOS)
+    /// The earpiece is for a phone raised to the ear. The proximity sensor alone
+    /// cannot tell that from a phone lying face-up or face-down on a desk, held
+    /// flat, or open as a book — it reads "near" for all of them, and the reply
+    /// then comes out of the earpiece at call volume (the "handset speaker" in the
+    /// 1.14 report, on an iPhone Duo). Held to the ear a phone is upright, so
+    /// anything else stays on the loudspeaker.
+    static func earpieceWanted(near: Bool, orientation: UIDeviceOrientation) -> Bool {
+        guard near else { return false }
+        switch orientation {
+        case .portrait, .portraitUpsideDown, .unknown: return true
+        default: return false      // flat, face up/down, landscape
+        }
+    }
+
+    static func routeIsExternal(_ route: AVAudioSessionRouteDescription) -> Bool {
+        route.outputs.contains {
+            switch $0.portType {
+            case .builtInReceiver, .builtInSpeaker: return false
+            default: return true
+            }
+        }
+    }
+    #endif
 
     private let synth = AVSpeechSynthesizer()
     /// Read fresh on every utterance — the user can change the app language at
@@ -660,7 +725,7 @@ final class SpeechManager: NSObject, ObservableObject {
             do {
                 let data = try await Self.timed(clean, make)
                 guard self.isCurrent(generation) else { return }
-                self.play(data, id: id)
+                self.play(data, id: id, text: clean)
             } catch is CancellationError {
                 if self.isCurrent(generation) { self.preparingID = nil }
             } catch {

@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "خبرې اترې اصلي لیست ته بیرته ځي.";
 "Pasta vazia" = "تش فولډر";
 "Pasta" = "فولډر";
+"Baixados no aparelho" = "په وسیله کې ډاونلوډ شوي";
+"Nada baixado." = "هیڅ نه دي ډاونلوډ شوي.";
+"Modelos de reconhecimento" = "د پېژندنې موډلونه";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "برېښنا (⚡) یوه اضافي فایل ډاونلوډوي چې موډل په Neural Engine (Core ML) کې ګړندی کوي. له فعالولو وروسته لومړی بارول څو دقیقې نیسي.";
+"Buscar na conversa" = "په خبرو اترو کې لټون";
+"Resultado anterior" = "تېر پایله";
+"Próximo resultado" = "راتلونکې پایله";
+"Buscar notas" = "یادښتونه لټول";
+"Buscar na nota" = "په یادښت کې لټون";

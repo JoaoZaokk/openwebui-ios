@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "A csevegések visszakerülnek a főlistába.";
 "Pasta vazia" = "Üres mappa";
 "Pasta" = "Mappa";
+"Baixados no aparelho" = "Letöltve az eszközre";
+"Nada baixado." = "Nincs letöltött elem.";
+"Modelos de reconhecimento" = "Felismerési modellek";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "A villám (⚡) egy kiegészítő fájlt tölt le, amely felgyorsítja a modellt a Neural Engine-en (Core ML). Az első betöltés a bekapcsolás után néhány percig tart.";
+"Buscar na conversa" = "Keresés a beszélgetésben";
+"Resultado anterior" = "Előző találat";
+"Próximo resultado" = "Következő találat";
+"Buscar notas" = "Jegyzetek keresése";
+"Buscar na nota" = "Keresés a jegyzetben";

@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "گفتگوها به فهرست اصلی برمی‌گردند.";
 "Pasta vazia" = "پوشه خالی";
 "Pasta" = "پوشه";
+"Baixados no aparelho" = "دانلودشده روی دستگاه";
+"Nada baixado." = "چیزی دانلود نشده است.";
+"Modelos de reconhecimento" = "مدل‌های تشخیص";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "آیکون رعد (⚡) یک فایل اضافی دانلود می‌کند که مدل را روی Neural Engine (Core ML) سریع‌تر می‌کند. اولین بارگذاری پس از فعال‌سازی چند دقیقه طول می‌کشد.";
+"Buscar na conversa" = "جستجو در گفتگو";
+"Resultado anterior" = "نتیجه قبلی";
+"Próximo resultado" = "نتیجه بعدی";
+"Buscar notas" = "جستجوی یادداشت‌ها";
+"Buscar na nota" = "جستجو در یادداشت";

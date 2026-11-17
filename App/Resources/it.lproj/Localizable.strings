@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Le chat tornano nell'elenco principale.";
 "Pasta vazia" = "Cartella vuota";
 "Pasta" = "Cartella";
+"Baixados no aparelho" = "Scaricati sul dispositivo";
+"Nada baixado." = "Nessun download.";
+"Modelos de reconhecimento" = "Modelli di riconoscimento";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Il fulmine (⚡) scarica un file aggiuntivo che accelera il modello sul Neural Engine (Core ML). Il primo caricamento dopo l’attivazione richiede alcuni minuti.";
+"Buscar na conversa" = "Cerca nella conversazione";
+"Resultado anterior" = "Risultato precedente";
+"Próximo resultado" = "Risultato successivo";
+"Buscar notas" = "Cerca note";
+"Buscar na nota" = "Cerca nella nota";

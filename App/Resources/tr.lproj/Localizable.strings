@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Sohbetler ana listeye döner.";
 "Pasta vazia" = "Boş klasör";
 "Pasta" = "Klasör";
+"Baixados no aparelho" = "Bu cihaza indirilenler";
+"Nada baixado." = "Hiçbir şey indirilmedi.";
+"Modelos de reconhecimento" = "Tanıma modelleri";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Şimşek (⚡), modeli Neural Engine (Core ML) üzerinde hızlandıran ek bir dosya indirir. Etkinleştirdikten sonraki ilk yükleme birkaç dakika sürer.";
+"Buscar na conversa" = "Sohbette ara";
+"Resultado anterior" = "Önceki sonuç";
+"Próximo resultado" = "Sonraki sonuç";
+"Buscar notas" = "Notlarda ara";
+"Buscar na nota" = "Notta ara";

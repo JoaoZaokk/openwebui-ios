@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Чати повертаються до основного списку.";
 "Pasta vazia" = "Порожня папка";
 "Pasta" = "Папка";
+"Baixados no aparelho" = "Завантажено на пристрій";
+"Nada baixado." = "Нічого не завантажено.";
+"Modelos de reconhecimento" = "Моделі розпізнавання";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Блискавка (⚡) завантажує додатковий файл, який прискорює модель на Neural Engine (Core ML). Перше завантаження після ввімкнення триває кілька хвилин.";
+"Buscar na conversa" = "Пошук у розмові";
+"Resultado anterior" = "Попередній результат";
+"Próximo resultado" = "Наступний результат";
+"Buscar notas" = "Пошук нотаток";
+"Buscar na nota" = "Пошук у нотатці";

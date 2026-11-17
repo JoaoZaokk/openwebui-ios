@@ -432,3 +432,12 @@
 "As conversas voltam para a lista principal." = "གྲོས་མོལ་རྣམས་གཙོ་བོའི་ཐོ་གཞིར་ཕྱིར་སླེབས།";
 "Pasta vazia" = "ཡིག་སྣོད་སྟོང་པ།";
 "Pasta" = "ཡིག་སྣོད།";
+"Baixados no aparelho" = "སྒྲིག་ཆས་སྟེང་ཕབ་ལེན་བྱས་པ།";
+"Nada baixado." = "ཕབ་ལེན་བྱས་པ་གང་ཡང་མེད།";
+"Modelos de reconhecimento" = "ངོས་འཛིན་གྱི་དཔེ་དབྱིབས།";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "གློག་འགྲོས་ (⚡) ཀྱིས་ཡིག་ཆ་ཁ་སྣོན་ཞིག་ཕབ་ལེན་བྱེད་ཅིང་ Neural Engine (Core ML) ཐོག་དཔེ་དབྱིབས་མགྱོགས་པར་བྱེད། སྒོ་འབྱེད་རྗེས་ཐེངས་དང་པོ་བཀོད་པར་སྐར་མ་འགའ་ཡོང་།";
+"Buscar na conversa" = "གྲོས་མོལ་ནང་འཚོལ།";
+"Resultado anterior" = "སྔོན་མའི་འཚོལ་འབྲས།";
+"Próximo resultado" = "རྗེས་མའི་འཚོལ་འབྲས།";
+"Buscar notas" = "ཟིན་བྲིས་འཚོལ།";
+"Buscar na nota" = "ཟིན་བྲིས་ནང་འཚོལ།";

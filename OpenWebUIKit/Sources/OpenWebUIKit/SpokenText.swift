@@ -88,9 +88,29 @@ public enum SpokenText {
             // its own. Requiring whitespace after it too — as the other
             // terminators do — meant a single line break never cut, and "\n"
             // was effectively dead in the set above.
-            if chars[i].isNewline || chars[i + 1].isWhitespace { return i + 1 }
+            if chars[i].isNewline || chars[i + 1].isWhitespace {
+                return i + 1 > sentenceHard ? hardCut(chars) : i + 1
+            }
         }
-        return nil
+        return chars.count > sentenceHard ? hardCut(chars) : nil
+    }
+
+    /// No chunk handed to a speech engine may be longer than this. A reply made
+    /// of bullets and bold text can run for hundreds of characters without a full
+    /// stop, and one giant request is what a self-hosted speech server answered
+    /// with a truncated file (player error OSStatus -39, report from 1.14).
+    public static let sentenceHard = 240
+
+    /// Last clause break, else last space, inside the hard limit; the limit
+    /// itself when the text has neither (CJK without punctuation).
+    private static func hardCut(_ chars: [Character]) -> Int {
+        let clause: Set<Character> = [",", ";", ":", "—", "–", "，", "；", "：", "、", ")"]
+        let upper = min(sentenceHard, chars.count - 1)
+        let lower = sentenceHard / 2
+        for i in stride(from: upper, through: lower, by: -1)
+        where clause.contains(chars[i - 1]) && chars[i].isWhitespace { return i }
+        for i in stride(from: upper, through: lower, by: -1) where chars[i].isWhitespace { return i }
+        return upper
     }
 
     /// Where to cut the **first** chunk of a reply.

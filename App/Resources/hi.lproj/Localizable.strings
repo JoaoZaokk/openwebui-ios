@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "चैट मुख्य सूची में लौट आती हैं।";
 "Pasta vazia" = "खाली फ़ोल्डर";
 "Pasta" = "फ़ोल्डर";
+"Baixados no aparelho" = "डिवाइस पर डाउनलोड किए गए";
+"Nada baixado." = "कुछ भी डाउनलोड नहीं किया गया।";
+"Modelos de reconhecimento" = "पहचान मॉडल";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "बिजली का चिह्न (⚡) एक अतिरिक्त फ़ाइल डाउनलोड करता है, जो Neural Engine (Core ML) पर मॉडल को तेज़ बनाती है। चालू करने के बाद पहली बार लोड होने में कुछ मिनट लगते हैं।";
+"Buscar na conversa" = "बातचीत में खोजें";
+"Resultado anterior" = "पिछला परिणाम";
+"Próximo resultado" = "अगला परिणाम";
+"Buscar notas" = "नोट्स खोजें";
+"Buscar na nota" = "नोट में खोजें";

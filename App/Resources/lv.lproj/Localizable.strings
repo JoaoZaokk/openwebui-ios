@@ -432,3 +432,12 @@
 "As conversas voltam para a lista principal." = "Sarunas atgriežas galvenajā sarakstā.";
 "Pasta vazia" = "Tukša mape";
 "Pasta" = "Mape";
+"Baixados no aparelho" = "Lejupielādēts ierīcē";
+"Nada baixado." = "Nekas nav lejupielādēts.";
+"Modelos de reconhecimento" = "Atpazīšanas modeļi";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Zibens (⚡) lejupielādē papildu failu, kas paātrina modeli Neural Engine (Core ML). Pirmā ielāde pēc ieslēgšanas aizņem dažas minūtes.";
+"Buscar na conversa" = "Meklēt sarunā";
+"Resultado anterior" = "Iepriekšējais rezultāts";
+"Próximo resultado" = "Nākamais rezultāts";
+"Buscar notas" = "Meklēt piezīmes";
+"Buscar na nota" = "Meklēt piezīmē";

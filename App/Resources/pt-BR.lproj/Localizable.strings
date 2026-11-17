@@ -439,3 +439,12 @@
 "As conversas voltam para a lista principal." = "As conversas voltam para a lista principal.";
 "Pasta vazia" = "Pasta vazia";
 "Pasta" = "Pasta";
+"Baixados no aparelho" = "Baixados no aparelho";
+"Nada baixado." = "Nada baixado.";
+"Modelos de reconhecimento" = "Modelos de reconhecimento";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos.";
+"Buscar na conversa" = "Buscar na conversa";
+"Resultado anterior" = "Resultado anterior";
+"Próximo resultado" = "Próximo resultado";
+"Buscar notas" = "Buscar notas";
+"Buscar na nota" = "Buscar na nota";

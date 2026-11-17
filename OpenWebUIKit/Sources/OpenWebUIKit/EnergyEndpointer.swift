@@ -25,7 +25,12 @@ public struct EnergyEndpointer {
 
     /// The lowest level that can ever count as speech. Below this the mic's own
     /// noise is indistinguishable from a voice, whatever the room reads.
-    public static let minimumGate: Float = 0.004
+    ///
+    /// 0.004 until 1.14: a report from an iPhone Duo (floor 0.0001, peak 0.0061)
+    /// showed a soft voice in a very quiet room living almost entirely under it,
+    /// so the turn ended on the pauses between words. A room that is noisier is
+    /// still handled by the multiples of its own floor below.
+    public static let minimumGate: Float = 0.0015
 
     /// Highest the hold gate may climb with a loud peak. A loud start must not
     /// make the soft end of the same sentence read as silence.

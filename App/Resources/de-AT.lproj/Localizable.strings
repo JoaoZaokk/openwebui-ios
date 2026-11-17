@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Die Gespräche kehren in die Hauptliste zurück.";
 "Pasta vazia" = "Leerer Ordner";
 "Pasta" = "Ordner";
+"Baixados no aparelho" = "Auf dem Gerät heruntergeladen";
+"Nada baixado." = "Nichts heruntergeladen.";
+"Modelos de reconhecimento" = "Erkennungsmodelle";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Der Blitz (⚡) lädt eine zusätzliche Datei herunter, die das Modell auf der Neural Engine (Core ML) beschleunigt. Das erste Laden nach dem Aktivieren dauert einige Minuten.";
+"Buscar na conversa" = "In der Unterhaltung suchen";
+"Resultado anterior" = "Vorheriges Ergebnis";
+"Próximo resultado" = "Nächstes Ergebnis";
+"Buscar notas" = "Notizen durchsuchen";
+"Buscar na nota" = "In der Notiz suchen";

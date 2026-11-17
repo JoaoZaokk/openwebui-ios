@@ -57,6 +57,8 @@ final class StubTransport: URLProtocol {
     nonisolated(unsafe) private static var routes: [String: Reply] = [:]
     /// Every path this transport was asked for, in order.
     nonisolated(unsafe) private(set) static var seen: [String] = []
+    /// The query string of every request, by path, in order.
+    nonisolated(unsafe) private(set) static var seenQueries: [String: [String]] = [:]
     /// The bodies the app sent, by path — so a test can assert what was written.
     nonisolated(unsafe) private(set) static var sentBodies: [String: Data] = [:]
     /// The headers the app sent, by path.
@@ -92,7 +94,7 @@ final class StubTransport: URLProtocol {
 
     static func reset() {
         lock.lock(); defer { lock.unlock() }
-        routes = [:]; seen = []; sentBodies = [:]; sentHeaders = [:]; sentTimeouts = [:]; queued = [:]; allBodies = [:]; allHeaders = [:]; onRequest = nil
+        routes = [:]; seen = []; seenQueries = [:]; sentBodies = [:]; sentHeaders = [:]; sentTimeouts = [:]; queued = [:]; allBodies = [:]; allHeaders = [:]; onRequest = nil
     }
 
     static func requested(_ path: String) -> Bool {
@@ -115,6 +117,7 @@ final class StubTransport: URLProtocol {
         let path = request.url?.path ?? ""
         Self.lock.lock()
         Self.seen.append(path)
+        Self.seenQueries[path, default: []].append(request.url?.query ?? "")
         Self.sentHeaders[path] = request.allHTTPHeaderFields ?? [:]
         Self.allHeaders[path, default: []].append(request.allHTTPHeaderFields ?? [:])
         Self.sentTimeouts[path] = request.timeoutInterval

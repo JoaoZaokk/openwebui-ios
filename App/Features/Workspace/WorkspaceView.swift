@@ -18,7 +18,9 @@ final class WorkspaceStore: ObservableObject {
         loading = true
         defer { loading = false }
         error = nil
-        models = await keep(models) { try await self.client.models() }
+        // The Workspace page lists what was *made* there, not every model the
+        // connections offer (report from 1.14: the browser showed one, the app all).
+        models = await keep(models) { try await self.client.workspaceModels() }
         knowledge = await keep(knowledge) { try await self.client.knowledgeBases() }
         prompts = await keep(prompts) { try await self.client.prompts() }
         tools = await keep(tools) { try await self.client.tools() }

@@ -432,3 +432,12 @@
 "As conversas voltam para a lista principal." = "Ярианууд үндсэн жагсаалтад буцна.";
 "Pasta vazia" = "Хоосон хавтас";
 "Pasta" = "Хавтас";
+"Baixados no aparelho" = "Төхөөрөмж дээр татсан";
+"Nada baixado." = "Юу ч татаагүй.";
+"Modelos de reconhecimento" = "Таних загварууд";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Аянга (⚡) нь Neural Engine (Core ML) дээр загварыг хурдасгадаг нэмэлт файл татна. Идэвхжүүлсний дараах эхний ачаалалт хэдэн минут үргэлжилнэ.";
+"Buscar na conversa" = "Яриан дотор хайх";
+"Resultado anterior" = "Өмнөх илэрц";
+"Próximo resultado" = "Дараагийн илэрц";
+"Buscar notas" = "Тэмдэглэл хайх";
+"Buscar na nota" = "Тэмдэглэл дотор хайх";

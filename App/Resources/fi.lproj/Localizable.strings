@@ -432,3 +432,12 @@
 "As conversas voltam para a lista principal." = "Keskustelut palaavat pääluetteloon.";
 "Pasta vazia" = "Tyhjä kansio";
 "Pasta" = "Kansio";
+"Baixados no aparelho" = "Ladattu laitteelle";
+"Nada baixado." = "Mitään ei ole ladattu.";
+"Modelos de reconhecimento" = "Tunnistusmallit";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Salama (⚡) lataa lisätiedoston, joka nopeuttaa mallia Neural Enginellä (Core ML). Ensimmäinen lataus käyttöönoton jälkeen kestää muutaman minuutin.";
+"Buscar na conversa" = "Hae keskustelusta";
+"Resultado anterior" = "Edellinen tulos";
+"Próximo resultado" = "Seuraava tulos";
+"Buscar notas" = "Hae muistiinpanoja";
+"Buscar na nota" = "Hae muistiinpanosta";

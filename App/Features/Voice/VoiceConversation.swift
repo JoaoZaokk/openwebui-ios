@@ -87,6 +87,10 @@ final class VoiceConversation: ObservableObject {
     /// finished (native engine only — Whisper has no live partials, so there the
     /// user taps the orb to end the turn).
     private let endpointSilence: TimeInterval = 1.6
+    /// The engines that end on loudness have no transcript to tell a thinking
+    /// pause from the end, so they wait this much longer than the native one
+    /// (report from 1.14: "cuts me off before I finish" on Whisper and server).
+    private static let energyExtraPatience: TimeInterval = 0.7
 
     private var seeded = false
     #if DEBUG
@@ -170,7 +174,14 @@ final class VoiceConversation: ObservableObject {
     func startSession() async {
         guard !active else { return }
         active = true; error = nil; reply = ""
-        tts.duplexSession = true   // play-AND-record so barge-in can listen mid-reply
+        // Play-AND-record only when barge-in will actually listen mid-reply.
+        // Report from 1.14: with barge-in switched off the reply came out of the
+        // earpiece-quiet "call" path — the session was still `.voiceChat`, whose
+        // output is the quiet one when nothing runs echo cancellation, and a
+        // paired headset was not used either. With no one listening there is
+        // nothing to cancel, so the reply is played as plain speech: media
+        // volume, loudspeaker, any paired headset.
+        tts.duplexSession = Self.bargeInEnabled
         enableProximity()
         #if DEBUG
         if let said = ScreenshotRoute.voiceSay, !scripted {
@@ -251,7 +262,7 @@ final class VoiceConversation: ObservableObject {
         if scripted { stop(); return }
         #endif
         reply = ""; liveText = ""; lastPartial = ""
-        endpointer = EnergyEndpointer(silence: endpointSilence)
+        endpointer = EnergyEndpointer(silence: endpointSilence + Self.energyExtraPatience)
         // Release a recorder left running by an interrupted turn — a no-op on the
         // normal path, since cancel() returns at once when nothing is recording.
         // Without it a single stuck engine made every later start() return false,
@@ -551,9 +562,12 @@ final class VoiceConversation: ObservableObject {
         return true
     }
 
+    static var bargeInEnabled: Bool {
+        UserDefaults.standard.object(forKey: "voice.bargein.enabled") as? Bool ?? true
+    }
+
     private func armBargeIn() {
-        let on = UserDefaults.standard.object(forKey: "voice.bargein.enabled") as? Bool ?? true
-        guard on else { recordSpeakingSession(barge: "off"); return }
+        guard Self.bargeInEnabled else { recordSpeakingSession(barge: "off"); return }
         // Without working echo cancellation the monitor hears the assistant's own
         // voice through the speaker and cuts it off mid-sentence, every time. No
         // barge-in is far better than that, so a failed AEC simply doesn't arm.
@@ -582,6 +596,8 @@ final class VoiceConversation: ObservableObject {
             "route": s.currentRoute.outputs.map(\.portType.rawValue).joined(separator: "+"),
             "vol": String(format: "%.2f", s.outputVolume),
             "barge": barge,
+            "duplex": tts.duplexSession ? "1" : "0",
+            "category": s.category.rawValue,
         ])
         #endif
     }

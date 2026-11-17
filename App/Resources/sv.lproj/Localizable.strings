@@ -432,3 +432,12 @@
 "As conversas voltam para a lista principal." = "Konversationerna går tillbaka till huvudlistan.";
 "Pasta vazia" = "Tom mapp";
 "Pasta" = "Mapp";
+"Baixados no aparelho" = "Nedladdat på enheten";
+"Nada baixado." = "Inget nedladdat.";
+"Modelos de reconhecimento" = "Igenkänningsmodeller";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Blixten (⚡) laddar ner en extra fil som gör modellen snabbare på Neural Engine (Core ML). Den första inläsningen efter aktivering tar några minuter.";
+"Buscar na conversa" = "Sök i konversationen";
+"Resultado anterior" = "Föregående resultat";
+"Próximo resultado" = "Nästa resultat";
+"Buscar notas" = "Sök anteckningar";
+"Buscar na nota" = "Sök i anteckningen";

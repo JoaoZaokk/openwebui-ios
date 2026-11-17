@@ -86,4 +86,16 @@ final class FoldersTests: XCTestCase {
         let plain = try JSONSerialization.jsonObject(with: without.httpBody ?? Data()) as? [String: Any]
         XCTAssertNil(plain?["folder_id"])
     }
+
+    /// Report from 1.14: "moving a chat to a folder works, but the chat shows up
+    /// duplicated — in the folder and in the full list; on the web it does not".
+    /// The main list asked for `include_folders=true`, a workaround from before
+    /// the app had any folder UI, and it kept returning every foldered chat.
+    func testTheMainListDoesNotAskForFolderedChats() async throws {
+        StubTransport.route("/api/v1/chats", .json("[]"))
+        _ = try await client().chats()
+        let queries = StubTransport.seenQueries["/api/v1/chats"] ?? []
+        XCTAssertEqual(queries.count, 1)
+        XCTAssertFalse(queries[0].contains("include_folders"), "asked for: \(queries[0])")
+    }
 }

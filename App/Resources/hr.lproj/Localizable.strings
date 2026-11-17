@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Razgovori se vraćaju na glavni popis.";
 "Pasta vazia" = "Prazna mapa";
 "Pasta" = "Mapa";
+"Baixados no aparelho" = "Preuzeto na uređaj";
+"Nada baixado." = "Ništa nije preuzeto.";
+"Modelos de reconhecimento" = "Modeli prepoznavanja";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Munja (⚡) preuzima dodatnu datoteku koja ubrzava model na Neural Engineu (Core ML). Prvo učitavanje nakon uključivanja traje nekoliko minuta.";
+"Buscar na conversa" = "Pretraži razgovor";
+"Resultado anterior" = "Prethodni rezultat";
+"Próximo resultado" = "Sljedeći rezultat";
+"Buscar notas" = "Pretraži bilješke";
+"Buscar na nota" = "Pretraži bilješku";

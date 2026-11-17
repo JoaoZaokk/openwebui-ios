@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Разговорите се връщат в основния списък.";
 "Pasta vazia" = "Празна папка";
 "Pasta" = "Папка";
+"Baixados no aparelho" = "Изтеглени на устройството";
+"Nada baixado." = "Нищо не е изтеглено.";
+"Modelos de reconhecimento" = "Модели за разпознаване";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Мълнията (⚡) изтегля допълнителен файл, който ускорява модела на Neural Engine (Core ML). Първото зареждане след активиране отнема няколко минути.";
+"Buscar na conversa" = "Търсене в разговора";
+"Resultado anterior" = "Предишен резултат";
+"Próximo resultado" = "Следващ резултат";
+"Buscar notas" = "Търсене в бележки";
+"Buscar na nota" = "Търсене в бележката";

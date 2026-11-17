@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Разговори се враћају на главну листу.";
 "Pasta vazia" = "Празна фасцикла";
 "Pasta" = "Фасцикла";
+"Baixados no aparelho" = "Преузето на уређају";
+"Nada baixado." = "Ништа није преузето.";
+"Modelos de reconhecimento" = "Модели препознавања";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Муња (⚡) преузима додатну датотеку која убрзава модел на Neural Engine (Core ML). Прво учитавање након укључивања траје неколико минута.";
+"Buscar na conversa" = "Претражи разговор";
+"Resultado anterior" = "Претходни резултат";
+"Próximo resultado" = "Следећи резултат";
+"Buscar notas" = "Претражи белешке";
+"Buscar na nota" = "Претражи белешку";

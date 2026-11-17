@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "チャットはメインのリストに戻ります。";
 "Pasta vazia" = "空のフォルダ";
 "Pasta" = "フォルダ";
+"Baixados no aparelho" = "この端末にダウンロード済み";
+"Nada baixado." = "ダウンロードしたものはありません。";
+"Modelos de reconhecimento" = "認識モデル";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "稲妻（⚡）は、Neural Engine（Core ML）でモデルを高速化する追加ファイルをダウンロードします。有効にした後の最初の読み込みには数分かかります。";
+"Buscar na conversa" = "会話内を検索";
+"Resultado anterior" = "前の結果";
+"Próximo resultado" = "次の結果";
+"Buscar notas" = "ノートを検索";
+"Buscar na nota" = "ノート内を検索";

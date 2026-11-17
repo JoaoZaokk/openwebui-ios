@@ -133,4 +133,27 @@ final class EnergyEndpointerTests: XCTestCase {
         feed(&e, run(30) { _ in 0.0002 } + run(10) { _ in 0.0006 }, from: 0)
         XCTAssertFalse(e.heardSpeech)
     }
+
+    /// Report from 1.14 (iPhone Duo, server and on-device Whisper): "cuts me off
+    /// before I finish". His diagnostic log read a floor of 0.0001 and a peak of
+    /// 0.0061 — a very quiet room and a very soft voice. The 0.004 minimum gate
+    /// sat right under that peak, so most of the sentence counted as silence and
+    /// a breath between two phrases was enough to end the turn.
+    func testASoftVoiceInADeadQuietRoomStaysOpenThroughAThinkingPause() {
+        var e = EnergyEndpointer()
+        var t = feed(&e, run(6) { _ in 0.0001 }, from: 0)
+        // The opening words are the loudest (peak 0.0061); the rest of the
+        // phrase sits at 0.0018–0.0032, under the old 0.004 gate for 2 s on end.
+        t = feed(&e, [0.0061, 0.0055, 0.0048], from: t)
+        t = feed(&e, run(14) { 0.0018 + Float(($0 * 5) % 6) * 0.0003 }, from: t)
+        XCTAssertTrue(e.heardSpeech)
+        XCTAssertFalse(e.shouldEnd(at: t), "2.4 s of soft speech is not silence")
+        // A real pause to think (1.2 s), then the second phrase.
+        t = feed(&e, run(7) { _ in 0.0001 }, from: t)
+        XCTAssertFalse(e.shouldEnd(at: t), "a 1.2 s pause must not end the turn")
+        t = feed(&e, run(14) { 0.0018 + Float(($0 * 3) % 6) * 0.0003 }, from: t)
+        XCTAssertFalse(e.shouldEnd(at: t), "the second phrase is still speech")
+        t = feed(&e, run(16) { _ in 0.0001 }, from: t)   // 2.7 s of silence
+        XCTAssertTrue(e.shouldEnd(at: t))
+    }
 }

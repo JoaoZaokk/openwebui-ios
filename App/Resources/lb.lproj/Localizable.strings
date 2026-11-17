@@ -432,3 +432,12 @@
 "As conversas voltam para a lista principal." = "D'Gespréicher ginn zréck op d'Haaptlëscht.";
 "Pasta vazia" = "Eidelen Dossier";
 "Pasta" = "Dossier";
+"Baixados no aparelho" = "Um Apparat erofgelueden";
+"Nada baixado." = "Näischt erofgelueden.";
+"Modelos de reconhecimento" = "Erkennungsmodeller";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "De Blëtz (⚡) lued eng zousätzlech Datei erof, déi de Modell um Neural Engine (Core ML) beschleunegt. Dat éischt Lueden nom Aktivéieren dauert e puer Minutten.";
+"Buscar na conversa" = "Am Gespréich sichen";
+"Resultado anterior" = "Virege Resultat";
+"Próximo resultado" = "Nächst Resultat";
+"Buscar notas" = "Notizen sichen";
+"Buscar na nota" = "An der Notiz sichen";

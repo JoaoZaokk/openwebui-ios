@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Perbualan kembali ke senarai utama.";
 "Pasta vazia" = "Folder kosong";
 "Pasta" = "Folder";
+"Baixados no aparelho" = "Dimuat turun pada peranti";
+"Nada baixado." = "Tiada apa yang dimuat turun.";
+"Modelos de reconhecimento" = "Model pengecaman";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Ikon kilat (⚡) memuat turun fail tambahan yang mempercepatkan model pada Neural Engine (Core ML). Pemuatan pertama selepas diaktifkan mengambil masa beberapa minit.";
+"Buscar na conversa" = "Cari dalam perbualan";
+"Resultado anterior" = "Hasil sebelumnya";
+"Próximo resultado" = "Hasil seterusnya";
+"Buscar notas" = "Cari nota";
+"Buscar na nota" = "Cari dalam nota";

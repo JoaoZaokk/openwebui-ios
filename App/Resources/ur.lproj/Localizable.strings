@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "گفتگوئیں مرکزی فہرست میں واپس آ جاتی ہیں۔";
 "Pasta vazia" = "خالی فولڈر";
 "Pasta" = "فولڈر";
+"Baixados no aparelho" = "ڈیوائس پر ڈاؤن لوڈ شدہ";
+"Nada baixado." = "کچھ ڈاؤن لوڈ نہیں ہوا۔";
+"Modelos de reconhecimento" = "شناخت کے ماڈلز";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "بجلی کا نشان (⚡) ایک اضافی فائل ڈاؤن لوڈ کرتا ہے جو Neural Engine (Core ML) پر ماڈل کو تیز کرتی ہے۔ فعال کرنے کے بعد پہلی لوڈنگ میں چند منٹ لگتے ہیں۔";
+"Buscar na conversa" = "گفتگو میں تلاش کریں";
+"Resultado anterior" = "پچھلا نتیجہ";
+"Próximo resultado" = "اگلا نتیجہ";
+"Buscar notas" = "نوٹس تلاش کریں";
+"Buscar na nota" = "نوٹ میں تلاش کریں";

@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Las conversaciones vuelven a la lista principal.";
 "Pasta vazia" = "Carpeta vacía";
 "Pasta" = "Carpeta";
+"Baixados no aparelho" = "Descargados en el dispositivo";
+"Nada baixado." = "Nada descargado.";
+"Modelos de reconhecimento" = "Modelos de reconocimiento";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "El rayo (⚡) descarga un archivo adicional que acelera el modelo en el Neural Engine (Core ML). La primera carga tras activarlo tarda unos minutos.";
+"Buscar na conversa" = "Buscar en la conversación";
+"Resultado anterior" = "Resultado anterior";
+"Próximo resultado" = "Resultado siguiente";
+"Buscar notas" = "Buscar notas";
+"Buscar na nota" = "Buscar en la nota";

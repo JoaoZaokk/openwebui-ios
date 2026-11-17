@@ -435,3 +435,12 @@
 "As conversas voltam para a lista principal." = "Các cuộc trò chuyện quay về danh sách chính.";
 "Pasta vazia" = "Thư mục trống";
 "Pasta" = "Thư mục";
+"Baixados no aparelho" = "Đã tải xuống trên thiết bị";
+"Nada baixado." = "Chưa tải xuống gì.";
+"Modelos de reconhecimento" = "Mô hình nhận dạng";
+"O raio (⚡) baixa um arquivo extra que acelera o modelo no Neural Engine (Core ML). A primeira carga depois de ativar leva alguns minutos." = "Biểu tượng tia chớp (⚡) tải xuống một tệp bổ sung giúp mô hình chạy nhanh hơn trên Neural Engine (Core ML). Lần tải đầu tiên sau khi bật mất vài phút.";
+"Buscar na conversa" = "Tìm trong cuộc trò chuyện";
+"Resultado anterior" = "Kết quả trước";
+"Próximo resultado" = "Kết quả tiếp theo";
+"Buscar notas" = "Tìm ghi chú";
+"Buscar na nota" = "Tìm trong ghi chú";

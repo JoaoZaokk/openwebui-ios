@@ -39,6 +39,12 @@ struct ChatScreen: View {
     private var followsEnd: Bool { pinnedToBottom || !userScrolledAway }
     /// Bumped on each send so `.sensoryFeedback` fires a light tap.
     @State private var sendFeedback = 0
+    // Find in conversation (report from 1.14: no way to search inside a chat).
+    @State private var finding = false
+    @State private var findQuery = ""
+    @State private var findIndex = 0
+    @FocusState private var findFocused: Bool
+    private var findMatches: [String] { ChatFind.matchingIDs(findQuery, in: vm.messages) }
     @AppStorage(ChatViewModel.followUpsKey) private var followUpsOn = true
     #if DEBUG
     @ObservedObject private var design = DesignTools.shared
@@ -60,6 +66,7 @@ struct ChatScreen: View {
             if (ReplyStyle(rawValue: replyStyleRaw) ?? .auto).resolved(for: theme) == .lane { ReadingLane() }
             ChatWallpaperLayer()
             VStack(spacing: 0) {
+                if finding { findBar }
                 messages
                 composer
             }
@@ -86,7 +93,15 @@ struct ChatScreen: View {
                     modelMenu
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItemGroup(placement: .topBarTrailing) {
+                Button {
+                    finding.toggle()
+                    if finding { findFocused = true } else { findQuery = ""; findIndex = 0 }
+                } label: {
+                    Image(systemName: "magnifyingglass").foregroundStyle(theme.accent)
+                }
+                .accessibilityLabel(Text("Buscar na conversa"))
+                .accessibilityIdentifier("chat.find")
                 Button { showVoice = true } label: {
                     Image(systemName: "waveform").foregroundStyle(theme.accent)
                 }
@@ -187,6 +202,49 @@ struct ChatScreen: View {
         }
     }
 
+    // MARK: - Find in conversation
+
+    private struct FindCursor: Equatable { var query: String; var index: Int }
+
+    private var findBar: some View {
+        let total = findMatches.count
+        return HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass").foregroundStyle(theme.secondaryText)
+            TextField("Buscar na conversa", text: $findQuery)
+                .focused($findFocused)
+                .submitLabel(.search)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .accessibilityIdentifier("chat.find.field")
+                .onChange(of: findQuery) { _, _ in findIndex = 0 }
+                .onSubmit { findIndex = ChatFind.step(from: findIndex, by: 1, count: total) }
+            if !findQuery.trimmingCharacters(in: .whitespaces).isEmpty {
+                Text(verbatim: total == 0 ? "0" : "\(min(findIndex, total - 1) + 1)/\(total)")
+                    .font(.ody(size: 12)).foregroundStyle(theme.secondaryText)
+                    .monospacedDigit()
+            }
+            Button { findIndex = ChatFind.step(from: findIndex, by: -1, count: total) } label: {
+                Image(systemName: "chevron.up")
+            }
+            .disabled(total == 0)
+            .accessibilityLabel(Text("Resultado anterior"))
+            Button { findIndex = ChatFind.step(from: findIndex, by: 1, count: total) } label: {
+                Image(systemName: "chevron.down")
+            }
+            .disabled(total == 0)
+            .accessibilityLabel(Text("Próximo resultado"))
+            Button {
+                finding = false; findQuery = ""; findIndex = 0
+            } label: { Image(systemName: "xmark.circle.fill") }
+            .accessibilityLabel(Text("Fechar"))
+        }
+        .font(.ody(.subheadline))
+        .foregroundStyle(theme.fg)
+        .padding(.horizontal, 14).padding(.vertical, 8)
+        .background(theme.panel)
+        .overlay(alignment: .bottom) { Rectangle().fill(theme.border).frame(height: 0.5) }
+    }
+
     // MARK: - Messages
 
     private var messages: some View {
@@ -215,6 +273,17 @@ struct ChatScreen: View {
                                 onBranch: { vm.switchBranch(messageID: msg.id, delta: $0) }
                             )
                             .equatable()
+                            .overlay {
+                                // Outside the equatable bubble, so a search does not
+                                // re-render every message: the one on screen gets a ring,
+                                // the other hits a faint one.
+                                if finding, findMatches.contains(msg.id) {
+                                    RoundedRectangle(cornerRadius: 14)
+                                        .stroke(theme.accent.opacity(findMatches[safe: findIndex] == msg.id ? 0.9 : 0.25),
+                                                lineWidth: findMatches[safe: findIndex] == msg.id ? 2 : 1)
+                                        .allowsHitTesting(false)
+                                }
+                            }
                             .id(msg.id)
                         }
                     }
@@ -266,6 +335,13 @@ struct ChatScreen: View {
                 .scrollDismissesKeyboard(.interactively)
                 .scrollEdgeFade()
                 .refreshable { await vm.reloadHistory() }
+                // Following a hit: the matches are recomputed as the query is typed,
+                // so the cursor is clamped, then the bubble is brought to the middle.
+                .onChange(of: FindCursor(query: findQuery, index: findIndex)) { _, _ in
+                    guard finding, let id = findMatches[safe: min(findIndex, max(findMatches.count - 1, 0))] else { return }
+                    userScrolledAway = true
+                    withAnimation(.easeInOut(duration: 0.2)) { proxy.scrollTo(id, anchor: .center) }
+                }
                 // Per-token updates: follow the stream only while pinned, and
                 // without animation — animated per-token scrolls rubber-band.
                 .onChange(of: vm.messages.last?.content) { _, _ in
@@ -808,3 +884,7 @@ extension UIResponder {
     @objc private func reportAsFirstResponder(_ sender: Any?) { UIResponder.found = self }
 }
 #endif
+
+private extension Array {
+    subscript(safe i: Int) -> Element? { indices.contains(i) ? self[i] : nil }
+}

@@ -156,4 +156,30 @@ final class SpokenTextTests: XCTestCase {
     func testPipeInsideASentenceIsNotATableRow() {
         XCTAssertEqual(SpokenText.strip("roda ls | grep erro"), "roda ls | grep erro")
     }
+
+    // MARK: - sentenceHard (report from 1.14: -39 on long, formatted replies)
+
+    /// A reply that is one long run of clauses — bullets glued by commas, no
+    /// full stop — used to go to the speech server as a single 600-character
+    /// request, and a server that answers a long input with a truncated file made
+    /// the player throw OSStatus -39. No chunk may pass `sentenceHard`.
+    func testALongRunWithoutAStopIsCutAtAClauseInsteadOfWaitingForever() {
+        let clause = "primeiro ponto importante da lista, "
+        let s = String(repeating: clause, count: 14)            // ~500 chars, no stop
+        let cut = SpokenText.sentenceCut(in: s)
+        XCTAssertNotNil(cut)
+        XCTAssertLessThanOrEqual(cut ?? 999, SpokenText.sentenceHard)
+        XCTAssertGreaterThan(cut ?? 0, SpokenText.sentenceHard / 2, "no tiny stub either")
+    }
+
+    func testALongSentenceThatDoesEndIsStillCappedAtTheHardLimit() {
+        let s = String(repeating: "palavra ", count: 70) + "fim. Próxima frase."
+        let cut = SpokenText.sentenceCut(in: s)
+        XCTAssertLessThanOrEqual(cut ?? 999, SpokenText.sentenceHard)
+    }
+
+    func testShortSentencesAreUntouchedByTheHardLimit() {
+        XCTAssertEqual(SpokenText.sentenceCut(in: "Claro! Vamos lá"), 6)
+        XCTAssertNil(SpokenText.sentenceCut(in: "uma frase ainda sem ponto final"))
+    }
 }
