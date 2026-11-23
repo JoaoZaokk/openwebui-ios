@@ -444,3 +444,5 @@
 "Próximo resultado" = "下一个结果";
 "Buscar notas" = "搜索笔记";
 "Buscar na nota" = "在笔记中搜索";
+"Espera do fim da fala" = "说话结束等待时间";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "静音多久后结束你的发言。自动：使用内置识别时等待 1.6 秒，使用 Whisper 或服务器时等待 2.3 秒。";

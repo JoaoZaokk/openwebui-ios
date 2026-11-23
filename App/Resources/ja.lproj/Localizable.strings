@@ -444,3 +444,5 @@
 "Próximo resultado" = "次の結果";
 "Buscar notas" = "ノートを検索";
 "Buscar na nota" = "ノート内を検索";
+"Espera do fim da fala" = "発話終了までの待ち時間";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "どれだけ無音が続くと発話の番が終わるか。自動は内蔵の認識で1.6秒、Whisperまたはサーバーで2.3秒待ちます。";

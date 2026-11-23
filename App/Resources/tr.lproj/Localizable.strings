@@ -444,3 +444,5 @@
 "Próximo resultado" = "Sonraki sonuç";
 "Buscar notas" = "Notlarda ara";
 "Buscar na nota" = "Notta ara";
+"Espera do fim da fala" = "Konuşma sonu bekleme süresi";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Konuşma sıranızı ne kadar sessizliğin bitireceği. Otomatik, yerleşik tanımada 1,6 sn, Whisper veya sunucuda 2,3 sn bekler.";

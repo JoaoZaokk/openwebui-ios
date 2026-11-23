@@ -441,3 +441,5 @@
 "Próximo resultado" = "ผลลัพธ์ถัดไป";
 "Buscar notas" = "ค้นหาโน้ต";
 "Buscar na nota" = "ค้นหาในโน้ต";
+"Espera do fim da fala" = "การรอจบคำพูด";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "ความเงียบนานเท่าใดจึงจบตาพูดของคุณ อัตโนมัติจะรอ 1.6 วินาทีกับการรู้จำเสียงในตัวเครื่อง และ 2.3 วินาทีกับ Whisper หรือเซิร์ฟเวอร์";

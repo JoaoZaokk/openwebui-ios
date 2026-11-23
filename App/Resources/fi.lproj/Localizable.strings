@@ -441,3 +441,5 @@
 "Próximo resultado" = "Seuraava tulos";
 "Buscar notas" = "Hae muistiinpanoja";
 "Buscar na nota" = "Hae muistiinpanosta";
+"Espera do fim da fala" = "Puheen lopun odotus";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Kuinka pitkä hiljaisuus päättää puhevuorosi. Automaattinen odottaa 1,6 s laitteen omalla tunnistuksella ja 2,3 s Whisperillä tai palvelimella.";

@@ -444,3 +444,5 @@
 "Próximo resultado" = "Volgend resultaat";
 "Buscar notas" = "Notities zoeken";
 "Buscar na nota" = "Zoeken in notitie";
+"Espera do fim da fala" = "Wachttijd einde spraak";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Hoeveel stilte je spreekbeurt beëindigt. Automatisch wacht 1,6 s met de ingebouwde herkenning en 2,3 s met Whisper of de server.";

@@ -11,6 +11,20 @@ public enum OWStorage {
         values.isExcludedFromBackup = true
         try? u.setResourceValues(values)
     }
+
+    /// Bytes a file — or a folder and everything under it — takes on disk.
+    public static func allocatedSize(of url: URL) -> Int64 {
+        let keys: Set<URLResourceKey> = [.totalFileAllocatedSizeKey, .fileAllocatedSizeKey, .isDirectoryKey]
+        guard let v = try? url.resourceValues(forKeys: keys) else { return 0 }
+        guard v.isDirectory == true else { return Int64(v.totalFileAllocatedSize ?? v.fileAllocatedSize ?? 0) }
+        var total: Int64 = 0
+        let walk = FileManager.default.enumerator(at: url, includingPropertiesForKeys: Array(keys))
+        while let u = walk?.nextObject() as? URL {
+            guard let f = try? u.resourceValues(forKeys: keys), f.isDirectory != true else { continue }
+            total += Int64(f.totalFileAllocatedSize ?? f.fileAllocatedSize ?? 0)
+        }
+        return total
+    }
 }
 
 /// Recordings that were finished but not yet turned into text, kept on disk so

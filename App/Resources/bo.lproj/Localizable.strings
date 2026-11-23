@@ -441,3 +441,5 @@
 "Próximo resultado" = "རྗེས་མའི་འཚོལ་འབྲས།";
 "Buscar notas" = "ཟིན་བྲིས་འཚོལ།";
 "Buscar na nota" = "ཟིན་བྲིས་ནང་འཚོལ།";
+"Espera do fim da fala" = "སྐད་ཆ་མཇུག་རྫོགས་པར་སྒུག་ཡུན།";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "ཁ་རོག་དུས་ཡུན་ག་ཚོད་ཀྱིས་ཁྱེད་ཀྱི་སྐད་ཆ་བཤད་རེས་མཇུག་སྒྲིལ་བ། རང་འགུལ་གྱིས་ནང་ཁུལ་ངོས་འཛིན་ལ་སྐར་ཆ་ 1.6 དང་། Whisper ཡང་ན་ཞབས་ཞུ་ཆས་ལ་སྐར་ཆ་ 2.3 སྒུག";

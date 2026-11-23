@@ -441,3 +441,5 @@
 "Próximo resultado" = "Nākamais rezultāts";
 "Buscar notas" = "Meklēt piezīmes";
 "Buscar na nota" = "Meklēt piezīmē";
+"Espera do fim da fala" = "Runas beigu gaidīšana";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Cik ilgs klusums beidz jūsu runāšanas kārtu. Automātiski gaida 1,6 s ar iebūvēto atpazīšanu un 2,3 s ar Whisper vai serveri.";

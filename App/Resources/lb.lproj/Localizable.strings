@@ -441,3 +441,5 @@
 "Próximo resultado" = "Nächst Resultat";
 "Buscar notas" = "Notizen sichen";
 "Buscar na nota" = "An der Notiz sichen";
+"Espera do fim da fala" = "Waardezäit bis zum Enn vum Schwätzen";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Wéi vill Rou däi Bäitrag beim Schwätzen ofschléisst. Automatesch waart 1,6 s mat der agebauter Erkennung an 2,3 s mat Whisper oder dem Server.";

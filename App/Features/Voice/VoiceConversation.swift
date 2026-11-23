@@ -83,14 +83,11 @@ final class VoiceConversation: ObservableObject {
     /// of after the whole generation.
     private var pendingSpeech = ""
 
-    /// How long the transcription must stay unchanged before we treat the turn as
-    /// finished (native engine only — Whisper has no live partials, so there the
-    /// user taps the orb to end the turn).
-    private let endpointSilence: TimeInterval = 1.6
-    /// The engines that end on loudness have no transcript to tell a thinking
-    /// pause from the end, so they wait this much longer than the native one
-    /// (report from 1.14: "cuts me off before I finish" on Whisper and server).
-    private static let energyExtraPatience: TimeInterval = 0.7
+    /// How long the transcription must stay unchanged before the turn is over
+    /// (native engine). The energy endpointer gets its own wait from the same
+    /// setting. Read at the start of every turn, so a change in Ajustes › Voz
+    /// applies to the next one — `EndpointWait` has the numbers.
+    private var turnWait = EndpointWait.automaticLive
 
     private var seeded = false
     #if DEBUG
@@ -262,7 +259,9 @@ final class VoiceConversation: ObservableObject {
         if scripted { stop(); return }
         #endif
         reply = ""; liveText = ""; lastPartial = ""
-        endpointer = EnergyEndpointer(silence: endpointSilence + Self.energyExtraPatience)
+        let wait = EndpointWait.stored()
+        turnWait = wait.seconds(liveTranscript: true)
+        endpointer = EnergyEndpointer(silence: wait.seconds(liveTranscript: false))
         // Release a recorder left running by an interrupted turn — a no-op on the
         // normal path, since cancel() returns at once when nothing is recording.
         // Without it a single stuck engine made every later start() return false,
@@ -306,7 +305,7 @@ final class VoiceConversation: ObservableObject {
         if sttIsNative {
             // Native has a live transcript — end on a pause after real words.
             guard !lastPartial.isEmpty else { return }
-            if Date().timeIntervalSince(lastChange) > endpointSilence { endTurn(by: "silence") }
+            if Date().timeIntervalSince(lastChange) > turnWait { endTurn(by: "silence") }
         } else {
             // Server/Whisper: no live transcript → end on a pause after hearing speech.
             if endpointer.shouldEnd(at: ProcessInfo.processInfo.systemUptime) { endTurn(by: "silence") }
@@ -332,6 +331,15 @@ final class VoiceConversation: ObservableObject {
             let text = await voice.stop()
             guard active else { return }
             let t = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            if t.isEmpty && voice.lastTranscriptionFailed {
+                // The engine could not hear (a model too big for the memory left,
+                // a server that refused). Listening again had the person talking
+                // into nothing — report on build 27, Whisper large-v3 on a 12 GB
+                // phone. End the call with the reason on screen; the take is kept
+                // for a retry (`PendingAudioStore`).
+                DiagnosticsStore.shared.event("vad.turn.failed", ["engine": STTEngine.current.rawValue])
+                stop(); return
+            }
             guard !t.isEmpty else { await listen(); return }   // heard nothing → keep listening
             turns.append(Turn(role: "user", text: t))
             liveText = ""

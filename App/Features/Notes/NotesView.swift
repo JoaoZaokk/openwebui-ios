@@ -1,5 +1,8 @@
 import SwiftUI
 import OpenWebUIKit
+#if os(iOS)
+import UIKit
+#endif
 
 @MainActor
 final class NotesStore: ObservableObject {
@@ -41,6 +44,9 @@ struct NotesView: View {
     @StateObject private var store: NotesStore
     @State private var editing: NoteEdit?
     @State private var query = ""
+    /// Held so the ✕ can put the field away (report on build 27: on an unfolded
+    /// iPhone Duo the ✕ emptied the search and the keyboard stayed).
+    @State private var searchPresented = false
 
     init(app: AppState) {
         self.app = app
@@ -74,7 +80,7 @@ struct NotesView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { editing = NoteEdit(note: nil) } label: { Image(systemName: "square.and.pencil") }
+                    Button { open(nil) } label: { Image(systemName: "square.and.pencil") }
                         .accessibilityLabel(Text("Nova nota"))
                 }
             }
@@ -88,7 +94,8 @@ struct NotesView: View {
                 #endif
             }
             .refreshable { await store.load() }
-            .searchable(text: $query, prompt: "Buscar notas")
+            .searchable(text: $query, isPresented: $searchPresented, prompt: "Buscar notas")
+            .searchClearPutsKeyboardAway(query, presented: $searchPresented)
             .sheet(item: $editing, onDismiss: { Task { await store.load() } }) { e in
                 NoteEditorView(client: app.client, note: e.note)
             }
@@ -96,10 +103,19 @@ struct NotesView: View {
         .tint(theme.accent)
     }
 
+    /// Opens the editor with the keyboard put away first. A search field that
+    /// still holds the keyboard when the sheet comes up gets it back when the
+    /// sheet goes (report on build 27: closing a note brought the keyboard back
+    /// over the list). The query stays, so the filtered list is still there.
+    private func open(_ note: OWNote?) {
+        Keyboard.dismiss()
+        editing = NoteEdit(note: note)
+    }
+
     private var list: some View {
         List {
             ForEach(store.notes.filter { $0.matches(query) }) { note in
-                Button { editing = NoteEdit(note: note) } label: { row(note) }
+                Button { open(note) } label: { row(note) }
                     .buttonStyle(.plain)
                     .listRowBackground(theme.bg)
                     .swipeActions(edge: .trailing) {
@@ -150,7 +166,7 @@ struct NotesView: View {
             Image(systemName: "note.text").font(.ody(size: 44)).foregroundStyle(theme.accent)
             Text("Nenhuma nota ainda")
                 .font(.ody(.headline)).foregroundStyle(theme.fg)
-            Button { editing = NoteEdit(note: nil) } label: {
+            Button { open(nil) } label: {
                 Label("Nova nota", systemImage: "square.and.pencil")
                     .font(.ody(.subheadline))
                     .padding(.horizontal, 16).padding(.vertical, 10)
@@ -183,9 +199,6 @@ struct NoteEditorView: View {
 
     @State private var title: String
     @State private var markdown = ""
-    /// The system find bar over the body (report from 1.14: no way to search
-    /// inside the note that is open).
-    @State private var showFind = false
     /// The note as `GET /api/v1/notes/{id}` returns it: the whole body, and the
     /// `access_grants` the list strips. This — never the list's copy — is what
     /// goes to `updateNote`, which hands those grants straight back so saving
@@ -241,7 +254,7 @@ struct NoteEditorView: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancelar") { dismiss() } }
                 #if os(iOS)
                 ToolbarItem(placement: .primaryAction) {
-                    Button { showFind.toggle() } label: { Image(systemName: "magnifyingglass") }
+                    Button { toggleFind() } label: { Image(systemName: "magnifyingglass") }
                         .accessibilityLabel(Text("Buscar na nota"))
                 }
                 #endif
@@ -269,9 +282,6 @@ struct NoteEditorView: View {
                 .scrollContentBackground(.hidden)
                 .padding(.horizontal, 12)
                 .focused($bodyFocused)
-                #if os(iOS)
-                .findNavigator(isPresented: $showFind)
-                #endif
                 .overlay(alignment: .topLeading) {
                     if markdown.isEmpty {
                         Text("Escreva em markdown…")
@@ -282,6 +292,20 @@ struct NoteEditorView: View {
                     }
                 }
         }
+    }
+
+    /// The system find bar over the body (report from 1.14: no way to search
+    /// inside the open note). `.findNavigator(isPresented:)` on the TextEditor
+    /// never showed it — not with the body unfocused, not with it holding the
+    /// keyboard (report on build 27, iPhone Duo and iPhone 16 Pro; reproduced on
+    /// the simulator). The bar is asked for on the text view itself, once the
+    /// focus has landed on it.
+    private func toggleFind() {
+        guard ready else { return }
+        bodyFocused = true
+        #if os(iOS)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { TextViewFind.presentOnFocusedTextView() }
+        #endif
     }
 
     /// Reads the note whole. A new note has nothing to read.
@@ -321,3 +345,28 @@ struct NoteEditorView: View {
         }
     }
 }
+
+#if os(iOS)
+/// The system find bar on whichever text view holds the keyboard.
+@MainActor
+enum TextViewFind {
+    @discardableResult
+    static func presentOnFocusedTextView() -> Bool {
+        let windows = UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }.flatMap(\.windows)
+        for w in windows {
+            guard let tv = focusedTextView(in: w) else { continue }
+            tv.isFindInteractionEnabled = true
+            tv.findInteraction?.presentFindNavigator(showingReplace: false)
+            return tv.findInteraction != nil
+        }
+        return false
+    }
+
+    private static func focusedTextView(in view: UIView) -> UITextView? {
+        if let tv = view as? UITextView, tv.isFirstResponder { return tv }
+        for sub in view.subviews { if let found = focusedTextView(in: sub) { return found } }
+        return nil
+    }
+}
+#endif

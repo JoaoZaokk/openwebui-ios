@@ -21,6 +21,11 @@ final class ModelDownloadManager: NSObject, ObservableObject {
         URLSession(configuration: .default, delegate: self, delegateQueue: nil)
     }()
     private var tasks: [String: URLSessionDownloadTask] = [:]
+    /// What URLSession hands back when a download is cut off (the app left the
+    /// foreground, the network dropped): the next tap on Baixar continues from
+    /// there instead of starting a 3 GB file over. Lives only as long as the
+    /// process — the bytes it points at are swept on the next launch.
+    private var resumeData: [String: Data] = [:]
 
     nonisolated static func modelsDir() -> URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -41,6 +46,42 @@ final class ModelDownloadManager: NSObject, ObservableObject {
     override init() {
         super.init()
         refresh()
+    }
+
+    /// Called once from the app's `init`, before any URLSession exists — this
+    /// manager's or FluidAudio's (the neural voices download through their own).
+    /// Off the main thread: a multi-GB partial takes a moment to unlink.
+    nonisolated static func sweepPartialDownloadsAtLaunch() {
+        DispatchQueue.global(qos: .utility).async {
+            let freed = sweepPartialDownloads()
+            if freed > 0 { DiagnosticsStore.shared.event("download.swept", ["freedMB": MemoryBudget.mb(freed)]) }
+        }
+    }
+
+    /// Deletes what interrupted downloads left behind and returns the bytes freed.
+    ///
+    /// URLSession writes a download into `tmp/` as `CFNetworkDownload_*.tmp`,
+    /// and when one is cut off it keeps that file so the download can resume.
+    /// Resuming needs the resume data, which only the process that saw the
+    /// failure holds — once the app has quit the half file belongs to no one.
+    /// Report on build 27: leave the app during a download, come back to the
+    /// error, and half of a 3 GB model stayed on the phone. Also takes the
+    /// `ml-*` folders a Core ML unpack killed halfway leaves (see
+    /// `unpackCoreML`).
+    @discardableResult
+    nonisolated static func sweepPartialDownloads(in tmp: URL = FileManager.default.temporaryDirectory) -> Int64 {
+        let fm = FileManager.default
+        guard let items = try? fm.contentsOfDirectory(at: tmp, includingPropertiesForKeys: [.totalFileAllocatedSizeKey, .isDirectoryKey]) else { return 0 }
+        var freed: Int64 = 0
+        for url in items {
+            let name = url.lastPathComponent
+            let partial = name.hasPrefix("CFNetworkDownload_") && name.hasSuffix(".tmp")
+            let unpack = name.hasPrefix("ml-") && (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory == true
+            guard partial || unpack else { continue }
+            let size = OWStorage.allocatedSize(of: url)
+            if (try? fm.removeItem(at: url)) != nil { freed += size }
+        }
+        return freed
     }
 
     // MARK: - Paths / state
@@ -103,9 +144,11 @@ final class ModelDownloadManager: NSObject, ObservableObject {
             DiagnosticsStore.shared.event("download.refused", ["model": model.id, "freeMB": MemoryBudget.mb(free)])
             return
         }
-        DiagnosticsStore.shared.event("download.start", ["model": model.id, "bytes": String(model.bytes)])
+        let resuming = resumeData.removeValue(forKey: model.id)
+        DiagnosticsStore.shared.event("download.start", ["model": model.id, "bytes": String(model.bytes),
+                                                         "resume": resuming == nil ? "0" : "1"])
         progress[model.id] = 0
-        let task = session.downloadTask(with: model.url)
+        let task = resuming.map { session.downloadTask(withResumeData: $0) } ?? session.downloadTask(with: model.url)
         task.taskDescription = model.id
         tasks[model.id] = task
         task.resume()
@@ -113,6 +156,15 @@ final class ModelDownloadManager: NSObject, ObservableObject {
 
     func cancel(_ model: VoiceModel) {
         tasks[model.id]?.cancel(); tasks[model.id] = nil; progress[model.id] = nil
+        dropResumeData(model.id)
+    }
+
+    /// Forgets a resumable download. Its half file stays in tmp until the
+    /// next launch's sweep: which file a resume blob points at is written in a
+    /// private keyed archive, and deleting by guess could take a neural voice's
+    /// download that is still running.
+    private func dropResumeData(_ id: String) {
+        resumeData[id] = nil
     }
 
     func delete(_ model: VoiceModel) {
@@ -236,9 +288,11 @@ final class ModelDownloadManager: NSObject, ObservableObject {
             error = AddError.noSpace(zipBytes * 2).errorDescription
             return
         }
-        DiagnosticsStore.shared.event("coreml.download.start", ["model": model.id, "bytes": String(zipBytes)])
+        let resuming = resumeData.removeValue(forKey: key)
+        DiagnosticsStore.shared.event("coreml.download.start", ["model": model.id, "bytes": String(zipBytes),
+                                                                "resume": resuming == nil ? "0" : "1"])
         progress[key] = 0
-        let task = session.downloadTask(with: url)
+        let task = resuming.map { session.downloadTask(withResumeData: $0) } ?? session.downloadTask(with: url)
         task.taskDescription = key
         tasks[key] = task
         task.resume()
@@ -247,6 +301,7 @@ final class ModelDownloadManager: NSObject, ObservableObject {
     func cancelCoreML(_ model: VoiceModel) {
         let key = "ml:\(model.id)"
         tasks[key]?.cancel(); tasks[key] = nil; progress[key] = nil
+        dropResumeData(key)
     }
 
     func deleteCoreML(_ model: VoiceModel) {
@@ -315,9 +370,13 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
 
     nonisolated func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError err: Error?) {
         guard let id = task.taskDescription else { return }
+        let resume = (err as NSError?)?.userInfo[NSURLSessionDownloadTaskResumeData] as? Data
         Task { @MainActor in
             self.tasks[id] = nil; self.progress[id] = nil
-            if let err, (err as? URLError)?.code != .cancelled { self.error = OWFailure.msg(err) }
+            guard let err, (err as? URLError)?.code != .cancelled else { return }
+            if let resume { self.resumeData[id] = resume }
+            DiagnosticsStore.shared.event("download.failed", ["id": id, "resumable": resume == nil ? "0" : "1"])
+            self.error = OWFailure.msg(err)
         }
     }
 

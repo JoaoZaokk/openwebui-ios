@@ -111,8 +111,18 @@ final class WalkthroughUITests: XCTestCase {
     }
 
     /// Sends one short message in a new chat and waits for the reply to settle.
+    /// iOS 27's floating tab bar sometimes drops a tap (the screen stays where it
+    /// was): tap again until something only that tab shows is there.
+    private func showTab(_ app: XCUIApplication, _ index: Int, until marker: XCUIElement) {
+        let tab = app.tabBars.firstMatch.buttons.element(boundBy: index)
+        for _ in 0..<4 where !marker.exists {
+            if tab.exists { tab.tap() }
+            _ = marker.waitForExistence(timeout: 4)
+        }
+    }
+
     private func converse(_ app: XCUIApplication, _ text: String) -> XCUIElementQuery {
-        app.tabBars.firstMatch.buttons.element(boundBy: 0).tap()
+        showTab(app, 0, until: app.buttons["chats.newMenu"])
         open(app, menu: "chats.newMenu", item: "chats.new")
         app.buttons["chats.new"].tap()
         let field = app.descendants(matching: .any)["composer.field"]
@@ -196,6 +206,37 @@ final class WalkthroughUITests: XCTestCase {
         snap(app, "voz-busca-na-web")
     }
 
+    /// Report on build 27: the model's web search can be switched off from the call
+    /// itself (the globe), and the same question that searches above is then
+    /// answered without searching. Leaves the switch on for the other tests.
+    func testTheCallScreenGlobeTurnsWebSearchOff() throws {
+        let f = try fixture()
+        let app = launch(["-voiceSay", "Pesquise na web: qual é a cotação do dólar em reais hoje?",
+                          "-voice.bargein.enabled", "NO"])
+        signIn(app, f)
+        let tab = app.tabBars.firstMatch.buttons["Voz"]
+        XCTAssertTrue(tab.waitForExistence(timeout: 10))
+        tab.tap()
+        let globe = app.buttons["voice.webSearch"]
+        XCTAssertTrue(globe.waitForExistence(timeout: 10), "no web search switch on the call screen")
+        if globe.isSelected { globe.tap() }
+        XCTAssertFalse(globe.isSelected, "the globe did not switch off")
+        snap(app, "voz-globo-desligado")
+        defer { if globe.exists && !globe.isSelected { globe.tap() } }
+
+        let start = app.buttons["Iniciar conversa"]
+        XCTAssertTrue(start.waitForExistence(timeout: 10))
+        start.tap()
+        let running = NSPredicate { _, _ in !start.exists }
+        expectation(for: running, evaluatedWith: NSObject())
+        waitForExpectations(timeout: 20)
+        XCTAssertTrue(start.waitForExistence(timeout: 240), "the scripted session did not end")
+        snap(app, "voz-sem-busca")
+        XCTAssertFalse(app.descendants(matching: .any)["voice.sources"].exists,
+                       "with the globe off the reply still searched the web")
+        XCTAssertGreaterThan(app.staticTexts.count, 1, "no reply")
+    }
+
     func testSignInEveryTabAndListenToBothSidesOfAConversation() throws {
         let f = try fixture()
         let app = launch()
@@ -210,7 +251,7 @@ final class WalkthroughUITests: XCTestCase {
             app.tap()   // lets the interruption monitor answer a permission prompt
             snap(app, "aba-\(i)")
         }
-        tabs.element(boundBy: 0).tap()
+        showTab(app, 0, until: app.buttons["Ajustes"])
 
         // Ajustes, and the screens behind it the protocol asks for.
         let gear = app.buttons["Ajustes"]
@@ -408,10 +449,17 @@ final class WalkthroughUITests: XCTestCase {
         let f = try fixture()
         let app = launch(["-openwebui.baseURL", f.server])
         // On an iPad the tab bar floats at the top and is not a UITabBar: the
-        // session saved by the earlier tests is what gets us to the list.
+        // session saved by the earlier tests is what gets us to the list. On a
+        // phone, sign in (a no-op when the session is there).
+        if UIDevice.current.userInterfaceIdiom == .phone { signIn(app, f) }
         let search = app.searchFields.firstMatch
         let deadline = Date().addingTimeInterval(60)
         while Date() < deadline, !search.exists, !app.buttons["Conversas"].exists { usleep(300_000) }
+        // A phone keeps the field tucked under the title until the list is pulled down.
+        if !search.exists, let list = app.collectionViews.allElementsBoundByIndex.first ?? app.tables.allElementsBoundByIndex.first {
+            list.swipeDown()
+            _ = search.waitForExistence(timeout: 3)
+        }
         if !search.exists {
             // Regular width folds the search into a toolbar button.
             let button = app.navigationBars.buttons.matching(NSPredicate(
@@ -431,6 +479,86 @@ final class WalkthroughUITests: XCTestCase {
         expectation(for: down, evaluatedWith: NSObject())
         waitForExpectations(timeout: 8)
         snap(app, "busca-limpa-sem-teclado")
+    }
+
+    /// Build 28 (report on build 27, video from an iPhone Duo and an iPhone 16 Pro):
+    /// the ✕ of the notes search emptied the field and kept the keyboard; closing a
+    /// note opened from the search brought the keyboard back over the list; and the
+    /// magnifier inside a note did nothing. Makes its own note and deletes it.
+    func testNotesSearchClearCloseAndFindInsideANote() throws {
+        let f = try fixture()
+        let app = launch(["-openwebui.baseURL", f.server])
+        signIn(app, f)
+        let notesTab = app.tabBars.firstMatch.buttons["Notas"]
+        XCTAssertTrue(notesTab.waitForExistence(timeout: 10))
+        // A tap that lands while the list is still loading can be lost.
+        for _ in 0..<3 where !app.navigationBars["Notas"].exists {
+            notesTab.tap()
+            _ = app.navigationBars["Notas"].waitForExistence(timeout: 5)
+        }
+        let down = { (why: String) in
+            let gone = NSPredicate { _, _ in !app.keyboards.firstMatch.exists }
+            self.expectation(for: gone, evaluatedWith: NSObject())
+            self.waitForExpectations(timeout: 8) { err in if err != nil { self.snap(app, why) } }
+        }
+
+        // A note of our own, so nothing depends on what the account holds.
+        let marker = "zzbusca\(Int(Date().timeIntervalSince1970) % 100_000)"
+        let newNote = app.buttons["Nova nota"].firstMatch
+        if !newNote.waitForExistence(timeout: 20) {
+            snap(app, "notas-sem-nova-nota"); print(app.debugDescription)
+            XCTFail("no Nova nota button"); return
+        }
+        newNote.tap()
+        let title = app.textFields["Título"]
+        XCTAssertTrue(title.waitForExistence(timeout: 10))
+        title.tap(); title.typeText(marker)
+        let body = app.textViews.firstMatch
+        body.tap(); body.typeText("primeira linha\nprocure esta palavra aqui\n")
+        app.buttons["Salvar"].tap()
+        let row = app.staticTexts[marker]
+        XCTAssertTrue(row.waitForExistence(timeout: 20), "the new note is not in the list")
+
+        // 1. The ✕ empties the field and puts the keyboard away.
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 10))
+        search.tap(); search.typeText(marker)
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        let clear = search.buttons["Clear text"].exists ? search.buttons["Clear text"] : search.buttons.firstMatch
+        XCTAssertTrue(clear.exists, "no clear button on the notes search")
+        clear.tap()
+        down("notas-x-teclado-ficou")
+        snap(app, "notas-x-sem-teclado")
+
+        // 2. A note opened from a search with the keyboard up: closing it must not
+        //    bring the keyboard back.
+        search.tap(); search.typeText(marker)
+        XCTAssertTrue(app.keyboards.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.tap()
+        let cancel = app.buttons["Cancelar"]
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10), "the note did not open")
+
+        // 3. The magnifier inside the note brings up a find field.
+        let fields = app.textFields.count + app.searchFields.count
+        app.buttons["Buscar na nota"].tap()
+        let found = NSPredicate { _, _ in app.textFields.count + app.searchFields.count > fields }
+        expectation(for: found, evaluatedWith: NSObject())
+        waitForExpectations(timeout: 8) { err in
+            if err != nil { self.snap(app, "nota-lupa-nada"); print(app.debugDescription) }
+        }
+        app.typeText("procure")
+        snap(app, "nota-lupa-busca")
+
+        cancel.tap()
+        XCTAssertTrue(row.waitForExistence(timeout: 10))
+        sleep(2)
+        snap(app, "nota-fechada")
+        XCTAssertFalse(app.keyboards.firstMatch.exists, "closing the note brought the keyboard back")
+
+        // Clean up.
+        row.swipeLeft()
+        if app.buttons["Apagar"].waitForExistence(timeout: 5) { app.buttons["Apagar"].tap() }
     }
 
     /// Build 27 (Scott's report on build 26), against the server: search inside a

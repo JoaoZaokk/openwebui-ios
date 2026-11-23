@@ -444,3 +444,5 @@
 "Próximo resultado" = "Další výsledek";
 "Buscar notas" = "Hledat v poznámkách";
 "Buscar na nota" = "Hledat v poznámce";
+"Espera do fim da fala" = "Čekání na konec řeči";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Jak dlouhé ticho ukončí vaše mluvení. Automaticky čeká 1,6 s u vestavěného rozpoznávání a 2,3 s u Whisperu nebo serveru.";

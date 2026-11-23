@@ -444,3 +444,5 @@
 "Próximo resultado" = "Kết quả tiếp theo";
 "Buscar notas" = "Tìm ghi chú";
 "Buscar na nota" = "Tìm trong ghi chú";
+"Espera do fim da fala" = "Chờ kết thúc lời nói";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Khoảng lặng bao lâu thì kết thúc lượt nói của bạn. Tự động chờ 1,6 giây với nhận dạng tích hợp và 2,3 giây với Whisper hoặc máy chủ.";

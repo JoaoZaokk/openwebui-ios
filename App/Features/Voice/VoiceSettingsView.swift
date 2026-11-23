@@ -24,6 +24,7 @@ struct VoiceSettingsView: View {
     @AppStorage("voice.bargein.enabled") private var bargeEnabled = true
     @AppStorage("voice.bargein.sensitivity") private var bargeSensitivity = 0.5
     @AppStorage(VoiceConversation.webSearchKey) private var voiceWebSearch = true
+    @AppStorage(EndpointWait.key) private var endpointWait = EndpointWait.automatic.rawValue
     /// Stored value of the language filter meaning "nothing picked yet". The
     /// filter used to open on "all", and "all" is 65 models laid end to end —
     /// the choice that shortens the list was buried under the list it shortens.
@@ -176,6 +177,18 @@ struct VoiceSettingsView: View {
                 Toggle("Buscar na web", isOn: $voiceWebSearch)
             } header: { Text("Conversa por voz") } footer: {
                 Text("Enquanto a IA fala, começar a falar corta a resposta e ele te ouve. Sensibilidade alta interrompe com pouca voz (mas pode disparar sozinho com o eco); baixa exige falar mais firme.")
+            }
+
+            Section {
+                Picker("Espera do fim da fala", selection: $endpointWait) {
+                    Text("Automático").tag(EndpointWait.automatic.rawValue)
+                    Text(verbatim: "\(L("Alta")) · 1 s").tag(EndpointWait.high.rawValue)
+                    Text(verbatim: "\(L("Média")) · 2 s").tag(EndpointWait.medium.rawValue)
+                    Text(verbatim: "\(L("Baixa")) · 3 s").tag(EndpointWait.low.rawValue)
+                }
+                .accessibilityIdentifier("voice.endpointWait")
+            } footer: {
+                Text("Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor.")
             }
 
             Section("Filtrar catálogo por idioma") {

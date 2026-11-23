@@ -74,12 +74,16 @@ final class VoiceInputManager: ObservableObject {
         // Re-entrancy guard: never start a second recording while one is active or
         // a transcription is still running (this was the 2nd-tap freeze/crash).
         guard !isRecording, !processing else { return false }
-        error = nil; partialText = ""; sawFinal = false
+        error = nil; partialText = ""; sawFinal = false; lastTranscriptionFailed = false
         lock.withLock { rawSamples = [] }
 
         let stt = STTEngine.current
         if stt == .model && installedModelURL() == nil {
             error = L("Nenhum modelo Whisper baixado/selecionado. Baixe um em Ajustes › Voz e modelos (ou use o motor Nativo).")
+            return false
+        }
+        if stt == .model, let refusal = modelRefusal() {
+            error = refusal
             return false
         }
         guard await requestPermissions() else {
@@ -94,8 +98,14 @@ final class VoiceInputManager: ObservableObject {
 
         #if os(iOS)
         do {
-            try AVAudioSession.sharedInstance().setCategory(.record, mode: .measurement, options: [.duckOthers])
-            try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
+            let session = AVAudioSession.sharedInstance()
+            // `.allowBluetoothHFP`: a `.record` session without it takes the
+            // phone's own microphone even with a headset paired. Report on build
+            // 27: the reply came out of the Bluetooth headset, but the call only
+            // heard him until he closed a door between himself and the phone.
+            try session.setCategory(.record, mode: .measurement, options: [.duckOthers, .allowBluetoothHFP])
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+            Self.preferWornMicrophone(session)
         } catch {
             self.error = L("Áudio indisponível: %@", error.localizedDescription)
             return false
@@ -172,6 +182,49 @@ final class VoiceInputManager: ObservableObject {
         }
         #endif
     }
+
+    /// Refuses, before anyone speaks, a model that cannot load right now.
+    ///
+    /// The memory check used to run only when the take was transcribed, after
+    /// the turn. Report on build 27: Whisper large-v3 on a 12 GB phone — the
+    /// call kept listening while nothing could hear him, and the reason only
+    /// showed up afterwards, if at all. A model already loaded is never refused:
+    /// the memory it holds is no longer "available".
+    private func modelRefusal() -> String? {
+        guard let model = VoiceCatalog.all.first(where: { $0.id == activeModelID }),
+              STTRunner.shared.loadedID != model.id else { return nil }
+        let coreML = ModelDownloadManager.shared.coreMLBytes(model)
+        guard STTRunner.fits(model, coreMLBytes: coreML) == false else { return nil }
+        let need = STTRunner.memoryRequired(for: model, coreMLBytes: coreML)
+        DiagnosticsStore.shared.event("stt.start.refused", ["model": model.id, "needMB": MemoryBudget.mb(need),
+                                                            "availMB": MemoryBudget.mb(MemoryBudget.availableBytes)])
+        return OnDeviceSTTError.notEnoughMemory(needed: need, available: MemoryBudget.availableBytes ?? 0).errorDescription
+    }
+
+    #if os(iOS)
+    /// Microphones in the order a person wearing one means to be heard by: a
+    /// Bluetooth headset, the car, a wired headset, a USB interface. nil = the
+    /// phone's own, which is what the system picks when nothing else is there.
+    nonisolated static func preferredInput(among ports: [AVAudioSession.Port]) -> Int? {
+        for want in [AVAudioSession.Port.bluetoothHFP, .carAudio, .headsetMic, .usbAudio] {
+            if let i = ports.firstIndex(of: want) { return i }
+        }
+        return nil
+    }
+
+    /// Points the recording at the worn microphone and logs which one it got, so
+    /// the next report says where the voice came from.
+    private static func preferWornMicrophone(_ session: AVAudioSession) {
+        let inputs = session.availableInputs ?? []
+        if let i = preferredInput(among: inputs.map(\.portType)) {
+            try? session.setPreferredInput(inputs[i])
+        }
+        DiagnosticsStore.shared.event("voice.mic", [
+            "input": session.currentRoute.inputs.first?.portType.rawValue ?? "none",
+            "available": inputs.map(\.portType.rawValue).joined(separator: ","),
+        ])
+    }
+    #endif
 
     // MARK: - Stop
 

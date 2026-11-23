@@ -266,13 +266,12 @@ struct ChatListView: View {
         .scrollContentBackground(.hidden)
         .readableColumn()
         .searchable(text: $search, isPresented: $searchPresented, prompt: "Buscar conversas")
-        .onChange(of: search) { old, new in
-            runSearch(new)
-            // ✕ on the field: empty it AND put the field away, as Cancel does on a
-            // phone held upright.
-            if !old.isEmpty && new.isEmpty { searchPresented = false }
+        .onChange(of: search) { _, new in runSearch(new) }
+        // ✕ on the field: empty it AND put the field away.
+        .searchClearPutsKeyboardAway(search, presented: $searchPresented)
+        .onChange(of: path) { _, p in
+            if !p.isEmpty { searchPresented = false; Keyboard.dismiss() }
         }
-        .onChange(of: path) { _, p in if !p.isEmpty { searchPresented = false } }
         .onChange(of: sizeClass) { _, _ in toolbarEpoch &+= 1 }
         .onChange(of: scenePhase) { _, phase in if phase == .active { toolbarEpoch &+= 1 } }
         #if os(iOS)

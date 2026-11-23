@@ -444,3 +444,5 @@
 "Próximo resultado" = "Risultato successivo";
 "Buscar notas" = "Cerca note";
 "Buscar na nota" = "Cerca nella nota";
+"Espera do fim da fala" = "Attesa di fine parlato";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Quanto silenzio chiude il tuo turno di parola. Automatico attende 1,6 s con il riconoscimento nativo e 2,3 s con Whisper o il server.";

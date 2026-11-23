@@ -441,3 +441,5 @@
 "Próximo resultado" = "התוצאה הבאה";
 "Buscar notas" = "חיפוש פתקים";
 "Buscar na nota" = "חיפוש בפתק";
+"Espera do fim da fala" = "המתנה לסוף הדיבור";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "כמה שקט מסיים את תור הדיבור שלך. אוטומטי ממתין 1.6 שנ׳ בזיהוי המובנה ו־2.3 שנ׳ עם Whisper או השרת.";

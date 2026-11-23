@@ -444,3 +444,5 @@
 "Próximo resultado" = "Hasil berikutnya";
 "Buscar notas" = "Cari catatan";
 "Buscar na nota" = "Cari di catatan";
+"Espera do fim da fala" = "Jeda akhir bicara";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Berapa lama hening yang mengakhiri giliran bicara Anda. Otomatis menunggu 1,6 dtk dengan pengenalan bawaan dan 2,3 dtk dengan Whisper atau server.";

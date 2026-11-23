@@ -444,3 +444,5 @@
 "Próximo resultado" = "Следующий результат";
 "Buscar notas" = "Поиск заметок";
 "Buscar na nota" = "Поиск в заметке";
+"Espera do fim da fala" = "Ожидание конца речи";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Сколько тишины завершает вашу реплику. Автоматически — 1,6 с при встроенном распознавании и 2,3 с при Whisper или сервере.";

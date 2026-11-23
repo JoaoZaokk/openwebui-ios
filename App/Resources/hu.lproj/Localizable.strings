@@ -444,3 +444,5 @@
 "Próximo resultado" = "Következő találat";
 "Buscar notas" = "Jegyzetek keresése";
 "Buscar na nota" = "Keresés a jegyzetben";
+"Espera do fim da fala" = "Beszéd végének kivárása";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Mennyi csend zárja le, amikor te beszélsz. Az Automatikus 1,6 mp-et vár a beépített felismeréssel, és 2,3 mp-et a Whisperrel vagy a szerverrel.";

@@ -444,3 +444,5 @@
 "Próximo resultado" = "다음 결과";
 "Buscar notas" = "노트 검색";
 "Buscar na nota" = "노트 내 검색";
+"Espera do fim da fala" = "말 끝 대기 시간";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "얼마나 조용하면 말할 차례가 끝나는지 정합니다. 자동은 내장 인식에서 1.6초, Whisper나 서버에서 2.3초 기다립니다.";

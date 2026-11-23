@@ -444,3 +444,5 @@
 "Próximo resultado" = "اگلا نتیجہ";
 "Buscar notas" = "نوٹس تلاش کریں";
 "Buscar na nota" = "نوٹ میں تلاش کریں";
+"Espera do fim da fala" = "بات ختم ہونے کا انتظار";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "کتنی خاموشی آپ کی بولنے کی باری ختم کرتی ہے۔ خودکار، اندرونی شناخت کے ساتھ 1.6 سیکنڈ اور Whisper یا سرور کے ساتھ 2.3 سیکنڈ انتظار کرتا ہے۔";

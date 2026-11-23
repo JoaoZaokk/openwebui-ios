@@ -14,6 +14,9 @@ struct OpenWebUIApp: App {
 
     init() {
         FontLoader.registerBundledFonts()
+        // Before anything can start a download: every partial in tmp now is a
+        // leftover of an earlier run (see `sweepPartialDownloads`).
+        ModelDownloadManager.sweepPartialDownloadsAtLaunch()
         #if os(iOS)
         // Before the first scene connects, so the cover window is up before the
         // first frame of a cold launch with the lock on.

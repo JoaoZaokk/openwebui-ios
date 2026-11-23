@@ -444,3 +444,5 @@
 "Próximo resultado" = "راتلونکې پایله";
 "Buscar notas" = "یادښتونه لټول";
 "Buscar na nota" = "په یادښت کې لټون";
+"Espera do fim da fala" = "د خبرو د پای انتظار";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "څومره چوپتیا ستاسو د خبرو وار پای ته رسوي. اتوماتیک له دننني پېژندنې سره ۱.۶ ثانیې او له Whisper یا سرور سره ۲.۳ ثانیې انتظار کوي.";

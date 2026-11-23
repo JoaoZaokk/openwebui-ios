@@ -189,7 +189,7 @@ final class STTRunner: @unchecked Sendable {
 
     private let queue = DispatchQueue(label: "com.zao.openwebui.stt", qos: .userInitiated)
     private var engine: OnDeviceTranscriber?
-    private var engineID = ""
+    private var engineID = "" { didSet { let id = engineID; loadedLock.withLock { loadedMirror = id } } }
     private var observers: [NSObjectProtocol] = []
 
     private init() {
@@ -218,6 +218,13 @@ final class STTRunner: @unchecked Sendable {
     }
 
     var loadedModelID: String { queue.sync { engineID } }
+
+    /// The loaded model's id without waiting on the queue — which may be busy
+    /// for seconds decoding or loading. Read from the main actor before a
+    /// recording starts.
+    var loadedID: String { loadedLock.withLock { loadedMirror } }
+    private let loadedLock = NSLock()
+    private var loadedMirror = ""
 
     func release(reason: String) {
         queue.async { [self] in

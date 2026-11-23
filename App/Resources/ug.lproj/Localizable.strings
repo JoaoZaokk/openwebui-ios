@@ -441,3 +441,5 @@
 "Próximo resultado" = "كېيىنكى نەتىجە";
 "Buscar notas" = "خاتىرە ئىزدەش";
 "Buscar na nota" = "خاتىرىدە ئىزدەش";
+"Espera do fim da fala" = "سۆز ئاخىرلىشىشنى كۈتۈش";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "قانچىلىك جىمجىتلىق سۆزلەش نۆۋىتىڭىزنى ئاخىرلاشتۇرىدۇ. ئاپتوماتىك ھالەت ئىچكى تونۇشتا 1.6 سېكۇنت، Whisper ياكى مۇلازىمېتىردا 2.3 سېكۇنت ساقلايدۇ.";

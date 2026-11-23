@@ -23,6 +23,11 @@ struct VoiceView: View {
     @StateObject private var convo: VoiceConversation
     @ObservedObject private var speech = SpeechManager.shared
     @State private var pulse = false
+    /// Same switch as Ajustes › Voz › Buscar na web, at hand during a call
+    /// (report on build 27: a model swapped mid-call went searching before he
+    /// could reach the setting). Each turn reads it, so a tap counts from the
+    /// next question.
+    @AppStorage(VoiceConversation.webSearchKey) private var webSearch = true
 
     init(app: AppState, seed: VoiceSeed? = nil) {
         self.app = app
@@ -68,6 +73,7 @@ struct VoiceView: View {
                     }
                 }
                 ToolbarItemGroup(placement: .topBarTrailing) {
+                    webSearchToggle
                     voicePicker
                     modelPicker
                 }
@@ -97,6 +103,26 @@ struct VoiceView: View {
         switch p {
         case .listening, .speaking, .finishing: return true
         case .idle, .thinking: return false
+        }
+    }
+
+    /// The globe: lit = the model may search the web this call, struck = it may
+    /// not. Shown only when the server has web search at all.
+    @ViewBuilder private var webSearchToggle: some View {
+        if app.serverFeatures?.webSearchAvailable ?? true {
+            Button { webSearch.toggle() } label: {
+                Image(systemName: "globe")
+                    .foregroundStyle(webSearch ? theme.accent : theme.secondaryText.opacity(0.55))
+                    .overlay {
+                        if !webSearch {
+                            Capsule().fill(theme.secondaryText)
+                                .frame(width: 1.6, height: 22).rotationEffect(.degrees(-45))
+                        }
+                    }
+            }
+            .accessibilityIdentifier("voice.webSearch")
+            .accessibilityLabel(Text("Buscar na web"))
+            .accessibilityAddTraits(webSearch ? .isSelected : [])
         }
     }
 

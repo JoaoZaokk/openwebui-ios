@@ -441,3 +441,5 @@
 "Próximo resultado" = "Дараагийн илэрц";
 "Buscar notas" = "Тэмдэглэл хайх";
 "Buscar na nota" = "Тэмдэглэл дотор хайх";
+"Espera do fim da fala" = "Ярианы төгсгөлийг хүлээх";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Хэр удаан чимээгүй байхад таны ярих ээлж дуусах. Автомат нь суурилагдсан танилтаар 1.6 сек, Whisper эсвэл сервертэй 2.3 сек хүлээнэ.";

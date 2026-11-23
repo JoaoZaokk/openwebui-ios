@@ -444,3 +444,5 @@
 "Próximo resultado" = "अगला परिणाम";
 "Buscar notas" = "नोट्स खोजें";
 "Buscar na nota" = "नोट में खोजें";
+"Espera do fim da fala" = "बोलना ख़त्म होने का इंतज़ार";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "कितनी चुप्पी के बाद आपकी बोलने की बारी ख़त्म होती है। स्वचालित, अंतर्निहित पहचान के साथ 1.6 सेकंड और Whisper या सर्वर के साथ 2.3 सेकंड रुकता है।";

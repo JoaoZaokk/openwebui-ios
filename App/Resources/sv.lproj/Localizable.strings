@@ -441,3 +441,5 @@
 "Próximo resultado" = "Nästa resultat";
 "Buscar notas" = "Sök anteckningar";
 "Buscar na nota" = "Sök i anteckningen";
+"Espera do fim da fala" = "Väntetid för talslut";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "Hur lång tystnad som avslutar din tur att tala. Automatiskt väntar 1,6 s med den inbyggda igenkänningen och 2,3 s med Whisper eller servern.";

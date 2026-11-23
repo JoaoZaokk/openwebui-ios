@@ -444,3 +444,5 @@
 "Próximo resultado" = "النتيجة التالية";
 "Buscar notas" = "البحث في الملاحظات";
 "Buscar na nota" = "البحث في الملاحظة";
+"Espera do fim da fala" = "مهلة انتهاء الكلام";
+"Quanto silêncio encerra a sua vez de falar. Automático espera 1,6 s com o reconhecimento nativo e 2,3 s com Whisper ou servidor." = "مدة الصمت التي تُنهي دورك في الكلام. الوضع التلقائي ينتظر 1.6 ث مع التعرّف المدمج و2.3 ث مع Whisper أو الخادم.";
