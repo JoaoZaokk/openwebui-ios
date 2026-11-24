@@ -166,6 +166,9 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showServer) { ServerSheet().environmentObject(app) }
         }
+        // Ask again for what a launch without the server left unknown (see
+        // `AppState.refreshAccountIfNeeded`): the memory and notes switches live here.
+        .task { await app.refreshAccountIfNeeded() }
         .tint(theme.accent)
     }
 

@@ -189,7 +189,18 @@ final class STTRunner: @unchecked Sendable {
 
     private let queue = DispatchQueue(label: "com.zao.openwebui.stt", qos: .userInitiated)
     private var engine: OnDeviceTranscriber?
-    private var engineID = "" { didSet { let id = engineID; loadedLock.withLock { loadedMirror = id } } }
+    private var engineID = "" {
+        didSet {
+            let id = engineID, cost = loadingCost, now = ProcessInfo.processInfo.systemUptime
+            loadedLock.withLock {
+                if id.isEmpty, loadedCostMirror > 0 { releasedCost = loadedCostMirror; releasedAt = now }
+                loadedMirror = id
+                loadedCostMirror = id.isEmpty ? 0 : cost
+            }
+        }
+    }
+    /// Resident cost of the model being loaded, set right before `engineID`.
+    private var loadingCost: Int64 = 0
     private var observers: [NSObjectProtocol] = []
 
     private init() {
@@ -214,7 +225,7 @@ final class STTRunner: @unchecked Sendable {
     /// nil = unknown (macOS), otherwise whether the model fits under the jetsam
     /// line right now.
     static func fits(_ model: VoiceModel, coreMLBytes: Int64) -> Bool? {
-        WhisperRules.fits(modelBytes: model.bytes, coreMLBytes: coreMLBytes)
+        WhisperRules.fits(modelBytes: model.bytes, coreMLBytes: coreMLBytes, reclaimable: shared.reclaimableBytes)
     }
 
     var loadedModelID: String { queue.sync { engineID } }
@@ -225,6 +236,20 @@ final class STTRunner: @unchecked Sendable {
     var loadedID: String { loadedLock.withLock { loadedMirror } }
     private let loadedLock = NSLock()
     private var loadedMirror = ""
+    private var loadedCostMirror: Int64 = 0
+    private var releasedCost: Int64 = 0
+    private var releasedAt: TimeInterval = -1_000
+
+    /// Memory a new load can count on besides what the OS reports free: the
+    /// model loaded now (any load evicts it first) and one released in the last
+    /// few seconds, whose pages the OS may not have handed back yet. Without
+    /// it ⚡ read "does not fit" for the very model that was loaded, and the
+    /// check before a call refused large-v3 a second after a memory warning had
+    /// unloaded it (report and log on build 28).
+    var reclaimableBytes: Int64 {
+        let now = ProcessInfo.processInfo.systemUptime
+        return loadedLock.withLock { loadedCostMirror + (now - releasedAt < 10 ? releasedCost : 0) }
+    }
 
     func release(reason: String) {
         queue.async { [self] in
@@ -268,6 +293,7 @@ final class STTRunner: @unchecked Sendable {
                                                     "threads": String(WhisperRules.decodeThreads)])
                         do {
                             engine = try OnDeviceSTT.load(model, at: url)
+                            loadingCost = Self.memoryRequired(for: model, coreMLBytes: coreMLBytes)
                             engineID = model.id
                         } catch {
                             diag.failSpan("stt.load", error.localizedDescription)

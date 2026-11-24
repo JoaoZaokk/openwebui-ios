@@ -293,12 +293,20 @@ enum VoiceCatalog {
         hf("JoaoZaokk/\(repo)", file)
     }
 
+    /// Models the bundled engine refuses to load. Parakeet TDT 1.1B has 42
+    /// encoder layers and this build's parakeet loader accepts at most 24
+    /// (`parakeet_validate_hparams: invalid Parakeet metadata: n_audio_layer =
+    /// 42`, report on build 28): offering it meant a 743 MB download that ends
+    /// every call. Hidden from the catalogue and the active-model picker; a copy
+    /// already downloaded stays listed in Baixados so it can be deleted.
+    static let unloadable: Set<String> = ["p-1b1-q5", "p-1b1-q8"]
+
     /// nil = all models. `.universal` = only the multilingual ones. A specific
     /// language = that language's tuned models PLUS the universal ones (which
     /// support it too).
     static func filtered(task: VoiceTask, lang: VoiceLang?) -> [VoiceModel] {
         all.filter {
-            guard $0.task == task else { return false }
+            guard $0.task == task, !unloadable.contains($0.id) else { return false }
             guard let lang else { return true }
             if lang == .universal { return $0.lang == .universal }
             return $0.lang == lang || $0.lang == .universal

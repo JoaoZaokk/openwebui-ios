@@ -1,4 +1,5 @@
 import Foundation
+import os
 import SwiftUI
 import ZIPFoundation
 import OpenWebUIKit
@@ -148,6 +149,7 @@ final class ModelDownloadManager: NSObject, ObservableObject {
         DiagnosticsStore.shared.event("download.start", ["model": model.id, "bytes": String(model.bytes),
                                                          "resume": resuming == nil ? "0" : "1"])
         progress[model.id] = 0
+        Self.progressGate.withLock { $0[model.id] = nil }
         let task = resuming.map { session.downloadTask(withResumeData: $0) } ?? session.downloadTask(with: model.url)
         task.taskDescription = model.id
         tasks[model.id] = task
@@ -292,6 +294,7 @@ final class ModelDownloadManager: NSObject, ObservableObject {
         DiagnosticsStore.shared.event("coreml.download.start", ["model": model.id, "bytes": String(zipBytes),
                                                                 "resume": resuming == nil ? "0" : "1"])
         progress[key] = 0
+        Self.progressGate.withLock { $0[key] = nil }
         let task = resuming.map { session.downloadTask(withResumeData: $0) } ?? session.downloadTask(with: url)
         task.taskDescription = key
         tasks[key] = task
@@ -323,7 +326,30 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
                                 totalBytesExpectedToWrite total: Int64) {
         guard let id = downloadTask.taskDescription, total > 0 else { return }
         let p = Double(totalBytesWritten) / Double(total)
-        Task { @MainActor in self.progress[id] = p }
+        let now = ProcessInfo.processInfo.systemUptime
+        let publish = Self.progressGate.withLock { last -> Bool in
+            guard Self.shouldPublish(previous: last[id], progress: p, now: now) else { return false }
+            last[id] = (p, now)
+            return true
+        }
+        if publish { Task { @MainActor in self.progress[id] = p } }
+    }
+
+    /// Last progress handed to the UI per download, and when.
+    private nonisolated static let progressGate = OSAllocatedUnfairLock(initialState: [String: (Double, TimeInterval)]())
+
+    /// Whether a new progress value is worth a redraw. Every chunk used to be
+    /// published — hundreds per second on a fast link — and each one redrew the
+    /// whole Ajustes › Voz form: menus closed under the finger and a tap landed
+    /// on the row after it had moved (report on build 28: menus "glitch" during
+    /// a download, and a tap meant for ⚡ deleted the model). Now: whole percent
+    /// steps, at most four a second, and always the first and the last.
+    nonisolated static func shouldPublish(previous: (Double, TimeInterval)?, progress: Double, now: TimeInterval) -> Bool {
+        guard let (lastP, lastAt) = previous else { return true }
+        if progress >= 1 { return true }
+        // Whole percents, not a difference of doubles: 0.11 - 0.10 is
+        // 0.0099999…, which held back every exact 1 % step.
+        return Int(progress * 100) > Int(lastP * 100) && now - lastAt >= 0.25
     }
 
     nonisolated func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask,
@@ -371,6 +397,7 @@ extension ModelDownloadManager: URLSessionDownloadDelegate {
     nonisolated func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError err: Error?) {
         guard let id = task.taskDescription else { return }
         let resume = (err as NSError?)?.userInfo[NSURLSessionDownloadTaskResumeData] as? Data
+        Self.progressGate.withLock { $0[id] = nil }
         Task { @MainActor in
             self.tasks[id] = nil; self.progress[id] = nil
             guard let err, (err as? URLError)?.code != .cancelled else { return }

@@ -11,6 +11,11 @@ struct VoiceSettingsView: View {
     /// Non-nil while the delete confirmation is up. Freeing ~550 MB is cheap to
     /// undo (re-download) but slow, so it asks first.
     @State private var pendingDelete: NeuralVoiceStore.Pack?
+    /// A downloaded model waiting for "Apagar" to be confirmed. The trash used
+    /// to delete at once, next to the ⚡: report on build 28, a tap meant for
+    /// the bolt — on a row being redrawn by a running download — threw away a
+    /// 3.1 GB Whisper.
+    @State private var pendingModelDelete: VoiceModel?
     @State private var customURL = ""
     @State private var addingModel = false
 
@@ -253,6 +258,19 @@ struct VoiceSettingsView: View {
         } message: {
             Text("Apagar libera o espaço; a voz é baixada de novo na próxima vez que você usar aquele idioma.")
         }
+        .confirmationDialog(
+            Text(verbatim: pendingModelDelete?.name ?? ""),
+            isPresented: Binding(get: { pendingModelDelete != nil }, set: { if !$0 { pendingModelDelete = nil } }),
+            titleVisibility: .visible
+        ) {
+            Button(L("Apagar %@ (%@)", pendingModelDelete?.name ?? "",
+                     pendingModelDelete.map { ByteCountFormatter.string(fromByteCount: $0.bytes + downloads.coreMLBytes($0), countStyle: .file) } ?? ""),
+                   role: .destructive) {
+                if let m = pendingModelDelete { downloads.delete(m) }
+                pendingModelDelete = nil
+            }
+            Button("Cancelar", role: .cancel) { pendingModelDelete = nil }
+        }
         .task(id: ttsEngine) { if ttsEngine == "server" { await speech.loadServerVoices() } }
         .alert("Erro no download", isPresented: Binding(get: { downloads.error != nil }, set: { if !$0 { downloads.error = nil } })) {
             Button("OK") { downloads.error = nil }
@@ -287,7 +305,7 @@ struct VoiceSettingsView: View {
     @ViewBuilder
     private var activeModelPicker: some View {
         let ready = VoiceCatalog.all.filter { m in
-            downloads.isInstalled(m)
+            downloads.isInstalled(m) && !VoiceCatalog.unloadable.contains(m.id)
                 && ((STTRunner.fits(m, coreMLBytes: downloads.coreMLBytes(m)) ?? true) || m.id == sttModelID)
         }
         if ready.isEmpty {
@@ -514,8 +532,8 @@ struct VoiceSettingsView: View {
                 .disabled(!(STTRunner.fits(model, coreMLBytes: downloads.coreMLBytes(model)) ?? true) && !selected)
                 .accessibilityLabel(Text("Selecionar modelo"))
                 .accessibilityAddTraits(selected ? .isSelected : [])
-                // Delete
-                Button(role: .destructive) { downloads.delete(model) } label: {
+                // Delete — asks first (see `pendingModelDelete`).
+                Button(role: .destructive) { pendingModelDelete = model } label: {
                     Image(systemName: "trash")
                 }
                 .buttonStyle(.borderless)

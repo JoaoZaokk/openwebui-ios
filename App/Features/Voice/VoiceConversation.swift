@@ -122,7 +122,80 @@ final class VoiceConversation: ObservableObject {
             .receive(on: RunLoop.main)
             .sink { [weak self] e in if let e { self?.error = e } }
             .store(in: &cancellables)
+        #if os(iOS)
+        let nc = NotificationCenter.default
+        nc.publisher(for: UIApplication.didEnterBackgroundNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] _ in self?.leftTheApp() }
+            .store(in: &cancellables)
+        nc.publisher(for: AVAudioSession.interruptionNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] n in self?.audioInterrupted(n) }
+            .store(in: &cancellables)
+        nc.publisher(for: AVAudioSession.routeChangeNotification)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] n in self?.routeChanged(n) }
+            .store(in: &cancellables)
+        #endif
     }
+
+    #if os(iOS)
+    // MARK: - Leaving the app, interruptions, headsets (report on build 28)
+
+    /// The app has no background audio: once it leaves, iOS suspends it and the
+    /// microphone goes with it. The call carried on regardless — "listening"
+    /// with a dead recorder — and on the way back every turn failed with
+    /// "Microfone indisponível", headset or not, until the call was ended and
+    /// started again. Leaving now ends the call the way Encerrar does (the
+    /// conversation is saved); Start brings back a fresh one.
+    private func leftTheApp() {
+        guard active else { return }
+        DiagnosticsStore.shared.event("voice.stopped", ["why": "background", "phase": "\(phase)"])
+        stop()
+    }
+
+    /// A phone call, Siri or an alarm takes the audio session: same ending.
+    private func audioInterrupted(_ n: Notification) {
+        guard active,
+              let raw = n.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt,
+              AVAudioSession.InterruptionType(rawValue: raw) == .began else { return }
+        DiagnosticsStore.shared.event("voice.stopped", ["why": "interruption", "phase": "\(phase)"])
+        stop()
+    }
+
+    /// A headset taken off or put back mid-call. The recorder keeps the input
+    /// it started on: earbuds out, the reply stayed in them while the mic moved
+    /// to the phone, and putting them back did not bring it back. A turn being
+    /// heard is restarted on the new route — one sentence to repeat, instead of
+    /// a deaf call — and a reply being spoken gets its output and barge-in
+    /// monitor set up again. Changes the app causes itself (category switches
+    /// between listening and speaking) are not new or lost devices and pass.
+    private func routeChanged(_ n: Notification) {
+        guard active,
+              let raw = n.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              let reason = AVAudioSession.RouteChangeReason(rawValue: raw),
+              reason == .newDeviceAvailable || reason == .oldDeviceUnavailable else { return }
+        let route = AVAudioSession.sharedInstance().currentRoute
+        DiagnosticsStore.shared.event("voice.routeChange", [
+            "reason": reason == .newDeviceAvailable ? "new" : "gone",
+            "in": route.inputs.first?.portType.rawValue ?? "none",
+            "out": route.outputs.first?.portType.rawValue ?? "none",
+            "phase": "\(phase)",
+        ])
+        switch phase {
+        case .listening:
+            silenceTimer?.invalidate(); silenceTimer = nil
+            voice.cancel()
+            phase = .finishing
+            Task { await listen() }
+        case .speaking:
+            tts.applyProximityRoute()
+            if Self.bargeInEnabled { bargeMonitor.stop(); armBargeIn() }
+        case .idle, .thinking, .finishing:
+            break
+        }
+    }
+    #endif
 
     // MARK: - Session control
 

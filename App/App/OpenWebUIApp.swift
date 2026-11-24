@@ -133,7 +133,12 @@ struct RootView: View {
             if p == .active {
                 Task { await app.refreshModelsIfNeeded() }
                 DiagnosticsStore.shared.resumeSession()
-                if recoveringID == nil { pendingAudio = PendingAudioStore.list().last }
+                // A take left behind is offered at launch only (the `.task`
+                // below), never on a return to the foreground. Raised here, the
+                // alert came up on the root view underneath the voice screen
+                // (or the lock cover) on the way back from Safari; SwiftUI then
+                // refused every later sheet — Ajustes and the call button did
+                // nothing until the app was relaunched (report on build 28).
             }
             if p == .background { DiagnosticsStore.shared.endSession() }
         }

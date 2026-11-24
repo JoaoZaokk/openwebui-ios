@@ -410,9 +410,15 @@ final class WalkthroughUITests: XCTestCase {
         let app = launch(["-openwebui.baseURL", f.server, "-voice.stt.engine", "model",
                           "-voice.stt.model", "w-base"])
         signIn(app, f)
-        app.buttons["Ajustes"].tap()
+        let gear = app.buttons["Ajustes"]
+        XCTAssertTrue(gear.waitForExistence(timeout: 20))
+        gear.tap()
+        // Settings is a lazy list: rows below the fold are not in the hierarchy
+        // until scrolled to (the memory and notes switches push this one down).
         let link = app.buttons["Voz e modelos"]
-        XCTAssertTrue(link.waitForExistence(timeout: 10))
+        for _ in 0..<6 where !link.waitForExistence(timeout: 2) { app.swipeUp() }
+        if !link.exists { snap(app, "ajustes-sem-voz-e-modelos") }
+        XCTAssertTrue(link.exists)
         link.tap()
         // The active model is a picker with both models on the device.
         let picker = app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Modelo ativo")).firstMatch

@@ -48,9 +48,15 @@ public enum WhisperRules {
 
     /// nil = unknown (macOS), otherwise whether a model of that size fits
     /// under the jetsam line right now.
-    public static func fits(modelBytes: Int64, coreMLBytes: Int64) -> Bool? {
+    /// `reclaimable`: memory a load gets back before it starts — the model
+    /// loaded now, which any load evicts first (see `STTRunner`).
+    public static func fits(modelBytes: Int64, coreMLBytes: Int64, reclaimable: Int64 = 0) -> Bool? {
         guard let avail = MemoryBudget.availableBytes else { return nil }
-        return memoryRequired(modelBytes: modelBytes, coreMLBytes: coreMLBytes) <= avail
+        return fits(modelBytes: modelBytes, coreMLBytes: coreMLBytes, available: avail + max(0, reclaimable))
+    }
+
+    public static func fits(modelBytes: Int64, coreMLBytes: Int64, available: Int64) -> Bool {
+        memoryRequired(modelBytes: modelBytes, coreMLBytes: coreMLBytes) <= available
     }
 
     /// Thread count. whisper.cpp's own default is min(4, cores): on big.LITTLE

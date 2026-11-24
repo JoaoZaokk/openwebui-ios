@@ -63,4 +63,15 @@ final class WhisperRulesTests: XCTestCase {
         UserDefaults.standard.set("Meu prompt", forKey: STTPrompt.key)
         XCTAssertEqual(STTPrompt.forLanguage("ja"), "Meu prompt", "a custom prompt applies to every language")
     }
+
+    /// Report on build 28: ⚡ said "does not fit" for the model that was loaded
+    /// — the memory that model holds is given back before any load.
+    func testMemoryHeldByTheLoadedModelCountsAsAvailable() {
+        let large: Int64 = 3_100_000_000, coreML: Int64 = 1_173_000_000
+        let need = WhisperRules.memoryRequired(modelBytes: large, coreMLBytes: coreML)
+        let free = need - 2_000_000_000
+        XCTAssertFalse(WhisperRules.fits(modelBytes: large, coreMLBytes: coreML, available: free))
+        let held = WhisperRules.memoryRequired(modelBytes: large, coreMLBytes: 0)
+        XCTAssertTrue(WhisperRules.fits(modelBytes: large, coreMLBytes: coreML, available: free + held))
+    }
 }

@@ -109,8 +109,25 @@ final class AppState: ObservableObject {
     /// the network came back. Pull-to-refresh and returning to the foreground
     /// both call this; it is a no-op once the list is there.
     func refreshModelsIfNeeded() async {
-        guard phase == .main, models.isEmpty else { return }
+        guard phase == .main else { return }
+        await refreshAccountIfNeeded()
+        guard models.isEmpty else { return }
         await loadModels()
+    }
+
+    /// A launch with the server out of reach goes in on the offline cache with
+    /// no profile (`user = nil`) and a config read without the sign-in, and
+    /// nothing asked again: Ajustes lost "Usar memória" and the model got
+    /// neither memory nor notes until the app was relaunched (report on build
+    /// 28, during a weekend of network trouble). Called on every return to the
+    /// foreground and when Ajustes opens; free once both are known.
+    func refreshAccountIfNeeded() async {
+        guard phase == .main, client.isAuthenticated else { return }
+        if user == nil, let me = try? await client.me() {
+            user = me
+            adoptCacheOwner(claimingLegacy: true)
+        }
+        if serverFeatures?.features?.enableMemories == nil { await loadServerFeatures() }
     }
 
     /// Scopes the on-device cache to the account that just became known. The
