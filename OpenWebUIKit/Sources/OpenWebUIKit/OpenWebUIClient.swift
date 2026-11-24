@@ -379,6 +379,12 @@ public final class OpenWebUIClient: @unchecked Sendable {
                 if Self.isNotesPermissionRefusal(path: req.url?.path, detail: detail) {
                     throw OWError.http(403, detail)
                 }
+                // The terminal proxy passes the Open Terminal's own answer on: a
+                // 401 "Invalid API key" there is the admin's key for the
+                // terminal, not this user's session.
+                if Self.isTerminalKeyRefusal(path: req.url?.path, detail: detail) {
+                    throw OWError.http(502, detail)
+                }
                 // A browser session's access token lives minutes, so a 401 is
                 // usually just its age: renew and ask again, once. (Nil for every
                 // other kind of session, which falls through exactly as before.)
@@ -484,6 +490,11 @@ public final class OpenWebUIClient: @unchecked Sendable {
 
     /// `ERROR_MESSAGES.UNAUTHORIZED` in constants.py.
     static let serverUnauthorizedSentence = "401 Unauthorized"
+
+    static func isTerminalKeyRefusal(path: String?, detail: String?) -> Bool {
+        guard let path, path.hasPrefix("/api/v1/terminals/"), path.count > "/api/v1/terminals/".count else { return false }
+        return detail?.trimmingCharacters(in: .whitespacesAndNewlines) == "Invalid API key"
+    }
 
     static func isNotesPermissionRefusal(path: String?, detail: String?) -> Bool {
         guard let path, path == "/api/v1/notes" || path.hasPrefix("/api/v1/notes/") else { return false }

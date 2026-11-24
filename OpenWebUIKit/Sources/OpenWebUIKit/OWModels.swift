@@ -121,11 +121,22 @@ public struct OWModel: Decodable, Identifiable, Hashable, Sendable {
     public var id: String
     public var name: String
     public var ownedBy: String?
+    /// The admin may switch the terminal off for a model
+    /// (`info.meta.capabilities.terminal`); on unless it says false, as the
+    /// server reads it (middleware.py).
+    public var supportsTerminal: Bool = true
 
-    enum CodingKeys: String, CodingKey { case id, name, object, owned_by }
+    enum CodingKeys: String, CodingKey { case id, name, object, owned_by, info }
+    struct Info: Decodable {
+        struct Meta: Decodable {
+            struct Caps: Decodable { var terminal: Bool? }
+            var capabilities: Caps?
+        }
+        var meta: Meta?
+    }
 
-    public init(id: String, name: String, ownedBy: String? = nil) {
-        self.id = id; self.name = name; self.ownedBy = ownedBy
+    public init(id: String, name: String, ownedBy: String? = nil, supportsTerminal: Bool = true) {
+        self.id = id; self.name = name; self.ownedBy = ownedBy; self.supportsTerminal = supportsTerminal
     }
 
     public init(from decoder: Decoder) throws {
@@ -134,6 +145,8 @@ public struct OWModel: Decodable, Identifiable, Hashable, Sendable {
         id = rawID
         name = (try? c.decode(String.self, forKey: .name)) ?? rawID
         ownedBy = try? c.decodeIfPresent(String.self, forKey: .owned_by)
+        let info = (try? c.decodeIfPresent(Info.self, forKey: .info)) ?? nil
+        supportsTerminal = info?.meta?.capabilities?.terminal ?? true
         if id.isEmpty { id = name }
     }
 
@@ -280,6 +293,22 @@ public struct OWToolUse: Identifiable, Hashable, Sendable {
     /// notes cut to the same length), and a `ForEach` over equal ids drops or
     /// repeats cards. Not persisted; a card read back from the server has none.
     public var callID: String?
+    /// Open Terminal calls (not persisted): the terminal, where the call stands
+    /// (`approval`, `running`, `done`, `denied`, `failed`) and the command's
+    /// exit code.
+    public var terminalID: String?
+    public var status: String?
+    public var exitCode: Int?
+    /// `display_file`: the page to open at, and whether the model asked for
+    /// it inline rather than in the viewer.
+    public var displayPage: Int?
+    public var displayInline: Bool = false
+    public var isTerminal: Bool { terminalID != nil || OWToolUse.terminalActions.contains(action) }
+    public static let terminalActions: Set<String> = [
+        "run_command", "get_process_status", "send_process_input", "kill_process", "list_processes",
+        "list_files", "read_file", "write_file", "replace_file_content", "display_file",
+        "grep_search", "glob_search", "search_files", "match_files", "read_user_terminal", "send_user_terminal_input",
+    ]
     public var id: String {
         let base = "\(action)|\(query)|\(sources.count)|\(results.count)"
         return callID.map { base + "|" + $0 } ?? base
@@ -294,6 +323,8 @@ public struct OWToolUse: Identifiable, Hashable, Sendable {
         case "files":      return L("arquivo")
         case "search_notes": return L("Busca nas notas")
         case "view_note":    return L("Nota lida")
+        case "run_command":  return L("Comando no terminal")
+        case "list_files":   return L("Arquivos do terminal")
         default:           return action
         }
     }
@@ -304,6 +335,13 @@ public struct OWToolUse: Identifiable, Hashable, Sendable {
         case "files":      return "doc.text.magnifyingglass"
         case "search_notes": return "note.text"
         case "view_note":    return "doc.text"
+        case "run_command", "send_process_input", "send_user_terminal_input", "read_user_terminal": return "terminal"
+        case "get_process_status", "list_processes": return "gauge.with.dots.needle.33percent"
+        case "kill_process": return "xmark.octagon"
+        case "read_file", "display_file": return "doc.text"
+        case "write_file", "replace_file_content": return "square.and.pencil"
+        case "list_files", "glob_search", "search_files", "match_files": return "folder"
+        case "grep_search": return "text.magnifyingglass"
         default:           return "wrench.and.screwdriver"
         }
     }

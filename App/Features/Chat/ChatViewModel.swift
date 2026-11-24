@@ -47,6 +47,28 @@ final class ChatViewModel: ObservableObject {
 
     let models: [OWModel]
 
+    // MARK: Open Terminal
+    /// The terminals the server offers (AppState's list, read when needed).
+    var availableTerminals: () -> [OWTerminalServer] = { [] }
+    /// Host of the server, for what is remembered per server.
+    var serverKey = ""
+    /// The terminal this chat works with; nil = none. Remembered per server,
+    /// as the web remembers its selection.
+    @Published var terminalID: String? {
+        didSet {
+            guard !serverKey.isEmpty, oldValue != terminalID else { return }
+            UserDefaults.standard.set(terminalID, forKey: Self.terminalKey(serverKey))
+        }
+    }
+    /// What the model wants to do on the terminal, waiting for the user's word.
+    @Published private(set) var pendingApproval: OWTerminalApprovalRequest?
+    private var approvalContinuation: CheckedContinuation<OWTerminalApproval, Never>?
+    /// A file the model showed with `display_file`, for the preview sheet.
+    @Published var shownTerminalFile: TerminalFileRef?
+    /// The interactive shell is open: the model may read it and type into it.
+    var terminalShellOpen = false
+    private static func terminalKey(_ server: String) -> String { "chat.terminal." + server }
+
     /// A temporary chat is never saved to the server (ephemeral).
     let temporary: Bool
 
@@ -167,6 +189,58 @@ final class ChatViewModel: ObservableObject {
     var followUps: [String] {
         guard !isStreaming, let last = messages.last, last.role == .assistant else { return [] }
         return last.followUps
+    }
+
+    /// The chosen terminal, while the server still offers it.
+    var terminal: OWTerminalServer? {
+        guard let id = terminalID else { return nil }
+        return availableTerminals().first { $0.id == id }
+    }
+
+    /// The chat the terminal files and working directory belong to.
+    var terminalSession: String { chatID ?? localDraftID }
+
+    /// The admin can turn the terminal off for a model.
+    var modelSupportsTerminal: Bool {
+        models.first { $0.id == selectedModel }?.supportsTerminal ?? true
+    }
+
+    func loadTerminalChoice() {
+        guard !serverKey.isEmpty else { return }
+        let saved = UserDefaults.standard.string(forKey: Self.terminalKey(serverKey))
+        if let saved, availableTerminals().contains(where: { $0.id == saved }) { terminalID = saved }
+    }
+
+    /// Asks the user before the model changes something on the terminal —
+    /// unless they said "always" for this terminal and it does not look
+    /// destructive.
+    func askApproval(_ req: OWTerminalApprovalRequest) async -> OWTerminalApproval {
+        if !req.dangerous && TerminalTrust.isTrusted(server: serverKey, terminal: req.terminalID) { return .allow }
+        approvalContinuation?.resume(returning: .deny)
+        pendingApproval = req
+        toolStatus = nil
+        return await withCheckedContinuation { approvalContinuation = $0 }
+    }
+
+    func answerApproval(allow: Bool, always: Bool = false) {
+        guard let req = pendingApproval else { return }
+        if allow && always { TerminalTrust.trust(server: serverKey, terminal: req.terminalID) }
+        pendingApproval = nil
+        let c = approvalContinuation
+        approvalContinuation = nil
+        c?.resume(returning: allow ? .allow : .deny)
+    }
+
+    /// A terminal that keeps files per chat needs the chat on the server
+    /// before the first call (the proxy answers 409 otherwise).
+    private func ensureSavedForTerminal() async throws {
+        guard chatID == nil, !temporary, let model = selectedModel else { return }
+        syncBranchIntoTree()
+        let id = try await client.createChatTree(title: chatTitle(), models: [model],
+                                                 tree: Array(tree.values), currentId: currentLeafId)
+        chatID = id
+        if let folderID { try? await client.moveChat(id, toFolder: folderID) }
+        onChanged?()
     }
 
     var selectedModelName: String {
@@ -485,9 +559,30 @@ final class ChatViewModel: ObservableObject {
                 legacyFallback = true
             }
         }
+        // The terminal's functions, prompt and AGENTS.md, read before each
+        // reply (the working directory moves). A terminal that cannot be
+        // reached says so and the reply goes ahead without it.
+        var replyTerminal: OWReplyTerminal?
+        if let t = terminal, modelSupportsTerminal {
+            toolStatus = L("Conectando ao terminal…")
+            do {
+                if t.needsSavedChat { try await ensureSavedForTerminal() }
+                let ctx = try await client.prepareTerminal(t, session: terminalSession, userShellOpen: terminalShellOpen)
+                replyTerminal = OWReplyTerminal(context: ctx) { [weak self] req in
+                    await self?.askApproval(req) ?? .deny
+                }
+            } catch is CancellationError {
+                return
+            } catch {
+                self.error = L("Terminal indisponível: %@", OWFailure.msg(error))
+            }
+            toolStatus = nil
+        }
         do {
+            // A request with `tools` makes the server skip workspace tools, so
+            // they are not sent next to the terminal's.
             let options = OWStreamOptions(webSearch: legacyFallback,
-                                          toolIDs: Array(selectedToolIDs),
+                                          toolIDs: replyTerminal == nil ? Array(selectedToolIDs) : [],
                                           memory: sendsMemory(),
                                           folderID: folderID)
             let notes = offersNotes(options.toolIDs, options.webSearch)
@@ -496,7 +591,8 @@ final class ChatViewModel: ObservableObject {
             let search = OWReplySearch(offer: false, mayRun: !webSearch && serverSearches())
             var finished = false
             for try await update in completions.streamReply(model: model, messages: convo, files: streamFiles,
-                                                            options: options, search: search, notes: notes) {
+                                                            options: options, search: search, notes: notes,
+                                                            terminal: replyTerminal) {
                 awaitingWebSearch = false
                 toolStatus = nil
                 switch update {
@@ -504,12 +600,24 @@ final class ChatViewModel: ObservableObject {
                     awaitingWebSearch = true
                 case .searchFailed(let why):
                     self.error = why
-                case .toolRunning:
-                    toolStatus = L("Consultando suas notas…")
+                case .toolRunning(let name):
+                    toolStatus = (replyTerminal?.context.handles(name) ?? false) ? L("Usando o terminal…") : L("Consultando suas notas…")
                 case .toolUsed(let use):
-                    // The card of which notes were read — kept on the reply, so it
-                    // shows under it and is saved with it.
-                    if let i = index(of: assistantID) { messages[i].toolUses.append(use) }
+                    // The card of which notes were read, or of what ran on the
+                    // terminal — kept on the reply, so it shows under it and is
+                    // saved with it. A terminal card comes again as its call
+                    // moves on (waiting, running, done): it replaces itself.
+                    if let i = index(of: assistantID) {
+                        if let cid = use.callID, let j = messages[i].toolUses.firstIndex(where: { $0.callID == cid }) {
+                            messages[i].toolUses[j] = use
+                        } else {
+                            messages[i].toolUses.append(use)
+                        }
+                    }
+                    if use.action == "display_file", use.status == "done", !use.displayInline,
+                       let tid = use.terminalID, !use.query.isEmpty {
+                        shownTerminalFile = TerminalFileRef(terminalID: tid, path: use.query, page: use.displayPage)
+                    }
                 case .toolCall:
                     break
                 case .textDelta(let d):
@@ -927,6 +1035,8 @@ final class ChatViewModel: ObservableObject {
     }
 
     func stop() {
+        // A question still open would hold the reply's task forever.
+        if pendingApproval != nil { answerApproval(allow: false) }
         streamTask?.cancel()
         isStreaming = false
         awaitingWebSearch = false

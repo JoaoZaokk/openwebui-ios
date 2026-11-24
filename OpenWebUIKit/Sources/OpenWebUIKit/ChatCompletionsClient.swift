@@ -17,11 +17,41 @@ public struct OWChatMessageInput: Encodable, Sendable {
         self.imageURLs = message.imageURLs
     }
 
-    enum CodingKeys: String, CodingKey { case role, content }
+    /// An assistant turn that asked for tools: the calls, in the OpenAI shape.
+    /// Only calls with a provider id belong here — the `tool` answers point at it.
+    public var toolCalls: [OWToolCall] = []
+    /// A `tool` turn: the id of the call this message answers.
+    public var toolCallID: String?
+
+    /// The assistant turn that asked for these calls.
+    public static func assistant(_ text: String, calling calls: [OWToolCall]) -> OWChatMessageInput {
+        var m = OWChatMessageInput(role: "assistant", text: text)
+        m.toolCalls = calls
+        return m
+    }
+
+    /// A tool's answer to one structured call.
+    public static func tool(_ text: String, answering id: String) -> OWChatMessageInput {
+        var m = OWChatMessageInput(role: "tool", text: text)
+        m.toolCallID = id
+        return m
+    }
+
+    enum CodingKeys: String, CodingKey { case role, content, tool_calls, tool_call_id }
 
     public func encode(to encoder: Encoder) throws {
         var c = encoder.container(keyedBy: CodingKeys.self)
         try c.encode(role, forKey: .role)
+        if let toolCallID { try c.encode(toolCallID, forKey: .tool_call_id) }
+        if !toolCalls.isEmpty {
+            try c.encode(toolCalls.map { call in
+                Call(id: call.id ?? "", type: "function",
+                     function: .init(name: call.name, arguments: call.arguments.isEmpty ? "{}" : call.arguments))
+            }, forKey: .tool_calls)
+            // OpenAI takes null content next to tool calls; most others take "".
+            try c.encode(text, forKey: .content)
+            return
+        }
         if imageURLs.isEmpty {
             try c.encode(text, forKey: .content)
         } else {
@@ -32,6 +62,13 @@ public struct OWChatMessageInput: Encodable, Sendable {
             }
             try c.encode(parts, forKey: .content)
         }
+    }
+
+    struct Call: Encodable {
+        struct Function: Encodable { var name: String; var arguments: String }
+        var id: String
+        var type: String
+        var function: Function
     }
 
     struct Part: Encodable {
@@ -68,6 +105,10 @@ public struct OWStreamOptions: Sendable {
     /// The folder the chat lives in. Sent as `folder_id`: the server then puts the
     /// folder's instruction in front of the conversation (OWFolder).
     public var folderID: String?
+    /// More functions for the request's own `tools`, each one OpenAI tool spec
+    /// as JSON (`{"type":"function","function":{…}}`) — the Open Terminal's,
+    /// which `streamReply` runs through the server's terminal proxy.
+    public var extraTools: [Data] = []
     public init(temperature: Double? = nil, webSearch: Bool = false, toolIDs: [String] = [],
                 offerWebSearch: Bool = false, memory: Bool = false, offerNotes: Bool = false,
                 folderID: String? = nil) {
@@ -256,7 +297,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                     // Structured tool calls arrive in pieces: the name in one
                     // frame, the arguments a few characters at a time after it,
                     // keyed by `index`. Yielded whole, once the stream ends.
-                    var pendingCalls: [Int: (name: String, args: String)] = [:]
+                    var pendingCalls: [Int: (name: String, args: String, id: String?)] = [:]
                     var sawDone = false
                     var produced = false
                     for try await rawLine in bytes.lines {
@@ -288,10 +329,11 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                                 if !(delta.tool_calls ?? []).isEmpty { produced = true }
                                 for (n, call) in (delta.tool_calls ?? []).enumerated() {
                                     let key = call.index ?? n
-                                    var c = pendingCalls[key] ?? (name: "", args: "")
+                                    var c = pendingCalls[key] ?? (name: "", args: "", id: nil)
                                     // Most providers send the name once; some repeat it on every piece.
                                     if let name = call.function?.name, !name.isEmpty, name != c.name { c.name += name }
                                     if let a = call.function?.arguments { c.args += a }
+                                    if c.id == nil, let id = call.id, !id.isEmpty { c.id = id }
                                     pendingCalls[key] = c
                                 }
                             }
@@ -310,7 +352,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
                     for key in pendingCalls.keys.sorted() {
                         let c = pendingCalls[key]!
                         if !c.name.isEmpty {
-                            continuation.yield(.toolCall(OWToolCall(name: c.name, arguments: c.args)))
+                            continuation.yield(.toolCall(OWToolCall(name: c.name, arguments: c.args, id: c.id)))
                         }
                     }
                     if sawDone { continuation.yield(.done) }
@@ -371,6 +413,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
         var tools: [[String: Any]] = []
         if options.offerWebSearch { tools.append(OWWebSearchTool.spec) }
         if options.offerNotes { tools += OWNotesTools.specs }
+        tools += options.extraTools.compactMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
         if !tools.isEmpty,
            var obj = try JSONSerialization.jsonObject(with: body) as? [String: Any] {
             obj["tools"] = tools
@@ -412,7 +455,7 @@ public final class ChatCompletionsClient: @unchecked Sendable {
             if let err = full.errorMessage { c.yield(.error(err)); return }
             let calls = (full.choices?.first?.message?.tool_calls ?? []).compactMap { d -> OWToolCall? in
                 guard let name = d.function?.name, !name.isEmpty else { return nil }
-                return OWToolCall(name: name, arguments: d.function?.arguments ?? "")
+                return OWToolCall(name: name, arguments: d.function?.arguments ?? "", id: d.id)
             }
             if let t = full.text, !t.isEmpty { c.yield(.textDelta(t)) }
             for call in calls { c.yield(.toolCall(call)) }
@@ -493,11 +536,13 @@ struct OWCompletionChunk: Decodable {
 struct OWToolCallDelta: Decodable {
     struct Function: Decodable { var name: String?; var arguments: String? }
     var index: Int?
+    var id: String?
     var function: Function?
-    enum CodingKeys: String, CodingKey { case index, function }
+    enum CodingKeys: String, CodingKey { case index, id, function }
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         index = try? c.decodeIfPresent(Int.self, forKey: .index)
+        id = try? c.decodeIfPresent(String.self, forKey: .id)
         function = try? c.decodeIfPresent(Function.self, forKey: .function)
     }
 }

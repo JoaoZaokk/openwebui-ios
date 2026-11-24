@@ -43,6 +43,9 @@ final class AppState: ObservableObject {
     /// Capabilities the server advertises (`GET /api/config`): which login methods
     /// exist, and whether plugins are on. nil until the login screen asks.
     @Published var serverFeatures: OWServerConfig?
+    /// The Open Terminals this account may use (`/api/v1/terminals/`). Empty on
+    /// a server with none — and then nothing about terminals shows anywhere.
+    @Published var terminals: [OWTerminalServer] = []
     /// Why the model list is stale or empty, surfaced on the chat list.
     @Published var modelsError: String?
     /// Why the login screen could not read the server (blocked by the system,
@@ -96,6 +99,7 @@ final class AppState: ObservableObject {
         guard phase == .main else { return }
         user = nil
         models = []
+        terminals = []
         cache.forgetOwner()
         // The login screen has a slot for the reason and used to get nothing —
         // the app just appeared there, as if it had crashed. The key already
@@ -474,6 +478,7 @@ final class AppState: ObservableObject {
         await SSOWebSession.clear()
         user = nil
         models = []
+        terminals = []
         cache.forgetOwner()
         loginError = nil
         mfaPrompt = nil
@@ -490,6 +495,16 @@ final class AppState: ObservableObject {
         } catch is CancellationError {
         } catch {
             modelsError = OWFailure.msg(error)
+        }
+        await loadTerminals()
+    }
+
+    /// A failure keeps the list there was: no terminal is better than a
+    /// wrong "none" only for a chat that had one, and that chat says why.
+    func loadTerminals() async {
+        guard client.isAuthenticated else { return }
+        if let list = try? await client.terminalServers() {
+            terminals = list.filter(\.usableInChats)
         }
     }
 
@@ -566,6 +581,9 @@ final class AppState: ObservableObject {
         vm.offersNotes = { [weak self] ids, serverSearch in
             self?.offersNotes(toolIDs: ids, serverWebSearch: serverSearch) ?? false
         }
+        vm.availableTerminals = { [weak self] in self?.terminals ?? [] }
+        vm.serverKey = serverConfig.baseURL.host?.lowercased() ?? ""
+        vm.loadTerminalChoice()
         return vm
     }
 }

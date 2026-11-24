@@ -52,7 +52,9 @@ struct MessageBubble: View, Equatable {
                 if !isUser { header }
                 if !isUser, !toolUses.isEmpty {
                     VStack(alignment: .leading, spacing: 6) {
-                        ForEach(toolUses) { ToolUseCard(tool: $0) }
+                        ForEach(toolUses) { t in
+                            if t.isTerminal { TerminalToolCard(tool: t) } else { ToolUseCard(tool: t) }
+                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                 }

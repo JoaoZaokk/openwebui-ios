@@ -66,6 +66,9 @@ final class WalkthroughUITests: XCTestCase {
         if url.exists {
             url.tap()
             url.typeText(f.server)
+            // A plain-http address asks for consent before Save works.
+            let consent = app.switches["server.cleartext"]
+            if consent.waitForExistence(timeout: 2), (consent.value as? String) != "1" { consent.tap() }
             snap(app, "servidor")
             app.buttons["server.save"].tap()
         }
@@ -135,6 +138,99 @@ final class WalkthroughUITests: XCTestCase {
         expectation(for: settled, evaluatedWith: NSObject())
         waitForExpectations(timeout: 180)
         return speak
+    }
+
+    /// Open Terminal, end to end: a real Open WebUI 0.13.3 with a real Open
+    /// Terminal connected, and a scripted model that writes a file and then
+    /// runs a command (private repo, testing/terminal-e2e). The fixture is that
+    /// server's own disposable account, typed in like the owner's.
+    ///
+    ///     TEST_RUNNER_OW_TERMINAL_FIXTURE=…/e2e-login xcodebuild test -scheme OpenWebUI-UI \
+    ///       -only-testing:OpenWebUIUITests/WalkthroughUITests/testOpenTerminalRunsFilesAndShell
+    func testOpenTerminalRunsFilesAndShell() throws {
+        let env = ProcessInfo.processInfo.environment
+        let path = try XCTUnwrap(env["OW_TERMINAL_FIXTURE"], "set TEST_RUNNER_OW_TERMINAL_FIXTURE")
+        var fields: [String: String] = [:]
+        for line in try String(contentsOfFile: path, encoding: .utf8).split(separator: "\n") {
+            let parts = line.split(separator: "=", maxSplits: 1).map { $0.trimmingCharacters(in: .whitespaces) }
+            if parts.count == 2 { fields[parts[0]] = parts[1] }
+        }
+        let f = Fixture(server: try XCTUnwrap(fields["server"]), email: try XCTUnwrap(fields["email"]),
+                        senha: try XCTUnwrap(fields["senha"]))
+        let app = launch()
+        signIn(app, f)
+
+        showTab(app, 0, until: app.buttons["chats.newMenu"])
+        open(app, menu: "chats.newMenu", item: "chats.new")
+        app.buttons["chats.new"].tap()
+
+        // The terminal chip shows only on a server that has one.
+        let chip = app.buttons["composer.terminal"]
+        XCTAssertTrue(chip.waitForExistence(timeout: 30), "no terminal chip: the server's terminal list did not arrive")
+        chip.tap()
+        let box = app.buttons["terminal.option.box"]
+        XCTAssertTrue(box.waitForExistence(timeout: 10))
+        box.tap()
+        snap(app, "terminal-escolhido")
+        app.buttons["Pronto"].firstMatch.tap()
+
+        let field = app.descendants(matching: .any)["composer.field"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        field.tap()
+        field.typeText("Grave um arquivo e rode um comando no terminal")
+        app.buttons["composer.send"].tap()
+
+        // 1: write_file asks first.
+        let allow = app.buttons["terminal.allow"]
+        XCTAssertTrue(allow.waitForExistence(timeout: 90), "no approval for write_file")
+        snap(app, "confirmar-gravacao")
+        allow.tap()
+        // 2: run_command asks too (the bar takes the first one's place).
+        let command = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'uname -s'")).firstMatch
+        XCTAssertTrue(command.waitForExistence(timeout: 90), "no approval for run_command")
+        let allow2 = app.buttons["terminal.allow"]
+        XCTAssertTrue(allow2.waitForExistence(timeout: 10))
+        snap(app, "confirmar-comando")
+        allow2.tap()
+
+        // The model's answer quotes the command's output.
+        let answer = app.staticTexts.containing(NSPredicate(format: "label CONTAINS 'teste-ios'")).firstMatch
+        XCTAssertTrue(answer.waitForExistence(timeout: 120), "the reply never showed the command output")
+        let card = app.buttons["terminal.card.run_command"]
+        XCTAssertTrue(card.waitForExistence(timeout: 10))
+        card.tap()
+        snap(app, "resposta-e-cartao")
+
+        // Files: the one the model wrote is there.
+        chip.tap()
+        let files = app.buttons["terminal.files"]
+        XCTAssertTrue(files.waitForExistence(timeout: 10))
+        files.tap()
+        let written = app.buttons["terminal.file.ola-ios.txt"]
+        XCTAssertTrue(written.waitForExistence(timeout: 30), "ola-ios.txt not in the terminal's files")
+        snap(app, "arquivos")
+        app.buttons["Pronto"].firstMatch.tap()
+
+        // Shell: type a command that leaves a trace, then look for it in Files.
+        XCTAssertTrue(chip.waitForExistence(timeout: 10))
+        chip.tap()
+        let shell = app.buttons["terminal.shell"]
+        XCTAssertTrue(shell.waitForExistence(timeout: 10))
+        shell.tap()
+        XCTAssertTrue(app.descendants(matching: .any)["terminal.shell.view"].waitForExistence(timeout: 20))
+        sleep(4)
+        app.typeText("echo shell-ok > ~/shell-ok.txt && ls ~\n")
+        sleep(3)
+        snap(app, "shell")
+        app.buttons["terminal.shell.close"].tap()
+
+        XCTAssertTrue(chip.waitForExistence(timeout: 10))
+        chip.tap()
+        XCTAssertTrue(files.waitForExistence(timeout: 10))
+        files.tap()
+        XCTAssertTrue(app.buttons["terminal.file.shell-ok.txt"].waitForExistence(timeout: 30),
+                      "what was typed in the shell did not run")
+        snap(app, "arquivos-depois-do-shell")
     }
 
     /// The server this app talks to has no text-to-speech engine configured

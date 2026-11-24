@@ -1,4 +1,5 @@
 import SwiftUI
+import QuickLook
 import UniformTypeIdentifiers
 import PhotosUI
 import OpenWebUIKit
@@ -23,6 +24,10 @@ struct ChatScreen: View {
     @State private var webURL = ""
     @State private var comingSoon: String?
     @State private var showTools = false
+    @State private var showTerminalPicker = false
+    @State private var showTerminalFiles = false
+    @State private var showTerminalShell = false
+    @StateObject private var fileOpener = TerminalFileOpener()
     @State private var showVoice = false
     /// Whether the user is at (or near) the end of the transcript. Streaming only
     /// auto-scrolls while pinned, so scrolling up to re-read mid-reply sticks.
@@ -68,6 +73,7 @@ struct ChatScreen: View {
             VStack(spacing: 0) {
                 if finding { findBar }
                 messages
+                    .environment(\.openTerminalFile) { [weak vm] ref in vm?.shownTerminalFile = ref }
                 composer
             }
         }
@@ -528,9 +534,14 @@ struct ChatScreen: View {
                 // sent is dropped without a word. Don't offer a picker that cannot
                 // ever have contents. Unknown (config not read yet) means show it.
                 if app.serverFeatures?.pluginsAvailable ?? true { toolsChip }
+                if !app.terminals.isEmpty { terminalChip }
                 Spacer()
             }
             .padding(.horizontal, 12)
+            if let req = vm.pendingApproval {
+                TerminalApprovalBar(request: req) { allow, always in vm.answerApproval(allow: allow, always: always) }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
             if let err = vm.error ?? voice.error {
                 errorBanner(err)
             } else if let failure = speech.playbackFailure {
@@ -586,6 +597,28 @@ struct ChatScreen: View {
             KBPickerSheet(client: app.client) { kb in vm.attachKnowledge(kb) }
         }
         .sheet(isPresented: $showTools) { ToolPickerSheet(vm: vm) }
+        .sheet(isPresented: $showTerminalPicker) {
+            TerminalPickerSheet(vm: vm, terminals: app.terminals,
+                                openFiles: { DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { showTerminalFiles = true } },
+                                openShell: { DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { showTerminalShell = true } })
+        }
+        .sheet(isPresented: $showTerminalFiles) {
+            if let t = vm.terminal {
+                TerminalFilesView(client: app.client, terminal: t, session: vm.terminalSession)
+            }
+        }
+        #if os(iOS)
+        .fullScreenCover(isPresented: $showTerminalShell) { terminalShell }
+        #else
+        .sheet(isPresented: $showTerminalShell) { terminalShell.frame(minWidth: 640, minHeight: 420) }
+        #endif
+        .quickLookPreview($fileOpener.previewURL)
+        .onChange(of: vm.shownTerminalFile) { _, ref in
+            guard let ref else { return }
+            vm.shownTerminalFile = nil
+            fileOpener.open(ref.path, terminal: ref.terminalID, session: vm.terminalSession, client: app.client)
+        }
+        .onChange(of: fileOpener.error) { _, e in if let e { vm.error = e; fileOpener.error = nil } }
         .alert("Anexar Página Web", isPresented: $showWebInput) {
             TextField("https://…", text: $webURL)
                 .textInputAutocapitalization(.never).autocorrectionDisabled().keyboardType(.URL)
@@ -832,6 +865,35 @@ struct ChatScreen: View {
         }
         .buttonStyle(.plain)
         .accessibilityAddTraits(on ? .isSelected : [])
+    }
+
+    /// The chat's terminal: lit with its name when one is on.
+    private var terminalChip: some View {
+        let t = vm.terminal
+        let on = t != nil
+        return Button { showTerminalPicker = true } label: {
+            HStack(spacing: 5) {
+                Image(systemName: "terminal").font(.ody(size: 11))
+                if let t { Text(verbatim: t.name).font(.ody(size: 12)).lineLimit(1) }
+                else { Text("Terminal").font(.ody(size: 12)) }
+                if on && !vm.modelSupportsTerminal { Image(systemName: "exclamationmark.triangle").font(.ody(size: 10)) }
+            }
+            .padding(.horizontal, 10).padding(.vertical, 6)
+            .foregroundStyle(on ? theme.onAccent : theme.secondaryText)
+            .background(on ? theme.accent : theme.panel, in: Capsule())
+            .overlay(Capsule().stroke(theme.border, lineWidth: on ? 0 : 1))
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("composer.terminal")
+        .accessibilityAddTraits(on ? .isSelected : [])
+    }
+
+    @ViewBuilder private var terminalShell: some View {
+        if let t = vm.terminal {
+            TerminalShellView(client: app.client, terminal: t, chatID: vm.terminalSession) { open in
+                vm.terminalShellOpen = open
+            }
+        }
     }
 
     private func toggleChip(system: String, label: String, on: Binding<Bool>) -> some View {

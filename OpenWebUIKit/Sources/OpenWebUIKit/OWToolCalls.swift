@@ -7,10 +7,17 @@ public struct OWToolCall: Sendable, Equatable {
     /// The arguments as the model wrote them: JSON when it managed that, Gemma's
     /// own `{key:<|"|>value<|"|>}` syntax or something looser when it did not.
     public var arguments: String
+    /// The provider's id for a structured call (`tool_calls[].id`). Nil for a
+    /// call written out as text, and for a provider that sends none: those are
+    /// answered on the last user turn, not with a `tool` message.
+    public var id: String?
 
-    public init(name: String, arguments: String) {
-        self.name = name; self.arguments = arguments
+    public init(name: String, arguments: String, id: String? = nil) {
+        self.name = name; self.arguments = arguments; self.id = id
     }
+
+    /// The arguments as a JSON object, from whatever syntax the model used.
+    public var object: [String: Any] { OWToolCallText.object(fromArguments: arguments) ?? [:] }
 
     /// What to search for. Every model met in practice names the argument one of
     /// these, as a string or a list of strings; when none is there the caller

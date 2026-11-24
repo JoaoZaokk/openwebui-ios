@@ -16,6 +16,6 @@ let package = Package(
     ],
     targets: [
         .target(name: "OpenWebUIKit"),
-        .testTarget(name: "OpenWebUIKitTests", dependencies: ["OpenWebUIKit"]),
+        .testTarget(name: "OpenWebUIKitTests", dependencies: ["OpenWebUIKit"], exclude: ["Fixtures"]),
     ]
 )
